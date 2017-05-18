@@ -1,0 +1,53 @@
+<script type="text/x-homegear">
+{
+    "name": "variable",
+    "readableName": "Variable",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="variable">
+    <div class="form-row">
+        <label for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable.label.peerid"></span></label>
+        <input type="text" id="node-input-peerid" placeholder="Peer ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable.label.channel"></span></label>
+        <input type="text" id="node-input-channel" placeholder="Channel">
+    </div>
+    <div class="form-row">
+        <label for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable.label.variable"></span></label>
+        <input type="text" id="node-input-variable" placeholder="Variable">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="variable.label.name"></span></label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-tips" data-i18n="[html]variable.tip"></div>
+</script>
+<script type="text/x-red" data-help-name="variable">
+    <p>Subscribes to a device variable event.</p>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('variable',{
+        category: 'input',
+        color:"#a6bbcf",
+        defaults: {
+            peerid: {value:0,required:true,validate:RED.validators.number()},
+            channel: {value:0,required:true,validate:RED.validators.number()},
+            variable: {value:"",required:true},
+            name: {value:""}
+        },
+        inputs:0,
+        outputs:1,
+        icon: "arrow-in.png",
+        label: function() {
+            return this.name||(this.peerid + ", " + this.channel + ", " + this.variable);
+        },
+        button: {
+            onclick: function() {
+                alert("Not implemented yet");
+            }
+        }
+    });
+</script>
