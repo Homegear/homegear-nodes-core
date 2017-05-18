@@ -92,8 +92,8 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 	{
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
-		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(peerId));
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(peerId));
+		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
+		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
 		message->structValue->emplace("payload", value);
 
 		output(0, message);
