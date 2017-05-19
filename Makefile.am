@@ -1,3 +1,3 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4 -I cfg
-SUBDIRS = comment variable-in
+SUBDIRS = comment variable-in variable-out
