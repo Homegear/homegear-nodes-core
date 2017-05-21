@@ -41,7 +41,7 @@ public:
 	MyNode(std::string path, std::string name);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PVariable info);
+	virtual bool start(Flows::PNodeInfo info);
 private:
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
@@ -50,7 +50,7 @@ private:
 	int32_t getNumber(std::string& s, bool isHex = false);
 	int64_t getNumber64(std::string& s, bool isHex = false);
 
-	virtual void input(Flows::PVariable message);
+	virtual void input(Flows::PNodeInfo info, Flows::PVariable message);
 };
 
 }

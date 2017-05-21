@@ -41,7 +41,7 @@ public:
 	MyNode(std::string path, std::string name);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PVariable info);
+	virtual bool start(Flows::PNodeInfo info);
 private:
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;

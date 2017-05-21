@@ -58,18 +58,18 @@ int64_t MyNode::getNumber64(std::string& s, bool isHex)
 	return number;
 }
 
-bool MyNode::start(Flows::PVariable info)
+bool MyNode::start(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto peerIdIterator = info->structValue->find("peerid");
-		if(peerIdIterator != info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
+		auto peerIdIterator = info->info->structValue->find("peerid");
+		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
 
-		auto channelIterator = info->structValue->find("channel");
-		if(channelIterator != info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
+		auto channelIterator = info->info->structValue->find("channel");
+		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
 
-		auto variableIterator = info->structValue->find("variable");
-		if(variableIterator != info->structValue->end()) _variable = variableIterator->second->stringValue;
+		auto variableIterator = info->info->structValue->find("variable");
+		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
 
 		return true;
 	}
@@ -84,7 +84,7 @@ bool MyNode::start(Flows::PVariable info)
 	return false;
 }
 
-void MyNode::input(Flows::PVariable message)
+void MyNode::input(Flows::PNodeInfo info, Flows::PVariable message)
 {
 	try
 	{

@@ -1,1 +1,1 @@
-{"variable-in":{"label":{"peerid":"Peer ID","channel":"Channel","variable":"Variable","name":"Name"},"tip":"Tip:"}}
+{"function":{"label":{"name":"Name","function":"Function","outputs":"Outputs"},"tip":"Tip: See the Info tab for help writing functions."}}
