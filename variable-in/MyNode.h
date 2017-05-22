@@ -38,7 +38,7 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string name);
+	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
 	virtual bool start(Flows::PNodeInfo info);

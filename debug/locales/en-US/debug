@@ -1,1 +1,1 @@
-{"variable-in":{"label":{"peerid":"Peer ID","channel":"Channel","variable":"Variable","name":"Name"},"tip":"Tip:"}}
+{"debug":{"output":"Output","msgprop":"message property","msgobj":"complete message object","to":"to","debtab":"debug tab","tabcon":"debug tab and console","notification":{"activated":"Successfully activated: __label__","deactivated":"Successfully deactivated: __label__"},"sidebar":{"label":"debug","name":"Debug messages"}}}

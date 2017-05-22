@@ -38,20 +38,14 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string name);
+	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PNodeInfo info);
+	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
 private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
+	bool _active = true;
 
-	int32_t getNumber(std::string& s, bool isHex = false);
-	int64_t getNumber64(std::string& s, bool isHex = false);
-
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	virtual void input(Flows::PNodeInfo info, Flows::PVariable message);
 };
 
 }
