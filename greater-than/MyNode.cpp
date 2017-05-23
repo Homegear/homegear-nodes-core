@@ -34,101 +34,139 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
 {
+	_lastGreaterThan = false;
 }
 
 MyNode::~MyNode()
 {
 }
 
-void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
+bool MyNode::start(Flows::PNodeInfo info)
 {
 	try
 	{
-		if(variable == "active" && value && value->type == Flows::VariableType::tBoolean) _active = value->booleanValue;
+		auto changesOnlyIterator = info->info->structValue->find("changes-only");
+		if(changesOnlyIterator != info->info->structValue->end())
+		{
+			_outputChangesOnly = changesOnlyIterator->second->booleanValue;
+		}
+		auto falseIterator = info->info->structValue->find("output-false");
+		if(falseIterator != info->info->structValue->end())
+		{
+			_outputFalse = falseIterator->second->booleanValue;
+		}
+
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		parameters->reserve(2);
+		parameters->push_back(std::make_shared<Flows::Variable>(_id));
+		parameters->push_back(std::make_shared<Flows::Variable>("input1"));
+		Flows::PVariable result = invoke("getNodeData", parameters);
+		if(!result->errorStruct) _input1 = result;
+
+		parameters->at(1) = std::make_shared<Flows::Variable>("input2");
+		result = invoke("getNodeData", parameters);
+		if(!result->errorStruct) _input2 = result;
+
+		_lastGreaterThan = isGreaterThan(_input1, _input2);
+
+		return true;
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+	return false;
+}
+
+bool MyNode::isGreaterThan(Flows::PVariable& input1, Flows::PVariable& input2)
+{
+	try
+	{
+		bool greaterThan = false;
+		std::lock_guard<std::mutex> inputGuard(_inputMutex);
+		if(input1->type == Flows::VariableType::tInteger || input1->type == Flows::VariableType::tInteger64)
+		{
+			if(input2->type == Flows::VariableType::tInteger || input2->type == Flows::VariableType::tInteger64)
+			{
+				greaterThan = input1->integerValue64 > input2->integerValue64;
+			}
+			else if(input2->type == Flows::VariableType::tFloat || input2->type == Flows::VariableType::tFloat)
+			{
+				greaterThan = input1->integerValue64 > input2->floatValue;
+			}
+		}
+		else if(input1->type == Flows::VariableType::tFloat || input1->type == Flows::VariableType::tFloat)
+		{
+			if(input2->type == Flows::VariableType::tFloat || input2->type == Flows::VariableType::tFloat)
+			{
+				greaterThan = input1->floatValue > input2->floatValue;
+			}
+			else if(input2->type == Flows::VariableType::tInteger || input2->type == Flows::VariableType::tInteger64)
+			{
+				greaterThan = input1->floatValue > input2->integerValue64;
+			}
+		}
+		return greaterThan;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
 }
 
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
 	{
-		if(!*_nodeEventsEnabled || !_active) return;
-		std::string property;
-		auto completeIterator = info->info->structValue->find("complete");
-		if(completeIterator == info->info->structValue->end())
+		if(index == 0)
 		{
-			auto payloadIterator = message->structValue->find("payload");
-			if(payloadIterator == message->structValue->end()) return;
-			property = "payload";
-			message = payloadIterator->second;
+			_input1 = message->structValue->at("payload");
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->reserve(3);
+			parameters->push_back(std::make_shared<Flows::Variable>(_id));
+			parameters->push_back(std::make_shared<Flows::Variable>("input1"));
+			parameters->push_back(_input1);
+			invoke("setNodeData", parameters);
 		}
-		else if(completeIterator->second->stringValue != "true")
+		else if(index == 1)
 		{
-			auto payloadIterator = message->structValue->find(completeIterator->second->stringValue);
-			if(payloadIterator == message->structValue->end()) return;
-			property = completeIterator->second->stringValue;
-			message = payloadIterator->second;
-		}
-
-		Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
-		object->structValue->emplace("name", std::make_shared<Flows::Variable>(_name));
-		object->structValue->emplace("msg", message);
-
-		std::string format;
-		switch(message->type)
-		{
-		case Flows::VariableType::tArray:
-			format = "array[" + std::to_string(message->arrayValue->size()) + "]";
-			break;
-		case Flows::VariableType::tBoolean:
-			format = "boolean";
-			break;
-		case Flows::VariableType::tFloat:
-			format = "number";
-			break;
-		case Flows::VariableType::tInteger:
-			format = "number";
-			break;
-		case Flows::VariableType::tInteger64:
-			format = "number";
-			break;
-		case Flows::VariableType::tString:
-			format = "string[" + std::to_string(message->stringValue.size()) + "]";
-			break;
-		case Flows::VariableType::tStruct:
-			format = "Object";
-			break;
-		case Flows::VariableType::tBase64:
-			format = "string[" + std::to_string(message->stringValue.size()) + "]";
-			break;
-		case Flows::VariableType::tVariant:
-			break;
-		case Flows::VariableType::tBinary:
-			break;
-		case Flows::VariableType::tVoid:
-			break;
+			_input2 = message->structValue->at("payload");
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->reserve(3);
+			parameters->push_back(std::make_shared<Flows::Variable>(_id));
+			parameters->push_back(std::make_shared<Flows::Variable>("input2"));
+			parameters->push_back(_input2);
+			invoke("setNodeData", parameters);
 		}
 
-		if(!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
-		if(!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
-		nodeEvent("debug", object);
+		bool greaterThan = isGreaterThan(_input1, _input2);
+		bool doOutput = !_outputChangesOnly;
+		if(!greaterThan && !_outputFalse) doOutput = false;
+		else if(greaterThan != _lastGreaterThan) doOutput = true;
+		_lastGreaterThan = greaterThan;
+		if(doOutput)
+		{
+			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(greaterThan));
+			output(0, outputMessage);
+		}
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
