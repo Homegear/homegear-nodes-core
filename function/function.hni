@@ -35,6 +35,10 @@
         <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-func-editor" ></div>
     </div>
     <div class="form-row">
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="function.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;" value="1">
+    </div>
+    <div class="form-row">
         <label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="function.label.outputs"></span></label>
         <input id="node-input-outputs" style="width: 60px;" value="1">
     </div>
@@ -42,10 +46,11 @@
 </script>
 <script type="text/x-red" data-help-name="function">
     <p>A function block where you can write PHP code to do more interesting things.</p>
-    <p>By convention it will have a <code>message['payload']</code> property containing
+    <p>By convention it will have a <code>$message['payload']</code> property containing
        the body of the message.</p>
-    <p>The message is passed in as an associative array called <code>message</code>.
-       Information about the node can be found in the associative array <code>nodeInfo</code>.</p>
+    <p>The message is passed in as an associative array called <code>$message</code>.
+       Information about the node can be found in the associative array <code>$nodeInfo</code>.
+       The input index is passed in <code>$inputIndex</code></p>
     <h4>Sending messages</h4>
     <p>The function can either return the messages it wants to pass on to the next nodes
        in the flow, or can call <code>$hg->nodeOutput(nodeId, outputIndex, message)</code>.</p>
@@ -68,6 +73,7 @@
         defaults: {
             name: {value:""},
             func: {value:""},
+            inputs: {value:1},
             outputs: {value:1},
             noerr: {value:0,required:true,validate:function(v){ return ((!v) || (v === 0)) ? true : false; }}
         },
@@ -79,6 +85,9 @@
         },
         oneditprepare: function() {
             var that = this;
+            $( "#node-input-inputs" ).spinner({
+                min:1
+            });
             $( "#node-input-outputs" ).spinner({
                 min:1
             });

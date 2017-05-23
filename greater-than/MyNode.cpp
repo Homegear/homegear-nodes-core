@@ -40,38 +40,11 @@ MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-bool MyNode::start(Flows::PNodeInfo info)
+void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 {
 	try
 	{
-		auto peerIdIterator = info->info->structValue->find("peerid");
-		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
-
-		auto channelIterator = info->info->structValue->find("channel");
-		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
-
-		auto variableIterator = info->info->structValue->find("variable");
-		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
-
-		return true;
+		if(variable == "active" && value && value->type == Flows::VariableType::tBoolean) _active = value->booleanValue;
 	}
 	catch(const std::exception& ex)
 	{
@@ -81,22 +54,73 @@ bool MyNode::start(Flows::PNodeInfo info)
 	{
 		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
 	}
-	return false;
 }
 
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(message->structValue->at("payload"));
+		if(!*_nodeEventsEnabled || !_active) return;
+		std::string property;
+		auto completeIterator = info->info->structValue->find("complete");
+		if(completeIterator == info->info->structValue->end())
+		{
+			auto payloadIterator = message->structValue->find("payload");
+			if(payloadIterator == message->structValue->end()) return;
+			property = "payload";
+			message = payloadIterator->second;
+		}
+		else if(completeIterator->second->stringValue != "true")
+		{
+			auto payloadIterator = message->structValue->find(completeIterator->second->stringValue);
+			if(payloadIterator == message->structValue->end()) return;
+			property = completeIterator->second->stringValue;
+			message = payloadIterator->second;
+		}
 
-		Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) log(2, "Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
+		object->structValue->emplace("name", std::make_shared<Flows::Variable>(_name));
+		object->structValue->emplace("msg", message);
+
+		std::string format;
+		switch(message->type)
+		{
+		case Flows::VariableType::tArray:
+			format = "array[" + std::to_string(message->arrayValue->size()) + "]";
+			break;
+		case Flows::VariableType::tBoolean:
+			format = "boolean";
+			break;
+		case Flows::VariableType::tFloat:
+			format = "number";
+			break;
+		case Flows::VariableType::tInteger:
+			format = "number";
+			break;
+		case Flows::VariableType::tInteger64:
+			format = "number";
+			break;
+		case Flows::VariableType::tString:
+			format = "string[" + std::to_string(message->stringValue.size()) + "]";
+			break;
+		case Flows::VariableType::tStruct:
+			format = "Object";
+			break;
+		case Flows::VariableType::tBase64:
+			format = "string[" + std::to_string(message->stringValue.size()) + "]";
+			break;
+		case Flows::VariableType::tVariant:
+			break;
+		case Flows::VariableType::tBinary:
+			break;
+		case Flows::VariableType::tVoid:
+			break;
+		}
+
+		if(!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
+		if(!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
+		nodeEvent("debug", object);
 	}
 	catch(const std::exception& ex)
 	{
