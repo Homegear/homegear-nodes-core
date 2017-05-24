@@ -77,8 +77,22 @@ bool MyNode::start(Flows::PNodeInfo info)
 		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
 		Flows::PVariable result = invoke("getValue", parameters);
-		if(result->errorStruct) log(2, "Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-		else _type = result->type;
+		if(result->errorStruct)
+		{
+			Flows::Output::printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
+			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
+			nodeEvent("status/" + _id, status);
+		}
+		else
+		{
+			_type = result->type;
+			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + result->toString()));
+			nodeEvent("status/" + _id, status);
+		}
 
 		subscribePeer(_peerId, _channel, _variable);
 
@@ -86,11 +100,11 @@ bool MyNode::start(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -106,14 +120,17 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		message->structValue->emplace("payload", value);
 
 		output(0, message);
+		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + value->toString()));
+		nodeEvent("status/" + _id, status);
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
