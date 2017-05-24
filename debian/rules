@@ -1,0 +1,10 @@
+#!/usr/bin/make -f
+
+override_dh_auto_install:
+	dh_auto_install
+
+override_dh_strip:
+	dh_strip --dbg-package=homegear-nodes-core
+
+%:
+	dh $@ --parallel

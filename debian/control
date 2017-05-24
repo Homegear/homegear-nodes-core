@@ -1,0 +1,14 @@
+Source: homegear-nodes-core
+Maintainer: Sathya Laufer <sathya@laufers.net>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.6
+Build-Depends: debhelper (>= 8), libhomegear-node
+Homepage: https://homegear.eu
+
+Package: homegear-nodes-core
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libhomegear-node
+Description: Core nodes for Homegear's Node-BLUE
+ Homegear is a program to interface your home automation software 
+ with your smart home devices.

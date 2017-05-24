@@ -1,0 +1,34 @@
+#!/bin/sh
+
+case "$1" in
+	remove|abort-install|abort-upgrade)
+		# This package is being removed, but its configuration has not yet
+		# been purged.
+
+		;;
+
+	purge)
+		rm -Rf /var/lib/homegear/nodes/comment > /dev/null 2>&1
+		rm -Rf /var/lib/homegear/nodes/debug > /dev/null 2>&1
+		rm -Rf /var/lib/homegear/nodes/function > /dev/null 2>&1
+		rm -Rf /var/lib/homegear/nodes/greater-than > /dev/null 2>&1
+		rm -Rf /var/lib/homegear/nodes/variable-in > /dev/null 2>&1
+		rm -Rf /var/lib/homegear/nodes/variable-out > /dev/null 2>&1
+        ;;
+
+	disappear)
+		;;
+
+	upgrade)
+		;;
+
+	failed-upgrade)
+		;;
+
+	*) echo "$0: didn't understand being called with \`$1'" 1>&2
+		exit 1;;
+esac
+
+exit 0
+
+#DEBHELPER#
