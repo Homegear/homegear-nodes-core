@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <mutex>
 
 namespace MyNode
 {
@@ -41,11 +42,17 @@ public:
 	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
-	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
+	virtual bool start(Flows::PNodeInfo info);
 private:
-	bool _active = true;
+	bool _outputChangesOnly = false;
+	bool _outputFalse = false;
+	std::mutex _inputMutex;
+	std::atomic_bool _lastGreaterThan;
+	Flows::PVariable _input1;
+	Flows::PVariable _input2;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	bool isGreaterThan(Flows::PVariable& input1, Flows::PVariable& input2);
 };
 
 }

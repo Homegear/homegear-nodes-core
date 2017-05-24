@@ -56,14 +56,14 @@ void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 	}
 }
 
-void MyNode::input(Flows::PNodeInfo info, Flows::PVariable message)
+void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
 	{
 		if(!*_nodeEventsEnabled || !_active) return;
 		std::string property;
 		auto completeIterator = info->info->structValue->find("complete");
-		if(completeIterator == info->info->structValue->end())
+		if(completeIterator == info->info->structValue->end() || completeIterator->second->stringValue == "false" || completeIterator->second->stringValue.empty())
 		{
 			auto payloadIterator = message->structValue->find("payload");
 			if(payloadIterator == message->structValue->end()) return;

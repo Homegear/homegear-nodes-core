@@ -1,14 +1,14 @@
 <?php
-function executeCode($nodeInfo, $message)
+function executeCode($nodeInfo, $inputIndex, $message)
 {
 	$code = $nodeInfo["info"]["func"];
 	$hg = new \Homegear\Homegear();
 	return eval($code);
 }
 
-function input($nodeInfo, $message)
+function input($nodeInfo, $inputIndex, $message)
 {
-	$result = executeCode($nodeInfo, $message);
+	$result = executeCode($nodeInfo, $inputIndex, $message);
 	if($result)
 	{
 		if(array_key_exists('payload', $result))

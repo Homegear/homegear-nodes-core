@@ -27,27 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "MyNode.h"
+#include "../config.h"
 
-#include <homegear-node/INode.h>
-
-namespace MyNode
+Flows::INode* MyFactory::createNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled)
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
-	virtual ~MyNode();
-
-	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
-private:
-	bool _active = true;
-
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-};
-
+	return new MyNode::MyNode(path, name, nodeEventsEnabled);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

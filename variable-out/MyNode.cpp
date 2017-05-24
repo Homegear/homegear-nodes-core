@@ -84,7 +84,7 @@ bool MyNode::start(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::input(Flows::PNodeInfo info, Flows::PVariable message)
+void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
 	{
