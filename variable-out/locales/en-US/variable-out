@@ -7,9 +7,9 @@
         "variable": "Variable",
         "name": "Name"
       },
-      "tip": "Tip: See help tab for usage information."
+      "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "Sets a variable.",
-      "help": "Use this node to set a variable in Homegear. For metadata set <code>Channel</code> to <code>-1</code>. For a system variable additionally set <code>Peer ID</code> to <code>0</code>."
+      "help": "Use this node to set a variable in Homegear. For metadata set <code>Channel</code> to <code>-1</code>. For a system variable additionally set <code>Peer ID</code> to <code>0</code>.",
       "input1Description": "The value to set the referenced variable to."
     }
   }
