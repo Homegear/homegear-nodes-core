@@ -25,9 +25,6 @@
     </div>
     <div class="form-tips" data-i18n="[html]variable-out.tip"></div>
 </script>
-<script type="text/x-red" data-help-name="variable-out">
-    <p>Sets a variable.</p>
-</script>
 <script type="text/javascript">
     RED.nodes.registerType('variable-out',{
         category: 'output',
@@ -39,6 +36,11 @@
             name: {value:""}
         },
         inputs:1,
+        inputInfo: [
+            {
+                types: ["any"]
+            }
+        ],
         outputs:0,
         icon: "arrow-in.png",
         align: "right",

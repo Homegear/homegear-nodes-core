@@ -22,10 +22,6 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]greater-than.label.name">
     </div>
 </script>
-<script type="text/x-red" data-help-name="greater-than">
-    <p>This node checks if the number at input <code>a</code> is greater than the number at input <code>b</code>.</p>
-    <p>All states are saved and restored upon restart of Homegear.</p>
-</script>
 <script type="text/javascript">
 	RED.nodes.registerType('greater-than',{
         category: 'logic',
@@ -36,8 +32,22 @@
             name: {value:""}
         },
         inputs:2,
-        inputLabels: ["a", "b"],
+        inputInfo: [
+        	{
+        		label: "a",
+        		types: ["int","float"],
+        	},
+        	{
+        		label: "b",
+        		types: ["int","float"]
+        	}
+        ],
         outputs:1,
+        outputInfo: [
+        	{
+        		types: ["bool"]
+        	}
+        ],
         label: function() {
             if(this.name) return this.name;
             return "greater-than";

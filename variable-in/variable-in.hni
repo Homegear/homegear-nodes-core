@@ -25,9 +25,6 @@
     </div>
     <div class="form-tips" data-i18n="[html]variable-in.tip"></div>
 </script>
-<script type="text/x-red" data-help-name="variable-in">
-    <p>Subscribes to variable events.</p>
-</script>
 <script type="text/javascript">
     RED.nodes.registerType('variable-in',{
         category: 'input',
@@ -40,6 +37,11 @@
         },
         inputs:0,
         outputs:1,
+        outputInfo: [
+            {
+                types: ["any"]
+            }
+        ],
         icon: "variable-in.png",
         label: function() {
             if(this.name) return this.name;

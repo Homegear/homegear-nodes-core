@@ -1,1 +1,16 @@
-{"variable-in/variable-in.hni":{"variable-in":{"label":{"peerid":"Peer ID","channel":"Channel","variable":"Variable","name":"Name"},"tip":"Tip: See help tab for usage information."}}}
+{
+  "variable-in/variable-in.hni": {
+    "variable-in": {
+      "label": {
+        "peerid": "Peer ID",
+        "channel": "Channel",
+        "variable": "Variable",
+        "name": "Name"
+      },
+      "tip": "Tip: See help tab for usage information."
+      "paletteHelp": "Subscribes to variable events.",
+      "help": "This node subscribes to variable events. For metadata events set <code>Channel</code> to <code>-1</code>. For system variable events additionally set <code>Peer ID</code> to <code>0</code>."
+      "output1Description": "Outputs the referenced variable on every variable update."
+    }
+  }
+}
