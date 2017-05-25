@@ -1,54 +1,66 @@
 <script type="text/x-homegear">
 {
-    "name": "variable-in",
-    "readableName": "Variable input",
+    "name": "mqtt-in",
+    "readableName": "MQTT input",
     "version": "0.0.1",
     "maxThreadCount": 0
 }
 </script>
-<script type="text/x-red" data-template-name="variable-in">
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="mqtt-in">
     <div class="form-row">
-        <label for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable-in.label.peerid"></span></label>
-        <input type="text" id="node-input-peerid" placeholder="Peer ID">
+        <label for="node-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt-in.label.broker"></span></label>
+        <input type="text" id="node-input-broker">
     </div>
     <div class="form-row">
-        <label for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable-in.label.channel"></span></label>
-        <input type="text" id="node-input-channel" placeholder="Channel">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="common.label.topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
     </div>
     <div class="form-row">
-        <label for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.variable"></span></label>
-        <input type="text" id="node-input-variable" placeholder="Variable">
+        <label for="node-input-qos"><i class="fa fa-empire"></i> <span data-i18n="mqtt-in.label.qos"></span></label>
+        <select id="node-input-qos" style="width:125px !important">
+            <option value="0">0</option>
+            <option value="1">1</option>
+        </select>
     </div>
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]variable-in.label.name">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
-    <div class="form-tips" data-i18n="[html]variable-in.tip"></div>
-</script>
-<script type="text/x-red" data-help-name="variable-in">
-    <p>Subscribes to variable events.</p>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('variable-in',{
+    RED.nodes.registerType('mqtt-in',{
         category: 'input',
-        color:"#a6bbcf",
         defaults: {
-            peerid: {value:0,required:true,validate:RED.validators.number()},
-            channel: {value:0,required:true,validate:RED.validators.number()},
-            variable: {value:"",required:true},
-            name: {value:""}
+            name: {value:""},
+            topic: {value:"",required:true,validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/)},
+            qos: {value: "1"},
+            broker: {type:"mqtt-broker", required:true}
         },
+        color:"#d8bfd8",
         inputs:0,
         outputs:1,
-        icon: "arrow-in.png",
+        icon: "bridge.png",
         label: function() {
-            if(this.name) return this.name;
-            if(this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
-            return "variable-in";
+            return this.name||this.topic||"mqtt";
         },
-        button: {
-            onclick: function() {
-                alert("Not implemented yet");
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            if (this.qos === undefined) {
+                $("#node-input-qos").val("1");
             }
         }
     });

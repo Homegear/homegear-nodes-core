@@ -1,55 +1,119 @@
 <script type="text/x-homegear">
 {
-    "name": "variable-in",
-    "readableName": "Variable input",
+    "name": "mqtt-broker",
+    "readableName": "MQTT broker",
     "version": "0.0.1",
     "maxThreadCount": 0
 }
 </script>
-<script type="text/x-red" data-template-name="variable-in">
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="mqtt-broker">
     <div class="form-row">
-        <label for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable-in.label.peerid"></span></label>
-        <input type="text" id="node-input-peerid" placeholder="Peer ID">
+        <ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-mqtt-broker-tabs"></ul>
     </div>
-    <div class="form-row">
-        <label for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable-in.label.channel"></span></label>
-        <input type="text" id="node-input-channel" placeholder="Channel">
+    <div id="node-config-mqtt-broker-tabs-content" style="min-height: 170px;">
+        <div id="mqtt-broker-tab-connection" style="display:none">
+            <div class="form-row node-input-broker">
+                <label for="node-config-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt-broker.label.broker"></span></label>
+                <input class="input-append-left" type="text" id="node-config-input-broker" placeholder="e.g. localhost" style="width:40%;" >
+                <label for="node-config-input-port" style="margin-left:20px; width:35px; "> <span data-i18n="mqtt-broker.label.port"></span></label>
+                <input type="text" id="node-config-input-port" data-i18n="[placeholder]mqtt-broker.label.port" style="width:55px">
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-usetls" style="width: auto" data-i18n="mqtt-broker.label.use-tls"></label>
+                <div id="node-config-row-tls" class="hide">
+                    <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tls"><span data-i18n="mqtt-broker.label.tls-config"></span></label><input style="width: 300px;" type="text" id="node-config-input-tls">
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-clientid"><i class="fa fa-tag"></i> <span data-i18n="mqtt-broker.label.clientid"></span></label>
+                <input type="text" id="node-config-input-clientid" data-i18n="[placeholder]mqtt-broker.placeholder.clientid">
+            </div>
+        </div>
+        <div id="mqtt-broker-tab-security" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+                <input type="text" id="node-config-input-user">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+                <input type="password" id="node-config-input-password">
+            </div>
+        </div>
     </div>
-    <div class="form-row">
-        <label for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.variable"></span></label>
-        <input type="text" id="node-input-variable" placeholder="Variable">
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]variable-in.label.name">
-    </div>
-    <div class="form-tips" data-i18n="[html]variable-in.tip"></div>
-</script>
-<script type="text/x-red" data-help-name="variable-in">
-    <p>Subscribes to variable events.</p>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('variable-in',{
-        category: 'input',
-        color:"#a6bbcf",
+    RED.nodes.registerType('mqtt-broker',{
+        category: 'config',
         defaults: {
-            peerid: {value:0,required:true,validate:RED.validators.number()},
-            channel: {value:0,required:true,validate:RED.validators.number()},
-            variable: {value:"",required:true},
-            name: {value:""}
+            broker: {value:"",required:true},
+            port: {value:1883,required:true,validate:RED.validators.number()},
+            tls: {type:"tls-config",required: false},
+            clientid: {value:""},
+            usetls: {value: false},
+            verifyservercert: { value: false}
+            
         },
-        inputs:0,
-        outputs:1,
-        icon: "arrow-in.png",
         label: function() {
-            if(this.name) return this.name;
-            if(this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
-            return "variable-in";
+            var b = this.broker;
+            if (b === "") { b = "undefined"; }
+            return (this.clientid?this.clientid+"@":"")+b+":"+this.port;
         },
-        button: {
-            onclick: function() {
-                alert("Not implemented yet");
+        oneditprepare: function () {
+            var tabs = RED.tabs.create({
+                id: "node-config-mqtt-broker-tabs",
+                onchange: function(tab) {
+                    $("#node-config-mqtt-broker-tabs-content").children().hide();
+                    $("#" + tab.id).show();
+                }
+            });
+            tabs.addTab({
+                id: "mqtt-broker-tab-connection",
+                label: this._("mqtt-broker.tabs-label.connection")
+            });
+            tabs.addTab({
+                id: "mqtt-broker-tab-security",
+                label: this._("mqtt-broker.tabs-label.security")
+            });
+            setTimeout(function() { tabs.resize(); },0);
+            if (typeof this.usetls === 'undefined') {
+                this.usetls = false;
+                $("#node-config-input-usetls").prop("checked",false);
             }
+
+            RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-user").val(data.result)}, this.id, "username");
+
+            function updateTLSOptions() {
+                if ($("#node-config-input-usetls").is(':checked')) {
+                    $("#node-config-row-tls").show();
+                } else {
+                    $("#node-config-row-tls").hide();
+                }
+            }
+            updateTLSOptions();
+            $("#node-config-input-usetls").on("click",function() {
+                updateTLSOptions();
+            });
+        },
+        oneditsave: function() {
+            if (!$("#node-config-input-usetls").is(':checked')) {
+                $("#node-config-input-tls").val("");
+            }
+            RED.comms.homegear().invoke("setNodeData", null, this.id, "username", $("#node-config-input-user").val());
+            RED.comms.homegear().invoke("setNodeData", null, this.id, "password", $("#node-config-input-password").val());
+
         }
     });
 </script>
