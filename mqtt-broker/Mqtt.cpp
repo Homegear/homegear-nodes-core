@@ -33,6 +33,8 @@ Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<MqttSetti
 {
 	try
 	{
+		_packetId = 1;
+
 		_bl = bl;
 		_settings = settings;
 		_started = false;
@@ -543,10 +545,26 @@ void Mqtt::processPublish(std::vector<char>& data)
 			std::vector<char> puback { 0x40, 2, data[topicLength], data[topicLength + 1] };
 			send(puback);
 		}
-		std::string topic(&data[1 + lengthBytes + 2], topicLength - (1 + lengthBytes + 2));
-		std::string payload(&data[payloadPos], data.size() - payloadPos);
-		std::vector<std::string> parts = BaseLib::HelperFunctions::splitAll(topic, '/');
+		std::string topic(data.data() + (1 + lengthBytes + 2), topicLength - (1 + lengthBytes + 2));
+		std::string payload(data.data() + payloadPos, data.size() - payloadPos);
 
+		if(!_invoke) return;
+		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
+		for(auto& topicIterator : _topics)
+		{
+			if(std::regex_match(topic, topicIterator.second.first))
+			{
+				for(auto& node : topicIterator.second.second)
+				{
+					Flows::PArray parameters = std::make_shared<Flows::Array>();
+					parameters->reserve(3);
+					parameters->push_back(std::make_shared<Flows::Variable>(node));
+					parameters->push_back(std::make_shared<Flows::Variable>("publish"));
+					parameters->push_back(std::make_shared<Flows::Variable>(parameters));
+					_invoke(node, "publish", parameters);
+				}
+			}
+		}
 	}
 	catch(const std::exception& ex)
 	{
@@ -576,10 +594,11 @@ void Mqtt::send(const std::vector<char>& data)
 	catch(BaseLib::SocketOperationException& ex) { _socket->close(); }
 }
 
-void Mqtt::subscribe(std::string topic)
+void Mqtt::subscribe(std::string& topic)
 {
 	try
 	{
+		if(topic.empty()) return;
 		std::vector<char> payload;
 		payload.reserve(200);
 		int16_t id = 0;
@@ -607,6 +626,60 @@ void Mqtt::subscribe(std::string topic)
 					//Ignore => mosquitto does not send SUBACK
 				}
 				else break;
+			}
+			catch(BaseLib::SocketClosedException&)
+			{
+				Flows::Output::printError("Error: Socket closed while sending packet.");
+				break;
+			}
+			catch(BaseLib::SocketTimeOutException& ex)
+			{
+				_socket->close();
+				break;
+			}
+		}
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void Mqtt::unsubscribe(std::string& topic)
+{
+	try
+	{
+		std::vector<char> payload;
+		payload.reserve(200);
+		int16_t id = 0;
+		while(id == 0) id = _packetId++;
+		payload.push_back(id >> 8);
+		payload.push_back(id & 0xFF);
+		payload.push_back(topic.size() >> 8);
+		payload.push_back(topic.size() & 0xFF);
+		payload.insert(payload.end(), topic.begin(), topic.end());
+		payload.push_back(1); //QoS
+		std::vector<char> lengthBytes = getLengthBytes(payload.size());
+		std::vector<char> unsubscribePacket;
+		unsubscribePacket.reserve(1 + lengthBytes.size() + payload.size());
+		unsubscribePacket.push_back(0xA2); //Control packet type
+		unsubscribePacket.insert(unsubscribePacket.end(), lengthBytes.begin(), lengthBytes.end());
+		unsubscribePacket.insert(unsubscribePacket.end(), payload.begin(), payload.end());
+		for(int32_t i = 0; i < 3; i++)
+		{
+			try
+			{
+				std::vector<char> response;
+				getResponse(unsubscribePacket, response, 0xB0, id, false);
+				break;
 			}
 			catch(BaseLib::SocketClosedException&)
 			{
@@ -731,7 +804,6 @@ void Mqtt::connect()
 				Flows::Output::printInfo("Info: Successfully connected to MQTT server using protocol version 4.");
 				_connected = true;
 				_connectMutex.unlock();
-				subscribe(_settings->prefix() + _settings->homegearId() + "/rpc/#");
 				_reconnecting = false;
 				return;
 			}
@@ -792,10 +864,6 @@ void Mqtt::connect()
 					Flows::Output::printInfo("Info: Successfully connected to MQTT server using protocol version 3.");
 					_connected = true;
 					_connectMutex.unlock();
-					subscribe(_settings->prefix() + _settings->homegearId() + "/rpc/#");
-					subscribe(_settings->prefix() + _settings->homegearId() + "/set/#");
-					subscribe(_settings->prefix() + _settings->homegearId() + "/value/#");
-					subscribe(_settings->prefix() + _settings->homegearId() + "/config/#");
 					_reconnecting = false;
 					return;
 				}
@@ -843,7 +911,86 @@ void Mqtt::disconnect()
 	}
 }
 
-void Mqtt::queueMessage(std::string topic, std::string& payload, bool retain)
+std::string& Mqtt::escapeTopic(std::string& topic)
+{
+	if(topic.empty() || topic == "#") return topic;
+	BaseLib::HelperFunctions::stringReplace(topic, "[", "\\[");
+	BaseLib::HelperFunctions::stringReplace(topic, "]", "\\]");
+	BaseLib::HelperFunctions::stringReplace(topic, "?", "\\?");
+	BaseLib::HelperFunctions::stringReplace(topic, "(", "\\(");
+	BaseLib::HelperFunctions::stringReplace(topic, ")", "\\)");
+	BaseLib::HelperFunctions::stringReplace(topic, "\\", "\\\\");
+	BaseLib::HelperFunctions::stringReplace(topic, "$", "\\$");
+	BaseLib::HelperFunctions::stringReplace(topic, "^", "\\^");
+	BaseLib::HelperFunctions::stringReplace(topic, "*", "\\*");
+	BaseLib::HelperFunctions::stringReplace(topic, ".", "\\.");
+	BaseLib::HelperFunctions::stringReplace(topic, "|", "\\|");
+	BaseLib::HelperFunctions::stringReplace(topic, "+", "[^\/]+");
+	if(topic.back() == "#") topic = topic.substr(0, topic.length() - 1) + "(\/.*)?";
+	topic = "^" + topic + "$";
+	return topic;
+}
+
+void Mqtt::registerTopic(std::string& node, std::string& topic)
+{
+	try
+	{
+		BaseLib::HelperFunctions::trim(topic);
+		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
+		if(_topics.find(topic) == _topics.end())
+		{
+			subscribe(topic);
+			_topics[topic].first = std::regex(topic);
+		}
+		escapeTopic(topic);
+		_topics[topic].second.emplace(node);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void Mqtt::unregisterTopic(std::string& node, std::string& topic)
+{
+	try
+	{
+		BaseLib::HelperFunctions::trim(topic);
+		std::string unescapedTopic = topic;
+		escapeTopic(topic);
+		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
+		auto topicIterator = _topics.find(topic);
+		if(topicIterator == _topics.end()) return;
+		topicIterator->second.second.erase(node);
+		if(topicIterator->second.second.empty())
+		{
+			_topics.erase(topicIterator);
+			unsubscribe(unescapedTopic);
+		}
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void Mqtt::queueMessage(std::string& topic, std::string& payload, bool retain)
 {
 	try
 	{

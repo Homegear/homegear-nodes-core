@@ -32,6 +32,7 @@
 #define MQTT_H_
 
 #include <homegear-base/BaseLib.h>
+#include <regex>
 
 class Mqtt : public BaseLib::IQueue
 {
@@ -66,13 +67,18 @@ public:
 	void start();
 	void stop();
 
+	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
+
+	void registerTopic(std::string& node, std::string& topic);
+	void unregisterTopic(std::string& node, std::string& topic);
+
 	/**
 	 * Queues a generic message for publishing to the MQTT broker.
 	 *
 	 * @param topic The MQTT topic.
 	 * @param payload The MQTT payload.
 	 */
-	void queueMessage(std::string topic, std::string& payload, bool retain);
+	void queueMessage(std::string& topic, std::string& payload, bool retain);
 private:
 	class QueueEntrySend : public BaseLib::IQueueEntry
 	{
@@ -124,6 +130,12 @@ private:
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
 	BaseLib::Output _out;
 	std::shared_ptr<MqttSettings> _settings;
+	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> _invoke;
+	typedef std::string NodeId;
+	typedef std::string Topic;
+	typedef std::regex TopicRegex;
+	std::mutex _topicsMutex;
+	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
 	std::unique_ptr<BaseLib::Rpc::JsonEncoder> _jsonEncoder;
 	std::unique_ptr<BaseLib::Rpc::JsonDecoder> _jsonDecoder;
 	std::unique_ptr<BaseLib::TcpSocket> _socket;
@@ -135,7 +147,7 @@ private:
 	std::mutex _connectMutex;
 	std::atomic_bool _started;
 	std::atomic_bool _connected;
-	int16_t _packetId = 1;
+	std::atomic<int16_t> _packetId;
 	std::mutex _requestsMutex;
 	std::map<int16_t, std::shared_ptr<Request>> _requests;
 	std::mutex _requestsByTypeMutex;
@@ -165,8 +177,10 @@ private:
 	void listen();
 	void processData(std::vector<char>& data);
 	void processPublish(std::vector<char>& data);
-	void subscribe(std::string topic);
+	void subscribe(std::string& topic);
+	void unsubscribe(std::string& topic);
 	void send(const std::vector<char>& data);
+	std::string& escapeTopic(std::string& topic);
 };
 
 #endif

@@ -34,67 +34,25 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
 {
+	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
+	_localRpcMethods.emplace("registerTopic", std::bind(&MyNode::registerTopic, this, std::placeholders::_1));
+	_localRpcMethods.emplace("unregisterTopic", std::bind(&MyNode::unregisterTopic, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
 bool MyNode::start(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto peerIdIterator = info->info->structValue->find("peerid");
-		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
+		std::shared_ptr<Mqtt::MqttSettings> mqttSettings = std::make_shared<Mqtt::MqttSettings>();
+		//Todo: Set settings
 
-		auto channelIterator = info->info->structValue->find("channel");
-		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
-
-		auto variableIterator = info->info->structValue->find("variable");
-		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
-
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(3);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		Flows::PVariable result = invoke("getValue", parameters);
-		if(result->errorStruct)
-		{
-			Flows::Output::printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
-			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
-			nodeEvent("status/" + _id, status);
-		}
-		else
-		{
-			_type = result->type;
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + result->toString()));
-			nodeEvent("status/" + _id, status);
-		}
-
-		subscribePeer(_peerId, _channel, _variable);
+		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
+		_mqtt.reset(new Mqtt(bl));
+		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
 
 		return true;
 	}
@@ -109,20 +67,12 @@ bool MyNode::start(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
+void MyNode::stop()
 {
 	try
 	{
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
-		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-		message->structValue->emplace("payload", value);
-
-		output(0, message);
-		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + value->toString()));
-		nodeEvent("status/" + _id, status);
+		if(_mqtt) _mqtt->stop();
+		_mqtt.reset();
 	}
 	catch(const std::exception& ex)
 	{
@@ -133,5 +83,77 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
+
+//{{{ RPC methods
+Flows::PVariable MyNode::publish(Flows::PArray& parameters)
+{
+	try
+	{
+		if(parameters->size() != 3) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
+		if(parameters->at(2)->type != BaseLib::VariableType::tBoolean) return BaseLib::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+
+		if(_mqtt) _mqtt->queueMessage(parameters->at(0)->stringValue, parameters->at(1)->stringValue, parameters->at(2)->booleanValue);
+
+		return std::make_shared<BaseLib::Variable>();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+
+Flows::PVariable MyNode::registerTopic(Flows::PArray& parameters)
+{
+	try
+	{
+		if(parameters->size() != 2) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
+
+		if(_mqtt) _mqtt->registerTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
+
+		return std::make_shared<BaseLib::Variable>();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+
+Flows::PVariable MyNode::unregisterTopic(Flows::PArray& parameters)
+{
+	try
+	{
+		if(parameters->size() != 2) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
+
+		if(_mqtt) _mqtt->unregisterTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
+
+		return std::make_shared<BaseLib::Variable>();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+//}}}
 
 }

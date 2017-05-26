@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include "Mqtt.h"
 
 namespace MyNode
 {
@@ -42,16 +43,15 @@ public:
 	virtual ~MyNode();
 
 	virtual bool start(Flows::PNodeInfo info);
+	void stop();
 private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
+	std::unique_ptr<Mqtt> _mqtt;
 
-	int32_t getNumber(std::string& s, bool isHex = false);
-	int64_t getNumber64(std::string& s, bool isHex = false);
-
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	// {{{ RPC methods
+	Flows::PVariable publish(Flows::PArray& parameters);
+	Flows::PVariable registerTopic(Flows::PArray& parameters);
+	Flows::PVariable unregisterTopic(Flows::PArray& parameters);
+	// }}}
 };
 
 }
