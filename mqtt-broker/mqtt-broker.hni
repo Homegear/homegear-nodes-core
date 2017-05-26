@@ -3,7 +3,7 @@
     "name": "mqtt-broker",
     "readableName": "MQTT broker",
     "version": "0.0.1",
-    "maxThreadCount": 0
+    "maxThreadCount": 6
 }
 </script>
 <!--
@@ -94,6 +94,7 @@
             }
 
             RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-user").val(data.result)}, this.id, "username");
+            RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-password").val(data.result)}, this.id, "password");
 
             function updateTLSOptions() {
                 if ($("#node-config-input-usetls").is(':checked')) {
@@ -113,7 +114,6 @@
             }
             RED.comms.homegear().invoke("setNodeData", null, this.id, "username", $("#node-config-input-user").val());
             RED.comms.homegear().invoke("setNodeData", null, this.id, "password", $("#node-config-input-password").val());
-
         }
     });
 </script>
