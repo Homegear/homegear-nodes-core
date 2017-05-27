@@ -1,8 +1,8 @@
 {
-  "mqtt-in/mqtt-in.hni": {
+  "mqtt/mqtt-in.hni": {
     "mqtt-in": {
       "paletteHelp": "Connects to a MQTT broker and subscribes to the specified topic.",
-      "help": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p><p>Outputs a message with the properties:</p><ul><li><code>msg.topic</code></li><li><code>msg.payload</code></li><li><code>msg.qos</code></li><li><code>msg.retain</code></li></ul><p><code>msg.payload</code> will be a String, unless it is detected as a binary buffer.</p>",
+      "help": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['topic']</code></li><li><code>$message['payload']</code></li><li><code>$message['retain']</code></li></ul><p><code>$message['payload']</code> will be a String.</p>",
       "label": {
 	      "broker": "Server",
 	      "qos": "QoS"

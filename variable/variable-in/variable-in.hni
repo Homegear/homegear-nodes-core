@@ -28,6 +28,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('variable-in',{
         category: 'input',
+        namespace: 'variable',
         color:"#a6bbcf",
         defaults: {
             peerid: {value:0,required:true,validate:RED.validators.number()},

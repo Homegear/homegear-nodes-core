@@ -1,5 +1,5 @@
 {
-  "greater-than/greater-than.hni": {
+  "basic-logic/greater-than.hni": {
     "greater-than": {
       "label": {
         "name": "Name",

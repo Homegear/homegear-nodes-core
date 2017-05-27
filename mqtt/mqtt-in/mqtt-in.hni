@@ -35,6 +35,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('mqtt-in',{
         category: 'input',
+        namespace: 'mqtt',
         defaults: {
             name: {value:""},
             topic: {value:"",required:true,validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/)},

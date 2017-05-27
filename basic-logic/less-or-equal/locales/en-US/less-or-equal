@@ -1,5 +1,5 @@
 {
-  "less-or-equal/less-or-equal.hni": {
+  "basic-logic/less-or-equal.hni": {
     "less-or-equal": {
       "label": {
         "name": "Name",

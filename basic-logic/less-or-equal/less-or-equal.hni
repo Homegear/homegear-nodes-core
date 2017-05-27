@@ -25,6 +25,7 @@
 <script type="text/javascript">
 	RED.nodes.registerType('less-or-equal',{
         category: 'logic',
+        namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
         	"changes-only": {value:true},
@@ -50,7 +51,7 @@
         ],
         label: function() {
             if(this.name) return this.name;
-            return "less-or-equal";
+            return "<=";
         }
     });
 </script>

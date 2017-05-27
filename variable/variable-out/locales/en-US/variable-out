@@ -1,5 +1,5 @@
 {
-  "variable-out/variable-out.hni": {
+  "variable/variable-out.hni": {
     "variable-out": {
       "label": {
         "peerid": "Peer ID",

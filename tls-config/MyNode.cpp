@@ -40,61 +40,11 @@ MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
 bool MyNode::start(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto peerIdIterator = info->info->structValue->find("peerid");
-		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
-
-		auto channelIterator = info->info->structValue->find("channel");
-		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
-
-		auto variableIterator = info->info->structValue->find("variable");
-		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
-
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(3);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		Flows::PVariable result = invoke("getValue", parameters);
-		if(result->errorStruct)
-		{
-			Flows::Output::printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
-			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
-			nodeEvent("status/" + _id, status);
-		}
-		else
-		{
-			_type = result->type;
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + result->toString()));
-			nodeEvent("status/" + _id, status);
-		}
-
-		subscribePeer(_peerId, _channel, _variable);
+		_settings = info->info;
 
 		return true;
 	}
@@ -109,20 +59,17 @@ bool MyNode::start(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
+
+Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 {
 	try
 	{
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
-		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-		message->structValue->emplace("payload", value);
-
-		output(0, message);
-		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + value->toString()));
-		nodeEvent("status/" + _id, status);
+		if(name == "certdata.password" || name == "keydata.password" || name == "cadata.password") return getNodeData(name);
+		else
+		{
+			auto settingsIterator = _settings->structValue->find(name);
+			if(settingsIterator != _settings->structValue->end()) return settingsIterator->second;
+		}
 	}
 	catch(const std::exception& ex)
 	{
@@ -132,6 +79,7 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 	{
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+	return std::make_shared<Flows::Variable>();
 }
 
 }

@@ -1,5 +1,5 @@
 {
-  "variable-in/variable-in.hni": {
+  "variable/variable-in.hni": {
     "variable-in": {
       "label": {
         "peerid": "Peer ID",

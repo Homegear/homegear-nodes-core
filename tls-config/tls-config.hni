@@ -114,9 +114,9 @@
                 }
             }
 
-            RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-certdata").val(data.result)}, this.id, "certdata.password");
-            RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-keydata").val(data.result)}, this.id, "keydata.password");
-            RED.comms.homegear().invoke("getNodeData", function(data) {console.log(data);$("#node-config-input-cadata").val(data.result)}, this.id, "cadata.password");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-certdata").val(data.result)}, this.id, "certdata.password");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-keydata").val(data.result)}, this.id, "keydata.password");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-cadata").val(data.result)}, this.id, "cadata.password");
 
             $("#node-config-input-uselocalfiles").on("click",function() {
                 updateFileUpload();
@@ -183,9 +183,9 @@
                 $("#node-config-input-cert").val("");
                 $("#node-config-input-key").val("");
             }
-            RED.comms.homegear().invoke("setNodeData", null, this.id, "certdata.password", $("#node-config-input-certdata").val());
-            RED.comms.homegear().invoke("setNodeData", null, this.id, "certdata.keydata", $("#node-config-input-keydata").val());
-            RED.comms.homegear().invoke("setNodeData", null, this.id, "certdata.cadata", $("#node-config-input-cadata").val());
+            if($("#node-config-input-certdata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "certdata.password", $("#node-config-input-certdata").val());
+            if($("#node-config-input-keydata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "keydata.password", $("#node-config-input-keydata").val());
+            if($("#node-config-input-cadata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "cadata.password", $("#node-config-input-cadata").val());
         }
     });
 </script>

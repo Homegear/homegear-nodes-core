@@ -56,16 +56,8 @@ bool MyNode::start(Flows::PNodeInfo info)
 			_outputFalse = falseIterator->second->booleanValue;
 		}
 
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
-		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		parameters->push_back(std::make_shared<Flows::Variable>("input1"));
-		Flows::PVariable result = invoke("getNodeData", parameters);
-		if(!result->errorStruct) _input1 = result;
-
-		parameters->at(1) = std::make_shared<Flows::Variable>("input2");
-		result = invoke("getNodeData", parameters);
-		if(!result->errorStruct) _input2 = result;
+		_input1 = getNodeData("input1");
+		_input2 = getNodeData("input2");
 
 		_lastLessThan = isLessThan(_input1, _input2);
 
@@ -130,22 +122,12 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		if(index == 0)
 		{
 			_input1 = message->structValue->at("payload");
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-			parameters->reserve(3);
-			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-			parameters->push_back(std::make_shared<Flows::Variable>("input1"));
-			parameters->push_back(_input1);
-			invoke("setNodeData", parameters);
+			setNodeData("input1", _input1);
 		}
 		else if(index == 1)
 		{
 			_input2 = message->structValue->at("payload");
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-			parameters->reserve(3);
-			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-			parameters->push_back(std::make_shared<Flows::Variable>("input2"));
-			parameters->push_back(_input2);
-			invoke("setNodeData", parameters);
+			setNodeData("input2", _input2);
 		}
 
 		bool lessThan = isLessThan(_input1, _input2);

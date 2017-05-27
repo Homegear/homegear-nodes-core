@@ -529,6 +529,7 @@ void Mqtt::processPublish(std::vector<char>& data)
 			return;
 		}
 		uint8_t qos = data[0] & 6;
+		bool retain = data[0] & 1;
 		uint32_t topicLength = 1 + lengthBytes + 2 + (((uint16_t)data[1 + lengthBytes]) << 8) + (uint8_t)data[1 + lengthBytes + 1];
 		uint32_t payloadPos = (qos > 0) ? topicLength + 2 : topicLength;
 		if(payloadPos >= data.size())
@@ -558,9 +559,9 @@ void Mqtt::processPublish(std::vector<char>& data)
 				{
 					Flows::PArray parameters = std::make_shared<Flows::Array>();
 					parameters->reserve(3);
-					parameters->push_back(std::make_shared<Flows::Variable>(node));
-					parameters->push_back(std::make_shared<Flows::Variable>("publish"));
-					parameters->push_back(std::make_shared<Flows::Variable>(parameters));
+					parameters->push_back(std::make_shared<Flows::Variable>(topic));
+					parameters->push_back(std::make_shared<Flows::Variable>(payload));
+					parameters->push_back(std::make_shared<Flows::Variable>(retain));
 					_invoke(node, "publish", parameters);
 				}
 			}

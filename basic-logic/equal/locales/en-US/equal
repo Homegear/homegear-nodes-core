@@ -1,5 +1,5 @@
 {
-  "equal/equal.hni": {
+  "basic-logic/equal.hni": {
     "equal": {
       "label": {
         "name": "Name",

@@ -48,11 +48,49 @@ bool MyNode::start(Flows::PNodeInfo info)
 	try
 	{
 		std::shared_ptr<Mqtt::MqttSettings> mqttSettings = std::make_shared<Mqtt::MqttSettings>();
-		//Todo: Set settings
+
+		auto settingsIterator = info->info->structValue->find("broker");
+		if(settingsIterator != info->info->structValue->end()) mqttSettings->brokerHostname = settingsIterator->second->stringValue;
+
+		settingsIterator = info->info->structValue->find("port");
+		if(settingsIterator != info->info->structValue->end()) mqttSettings->brokerPort = settingsIterator->second->stringValue;
+
+		settingsIterator = info->info->structValue->find("usetls");
+		if(settingsIterator != info->info->structValue->end()) mqttSettings->enableSSL = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("clientid");
+		if(settingsIterator != info->info->structValue->end()) mqttSettings->clientId = settingsIterator->second->stringValue;
+		if(mqttSettings->clientId.empty()) mqttSettings->clientId = "HomegearNode." + _id + "." + BaseLib::HelperFunctions::getHexString(BaseLib::HelperFunctions::getRandomNumber(0, 16777215));
+
+		mqttSettings->username = getNodeData("username")->stringValue;
+		mqttSettings->password = getNodeData("password")->stringValue;
+
+		if(mqttSettings->enableSSL)
+		{
+			std::string tlsNodeId;
+			settingsIterator = info->info->structValue->find("tls");
+			if(settingsIterator != info->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
+
+			if(!tlsNodeId.empty())
+			{
+				mqttSettings->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+				mqttSettings->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+				mqttSettings->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+				mqttSettings->caPath = getConfigParameter(tlsNodeId, "ca")->stringValue;
+				mqttSettings->certPath = getConfigParameter(tlsNodeId, "cert")->stringValue;
+				mqttSettings->keyPath = getConfigParameter(tlsNodeId, "key")->stringValue;
+				mqttSettings->verifyCertificate = getConfigParameter(tlsNodeId, "verifyservercert")->booleanValue;
+			}
+		}
+
+		std::cerr << "Moin " << mqttSettings->caData << std::endl;
+		std::cerr << "Moin " << mqttSettings->certData << std::endl;
+		std::cerr << "Moin " << mqttSettings->keyData << std::endl;
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_mqtt.reset(new Mqtt(bl, mqttSettings));
 		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
+		_mqtt->start();
 
 		return true;
 	}
@@ -89,7 +127,7 @@ Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 {
 	try
 	{
-		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 		if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
