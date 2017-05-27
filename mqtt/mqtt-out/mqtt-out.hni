@@ -1,7 +1,7 @@
 <script type="text/x-homegear">
 {
-    "name": "mqtt-in",
-    "readableName": "MQTT input",
+    "name": "mqtt-out",
+    "readableName": "MQTT output",
     "version": "0.0.1",
     "maxThreadCount": 0
 }
@@ -18,9 +18,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<script type="text/x-red" data-template-name="mqtt-in">
+<script type="text/x-red" data-template-name="mqtt-out">
     <div class="form-row">
-        <label for="node-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt-in.label.broker"></span></label>
+        <label for="node-input-broker"><i class="fa fa-globe"></i> <span data-i18n="mqtt-out.label.broker"></span></label>
         <input type="text" id="node-input-broker">
     </div>
     <div class="form-row">
@@ -28,35 +28,43 @@
         <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
     </div>
     <div class="form-row">
+        <i class="fa fa-history"></i>&nbsp;<span data-i18n="mqtt-out.retain"></span> &nbsp;<select id="node-input-retain" style="width:125px !important">
+            <option value=""></option>
+            <option value="false" data-i18n="mqtt-out.false"></option>
+            <option value="true" data-i18n="mqtt-out.true"></option>
+        </select>
+    </div>
+    <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+    <div class="form-tips"><span data-i18n="mqtt-out.tip"></span></div>
 </script>
 <script type="text/javascript">
-    RED.nodes.registerType('mqtt-in',{
-        category: 'input',
+    RED.nodes.registerType('mqtt-out',{
+        category: 'output',
         namespace: 'mqtt',
         defaults: {
             name: {value:""},
-            topic: {value:"",required:true,validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/)},
+            topic: {value:""},
+            retain: {value:""},
             broker: {type:"mqtt-broker", required:true}
         },
         color:"#d8bfd8",
-        inputs:0,
-        outputs:1,
-        outputInfo: [
+        inputs:1,
+        inputInfo: [
         	{
-        		types: ["string"]
+        		types: ["any"]
         	}
         ],
+        outputs:0,
         icon: "bridge.png",
+        align: "right",
         label: function() {
             return this.name||this.topic||"mqtt";
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
-        },
-        oneditprepare: function() {
         }
     });
 </script>

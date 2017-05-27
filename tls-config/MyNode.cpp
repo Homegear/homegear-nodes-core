@@ -40,7 +40,7 @@ MyNode::~MyNode()
 {
 }
 
-bool MyNode::start(Flows::PNodeInfo info)
+bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{

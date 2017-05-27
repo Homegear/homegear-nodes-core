@@ -42,7 +42,7 @@ public:
 	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PNodeInfo info);
+	virtual bool init(Flows::PNodeInfo info);
 private:
 	bool _outputChangesOnly = false;
 	bool _outputFalse = false;

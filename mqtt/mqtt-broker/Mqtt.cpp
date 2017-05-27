@@ -550,10 +550,11 @@ void Mqtt::processPublish(std::vector<char>& data)
 		std::string payload(data.data() + payloadPos, data.size() - payloadPos);
 
 		if(!_invoke) return;
+
 		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
 		for(auto& topicIterator : _topics)
 		{
-			if(std::regex_match(topic, topicIterator.second.first))
+			if(topicIterator.first == "#" || std::regex_match(topic, topicIterator.second.first))
 			{
 				for(auto& node : topicIterator.second.second)
 				{
@@ -921,13 +922,14 @@ std::string& Mqtt::escapeTopic(std::string& topic)
 	BaseLib::HelperFunctions::stringReplace(topic, "(", "\\(");
 	BaseLib::HelperFunctions::stringReplace(topic, ")", "\\)");
 	BaseLib::HelperFunctions::stringReplace(topic, "\\", "\\\\");
+	BaseLib::HelperFunctions::stringReplace(topic, "/", "\\/");
 	BaseLib::HelperFunctions::stringReplace(topic, "$", "\\$");
 	BaseLib::HelperFunctions::stringReplace(topic, "^", "\\^");
 	BaseLib::HelperFunctions::stringReplace(topic, "*", "\\*");
 	BaseLib::HelperFunctions::stringReplace(topic, ".", "\\.");
 	BaseLib::HelperFunctions::stringReplace(topic, "|", "\\|");
 	BaseLib::HelperFunctions::stringReplace(topic, "+", "[^\\/]+");
-	if(topic.back() == '#') topic = topic.substr(0, topic.length() - 1) + "(\\/.*)?";
+	if(topic.back() == '#') topic = topic.substr(0, topic.length() - 1) + ".*";
 	topic = "^" + topic + "$";
 	return topic;
 }
@@ -938,12 +940,13 @@ void Mqtt::registerTopic(std::string& node, std::string& topic)
 	{
 		BaseLib::HelperFunctions::trim(topic);
 		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
+		std::string escapedTopic = topic;
+		escapeTopic(escapedTopic);
 		if(_topics.find(topic) == _topics.end())
 		{
 			subscribe(topic);
-			_topics[topic].first = std::regex(topic);
+			_topics[topic].first = std::regex(escapedTopic);
 		}
-		escapeTopic(topic);
 		_topics[topic].second.emplace(node);
 	}
 	catch(const std::exception& ex)
@@ -965,8 +968,6 @@ void Mqtt::unregisterTopic(std::string& node, std::string& topic)
 	try
 	{
 		BaseLib::HelperFunctions::trim(topic);
-		std::string unescapedTopic = topic;
-		escapeTopic(topic);
 		std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
 		auto topicIterator = _topics.find(topic);
 		if(topicIterator == _topics.end()) return;
@@ -974,7 +975,7 @@ void Mqtt::unregisterTopic(std::string& node, std::string& topic)
 		if(topicIterator->second.second.empty())
 		{
 			_topics.erase(topicIterator);
-			unsubscribe(unescapedTopic);
+			unsubscribe(topic);
 		}
 	}
 	catch(const std::exception& ex)

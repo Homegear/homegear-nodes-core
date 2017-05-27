@@ -1,0 +1,27 @@
+{
+  "mqtt/mqtt-out.hni": {
+    "mqtt-out": {
+      "paletteHelp": "Connects to a MQTT broker and publishes messages.",
+      "help": "<p>Connects to a MQTT broker and publishes messages.</p><h3>Inputs</h3><dl class=\"message-properties\"><dt>payload <span class=\"property-type\">any</span></dt><dd> most users prefer simple text payloads.</dd><dt class=\"optional\">topic <span class=\"property-type\">string</span></dt><dd> the MQTT topic to publish to.</dd><dt class=\"optional\">retain <span class=\"property-type\">boolean</span></dt><dd>set to true to retain the message on the broker. Default false.</dd></dl><h3>Details</h3><code>$message['payload']</code> is used as the payload of the published message. If it contains a Struct or Array it will be converted to a JSON string before being sent.</p><p>The topic used can be configured in the node or, if left blank, can be set by <code>$message['topic']</code>.</p><p>Likewise the retain value can be configured in the node or, if left blank, set by <code>$message['retain']</code>. To clear a previously retained topic from the broker, send a blank message to that topic with the retain flag set.</p><p>This node requires a connection to a MQTT broker to be configured. This is configured by clicking the pencil icon.</p><p>Several MQTT nodes (in or out) can share the same broker connection if required.</p>",
+      "input1Description": "The payload and optionally the topic to publish.",
+      "label": {
+	      "broker": "Server",
+	      "qos": "QoS"
+	    },
+      "state": {
+        "connected": "Connected to broker: __broker__",
+        "disconnected": "Disconnected from broker: __broker__",
+        "connect-failed": "Connection failed to broker: __broker__"
+      },
+      "errors": {
+        "not-defined": "topic not defined",
+        "missing-config": "missing broker configuration",
+        "invalid-topic": "Invalid topic specified",
+        "nonclean-missingclientid": "No client ID set, using clean session"
+      },
+      "true": "true",
+      "false": "false",
+      "tip": "Tip: Leave topic or retain blank if you want to set them via $message properties."
+    }
+  }
+}

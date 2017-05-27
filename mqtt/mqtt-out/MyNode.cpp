@@ -40,36 +40,18 @@ MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
 bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto peerIdIterator = info->info->structValue->find("peerid");
-		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
+		auto settingsIterator = info->info->structValue->find("broker");
+		if(settingsIterator != info->info->structValue->end()) _broker = settingsIterator->second->stringValue;
 
-		auto channelIterator = info->info->structValue->find("channel");
-		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
+		settingsIterator = info->info->structValue->find("topic");
+		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
 
-		auto variableIterator = info->info->structValue->find("variable");
-		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
+		settingsIterator = info->info->structValue->find("retain");
+		if(settingsIterator != info->info->structValue->end()) _retain = settingsIterator->second->booleanValue;
 
 		return true;
 	}
@@ -88,15 +70,29 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(message->structValue->at("payload"));
+		std::string topic;
+		auto messageIterator = message->structValue->find("topic");
+		if(messageIterator != message->structValue->end()) topic = messageIterator->second->stringValue;
+		else topic = _topic;
 
-		Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		bool retain;
+		messageIterator = message->structValue->find("retain");
+		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
+		else retain = _retain;
+
+		Flows::PVariable payload = message->structValue->at("payload");
+		if(payload->type == Flows::VariableType::tArray || payload->type == Flows::VariableType::tStruct) payload->stringValue = _jsonEncoder.getString(payload);
+		else if(payload->type != Flows::VariableType::tString) payload->stringValue = payload->toString();
+		payload->setType(Flows::VariableType::tString);
+
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		parameters->reserve(3);
+		parameters->push_back(std::make_shared<Flows::Variable>(topic));
+		parameters->push_back(payload);
+		parameters->push_back(std::make_shared<Flows::Variable>(retain));
+
+		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters);
+		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
 	}
 	catch(const std::exception& ex)
 	{

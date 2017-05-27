@@ -58,7 +58,7 @@ int64_t MyNode::getNumber64(std::string& s, bool isHex)
 	return number;
 }
 
-bool MyNode::start(Flows::PNodeInfo info)
+bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{

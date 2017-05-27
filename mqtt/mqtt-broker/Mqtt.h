@@ -40,6 +40,10 @@
 class Mqtt : public BaseLib::IQueue
 {
 public:
+	typedef std::string NodeId;
+	typedef std::string Topic;
+	typedef std::regex TopicRegex;
+
 	struct MqttSettings
 	{
 		std::string brokerHostname;
@@ -55,6 +59,11 @@ public:
 		std::string keyPath;
 		std::string keyData;
 		bool verifyCertificate = true;
+	};
+
+	struct TopicEntry
+	{
+
 	};
 
 	struct MqttMessage
@@ -134,9 +143,6 @@ private:
 	BaseLib::Output _out;
 	std::shared_ptr<MqttSettings> _settings;
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> _invoke;
-	typedef std::string NodeId;
-	typedef std::string Topic;
-	typedef std::regex TopicRegex;
 	std::mutex _topicsMutex;
 	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
 	std::unique_ptr<BaseLib::Rpc::JsonEncoder> _jsonEncoder;

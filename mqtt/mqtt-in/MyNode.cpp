@@ -41,7 +41,7 @@ MyNode::~MyNode()
 {
 }
 
-bool MyNode::start(Flows::PNodeInfo info)
+bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
@@ -68,6 +68,11 @@ void MyNode::configNodesStarted()
 {
 	try
 	{
+		if(_broker.empty())
+		{
+			Flows::Output::printError("Error: This node has no broker assigned.");
+			return;
+		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
@@ -93,7 +98,7 @@ Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+		if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
 
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));

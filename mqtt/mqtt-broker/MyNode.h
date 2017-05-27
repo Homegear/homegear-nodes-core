@@ -42,9 +42,11 @@ public:
 	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PNodeInfo info);
-	void stop();
+	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
+	virtual void stop();
 private:
+	Flows::PNodeInfo _nodeInfo;
 	std::unique_ptr<Mqtt> _mqtt;
 
 	//{{{ RPC methods

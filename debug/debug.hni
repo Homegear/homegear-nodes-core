@@ -253,7 +253,7 @@
 	        } else {
 	            $('<span class="debug-message-topic">'+
 	                (o.topic?topic+' : ':'')+
-	                (o.property?'msg.'+property:'msg')+" : "+format+
+	                (o.property?'$message[\''+property+'\']':'$message')+" : "+format+
 	                '</span>').appendTo(metaRow);
 	        }
 	        if (format === 'Object' || /^array/.test(format) || format === 'boolean' || format === 'number' ) {
@@ -325,9 +325,9 @@
             var suffix = "";
             if (this.console === true || this.console === "true") { suffix = " ⇲"; }
             if (this.complete === true || this.complete === "true") {
-                return (this.name||"msg") + suffix;
+                return (this.name||"$message") + suffix;
             } else {
-                return (this.name || "msg." + ((!this.complete || this.complete === "false") ? "payload" : this.complete)) + suffix;
+                return (this.name || "$message['" + ((!this.complete || this.complete === "false") ? "payload" : this.complete) + "']") + suffix;
             }
         },
         labelStyle: function() {
@@ -476,7 +476,7 @@
             delete RED._debug;
         },
         oneditprepare: function() {
-            $("#node-input-typed-complete").typedInput({types:['msg', {value:"full",label:RED._("node-red:debug.msgobj"),hasValue:false}]});
+            $("#node-input-typed-complete").typedInput({types:[{value:"msg",label:"$message."}, {value:"full",label:RED._("debug/debug.hni:debug.msgobj"),hasValue:false}]});
             if (this.complete === "true" || this.complete === true) {
                 // show complete message object
                 $("#node-input-typed-complete").typedInput('type','full');

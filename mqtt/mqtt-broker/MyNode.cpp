@@ -43,23 +43,43 @@ MyNode::~MyNode()
 {
 }
 
-bool MyNode::start(Flows::PNodeInfo info)
+bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+		std::cout << "Moin1" << std::endl;
+		_nodeInfo = info;
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+bool MyNode::start()
+{
+	try
+	{
+		std::cout << "Moin2" << std::endl;
 		std::shared_ptr<Mqtt::MqttSettings> mqttSettings = std::make_shared<Mqtt::MqttSettings>();
 
-		auto settingsIterator = info->info->structValue->find("broker");
-		if(settingsIterator != info->info->structValue->end()) mqttSettings->brokerHostname = settingsIterator->second->stringValue;
+		auto settingsIterator = _nodeInfo->info->structValue->find("broker");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->brokerHostname = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("port");
-		if(settingsIterator != info->info->structValue->end()) mqttSettings->brokerPort = settingsIterator->second->stringValue;
+		settingsIterator = _nodeInfo->info->structValue->find("port");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->brokerPort = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("usetls");
-		if(settingsIterator != info->info->structValue->end()) mqttSettings->enableSSL = settingsIterator->second->booleanValue;
+		settingsIterator = _nodeInfo->info->structValue->find("usetls");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->enableSSL = settingsIterator->second->booleanValue;
 
-		settingsIterator = info->info->structValue->find("clientid");
-		if(settingsIterator != info->info->structValue->end()) mqttSettings->clientId = settingsIterator->second->stringValue;
+		settingsIterator = _nodeInfo->info->structValue->find("clientid");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->clientId = settingsIterator->second->stringValue;
 		if(mqttSettings->clientId.empty()) mqttSettings->clientId = "HomegearNode." + _id + "." + BaseLib::HelperFunctions::getHexString(BaseLib::HelperFunctions::getRandomNumber(0, 16777215));
 
 		mqttSettings->username = getNodeData("username")->stringValue;
@@ -68,8 +88,8 @@ bool MyNode::start(Flows::PNodeInfo info)
 		if(mqttSettings->enableSSL)
 		{
 			std::string tlsNodeId;
-			settingsIterator = info->info->structValue->find("tls");
-			if(settingsIterator != info->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
+			settingsIterator = _nodeInfo->info->structValue->find("tls");
+			if(settingsIterator != _nodeInfo->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
 
 			if(!tlsNodeId.empty())
 			{
@@ -82,10 +102,6 @@ bool MyNode::start(Flows::PNodeInfo info)
 				mqttSettings->verifyCertificate = getConfigParameter(tlsNodeId, "verifyservercert")->booleanValue;
 			}
 		}
-
-		std::cerr << "Moin " << mqttSettings->caData << std::endl;
-		std::cerr << "Moin " << mqttSettings->certData << std::endl;
-		std::cerr << "Moin " << mqttSettings->keyData << std::endl;
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_mqtt.reset(new Mqtt(bl, mqttSettings));
@@ -177,6 +193,8 @@ Flows::PVariable MyNode::unregisterTopic(Flows::PArray& parameters)
 		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
+
+		parameters->at(1)->print(false, true); //Moin
 
 		if(_mqtt) _mqtt->unregisterTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
 

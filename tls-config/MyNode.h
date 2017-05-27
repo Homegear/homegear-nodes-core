@@ -41,7 +41,7 @@ public:
 	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
 	virtual ~MyNode();
 
-	virtual bool start(Flows::PNodeInfo info);
+	virtual bool init(Flows::PNodeInfo info);
 
 	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:

@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <homegear-node/JsonEncoder.h>
 
 namespace MyNode
 {
@@ -43,15 +44,13 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
+	Flows::JsonEncoder _jsonEncoder;
 
-	int32_t getNumber(std::string& s, bool isHex = false);
-	int64_t getNumber64(std::string& s, bool isHex = false);
+	std::string _broker;
+	std::string _topic;
+	bool _retain = false;
 
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 
 }
