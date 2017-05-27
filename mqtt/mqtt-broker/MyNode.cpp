@@ -51,7 +51,7 @@ bool MyNode::start(Flows::PNodeInfo info)
 		//Todo: Set settings
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
-		_mqtt.reset(new Mqtt(bl));
+		_mqtt.reset(new Mqtt(bl, mqttSettings));
 		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
 
 		return true;
@@ -89,14 +89,14 @@ Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 {
 	try
 	{
-		if(parameters->size() != 3) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
-		if(parameters->at(2)->type != BaseLib::VariableType::tBoolean) return BaseLib::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
+		if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
 
 		if(_mqtt) _mqtt->queueMessage(parameters->at(0)->stringValue, parameters->at(1)->stringValue, parameters->at(2)->booleanValue);
 
-		return std::make_shared<BaseLib::Variable>();
+		return std::make_shared<Flows::Variable>();
 	}
 	catch(const std::exception& ex)
 	{
@@ -113,13 +113,13 @@ Flows::PVariable MyNode::registerTopic(Flows::PArray& parameters)
 {
 	try
 	{
-		if(parameters->size() != 2) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
+		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 
 		if(_mqtt) _mqtt->registerTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
 
-		return std::make_shared<BaseLib::Variable>();
+		return std::make_shared<Flows::Variable>();
 	}
 	catch(const std::exception& ex)
 	{
@@ -136,13 +136,13 @@ Flows::PVariable MyNode::unregisterTopic(Flows::PArray& parameters)
 {
 	try
 	{
-		if(parameters->size() != 2) return BaseLib::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != BaseLib::VariableType::tString) return BaseLib::Variable::createError(-1, "Parameter 2 is not of type string.");
+		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 
 		if(_mqtt) _mqtt->unregisterTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
 
-		return std::make_shared<BaseLib::Variable>();
+		return std::make_shared<Flows::Variable>();
 	}
 	catch(const std::exception& ex)
 	{

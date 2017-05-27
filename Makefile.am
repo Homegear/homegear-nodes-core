@@ -1,3 +1,3 @@
 AUTOMAKE_OPTIONS = foreign
 ACLOCAL_AMFLAGS = -I m4 -I cfg
-SUBDIRS = comment debug function greater-than mqtt-broker mqtt-in tls-config variable-in variable-out
+SUBDIRS = basic-logic comment debug function mqtt tls-config variable

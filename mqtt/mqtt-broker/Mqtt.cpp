@@ -770,14 +770,14 @@ void Mqtt::connect()
 			payload.insert(payload.end(), temp.begin(), temp.end());
 			if(!_settings->username.empty())
 			{
-				temp = _settings->username();
+				temp = _settings->username;
 				payload.push_back(temp.size() >> 8);
 				payload.push_back(temp.size() & 0xFF);
 				payload.insert(payload.end(), temp.begin(), temp.end());
 			}
 			if(!_settings->password.empty())
 			{
-				temp = _settings->password();
+				temp = _settings->password;
 				payload.push_back(temp.size() >> 8);
 				payload.push_back(temp.size() & 0xFF);
 				payload.insert(payload.end(), temp.begin(), temp.end());
@@ -833,14 +833,14 @@ void Mqtt::connect()
 				payload.insert(payload.end(), temp.begin(), temp.end());
 				if(!_settings->username.empty())
 				{
-					temp = _settings->username();
+					temp = _settings->username;
 					payload.push_back(temp.size() >> 8);
 					payload.push_back(temp.size() & 0xFF);
 					payload.insert(payload.end(), temp.begin(), temp.end());
 				}
 				if(!_settings->password.empty())
 				{
-					temp = _settings->password();
+					temp = _settings->password;
 					payload.push_back(temp.size() >> 8);
 					payload.push_back(temp.size() & 0xFF);
 					payload.insert(payload.end(), temp.begin(), temp.end());
@@ -925,8 +925,8 @@ std::string& Mqtt::escapeTopic(std::string& topic)
 	BaseLib::HelperFunctions::stringReplace(topic, "*", "\\*");
 	BaseLib::HelperFunctions::stringReplace(topic, ".", "\\.");
 	BaseLib::HelperFunctions::stringReplace(topic, "|", "\\|");
-	BaseLib::HelperFunctions::stringReplace(topic, "+", "[^\/]+");
-	if(topic.back() == "#") topic = topic.substr(0, topic.length() - 1) + "(\/.*)?";
+	BaseLib::HelperFunctions::stringReplace(topic, "+", "[^\\/]+");
+	if(topic.back() == '#') topic = topic.substr(0, topic.length() - 1) + "(\\/.*)?";
 	topic = "^" + topic + "$";
 	return topic;
 }

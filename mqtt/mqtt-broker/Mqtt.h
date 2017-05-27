@@ -31,6 +31,9 @@
 #ifndef MQTT_H_
 #define MQTT_H_
 
+#include <homegear-node/Variable.h>
+#include <homegear-node/Output.h>
+#include <homegear-node/HelperFunctions.h>
 #include <homegear-base/BaseLib.h>
 #include <regex>
 
