@@ -84,14 +84,14 @@ bool MyNode::init(Flows::PNodeInfo info)
 			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
 			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
 			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
-			nodeEvent("status/" + _id, status);
+			nodeEvent("statusBottom/" + _id, status);
 		}
 		else
 		{
 			_type = result->type;
 			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + result->toString()));
-			nodeEvent("status/" + _id, status);
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>("0: " + result->toString()));
+			nodeEvent("statusTop/" + _id, status);
 		}
 
 		subscribePeer(_peerId, _channel, _variable);
@@ -120,9 +120,6 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		message->structValue->emplace("payload", value);
 
 		output(0, message);
-		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Value: " + value->toString()));
-		nodeEvent("status/" + _id, status);
 	}
 	catch(const std::exception& ex)
 	{

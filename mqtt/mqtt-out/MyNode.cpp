@@ -150,7 +150,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
 				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
 			}
-			nodeEvent("status/" + _id, status);
+			nodeEvent("statusBottom/" + _id, status);
 
 			return std::make_shared<Flows::Variable>();
 		}

@@ -49,9 +49,11 @@
         		types: ["bool"]
         	}
         ],
+        icon: "function.png",
         label: function() {
             if(this.name) return this.name;
             return "<";
-        }
+        },
+        paletteLabel: "<"
     });
 </script>

@@ -1,7 +1,7 @@
 {
   "mqtt/mqtt-in.hni": {
     "mqtt-in": {
-      "paletteHelp": "Connects to a MQTT broker and subscribes to the specified topic.",
+      "paletteHelp": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p>",
       "help": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['topic']</code></li><li><code>$message['payload']</code></li><li><code>$message['retain']</code></li></ul><p><code>$message['payload']</code> will be a String.</p>",
       "output1Description": "The payload received from the MQTT broker.",
       "label": {

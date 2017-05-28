@@ -4,6 +4,11 @@ case $1 in
 	# Configure this package. If the package must prompt the user for
 	# information, do it here.
 	configure)
+		rm -Rf /var/lib/homegear/flows/nodes/variable-in
+		rm -Rf /var/lib/homegear/flows/nodes/variable-out
+		rm -Rf /var/lib/homegear/flows/nodes/greater-than
+		rm -Rf /var/lib/homegear/flows/nodes/mqtt-broker
+		rm -Rf /var/lib/homegear/flows/nodes/mqtt-in
 		chown -R homegear:homegear /var/lib/homegear/flows/nodes
 		chmod -R 550 /var/lib/homegear/flows/nodes
 		homegear -e mls > /dev/null 2>&1

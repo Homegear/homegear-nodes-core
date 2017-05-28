@@ -143,7 +143,7 @@ void MyNode::configNodesStarted()
 				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
 				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
 			}
-			nodeEvent("status/" + _id, status);
+			nodeEvent("statusBottom/" + _id, status);
 
 			return std::make_shared<Flows::Variable>();
 		}
