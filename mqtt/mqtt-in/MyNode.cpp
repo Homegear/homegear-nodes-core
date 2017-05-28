@@ -32,9 +32,10 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
+MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
 {
 	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
+	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -76,9 +77,11 @@ void MyNode::configNodesStarted()
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerTopic", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic.");
+		result = invokeNodeMethod(_broker, "registerTopic", parameters);
+		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
@@ -91,34 +94,69 @@ void MyNode::configNodesStarted()
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::publish(Flows::PArray& parameters)
-{
-	try
+	Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 	{
-		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-		if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+		try
+		{
+			if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
+			if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
 
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
-		message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
-		message->structValue->emplace("retain", std::make_shared<Flows::Variable>(parameters->at(2)->booleanValue));
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
+			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
+			message->structValue->emplace("retain", std::make_shared<Flows::Variable>(parameters->at(2)->booleanValue));
 
-		output(0, message);
+			output(0, message);
 
-		return std::make_shared<Flows::Variable>();
+			return std::make_shared<Flows::Variable>();
+		}
+		catch(const std::exception& ex)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		}
+		catch(...)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		}
+		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
-	catch(const std::exception& ex)
+
+	Flows::PVariable MyNode::setConnectionState(Flows::PArray& parameters)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		try
+		{
+			if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
+
+			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			if(parameters->at(0)->booleanValue)
+			{
+				status->structValue->emplace("text", std::make_shared<Flows::Variable>("connected"));
+				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("green"));
+				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+			}
+			else
+			{
+				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disconnected"));
+				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
+				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+			}
+			nodeEvent("status/" + _id, status);
+
+			return std::make_shared<Flows::Variable>();
+		}
+		catch(const std::exception& ex)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		}
+		catch(...)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		}
+		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
-}
 //}}}
 
 }

@@ -39,7 +39,7 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
+	MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
@@ -51,6 +51,7 @@ private:
 
 	//{{{ RPC methods
 	Flows::PVariable publish(Flows::PArray& parameters);
+	Flows::PVariable registerNode(Flows::PArray& parameters);
 	Flows::PVariable registerTopic(Flows::PArray& parameters);
 	Flows::PVariable unregisterTopic(Flows::PArray& parameters);
 	//}}}

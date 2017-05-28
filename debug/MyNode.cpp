@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
+MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
 {
 }
 
@@ -60,7 +60,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		if(!*_nodeEventsEnabled || !_active) return;
+		if(!*_frontendConnected || !_active) return;
 		std::string property;
 		auto completeIterator = info->info->structValue->find("complete");
 		if(completeIterator == info->info->structValue->end() || completeIterator->second->stringValue == "false" || completeIterator->second->stringValue.empty())

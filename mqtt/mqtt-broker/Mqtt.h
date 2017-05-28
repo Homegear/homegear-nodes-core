@@ -81,6 +81,7 @@ public:
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
 
+	void registerNode(std::string& node);
 	void registerTopic(std::string& node, std::string& topic);
 	void unregisterTopic(std::string& node, std::string& topic);
 
@@ -145,6 +146,8 @@ private:
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> _invoke;
 	std::mutex _topicsMutex;
 	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
+	std::mutex _nodesMutex;
+	std::set<std::string> _nodes;
 	std::unique_ptr<BaseLib::Rpc::JsonEncoder> _jsonEncoder;
 	std::unique_ptr<BaseLib::Rpc::JsonDecoder> _jsonDecoder;
 	std::unique_ptr<BaseLib::TcpSocket> _socket;
@@ -166,6 +169,7 @@ private:
 	Mqtt& operator=(const Mqtt&);
 	void connect();
 	void reconnect();
+	void reconnectThread();
 	void disconnect();
 	void processMessages();
 	void processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry>& entry);

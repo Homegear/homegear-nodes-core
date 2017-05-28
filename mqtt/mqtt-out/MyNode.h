@@ -39,10 +39,11 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
+	MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual void configNodesStarted();
 private:
 	Flows::JsonEncoder _jsonEncoder;
 
@@ -51,6 +52,10 @@ private:
 	bool _retain = false;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+
+	//{{{ RPC methods
+	Flows::PVariable setConnectionState(Flows::PArray& parameters);
+	//}}}
 };
 
 }

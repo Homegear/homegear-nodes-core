@@ -91,7 +91,6 @@ void Mqtt::start()
 		_jsonDecoder = std::unique_ptr<BaseLib::Rpc::JsonDecoder>(new BaseLib::Rpc::JsonDecoder(_bl.get()));
 		_socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->caPath, _settings->verifyCertificate, _settings->certPath, _settings->keyPath));
 		_bl->threadManager.start(_listenThread, true, &Mqtt::listen, this);
-		connect();
 		_bl->threadManager.start(_pingThread, true, &Mqtt::ping, this);
 	}
 	catch(const std::exception& ex)
@@ -258,7 +257,7 @@ void Mqtt::getResponse(const std::vector<char>& packet, std::vector<char>& respo
 	{
 		if(!_socket->connected())
 		{
-			Flows::Output::printError("Error: Could not send packet to MQTT server, because we are not connected.");
+			if(errors) Flows::Output::printError("Error: Could not send packet to MQTT server, because we are not connected.");
 			return;
 		}
 		std::shared_ptr<Request> request(new Request(responseType));
@@ -315,7 +314,7 @@ void Mqtt::ping()
 		{
 			if(_connected)
 			{
-				getResponseByType(ping, pong, 0xD0);
+				getResponseByType(ping, pong, 0xD0, false);
 				if(pong.empty())
 				{
 					Flows::Output::printError("Error: No PINGRESP received.");
@@ -709,6 +708,45 @@ void Mqtt::unsubscribe(std::string& topic)
 	}
 }
 
+void Mqtt::reconnectThread()
+{
+	try
+	{
+		connect();
+		if(!_invoke) return;
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		if(_socket->connected())
+		{
+			parameters->push_back(std::make_shared<Flows::Variable>(true));
+			std::lock_guard<std::mutex> topicsGuard(_topicsMutex);
+			for(auto& topicIterator : _topics)
+			{
+				std::string topic = topicIterator.first;
+				subscribe(topic);
+			}
+		}
+		else parameters->push_back(std::make_shared<Flows::Variable>(false));
+
+		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
+		for(auto& node : _nodes)
+		{
+			_invoke(node, "setConnectionState", parameters);
+		}
+	}
+    catch(const std::exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+}
+
 void Mqtt::reconnect()
 {
 	if(!_started) return;
@@ -718,7 +756,7 @@ void Mqtt::reconnect()
 		if(_reconnecting || _socket->connected()) return;
 		_reconnecting = true;
 		_bl->threadManager.join(_reconnectThread);
-		_bl->threadManager.start(_reconnectThread, true, &Mqtt::connect, this);
+		_bl->threadManager.start(_reconnectThread, true, &Mqtt::reconnectThread, this);
 	}
     catch(const std::exception& ex)
     {
@@ -853,7 +891,7 @@ void Mqtt::connect()
 				connectPacket.push_back(0x10); //Control packet type
 				connectPacket.insert(connectPacket.end(), lengthBytes.begin(), lengthBytes.end());
 				connectPacket.insert(connectPacket.end(), payload.begin(), payload.end());
-				getResponseByType(connectPacket, response, 0x20);
+				getResponseByType(connectPacket, response, 0x20, false);
 				if(response.size() != 4)
 				{
 					if(response.size() == 0) Flows::Output::printError("Error: Connection to MQTT server with protocol version 3 failed.");
@@ -932,6 +970,27 @@ std::string& Mqtt::escapeTopic(std::string& topic)
 	if(topic.back() == '#') topic = topic.substr(0, topic.length() - 1) + ".*";
 	topic = "^" + topic + "$";
 	return topic;
+}
+
+void Mqtt::registerNode(std::string& node)
+{
+	try
+	{
+		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
+		_nodes.emplace(node);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void Mqtt::registerTopic(std::string& node, std::string& topic)

@@ -36,7 +36,7 @@
 class MyFactory : Flows::NodeFactory
 {
 public:
-	virtual Flows::INode* createNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled);
+	virtual Flows::INode* createNode(std::string path, std::string name, const std::atomic_bool* frontendConnected);
 };
 
 extern "C" Flows::NodeFactory* getFactory();

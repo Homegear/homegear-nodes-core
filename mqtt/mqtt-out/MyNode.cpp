@@ -32,8 +32,9 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
+MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
 {
+	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -64,6 +65,30 @@ bool MyNode::init(Flows::PNodeInfo info)
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
+}
+
+void MyNode::configNodesStarted()
+{
+	try
+	{
+		if(_broker.empty())
+		{
+			Flows::Output::printError("Error: This node has no broker assigned.");
+			return;
+		}
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		parameters->push_back(std::make_shared<Flows::Variable>(_id));
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
@@ -103,5 +128,42 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
+
+//{{{ RPC methods
+	Flows::PVariable MyNode::setConnectionState(Flows::PArray& parameters)
+	{
+		try
+		{
+			if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
+
+			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			if(parameters->at(0)->booleanValue)
+			{
+				status->structValue->emplace("text", std::make_shared<Flows::Variable>("connected"));
+				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("green"));
+				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+			}
+			else
+			{
+				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disconnected"));
+				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
+				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+			}
+			nodeEvent("status/" + _id, status);
+
+			return std::make_shared<Flows::Variable>();
+		}
+		catch(const std::exception& ex)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		}
+		catch(...)
+		{
+			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		}
+		return Flows::Variable::createError(-32500, "Unknown application error.");
+	}
+//}}}
 
 }

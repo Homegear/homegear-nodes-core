@@ -32,9 +32,10 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* nodeEventsEnabled) : Flows::INode(path, name, nodeEventsEnabled)
+MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
 {
 	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
+	_localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
 	_localRpcMethods.emplace("registerTopic", std::bind(&MyNode::registerTopic, this, std::placeholders::_1));
 	_localRpcMethods.emplace("unregisterTopic", std::bind(&MyNode::unregisterTopic, this, std::placeholders::_1));
 }
@@ -47,7 +48,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		std::cout << "Moin1" << std::endl;
 		_nodeInfo = info;
 		return true;
 	}
@@ -66,7 +66,6 @@ bool MyNode::start()
 {
 	try
 	{
-		std::cout << "Moin2" << std::endl;
 		std::shared_ptr<Mqtt::MqttSettings> mqttSettings = std::make_shared<Mqtt::MqttSettings>();
 
 		auto settingsIterator = _nodeInfo->info->structValue->find("broker");
@@ -163,6 +162,28 @@ Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 	return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
+Flows::PVariable MyNode::registerNode(Flows::PArray& parameters)
+{
+	try
+	{
+		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter is not of type string.");
+
+		if(_mqtt) _mqtt->registerNode(parameters->at(0)->stringValue);
+
+		return std::make_shared<Flows::Variable>();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+
 Flows::PVariable MyNode::registerTopic(Flows::PArray& parameters)
 {
 	try
@@ -193,8 +214,6 @@ Flows::PVariable MyNode::unregisterTopic(Flows::PArray& parameters)
 		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-
-		parameters->at(1)->print(false, true); //Moin
 
 		if(_mqtt) _mqtt->unregisterTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
 
