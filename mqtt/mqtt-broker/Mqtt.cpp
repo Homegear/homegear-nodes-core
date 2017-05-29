@@ -89,7 +89,8 @@ void Mqtt::start()
 
 		_jsonEncoder = std::unique_ptr<BaseLib::Rpc::JsonEncoder>(new BaseLib::Rpc::JsonEncoder(_bl.get()));
 		_jsonDecoder = std::unique_ptr<BaseLib::Rpc::JsonDecoder>(new BaseLib::Rpc::JsonDecoder(_bl.get()));
-		_socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->caPath, _settings->verifyCertificate, _settings->certPath, _settings->keyPath));
+		if(!_settings->caData.empty()) _socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->verifyCertificate, _settings->caData, _settings->certData, _settings->keyData));
+		else _socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->caPath, _settings->verifyCertificate, _settings->certPath, _settings->keyPath));
 		_bl->threadManager.start(_listenThread, true, &Mqtt::listen, this);
 		_bl->threadManager.start(_pingThread, true, &Mqtt::ping, this);
 	}

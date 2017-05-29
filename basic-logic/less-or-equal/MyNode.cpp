@@ -84,22 +84,22 @@ bool MyNode::isLessOrEqual(Flows::PVariable& input1, Flows::PVariable& input2)
 		{
 			if(input2->type == Flows::VariableType::tInteger || input2->type == Flows::VariableType::tInteger64)
 			{
-				lessOrEqual = input1->integerValue64 < input2->integerValue64;
+				lessOrEqual = input1->integerValue64 <= input2->integerValue64;
 			}
 			else if(input2->type == Flows::VariableType::tFloat || input2->type == Flows::VariableType::tFloat)
 			{
-				lessOrEqual = input1->integerValue64 < input2->floatValue;
+				lessOrEqual = input1->integerValue64 <= input2->floatValue;
 			}
 		}
 		else if(input1->type == Flows::VariableType::tFloat || input1->type == Flows::VariableType::tFloat)
 		{
 			if(input2->type == Flows::VariableType::tFloat || input2->type == Flows::VariableType::tFloat)
 			{
-				lessOrEqual = input1->floatValue < input2->floatValue;
+				lessOrEqual = input1->floatValue <= input2->floatValue;
 			}
 			else if(input2->type == Flows::VariableType::tInteger || input2->type == Flows::VariableType::tInteger64)
 			{
-				lessOrEqual = input1->floatValue < input2->integerValue64;
+				lessOrEqual = input1->floatValue <= input2->integerValue64;
 			}
 		}
 		return lessOrEqual;

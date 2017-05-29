@@ -1,30 +1,34 @@
 <?php
+declare(strict_types=1);
+
 class HomegearNode
 {
 
 private $hg;
 private $nodeInfo;
 
-function __construct($nodeInfo)
+function __construct()
 {
 	$this->hg = new \Homegear\Homegear();
-	$this->nodeInfo = $nodeInfo;
 	$this->hg->log(4, "Constructor");
 }
 
-public function init()
+public function init(array $nodeInfo) : bool
 {
-	$this->hg->log(4, "init ".print_v($this->nodeInfo, true));
+	$this->nodeInfo = $nodeInfo;
+	$this->hg->log(4, "init");
+	return true;
 }
 
-public function start()
+public function start() : bool
 {
-
+	$this->hg->log(4, "start");
+	return true;
 }
 
 public function stop()
 {
-
+	$this->hg->log(4, "stop");
 }
 
 private function executeCode($nodeInfo, $inputIndex, $message)
@@ -34,7 +38,7 @@ private function executeCode($nodeInfo, $inputIndex, $message)
 	return eval($code);
 }
 
-public function input($nodeInfo, $inputIndex, $message)
+public function input(array $nodeInfo, int $inputIndex, array $message)
 {
 	$result = executeCode($nodeInfo, $inputIndex, $message);
 	if($result)
