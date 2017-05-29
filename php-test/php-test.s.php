@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-class HomegearNode
+class HomegearNode extends HomegearNodeBase
 {
 
 private $hg;
@@ -16,13 +16,13 @@ function __construct()
 public function init(array $nodeInfo) : bool
 {
 	$this->nodeInfo = $nodeInfo;
-	$this->hg->log(4, "init");
+	$this->log(4, "init");
 	return true;
 }
 
 public function start() : bool
 {
-	$this->hg->log(4, "start");
+	$this->log(4, "start");
 	return true;
 }
 
