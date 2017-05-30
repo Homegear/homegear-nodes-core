@@ -10,20 +10,18 @@ private $nodeInfo;
 function __construct()
 {
 	$this->hg = new \Homegear\Homegear();
-	$this->hg->log(4, "Constructor");
 }
 
 public function init(array $nodeInfo) : bool
 {
 	$this->nodeInfo = $nodeInfo;
-	$this->log(4, "init");
-	return true;
+	return true; //True means: "init" was successful. When "false" is returned, the node will be unloaded.
 }
 
 public function start() : bool
 {
 	$this->log(4, "start");
-	return true;
+	return true; //True means: "start" was successful
 }
 
 public function stop()

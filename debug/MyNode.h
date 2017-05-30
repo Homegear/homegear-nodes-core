@@ -38,7 +38,7 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected);
+	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);

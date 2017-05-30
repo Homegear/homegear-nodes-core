@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_lastLessThan = false;
 }

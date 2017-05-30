@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
 	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));

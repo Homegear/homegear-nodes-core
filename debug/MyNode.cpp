@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string name, const std::atomic_bool* frontendConnected) : Flows::INode(path, name, frontendConnected)
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 }
 
@@ -80,7 +80,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 
 		Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
-		object->structValue->emplace("name", std::make_shared<Flows::Variable>(_name));
+		object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
 		object->structValue->emplace("msg", message);
 
 		std::string format;
