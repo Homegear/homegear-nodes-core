@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+//Class definition is fixed. Do not change it.
 class HomegearNode extends HomegearNodeBase
 {
 
@@ -9,63 +10,46 @@ private $nodeInfo;
 
 function __construct()
 {
+	//Create a new Homegear object to access Homegear methods
 	$this->hg = new \Homegear\Homegear();
 }
 
+function __destruct()
+{
+}
+
+//Init is called when the node is created directly after the constructor
 public function init(array $nodeInfo) : bool
 {
+	//Write log entry to flows log
+	$this->log(4, "init"); 
 	$this->nodeInfo = $nodeInfo;
 	return true; //True means: "init" was successful. When "false" is returned, the node will be unloaded.
 }
 
+//Start is called when all nodes are initialized
 public function start() : bool
 {
 	$this->log(4, "start");
 	return true; //True means: "start" was successful
 }
 
+//Executed when all config nodes are started. If you need to get settings from configuration nodes that only can return
+//settings after "start" was called, do that here.
+public function configNodesStarted()
+{
+}
+
+//Stop is called when node is unloaded directly before the destructor. You can still call RPC functions here, but you
+//shouldn't try to access other nodes anymore.
 public function stop()
 {
 	$this->hg->log(4, "stop");
 }
 
-private function executeCode($nodeInfo, $inputIndex, $message)
-{
-	$code = $nodeInfo["info"]["func"];
-	$this->hg = new \Homegear\Homegear();
-	return eval($code);
-}
-
 public function input(array $nodeInfo, int $inputIndex, array $message)
 {
-	$result = executeCode($nodeInfo, $inputIndex, $message);
-	if($result)
-	{
-		if(array_key_exists('payload', $result))
-		{
-			$this->hg->nodeOutput($nodeInfo['id'], 0, $result);
-		}
-		else
-		{
-			$wireCount = count($nodeInfo['wiresOut']);
-			foreach($result as $index => $value)
-			{
-				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
-				if(array_key_exists('payload', $value))
-				{
-					$this->hg->nodeOutput($nodeInfo['id'], $index, $value);
-				}
-				else
-				{
-					foreach($value as $value2)
-					{
-						if(!$value2) continue;
-						$this->hg->nodeOutput($nodeInfo['id'], $index, $value2);
-					}
-				}
-			}
-		}
-	}
+	
 }
 
 }
