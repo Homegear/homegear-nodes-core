@@ -142,6 +142,7 @@ void MyNode::timer()
 				for(int32_t j = 0; j < iterations; j++)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					if(_stopThread) break;
 				}
 				if(sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
 			}
@@ -151,10 +152,12 @@ void MyNode::timer()
 				for(int32_t j = 0; j < iterations; j++)
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+					if(_stopThread) break;
 				}
 				if(sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
 			}
 			else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
+			if(_stopThread) break;
 			message->structValue->at("payload")->integerValue = i;
 			if(_resetAfter > 0 && Flows::HelperFunctions::getTime() - startTimeAll >= _resetAfter)
 			{
