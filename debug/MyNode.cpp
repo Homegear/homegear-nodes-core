@@ -103,6 +103,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			break;
 		case Flows::VariableType::tString:
 			format = "string[" + std::to_string(message->stringValue.size()) + "]";
+			if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
 			break;
 		case Flows::VariableType::tStruct:
 			format = "Object";

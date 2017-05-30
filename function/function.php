@@ -1,14 +1,37 @@
 <?php
-function executeCode($nodeInfo, $inputIndex, $message)
+$nodeInfo;
+
+function getNodeData(string $key)
 {
+	global $nodeInfo;
+	return \Homegear\Homegear::getNodeData($nodeInfo['id'], $key);
+}
+
+function setNodeData(string $key, $value)
+{
+	global $nodeInfo;
+	\Homegear\Homegear::setNodeData($nodeInfo['id'], $key, $value);
+}
+
+function output(int $outputIndex, array $message)
+{
+	global $nodeInfo;
+	\Homegear\Homegear::nodeOutput($nodeInfo['id'], $outputIndex, $message);
+}
+
+function executeCode(int $inputIndex, array $message)
+{
+	global $nodeInfo;
 	$code = $nodeInfo["info"]["func"];
 	$hg = new \Homegear\Homegear();
 	return eval($code);
 }
 
-function input($nodeInfo, $inputIndex, $message)
+function input(array $localNodeInfo, int $inputIndex, array $message)
 {
-	$result = executeCode($nodeInfo, $inputIndex, $message);
+	global $nodeInfo;
+	$nodeInfo = $localNodeInfo;
+	$result = executeCode($inputIndex, $message);
 	if($result)
 	{
 		if(array_key_exists('payload', $result))
