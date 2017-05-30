@@ -1,0 +1,48 @@
+<script type="text/x-homegear">
+{
+    "name": "timer",
+    "readableName": "Timer",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="timer">
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="timer.label.interval"></span></label>
+        <input type="text" id="node-input-interval" data-i18n="[placeholder]timer.label.interval2">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resetafter"><i class="fa fa-list-ol"></i> <span data-i18n="timer.label.resetafter"></span></label>
+        <input type="text" id="node-input-resetafter" data-i18n="[placeholder]timer.label.resetafter2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('timer',{
+        category: 'time',
+        namespace: 'timer',
+        color:"#a6bbcf",
+        defaults: {
+            interval: {value:60000,required:true,validate:RED.validators.number()},
+            resetafter: {value:0,required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                label: "EN",
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["integer"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "timer";
+        }
+    });
+</script>
