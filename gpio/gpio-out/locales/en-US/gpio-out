@@ -1,12 +1,12 @@
 {
-  "gpio/gpio-in.hni": {
-    "gpio-in": {
+  "gpio/gpio-out.hni": {
+    "gpio-out": {
       "label": {
         "name": "Name",
         "index": "GPIO number"
       },
-      "paletteHelp": "Generates events on GPIO input changes.",
-      "help": "<p>This node generates events on GPIO input changes. The GPIOs need to be exported for this to work.</p>"
+      "paletteHelp": "Sets the value of a GPIO.",
+      "help": "<p>This node can be used to set the value of a GPIO. The GPIO needs to be exported for this to work.</p>"
     }
   }
 }

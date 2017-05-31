@@ -6,7 +6,7 @@
         "index": "GPIO number"
       },
       "paletteHelp": "Generates events on GPIO input changes.",
-      "help": "<p>This node generates events on GPIO input changes. The GPIOs need to be exported for this to work.</p>"
+      "help": "<p>This node generates events on GPIO input changes. The GPIO needs to be exported for this to work.</p>"
     }
   }
 }

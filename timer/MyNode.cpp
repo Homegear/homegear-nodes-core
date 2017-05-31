@@ -62,7 +62,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("resetafter");
 		if(settingsIterator != info->info->structValue->end()) _resetAfter = getNumber(settingsIterator->second->stringValue);
 
-		if(_interval < 10) _interval = 10;
+		if(_interval < 1) _interval = 1;
 
 		_enabled = getNodeData("enabled")->booleanValue;
 
@@ -173,7 +173,7 @@ void MyNode::timer()
 			int64_t diff = Flows::HelperFunctions::getTime() - startTime;
 			if(diff <= _interval) sleepingTime = _interval;
 			else sleepingTime = _interval - (diff - _interval);
-			if(sleepingTime < 10) sleepingTime = 10;
+			if(sleepingTime < 1) sleepingTime = 1;
 			startTime = Flows::HelperFunctions::getTime();
 		}
 		catch(const std::exception& ex)

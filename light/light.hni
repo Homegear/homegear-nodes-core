@@ -1,0 +1,62 @@
+<script type="text/x-homegear">
+{
+    "name": "light",
+    "readableName": "Light",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="light">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="light.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]light.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="light.label.peerid"></span></label>
+        <input type="text" id="node-input-peerid" placeholder="Peer ID">
+    </div>
+    <div class="form-row">
+        <label for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="light.label.channel"></span></label>
+        <input type="text" id="node-input-channel" placeholder="Channel">
+    </div>
+    <div class="form-row">
+        <label for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="light.label.variable"></span></label>
+        <input type="text" id="node-input-variable" placeholder="Variable">
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-twoinputs" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-twoinputs" style="width: auto" data-i18n="light.label.twoinputs"></label>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('light',{
+        category: 'output',
+        namespace: 'light',
+        color:"#a6bbcf",
+        defaults: {
+            peerid: {value:0,required:true,validate:RED.validators.number()},
+            channel: {value:0,required:true,validate:RED.validators.number()},
+            variable: {value:"",required:true},
+            twoinputs: {value:false},
+            inputs: {value:1},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["boolean"]
+            }
+        ],
+        outputs:0,
+        icon: "light.png",
+        align: "right",
+        label: function() {
+            if(this.name) return this.name;
+            if(this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
+            return "light";
+        },
+        oneditsave: function() {
+            this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
+        }
+    });
+</script>
