@@ -1,0 +1,41 @@
+<script type="text/x-homegear">
+{
+    "name": "gpio-in",
+    "readableName": "GPIO input",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="gpio-in">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="gpio-in.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]gpio-in.label.name">
+    </div>
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-index"><i class="fa fa-wrench"></i> <span data-i18n="gpio-in.label.index"></span></label>
+        <input type="text" id="node-input-index" data-i18n="[placeholder]gpio-in.label.index">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('gpio-in',{
+        color:"#fdd0a2",
+        category: 'input',
+        namespace: 'gpio',
+        defaults: {
+            name: {value:""},
+            index: {value:21,required:true,validate:RED.validators.number()}
+        },
+        inputs:0,
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["boolean"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "gpio-in";
+        }
+    });
+</script>
