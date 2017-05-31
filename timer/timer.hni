@@ -33,10 +33,15 @@
                 types: ["boolean"]
             }
         ],
-        outputs:1,
+        outputs:2,
         outputInfo: [
             {
+		label: "t",
                 types: ["integer"]
+            },
+            {
+		label: "f",
+                types: ["boolean"]
             }
         ],
         icon: "serial.png",

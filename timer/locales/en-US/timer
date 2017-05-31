@@ -8,8 +8,9 @@
         "resetafter2": "Time in ms or 0",
         "name": "Name"
       },
-      "input1Description": "Set to \"true\" to enable the timer and to \"false\" to disable it.",
+      "input1Description": "Set to <code>true</code> to enable the timer and to <code>false</code> to disable it.",
       "output1Description": "Outputs the number of ticks since the timer was started.",
+      "output2Description": "Outputs <code>true</code> when the timer is finished.",
       "paletteHelp": "<p>Generates an periodic event in constant intervals.</p>",
       "help": "This node generates events in constant intervals. Set <code>EN</code> to \"true\" to enable the timer. You can set \"Reset after\" to automatically disable the timer."
     }

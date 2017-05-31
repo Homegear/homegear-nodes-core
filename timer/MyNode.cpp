@@ -163,6 +163,9 @@ void MyNode::timer()
 			{
 				_stopThread = true;
 				_enabled = false;
+				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+				output(1, message);
 				setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
 				Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disabled"));
@@ -196,17 +199,19 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		if(_enabled)
 		{
-			if(_stopThread)
-			{
-				_stopThread = false;
-				if(_timerThread.joinable()) _timerThread.join();
-				_timerThread = std::thread(&MyNode::timer, this);
-			}
+			_stopThread = true;
+			if(_timerThread.joinable()) _timerThread.join();
+			_stopThread = false;
+			if(_timerThread.joinable()) _timerThread.join();
+			_timerThread = std::thread(&MyNode::timer, this);
 		}
 		else
 		{
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+			output(1, message);
 		}
 		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));

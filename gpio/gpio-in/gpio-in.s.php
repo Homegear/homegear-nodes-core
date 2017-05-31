@@ -8,6 +8,7 @@ class SharedData extends Threaded
 	public $scriptId = 0;
 	public $nodeId = "";
     public $gpioIndex = 0;
+    public $trueOnly = false;
     public $stop = false;
 
     public function run() {}
@@ -52,7 +53,7 @@ class GpioThread extends Thread
 				continue;
 			}
 
-			$hg->nodeOutput($this->sharedData->nodeId, 0, array('payload' => $result));
+			if($result || $this->sharedData->trueOnly) $hg->nodeOutput($this->sharedData->nodeId, 0, array('payload' => (bool)$result));
 		}
 		$gpio->close($this->sharedData->gpioIndex);
 	}
@@ -88,6 +89,7 @@ public function start() : bool
 	$this->sharedData->scriptId = $this->hg->getScriptId();
 	$this->sharedData->gpioIndex = (int)$this->nodeInfo['info']['index'];
 	$this->sharedData->nodeId = $this->nodeInfo['id'];
+	$this->sharedData->trueOnly = (bool)$this->nodeInfo['info']['trueonly'];
 	$this->thread = new GpioThread($this->sharedData);
 	$this->thread->start();
 	return true;

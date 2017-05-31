@@ -3,10 +3,12 @@
     "gpio-out": {
       "label": {
         "name": "Name",
-        "index": "GPIO number"
+        "index": "GPIO",
+        "initialtrue": "Set to \"true\" on startup"
       },
       "paletteHelp": "Sets the value of a GPIO.",
-      "help": "<p>This node can be used to set the value of a GPIO. The GPIO needs to be exported for this to work.</p>"
+      "help": "<p>This node can be used to set the value of a GPIO. The GPIO needs to be exported for this to work.</p>",
+      "input1Description": "The state to set the GPIO to."
     }
   }
 }
