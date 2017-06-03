@@ -34,7 +34,7 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_lastEqual = false;
+	_lastAnd = false;
 }
 
 MyNode::~MyNode()
@@ -62,7 +62,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 			_inputs.at(i) = getNodeData("input" + std::to_string(i));
 		}
 
-		_lastEqual = isEqual();
+		_lastAnd = doAnd();
 
 		return true;
 	}
@@ -77,38 +77,14 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-bool MyNode::isEqual()
+bool MyNode::doAnd()
 {
 	try
 	{
-		bool equal = false;
 		std::lock_guard<std::mutex> inputGuard(_inputMutex);
-		for(uint32_t i = 1; i < _inputs.size(); i++)
+		for(uint32_t i = 0; i < _inputs.size(); i++)
 		{
-			equal = false;
-			if(_inputs[i - 1]->type == Flows::VariableType::tInteger || _inputs[i - 1]->type == Flows::VariableType::tInteger64)
-			{
-				if(_inputs[i]->type == Flows::VariableType::tInteger || _inputs[i]->type == Flows::VariableType::tInteger64)
-				{
-					equal = _inputs[i - 1]->integerValue64 == _inputs[i]->integerValue64;
-				}
-				else if(_inputs[i]->type == Flows::VariableType::tFloat || _inputs[i]->type == Flows::VariableType::tFloat)
-				{
-					equal = _inputs[i - 1]->integerValue64 == _inputs[i]->floatValue;
-				}
-			}
-			else if(_inputs[i - 1]->type == Flows::VariableType::tFloat || _inputs[i - 1]->type == Flows::VariableType::tFloat)
-			{
-				if(_inputs[i]->type == Flows::VariableType::tFloat || _inputs[i]->type == Flows::VariableType::tFloat)
-				{
-					equal = _inputs[i - 1]->floatValue == _inputs[i]->floatValue;
-				}
-				else if(_inputs[i]->type == Flows::VariableType::tInteger || _inputs[i]->type == Flows::VariableType::tInteger64)
-				{
-					equal = _inputs[i - 1]->floatValue == _inputs[i]->integerValue64;
-				}
-			}
-			if(!equal) return false;
+			if(!_inputs[i]->booleanValue) return false;
 		}
 		return true;
 	}
@@ -128,18 +104,57 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	try
 	{
 		if(index >= _inputs.size()) return;
-		_inputs.at(index) = message->structValue->at("payload");
+		Flows::PVariable& input = message->structValue->at("payload");
+		if(input->type != Flows::VariableType::tBoolean)
+		{
+			switch(input->type)
+			{
+			case Flows::VariableType::tArray:
+				input->booleanValue = !input->arrayValue->empty();
+				break;
+			case Flows::VariableType::tBase64:
+				input->booleanValue = !input->stringValue.empty();
+				break;
+			case Flows::VariableType::tBinary:
+				input->booleanValue = !input->binaryValue.empty();
+				break;
+			case Flows::VariableType::tBoolean:
+				break;
+			case Flows::VariableType::tFloat:
+				input->booleanValue = input->floatValue;
+				break;
+			case Flows::VariableType::tInteger:
+				input->booleanValue = input->integerValue;
+				break;
+			case Flows::VariableType::tInteger64:
+				input->booleanValue = input->integerValue64;
+				break;
+			case Flows::VariableType::tString:
+				input->booleanValue = !input->stringValue.empty();
+				break;
+			case Flows::VariableType::tStruct:
+				input->booleanValue = !input->structValue->empty();
+				break;
+			case Flows::VariableType::tVariant:
+				break;
+			case Flows::VariableType::tVoid:
+				input->booleanValue = false;
+				break;
+			}
+			input->setType(Flows::VariableType::tBoolean);
+		}
+		_inputs.at(index) = input;
 		setNodeData("input" + std::to_string(index), _inputs.at(index));
 
-		bool lastEqual = isEqual();
+		bool lastAnd = doAnd();
 		bool doOutput = !_outputChangesOnly;
-		if(!lastEqual && !_outputFalse) doOutput = false;
-		else if(lastEqual != _lastEqual) doOutput = true;
-		_lastEqual = lastEqual;
+		if(!lastAnd && !_outputFalse) doOutput = false;
+		else if(lastAnd != _lastAnd) doOutput = true;
+		_lastAnd = lastAnd;
 		if(doOutput)
 		{
 			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(lastEqual));
+			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(lastAnd));
 			output(0, outputMessage);
 		}
 	}

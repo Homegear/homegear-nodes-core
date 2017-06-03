@@ -47,11 +47,11 @@ private:
 	bool _outputChangesOnly = false;
 	bool _outputFalse = false;
 	std::mutex _inputMutex;
-	std::atomic_bool _lastEqual;
+	std::atomic_bool _lastOr;
 	std::vector<Flows::PVariable> _inputs;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool isEqual();
+	bool doOr();
 };
 
 }

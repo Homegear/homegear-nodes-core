@@ -1,0 +1,25 @@
+{
+  "basic-logic/or.hni": {
+    "or": {
+      "label": {
+        "name": "Name",
+        "changes-only": "Output changes only",
+        "output-false": "Output \"false\", too",
+        "inputs": "Inputs"
+      },
+      "paletteHelp": "This node does a boolean <code>or</code> on all inputs.",
+      "help": "<p>This node does a boolean <code>or</code> on all inputs.</p><p>All states are saved or restored upon restart of Homegear.</p>",
+      "input1Description": "The first boolean value.",
+      "input2Description": "The second boolean value.",
+      "input3Description": "The third boolean value.",
+      "input4Description": "The third boolean value.",
+      "input5Description": "The third boolean value.",
+      "input6Description": "The third boolean value.",
+      "input7Description": "The third boolean value.",
+      "input8Description": "The third boolean value.",
+      "input9Description": "The third boolean value.",
+      "input10Description": "The third boolean value.",
+      "output1Description": "Outputs the result of the boolean comparison."
+    }
+  }
+}

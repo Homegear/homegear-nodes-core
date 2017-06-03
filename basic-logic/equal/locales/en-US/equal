@@ -4,13 +4,22 @@
       "label": {
         "name": "Name",
         "changes-only": "Output changes only",
-        "output-false": "Output \"false\", too"
+        "output-false": "Output \"false\", too",
+        "inputs": "Inputs"
       },
-      "paletteHelp": "This node checks if the number at input <code>a</code> it equal to the number at input <code>b</code>.",
-      "help": "<p>This node checks if the number at input <code>a</code> is equal to the number at input <code>b</code>.</p><p>All states are saved and restored upon restart of Homegear.</p><p>Supported input types are <i>int</i> and <i>float</i>.</p>",
-      "input1Description": "The left hand number of the operation.",
-      "input2Description": "The right hand number of the operation.",
-      "output1Description": "Outputs <code>true</code> when <code>a</code> is equal to <code>b</code> and - depending on the settings - <code>false</code> otherwise."
+      "paletteHelp": "This node checks if the numbers at all inputs are equal.",
+      "help": "<p>This node checks if the numbers at all inputs are equal.</p><p>All states are saved and restored upon restart of Homegear.</p><p>Supported input types are <i>int</i> and <i>float</i>.</p>",
+      "input1Description": "The number to compare all other input numbers with.",
+      "input2Description": "The number to compare all other input numbers with.",
+      "input3Description": "The number to compare all other input numbers with.",
+      "input4Description": "The number to compare all other input numbers with.",
+      "input5Description": "The number to compare all other input numbers with.",
+      "input6Description": "The number to compare all other input numbers with.",
+      "input7Description": "The number to compare all other input numbers with.",
+      "input8Description": "The number to compare all other input numbers with.",
+      "input9Description": "The number to compare all other input numbers with.",
+      "input10Description": "The number to compare all other input numbers with.",
+      "output1Description": "Outputs <code>true</code> when all inputs are equal and - depending on the settings - <code>false</code> otherwise."
     }
   }
 }

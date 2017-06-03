@@ -31,7 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <mutex>
+#include <homegear-node/JsonDecoder.h>
 
 namespace MyNode
 {
@@ -43,15 +43,11 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual void configNodesStarted();
 private:
-	bool _outputChangesOnly = false;
-	bool _outputFalse = false;
-	std::mutex _inputMutex;
-	std::atomic_bool _lastEqual;
-	std::vector<Flows::PVariable> _inputs;
+	Flows::PVariable _value;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool isEqual();
+	Flows::JsonDecoder _jsonDecoder;
 };
 
 }

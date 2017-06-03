@@ -1,33 +1,33 @@
 <script type="text/x-homegear">
 {
-    "name": "equal",
-    "readableName": "Equal",
+    "name": "and",
+    "readableName": "And",
     "version": "0.0.1",
     "maxThreadCount": 0
 }
 </script>
-<script type="text/x-red" data-template-name="equal">
+<script type="text/x-red" data-template-name="and">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="equal.label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]equal.label.name">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="and.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]and.label.name">
     </div>
 	<div class="form-row" id="changes-only">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-changes-only" style="width: 70%;" data-i18n="equal.label.changes-only"></label>
+        <label for="node-input-changes-only" style="width: 70%;" data-i18n="and.label.changes-only"></label>
     </div>
     <div class="form-row" id="output-false">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-output-false" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-output-false" style="width: 70%;" data-i18n="equal.label.output-false"></label>
+        <label for="node-input-output-false" style="width: 70%;" data-i18n="and.label.output-false"></label>
     </div>
     <div class="form-row">
-        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="equal.label.inputs"></span></label>
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="and.label.inputs"></span></label>
         <input id="node-input-inputs" style="width: 60px;" value="2">
     </div>
 </script>
 <script type="text/javascript">
-	RED.nodes.registerType('equal',{
+	RED.nodes.registerType('and',{
         category: 'logic',
         namespace: 'basic-logic',
         color: "#e2d96e",
@@ -41,43 +41,43 @@
         inputInfo: [
         	{
         		label: "a",
-        		types: ["int","float"],
+        		types: ["bool"]
         	},
         	{
         		label: "b",
-        		types: ["int","float"]
+        		types: ["bool"]
         	},
             {
                 label: "c",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "d",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "e",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "f",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "g",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "h",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "i",
-                types: ["int","float"]
+                types: ["bool"]
             },
             {
                 label: "j",
-                types: ["int","float"]
+                types: ["bool"]
             }
         ],
         outputs:1,
@@ -89,7 +89,7 @@
         icon: "function.png",
         label: function() {
             if(this.name) return this.name;
-            return "==";
+            return "and";
         },
         oneditprepare: function() {
             var that = this;
@@ -98,6 +98,6 @@
                 max:10
             });
         },
-        paletteLabel: "=="
+        paletteLabel: "and"
     });
 </script>

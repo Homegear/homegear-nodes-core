@@ -1,0 +1,75 @@
+<script type="text/x-homegear">
+{
+    "name": "constant",
+    "readableName": "Constant",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="constant">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="constant.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]constant.label.name"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-payload"><i class="fa fa-envelope"></i> <span data-i18n="common.label.payload"></span></label>
+        <input type="text" id="node-input-payload" style="width:70%"/>
+        <input type="hidden" id="node-input-payloadType"/>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('constant',{
+        category: 'input',
+        namespace: 'variable',
+        color:"#87a980",
+        defaults: {
+            name: {value:""},
+            payload: {value:""},
+            payloadType: {value:"int", validate: RED.validators.typedInput("payloadType")}
+        },
+        inputs:0,
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["any"]
+            }
+        ],
+        icon: "arrow-in.png",
+        label: function() {
+            if (this.name) {
+                return this.name;
+            } else if (this.payloadType) {
+                if (this.payload.length > 0 && this.payload.length < 24) {
+                    return this.payload;
+                } else {
+                    return this.payloadType;
+                }
+            } else {
+                return "constant";
+            }
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            if (this.payloadType == null) {
+                this.payloadType = "int";
+            }
+            $("#node-input-payloadType").val(this.payloadType);
+
+            $("#node-input-payload").typedInput({
+                default: 'int',
+                typeField: $("#node-input-payloadType"),
+                types:['bool','int','float','string','array','struct']
+            });
+
+            $("#node-input-payload").typedInput('type',this.payloadType);
+
+        },
+        button: {
+            onclick: function() {
+                alert("Not implemented yet");
+            }
+        }
+    });
+</script>

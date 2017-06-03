@@ -6,7 +6,10 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/flows/nodes/basic-logic
 
-lib_LTLIBRARIES = equal.la greater-or-equal.la greater-than.la less-or-equal.la less-than.la
+lib_LTLIBRARIES = and.la equal.la greater-or-equal.la greater-than.la less-or-equal.la less-than.la or.la
+
+and_la_SOURCES = and/Factory.cpp and/MyNode.cpp
+and_la_LDFLAGS =-module -avoid-version -shared
 
 equal_la_SOURCES = equal/Factory.cpp equal/MyNode.cpp
 equal_la_LDFLAGS =-module -avoid-version -shared
@@ -23,14 +26,19 @@ less_or_equal_la_LDFLAGS =-module -avoid-version -shared
 less_than_la_SOURCES = less-than/Factory.cpp less-than/MyNode.cpp
 less_than_la_LDFLAGS =-module -avoid-version -shared
 
+or_la_SOURCES = or/Factory.cpp or/MyNode.cpp
+or_la_LDFLAGS =-module -avoid-version -shared
+
 logic_ladir = $(libdir)
-logic_la_DATA = equal/equal.hni greater-or-equal/greater-or-equal.hni greater-than/greater-than.hni less-or-equal/less-or-equal.hni less-than/less-than.hni
+logic_la_DATA = and/and.hni equal/equal.hni greater-or-equal/greater-or-equal.hni greater-than/greater-than.hni less-or-equal/less-or-equal.hni less-than/less-than.hni or/or.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = equal/locales/en-US/equal greater-or-equal/locales/en-US/greater-or-equal greater-than/locales/en-US/greater-than less-or-equal/locales/en-US/less-or-equal less-than/locales/en-US/less-than
+locale_en_us_DATA = and/locales/en-US/and equal/locales/en-US/equal greater-or-equal/locales/en-US/greater-or-equal greater-than/locales/en-US/greater-than less-or-equal/locales/en-US/less-or-equal less-than/locales/en-US/less-than or/locales/en-US/or
 
 install-exec-hook:
+	rm -f $(DESTDIR)$(libdir)/and.la
 	rm -f $(DESTDIR)$(libdir)/equal.la
 	rm -f $(DESTDIR)$(libdir)/greater-or-equal.la
 	rm -f $(DESTDIR)$(libdir)/greater-than.la
 	rm -f $(DESTDIR)$(libdir)/less-or-equal.la
 	rm -f $(DESTDIR)$(libdir)/less-than.la
+	rm -f $(DESTDIR)$(libdir)/or.la

@@ -27,33 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "MyNode.h"
+#include "../config.h"
 
-#include <homegear-node/INode.h>
-#include <mutex>
-
-namespace MyNode
+Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	bool _outputChangesOnly = false;
-	bool _outputFalse = false;
-	std::mutex _inputMutex;
-	std::atomic_bool _lastEqual;
-	std::vector<Flows::PVariable> _inputs;
-
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool isEqual();
-};
-
+	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}
