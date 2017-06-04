@@ -47,9 +47,10 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 	bool _twoInputs = false;
+	bool _isDimmer = false;
 
-	int32_t getNumber(std::string& s, bool isHex = false);
-	int64_t getNumber64(std::string& s, bool isHex = false);
+	Flows::PVariable _onValue;
+	Flows::PVariable _offValue;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };

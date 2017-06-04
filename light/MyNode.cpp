@@ -40,39 +40,46 @@ MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
 bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
 		auto settingsIterator = info->info->structValue->find("peerid");
-		if(settingsIterator != info->info->structValue->end()) _peerId = getNumber64(settingsIterator->second->stringValue);
+		if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
 
 		settingsIterator = info->info->structValue->find("channel");
-		if(settingsIterator != info->info->structValue->end()) _channel = getNumber(settingsIterator->second->stringValue);
+		if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
 		settingsIterator = info->info->structValue->find("variable");
 		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 
+		settingsIterator = info->info->structValue->find("lighttype");
+		if(settingsIterator != info->info->structValue->end()) _isDimmer = settingsIterator->second->stringValue == "dimmer";
+
 		settingsIterator = info->info->structValue->find("twoinputs");
 		if(settingsIterator != info->info->structValue->end()) _twoInputs = settingsIterator->second->booleanValue;
+
+		if(_isDimmer)
+		{
+			std::string offValue = "0";
+			settingsIterator = info->info->structValue->find("offvalue");
+			if(settingsIterator != info->info->structValue->end()) offValue = settingsIterator->second->stringValue;
+
+			std::string onValue = "100";
+			settingsIterator = info->info->structValue->find("onvalue");
+			if(settingsIterator != info->info->structValue->end()) onValue = settingsIterator->second->stringValue;
+
+			if(onValue.find('.') != std::string::npos) _onValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(onValue));
+			else _onValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(onValue));
+
+			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
+			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
+		}
+		else
+		{
+			_onValue = std::make_shared<Flows::Variable>(true);
+			_offValue = std::make_shared<Flows::Variable>(false);
+		}
 
 		return true;
 	}
@@ -99,7 +106,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
 		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(std::make_shared<Flows::Variable>(state));
+		parameters->push_back(state ? _onValue : _offValue);
 
 		Flows::PVariable result = invoke("setValue", parameters);
 		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);

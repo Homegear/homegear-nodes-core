@@ -12,8 +12,14 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]light.label.name">
     </div>
     <div class="form-row">
+        <label for="node-input-family"><i class="fa fa-id-badge"></i> <span data-i18n="light.label.family"></span></label>
+        <select type="text" id="node-input-family" style="display: inline-block; width: 250px; vertical-align: top;">
+        </select>
+    </div>
+    <div class="form-row">
         <label for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="light.label.peerid"></span></label>
-        <input type="text" id="node-input-peerid" placeholder="Peer ID">
+        <select type="text" id="node-input-peerid" style="display: inline-block; width: 250px; vertical-align: top;">
+        </select>
     </div>
     <div class="form-row">
         <label for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="light.label.channel"></span></label>
@@ -22,6 +28,23 @@
     <div class="form-row">
         <label for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="light.label.variable"></span></label>
         <input type="text" id="node-input-variable" placeholder="Variable">
+    </div>
+    <div class="form-row">
+        <label for="node-input-lighttype"><i class="fa fa-random"></i> <span data-i18n="light.label.lighttype"></span></label>
+        <select type="text" id="node-input-lighttype" style="display: inline-block; width: 250px; vertical-align: top;">
+            <option value="switch" data-i18n="light.label.switch"></option>
+            <option value="dimmer" data-i18n="light.label.dimmer"></option>
+        </select>
+        <div id="node-input-dimmer" class="hide">
+            <div class="form-row">
+                <label style="width: auto; margin-top: 20px; margin-left: 20px; margin-right: 10px;" for="node-input-offvalue"><span data-i18n="light.label.offvalue"></span></label>
+                <input style="width: 300px;" type="text" id="node-input-offvalue">
+            </div>
+            <div class="form-row">
+                <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-input-onvalue"><span data-i18n="light.label.onvalue"></span></label>
+                <input style="width: 300px;" type="text" id="node-input-onvalue">
+            </div>
+        </div>
     </div>
     <div class="form-row">
         <input type="checkbox" id="node-input-twoinputs" style="display: inline-block; width: auto; vertical-align: top;">
@@ -34,9 +57,13 @@
         namespace: 'light',
         color:"#a6bbcf",
         defaults: {
+            family: {},
             peerid: {value:0,required:true,validate:RED.validators.number()},
             channel: {value:0,required:true,validate:RED.validators.number()},
             variable: {value:"",required:true},
+            lighttype: {value:"switch"},
+            offvalue: {value:0,validate:RED.validators.number()},
+            onvalue: {value:100,validate:RED.validators.number()},
             twoinputs: {value:false},
             inputs: {value:1},
             name: {value:""}
@@ -54,6 +81,64 @@
             if(this.name) return this.name;
             if(this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
             return "light";
+        },
+        oneditprepare: function() {
+            var that = this;
+            var devices = {};
+
+            RED.comms.homegear().invoke("listFamilies", function(message) {
+                var familySelect = $("#node-input-family");
+                $.each(message.result, function() {
+                    familySelect.append($("<option />").val(this.ID).text(this.NAME));
+                });
+                familySelect.val(that.family);
+            });
+
+            function updatePeerIdOptions() {
+                var currentFamily = $("#node-input-family").val();
+                var peerSelect = $("#node-input-peerid");
+                peerSelect.empty();
+                $.each(devices, function() {
+                    if(this.family == currentFamily) peerSelect.append($("<option />").val(this.id).text(this.id + (this.name ? " (" + this.name + ")" : "")));
+                });
+                peerSelect.val(that.peerid);
+            }
+
+            RED.comms.homegear().invoke("listDevices", function(message) {
+                var familySelect = $("#node-input-family");
+                $.each(message.result, function() {
+                    devices[this.ID] = {};
+                    devices[this.ID]['id'] = this.ID;
+                    devices[this.ID]['family'] = this.FAMILY;
+                });
+                var deviceCount = message.result.length;
+                $.each(devices, function() {
+                    RED.comms.homegear().invoke("getName", function(message) {
+                        devices[this.id]['name'] = message.result;
+                        deviceCount--;
+                        if(!deviceCount)
+                        {
+                            updatePeerIdOptions();
+                        }
+                    }.bind(this), this.id);
+                });
+            }, false, ["ID", "FAMILY"]);
+
+            $("#node-input-family").on("change",function() {
+                updatePeerIdOptions();
+            });
+
+            function updateSwitchOptions() {
+                if ($("#node-input-lighttype").val() == "dimmer") {
+                    $("#node-input-dimmer").show();
+                } else {
+                    $("#node-input-dimmer").hide();
+                }
+            }
+            updateSwitchOptions();
+            $("#node-input-lighttype").on("change",function() {
+                updateSwitchOptions();
+            });
         },
         oneditsave: function() {
             this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;

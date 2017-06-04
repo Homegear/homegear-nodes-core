@@ -2,14 +2,20 @@
   "light/light.hni": {
     "light": {
       "label": {
+        "family": "Family",
         "peerid": "Peer ID",
         "channel": "Channel",
         "variable": "Variable",
         "name": "Name",
+        "type": "Type",
+        "switch": "Switch",
+        "dimmer": "Dimmer",
+        "offvalue": "Value off",
+        "onvalue": "Value on",
         "twoinputs": "2-channel input"
       },
       "paletteHelp": "<p>Switches a light or a socket.</p>",
-      "help": "This node can be used to switch a light or socket.",
+      "help": "This node can be used to switch a light or socket. You can choose between \"dimmer\" (sets the level to an predefined \"on\" level or \"off level\") and \"switch\" (sets the state). If \"switching\" is selected by default there is one input. When set to <code>true</code> the selected variable is set to <code>true</code>. When set to <code>false</code> the selected variable is set to <code>false</code>. \"2-channel input\" adds a second input. <code>true</code> on the first input switches the light on. <code>true</code> on the second input switches it off. When \"2-channel input\" is selected <code>false</code> is ignored.",
       "input1Description": "If this is the only input, <code>true</code> will set the light state to <code>true</code> and <code>false</code> to <code>false</code>. If \"2-channel input\" is activated, <code>true</code> sets the light state to <code>true</code> and <code>false</code> is ignored.",
       "input2Description": "An input of <code>true</code> sets the light state to <code>false</code>. An input of <code>false</code> is ignored."
     }
