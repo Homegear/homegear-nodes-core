@@ -1,5 +1,5 @@
 {
-  "timer/timer.hni": {
+  "timers/timer.hni": {
     "timer": {
       "label": {
         "interval": "Interval",

@@ -19,7 +19,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('timer',{
         category: 'time',
-        namespace: 'timer',
+        namespace: 'timers',
         color:"#a6bbcf",
         defaults: {
             interval: {value:60000,required:true,validate:RED.validators.number()},

@@ -10,6 +10,7 @@ case $1 in
 		rm -Rf /var/lib/homegear/flows/nodes/mqtt-broker
 		rm -Rf /var/lib/homegear/flows/nodes/mqtt-in
 		rm -Rf /var/lib/homegear/flows/nodes/php-test
+		rm -Rf /var/lib/homegear/flows/nodes/timer
 		chown -R homegear:homegear /var/lib/homegear/flows/nodes
 		chmod -R 550 /var/lib/homegear/flows/nodes
 		homegear -e mls > /dev/null 2>&1
