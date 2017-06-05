@@ -24,7 +24,7 @@
         color: "#C0DEED",
         defaults: {
             name: {value:""},
-            onboolean: {value:true}
+            onboolean: {value:false}
         },
         inputs:2,
         inputInfo: [

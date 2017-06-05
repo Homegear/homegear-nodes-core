@@ -61,10 +61,10 @@
         defaults: {
             variabletype: {value: "device",required:true},
             family: {},
-            peerid: {value:0,required:true,validate:RED.validators.number()},
-            channel: {value:0,required:true,validate:RED.validators.number()},
-            variable: {value:"",required:true},
-            variabletext: {value:"",required:true},
+            peerid: {value:0,validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            channel: {value:0,validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
+            variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
+            variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
 
             refractoryperiod: {value: 0,validate:RED.validators.number()},
             name: {value:""}
@@ -227,6 +227,7 @@
                                             channelSelect.append($("<option />").val(this.channel).text(this.channel + (this.type ? " (" + this.type + ")" : "")));
                                         });
                                         channelSelect.val(that.channel);
+                                        if(channelSelect.val()) channelSelect.removeClass("input-error");
                                         updateVariableOptions();
                                     }
                                 }, currentPeerId, this);
@@ -241,17 +242,37 @@
             //}}}
 
             //{{{ Peers
-                function updatePeerIdOptions() {
+                function fillPeerIdOptions() {
                     var currentFamily = $("#node-input-family").val();
                     var peerSelect = $("#node-input-peerid");
-                    peerSelect.empty();
-                    $("#node-input-channel").empty();
-                    $("#node-input-variable").empty();
                     $.each(devices, function() {
-                        if(this.family == currentFamily) peerSelect.append($("<option />").val(this.id).text(this.id + (this.name ? " (" + this.name + ")" : (this.type ? " (" + this.type + ")" : ""))));
+                       if(this.family == currentFamily) peerSelect.append($("<option />").val(this.id).text(this.id + (this.name ? " (" + this.name + ")" : (this.type ? " (" + this.type + ")" : "")))); 
                     });
                     peerSelect.val(that.peerid);
+                    if(peerSelect.val()) peerSelect.removeClass("input-error");
                     updateChannelOptions();
+                }
+
+                function updatePeerIdOptions() {
+                    var currentFamily = $("#node-input-family").val();
+                    $("#node-input-peerid").empty();
+                    $("#node-input-channel").empty();
+                    $("#node-input-variable").empty();
+                    var deviceCount = 0;
+                    $.each(devices, function() {
+                        if(this.family == currentFamily && !this.name) deviceCount++;
+                    });
+                    if(deviceCount > 0) {
+                        $.each(devices, function() {
+                            if(this.family == currentFamily && !this.name) {
+                                RED.comms.homegear().invoke("getName", function(message) {
+                                    devices[this.id].name = message.result;
+                                    deviceCount--;
+                                    if(!deviceCount) fillPeerIdOptions();
+                                }.bind(this), this.id);
+                            }
+                        });
+                    } else fillPeerIdOptions();
                 }
 
                 RED.comms.homegear().invoke("listDevices", function(message) {
@@ -262,27 +283,13 @@
                         devices[this.ID].family = this.FAMILY;
                         devices[this.ID].type = this.TYPE;
                     });
-                    var deviceCount = message.result.length;
-                    $.each(devices, function() {
-                        RED.comms.homegear().invoke("getName", function(message) {
-                            devices[this.id]['name'] = message.result;
-                            deviceCount--;
-                            if(!deviceCount)
-                            {
-                                updatePeerIdOptions();
-                            }
-                        }.bind(this), this.id);
-                    });
+                    updatePeerIdOptions();
                 }, false, ["ID", "FAMILY", "TYPE"]);
 
                 $("#node-input-family").on("change",function() {
                     updatePeerIdOptions();
                 });
             //}}}
-        },
-        oneditsave: function() {
-            if(!$("#node-input-variabletext").val()) this.variabletext = $("#node-input-variable").val();
-            if(!$("#node-input-variable").val()) this.variable = $("#node-input-variabletext").val();
         }
     });
 </script>
