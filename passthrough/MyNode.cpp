@@ -44,29 +44,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		std::string variableType = "device";
-		auto settingsIterator = info->info->structValue->find("variabletype");
-		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
+		auto settingsIterator = info->info->structValue->find("onboolean");
+		if(settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
 
-		if(variableType == "device" || variableType == "metadata")
-		{
-			settingsIterator = info->info->structValue->find("peerid");
-			if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
-		}
-
-		if(variableType == "device")
-		{
-			settingsIterator = info->info->structValue->find("channel");
-			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-			settingsIterator = info->info->structValue->find("variable");
-			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
-		}
-		else
-		{
-			settingsIterator = info->info->structValue->find("variabletext");
-			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
-		}
+		_input1 = getNodeData("input1");
+		_input2 = getNodeData("input2")->booleanValue;
 
 		return true;
 	}
@@ -85,15 +67,18 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(message->structValue->at("payload"));
-
-		Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		if(index == 0)
+		{
+			_input1 = message;
+			setNodeData("input1", _input1);
+			if(_input2) output(0, _input1);
+		}
+		else if(index == 1)
+		{
+			_input2 = message->structValue->at("payload")->booleanValue;
+			setNodeData("input2", message->structValue->at("payload"));
+			if(_input2 && _onBoolean) output(0, _input1);
+		}
 	}
 	catch(const std::exception& ex)
 	{

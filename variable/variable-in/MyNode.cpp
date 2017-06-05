@@ -40,36 +40,36 @@ MyNode::~MyNode()
 {
 }
 
-int32_t MyNode::getNumber(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int32_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
-int64_t MyNode::getNumber64(std::string& s, bool isHex)
-{
-	int32_t xpos = s.find('x');
-	int64_t number = 0;
-	if(xpos == -1 && !isHex) try { number = std::stoll(s, 0, 10); } catch(...) {}
-	else try { number = std::stoll(s, 0, 16); } catch(...) {}
-	return number;
-}
-
 bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto peerIdIterator = info->info->structValue->find("peerid");
-		if(peerIdIterator != info->info->structValue->end()) _peerId = getNumber64(peerIdIterator->second->stringValue);
+		std::string variableType = "device";
+		auto settingsIterator = info->info->structValue->find("variabletype");
+		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
-		auto channelIterator = info->info->structValue->find("channel");
-		if(channelIterator != info->info->structValue->end()) _channel = getNumber(channelIterator->second->stringValue);
+		if(variableType == "device" || variableType == "metadata")
+		{
+			settingsIterator = info->info->structValue->find("peerid");
+			if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
+		}
 
-		auto variableIterator = info->info->structValue->find("variable");
-		if(variableIterator != info->info->structValue->end()) _variable = variableIterator->second->stringValue;
+		if(variableType == "device")
+		{
+			settingsIterator = info->info->structValue->find("channel");
+			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+			settingsIterator = info->info->structValue->find("variable");
+			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		}
+		else
+		{
+			settingsIterator = info->info->structValue->find("variabletext");
+			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		}
+
+		settingsIterator = info->info->structValue->find("refractoryperiod");
+		if(settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(3);
@@ -113,6 +113,9 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 {
 	try
 	{
+		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
+		_lastInput = Flows::HelperFunctions::getTime();
+
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
 		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));

@@ -47,9 +47,6 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 
-	int32_t getNumber(std::string& s, bool isHex = false);
-	int64_t getNumber64(std::string& s, bool isHex = false);
-
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

@@ -2,12 +2,16 @@
   "light/light.hni": {
     "light": {
       "label": {
+        "variabletype": "Variable type",
+        "devicevariable": "Device variable",
+        "metadata": "Metadata",
+        "systemvariable": "System variable",
         "family": "Family",
         "peerid": "Peer ID",
         "channel": "Channel",
         "variable": "Variable",
         "name": "Name",
-        "type": "Type",
+        "lighttype": "Light type",
         "switch": "Switch",
         "dimmer": "Dimmer",
         "offvalue": "Value off",

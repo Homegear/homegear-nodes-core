@@ -2,14 +2,20 @@
   "variable/variable-in.hni": {
     "variable-in": {
       "label": {
+        "variabletype": "Variable type",
+        "devicevariable": "Device variable",
+        "metadata": "Metadata",
+        "systemvariable": "System variable",
+        "family": "Family",
         "peerid": "Peer ID",
         "channel": "Channel",
         "variable": "Variable",
+        "refractoryperiod": "Refractory period",
         "name": "Name"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Subscribes to variable events.</p>",
-      "help": "This node subscribes to variable events. For metadata events set <code>Channel</code> to <code>-1</code>. For system variable events additionally set <code>Peer ID</code> to <code>0</code>.",
+      "help": "This node subscribes to variable events.",
       "output1Description": "Outputs the referenced variable on every variable update."
     }
   }

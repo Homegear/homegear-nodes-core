@@ -48,14 +48,13 @@ public:
 	virtual void stop();
 private:
 	bool _enabled = false;
+	int64_t _inputTime = 0;
 	uint32_t _interval = 60000;
 	uint32_t _resetAfter = 0;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
-
-	uint32_t getNumber(std::string& s, bool isHex = false);
 
 	void timer();
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);

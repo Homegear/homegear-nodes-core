@@ -1,0 +1,53 @@
+<script type="text/x-homegear">
+{
+    "name": "passthrough",
+    "readableName": "Passthrough",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="passthrough">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="passthrough.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]passthrough.label.name">
+    </div>
+    <div class="form-row" id="onboolean">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-onboolean" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-onboolean" style="width: 70%;" data-i18n="passthrough.label.onboolean"></label>
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('passthrough',{
+        category: 'filter',
+        namespace: 'passthrough',
+        color: "#C0DEED",
+        defaults: {
+            name: {value:""},
+            onboolean: {value:true}
+        },
+        inputs:2,
+        inputInfo: [
+        	{
+        		label: "v",
+        		types: ["any"],
+        	},
+        	{
+        		label: "EN",
+        		types: ["bool"]
+        	}
+        ],
+        outputs:1,
+        outputInfo: [
+        	{
+        		types: ["any"]
+        	}
+        ],
+        icon: "function.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "passthrough";
+        },
+        paletteLabel: "passthrough"
+    });
+</script>

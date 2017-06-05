@@ -1,0 +1,15 @@
+{
+  "passthrough/passthrough.hni": {
+    "passthrough": {
+      "label": {
+        "onboolean": "Passthrough when \"EN\" is changed to \"true\"",
+        "name": "Name"
+      },
+      "paletteHelp": "This node passes a value to the output depending on a boolean input.",
+      "help": "<p>This node checks the boolean state of input <code>EN</code>. If the state is <code>true</code> the value at input <code>v</code> is passed to the output.</p>",
+      "input1Description": "The value to pass through.",
+      "input2Description": "Set to <code>true</code> to pass the value at input <code>EN</code> through.",
+      "output1Description": "Outputs the value at input <code>v</code> unchanged."
+    }
+  }
+}

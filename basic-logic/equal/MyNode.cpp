@@ -53,7 +53,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 		int32_t inputs = 2;
 		settingsIterator = info->info->structValue->find("inputs");
-		if(settingsIterator != info->info->structValue->end()) inputs = Flows::Math::getNumber(settingsIterator->second->stringValue);
+		if(settingsIterator != info->info->structValue->end()) inputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
 
 		_inputs.resize(inputs);
 

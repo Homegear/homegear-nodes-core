@@ -44,14 +44,29 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("peerid");
-		if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
+		std::string variableType = "device";
+		auto settingsIterator = info->info->structValue->find("variabletype");
+		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("channel");
-		if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
+		if(variableType == "device" || variableType == "metadata")
+		{
+			settingsIterator = info->info->structValue->find("peerid");
+			if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
+		}
 
-		settingsIterator = info->info->structValue->find("variable");
-		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		if(variableType == "device")
+		{
+			settingsIterator = info->info->structValue->find("channel");
+			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+			settingsIterator = info->info->structValue->find("variable");
+			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		}
+		else
+		{
+			settingsIterator = info->info->structValue->find("variabletext");
+			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		}
 
 		settingsIterator = info->info->structValue->find("lighttype");
 		if(settingsIterator != info->info->structValue->end()) _isDimmer = settingsIterator->second->stringValue == "dimmer";
