@@ -200,7 +200,6 @@
                     node.links.push($(this).data('node-id'));
                 }
             });
-            console.log(node.links);
             node.oldLinks.sort();
             node.links.sort();
             var nodeMap = {};
