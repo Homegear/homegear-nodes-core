@@ -32,6 +32,7 @@ class GpioThread extends Thread
 			return;
 		}
 		$gpio = new HomegearGpio();
+		$gpio->export($this->sharedData->gpioIndex);
 		$gpio->open($this->sharedData->gpioIndex);
 		$gpio->setDirection($this->sharedData->gpioIndex, HomegearGpio::DIRECTION_IN);
 		$gpio->setEdge($this->sharedData->gpioIndex, HomegearGpio::EDGE_BOTH);

@@ -31,6 +31,7 @@ public function init(array $nodeInfo) : bool
 public function start() : bool
 {
 	$this->gpio = new HomegearGpio();
+	$this->gpio->export($this->gpioIndex);
 	$this->gpio->open($this->gpioIndex);
 	$this->gpio->setDirection($this->gpioIndex, HomegearGpio::DIRECTION_OUT);
 
