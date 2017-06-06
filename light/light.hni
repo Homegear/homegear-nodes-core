@@ -324,6 +324,9 @@
             $("#node-input-lighttype").on("change",function() {
                 updateSwitchOptions();
             });
+        },
+        oneditsave: function() {
+            this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
         }
     });
 </script>
