@@ -32,6 +32,8 @@
 
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonDecoder.h>
+#include <mutex>
+#include <regex>
 
 namespace MyNode
 {
@@ -39,13 +41,53 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
+	enum class RuleType
+	{
+		tEq,
+		tNeq,
+		tLt,
+		tLte,
+		tGt,
+		tGte,
+		tBtwn,
+		tCont,
+		tRegex,
+		tTrue,
+		tFalse,
+		tNull,
+		tNnull,
+		tElse
+	};
+
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
 private:
-	Flows::PVariable _value;
+	struct Rule
+	{
+		RuleType t;
+		Flows::PVariable v;
+		Flows::VariableType vt;
+		Flows::PVariable v2;
+		Flows::VariableType v2t;
+		std::regex regex;
+		bool previousValue = false;
+	};
+
+	typedef std::string Operator;
+
+	std::string _property;
+	Flows::PVariable _previousValue;
+	std::vector<Rule> _rules;
+	bool _checkAll = true;
+
+	RuleType getRuleTypeFromString(std::string& t);
+	Flows::VariableType getValueTypeFromString(std::string& vt);
+	void convertType(Flows::PVariable& value, Flows::VariableType vt);
+	bool isTrue(Flows::PVariable& value);
+	bool match(Rule& rule, Flows::PVariable& value);
+	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 
 }

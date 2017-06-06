@@ -27,27 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H
+#define FACTORY_H
 
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include <homegear-node/NodeFactory.h>
+#include "MyNode.h"
 
-namespace MyNode
-{
-
-class MyNode: public Flows::INode
+class MyFactory : Flows::NodeFactory
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-	Flows::PVariable _value;
+	virtual Flows::INode* createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif
