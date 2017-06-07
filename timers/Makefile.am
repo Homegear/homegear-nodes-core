@@ -14,7 +14,7 @@ interval_la_LDFLAGS =-module -avoid-version -shared
 delay_la_SOURCES = delay/Factory.cpp delay/MyNode.cpp
 delay_la_LDFLAGS =-module -avoid-version -shared
 
-timer_la_SOURCES = timer/Factory.cpp timer/MyNode.cpp
+timer_la_SOURCES = timer/Factory.cpp timer/MyNode.cpp timer/SunTime.cpp
 timer_la_LDFLAGS =-module -avoid-version -shared
 
 timers_ladir = $(libdir)

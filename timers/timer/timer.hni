@@ -12,27 +12,34 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
     </div>
     <div class="form-row">
-        <label for="node-input-ontime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.ontime"></span></label>
-        <input type="text" id="node-input-ontime" style="width:70%"/>
+        <label style="width:16%" for="node-input-ontime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.ontime"></span></label>
+        <input type="text" id="node-input-ontime" style="width:26%"/>
         <input type="hidden" id="node-input-ontimetype"/>
+        <label style="width:16%"  for="node-input-offtime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.offtime"></span></label>
+        <input type="text" id="node-input-offtime" style="width:26%"/>
+        <input type="hidden" id="node-input-offtimetype"/>
     </div>
     <div class="form-row">
-        <label for="node-input-offtime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.offtime"></span></label>
-        <input type="text" id="node-input-offtime" style="width:70%"/>
-        <input type="hidden" id="node-input-offtimetype"/>
+        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> Latitude</label>
+        <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
+
+        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> Longitude</label>
+        <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
     </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('timer',{
         category: 'time',
         namespace: 'timers',
-        color:"#a6bbcf",
+        color:"#FFCC66",
         defaults: {
             name: {value:""},
             ontime: {value:""},
             ontimetype: {value:"suntime", validate: RED.validators.typedInput("ontimetype")},
-            offtime: {value:""},
-            offtimetype: {value:"time", validate: RED.validators.typedInput("offtimetype")}
+            offtime: {value:"1:15"},
+            offtimetype: {value:"time", validate: RED.validators.typedInput("offtimetype")},
+            lat: {value:"", required: true},
+            lon: {value:"", required: true}
         },
         inputs:1,
         inputInfo: [
@@ -41,23 +48,25 @@
                 types: ["boolean"]
             }
         ],
-        outputs:2,
-        outputInfo: [
-            {
-		label: "t",
-                types: ["integer"]
-            },
-            {
-		label: "f",
-                types: ["boolean"]
-            }
-        ],
+        outputs:1,
         icon: "serial.png",
         label: function() {
             if(this.name) return this.name;
             return "timer";
         },
         oneditprepare: function() {
+            if (($("#node-input-lat").val() === "") && ($("#node-input-lon").val() === "")) {
+                console.log("Moin2");
+                if ("geolocation" in navigator) {
+                    console.log("Moin3");
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        console.log("Moin",position);
+                        $("#node-input-lat").val(Number(position.coords.latitude.toFixed(5)));
+                        $("#node-input-lon").val(Number(position.coords.longitude.toFixed(5)));
+                    });
+                }
+            }
+
             $("#node-input-ontime").typedInput({
                 default: 'suntime',
                 typeField: $("#node-input-ontimetype"),
@@ -65,7 +74,6 @@
             });
 
             $("#node-input-ontime").typedInput('type',this.payloadType);
-            $("#node-input-ontimetype").on('change', function() { alert('Moin'); });
 
             $("#node-input-offtime").typedInput({
                 default: 'time',
