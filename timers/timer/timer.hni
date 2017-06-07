@@ -8,12 +8,18 @@
 </script>
 <script type="text/x-red" data-template-name="timer">
     <div class="form-row">
-        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="timer.label.interval"></span></label>
-        <input type="text" id="node-input-interval" data-i18n="[placeholder]timer.label.interval2">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
     </div>
     <div class="form-row">
-        <label for="node-input-resetafter"><i class="fa fa-list-ol"></i> <span data-i18n="timer.label.resetafter"></span></label>
-        <input type="text" id="node-input-resetafter" data-i18n="[placeholder]timer.label.resetafter2">
+        <label for="node-input-ontime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.ontime"></span></label>
+        <input type="text" id="node-input-ontime" style="width:70%"/>
+        <input type="hidden" id="node-input-ontimetype"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-offtime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.offtime"></span></label>
+        <input type="text" id="node-input-offtime" style="width:70%"/>
+        <input type="hidden" id="node-input-offtimetype"/>
     </div>
 </script>
 <script type="text/javascript">
@@ -22,9 +28,11 @@
         namespace: 'timers',
         color:"#a6bbcf",
         defaults: {
-            interval: {value:60000,required:true,validate:RED.validators.number()},
-            resetafter: {value:0,required:true,validate:RED.validators.number()},
-            name: {value:""}
+            name: {value:""},
+            ontime: {value:""},
+            ontimetype: {value:"suntime", validate: RED.validators.typedInput("ontimetype")},
+            offtime: {value:""},
+            offtimetype: {value:"time", validate: RED.validators.typedInput("offtimetype")}
         },
         inputs:1,
         inputInfo: [
@@ -48,6 +56,24 @@
         label: function() {
             if(this.name) return this.name;
             return "timer";
+        },
+        oneditprepare: function() {
+            $("#node-input-ontime").typedInput({
+                default: 'suntime',
+                typeField: $("#node-input-ontimetype"),
+                types:['suntime','time']
+            });
+
+            $("#node-input-ontime").typedInput('type',this.payloadType);
+            $("#node-input-ontimetype").on('change', function() { alert('Moin'); });
+
+            $("#node-input-offtime").typedInput({
+                default: 'time',
+                typeField: $("#node-input-offtimetype"),
+                types:['suntime','time']
+            });
+
+            $("#node-input-offtime").typedInput('type',this.payloadType);
         }
     });
 </script>
