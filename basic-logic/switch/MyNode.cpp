@@ -103,6 +103,19 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("checkall");
 		if(settingsIterator != info->info->structValue->end()) _checkAll = settingsIterator->second->stringValue == "true" || settingsIterator->second->booleanValue;
 
+		settingsIterator = info->info->structValue->find("output-true");
+		if(settingsIterator != info->info->structValue->end()) _outputTrue = settingsIterator->second->booleanValue;
+
+		if(_outputTrue)
+		{
+			settingsIterator = info->info->structValue->find("output-false");
+			if(settingsIterator != info->info->structValue->end()) _outputFalse = settingsIterator->second->booleanValue;
+		}
+		else _outputFalse = false;
+
+		settingsIterator = info->info->structValue->find("changes-only");
+		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
+
 		settingsIterator = info->info->structValue->find("property");
 		if(settingsIterator != info->info->structValue->end()) _property = settingsIterator->second->stringValue;
 
@@ -114,6 +127,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(rules)
 		{
 			_rules.reserve(rules->size());
+			uint32_t index = 0;
 			for(auto& ruleStruct : *rules)
 			{
 				auto typeIterator = ruleStruct->structValue->find("t");
@@ -123,6 +137,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 				if(typeIterator == ruleStruct->structValue->end()) continue;
 
 				Rule rule;
+				rule.previousOutput = getNodeData("previousOutputValue" + std::to_string(index));
 				rule.t = getRuleTypeFromString(typeIterator->second->stringValue);
 
 				if(valueIterator != ruleStruct->structValue->end() && valueTypeIterator != ruleStruct->structValue->end())
@@ -130,6 +145,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 					rule.v = valueIterator->second;
 					rule.vt = getValueTypeFromString(valueTypeIterator->second->stringValue);
 					rule.previousValue = valueTypeIterator->second->stringValue == "prev";
+					rule.secondInput = valueTypeIterator->second->stringValue == "second";
 					convertType(rule.v, rule.vt);
 				}
 				else rule.v = std::make_shared<Flows::Variable>();
@@ -142,24 +158,27 @@ bool MyNode::init(Flows::PNodeInfo info)
 				{
 					rule.v2 = valueIterator->second;
 					rule.v2t = getValueTypeFromString(valueTypeIterator->second->stringValue);
+					rule.previousValue2 = valueTypeIterator->second->stringValue == "prev";
+					rule.secondInput2 = valueTypeIterator->second->stringValue == "second";
 					convertType(rule.v2, rule.v2t);
 				}
 				else rule.v2 = std::make_shared<Flows::Variable>();
 
 				if(rule.t == RuleType::tRegex)
 				{
-					bool ignoreCase = false;
 					auto caseIterator = ruleStruct->structValue->find("case");
-					if(caseIterator != ruleStruct->structValue->end()) ignoreCase = caseIterator->second->booleanValue;
+					if(caseIterator != ruleStruct->structValue->end()) rule.ignoreCase = caseIterator->second->booleanValue;
 
-					rule.regex = std::regex(rule.v->stringValue, ignoreCase ? std::regex::icase : std::regex::ECMAScript);
+					rule.regex = std::regex(rule.v->stringValue, rule.ignoreCase ? std::regex::icase : std::regex::ECMAScript);
 				}
 
 				_rules.push_back(rule);
+				index++;
 			}
 		}
 
-		_previousValue = getNodeData("previousValue");
+		_previousInputValue = getNodeData("previousInputValue");
+		_previousInputValue2 = getNodeData("previousInputValue2");
 
 		return true;
 	}
@@ -213,8 +232,25 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 	{
 		if(rule.previousValue)
 		{
-			rule.v = _previousValue;
-			rule.vt = _previousValue->type;
+			rule.v = _previousInputValue;
+			rule.vt = _previousInputValue->type;
+		}
+		if(rule.previousValue2)
+		{
+			rule.v2 = _previousInputValue;
+			rule.v2t = _previousInputValue->type;
+		}
+		if(rule.secondInput)
+		{
+			rule.v = _previousInputValue2;
+			rule.vt = _previousInputValue2->type;
+
+			if(rule.t == RuleType::tRegex) rule.regex = std::regex(rule.v->stringValue, rule.ignoreCase ? std::regex::icase : std::regex::ECMAScript);
+		}
+		if(rule.secondInput2)
+		{
+			rule.v2 = _previousInputValue2;
+			rule.v2t = _previousInputValue2->type;
 		}
 		switch(rule.t)
 		{
@@ -289,17 +325,64 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		auto messageIterator = message->structValue->find(_property);
 		if(messageIterator == message->structValue->end()) return;
 
+		if(index == 1) //2nd input
+		{
+			_previousInputValue2 = messageIterator->second;
+			setNodeData("previousInputValue2", _previousInputValue2);
+			messageIterator->second = _previousInputValue; //Set payload to value of first input and continue processing
+		}
+
 		for(uint32_t i = 0; i < _rules.size(); i++)
 		{
 			if(match(_rules.at(i), messageIterator->second))
 			{
-				output(i, message);
+				if(_outputTrue)
+				{
+					if(!_changesOnly || !_rules.at(i).previousOutput->booleanValue)
+					{
+						Flows::PVariable trueMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+						Flows::PVariable trueValue = std::make_shared<Flows::Variable>(true);
+						trueMessage->structValue->emplace("payload", trueValue);
+						_rules.at(i).previousOutput = trueValue;
+						setNodeData("previousOutputValue" + std::to_string(i), trueValue);
+						output(i, trueMessage);
+					}
+				}
+				else
+				{
+					if(!_changesOnly || *(_rules.at(i).previousOutput) != *(messageIterator->second))
+					{
+						_rules.at(i).previousOutput = messageIterator->second;
+						setNodeData("previousOutputValue" + std::to_string(i), messageIterator->second);
+						output(i, message);
+					}
+				}
 				if(!_checkAll) break;
+			}
+			else if(_outputFalse)
+			{
+				if(!_changesOnly || _rules.at(i).previousOutput->booleanValue)
+				{
+					Flows::PVariable falseValue = std::make_shared<Flows::Variable>(false);
+					_rules.at(i).previousOutput = falseValue;
+					setNodeData("previousOutputValue" + std::to_string(i), falseValue);
+					Flows::PVariable falseMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+					falseMessage->structValue->emplace("payload", falseValue);
+					output(i, falseMessage);
+				}
+			}
+			else
+			{
+				_rules.at(i).previousOutput = std::make_shared<Flows::Variable>();
+				setNodeData("previousOutputValue" + std::to_string(i), _rules.at(i).previousOutput);
 			}
 		}
 
-		_previousValue = messageIterator->second;
-		setNodeData("peviousValue", _previousValue);
+		if(index == 0)
+		{
+			_previousInputValue = messageIterator->second;
+			setNodeData("previousInputValue", _previousInputValue);
+		}
 	}
 	catch(const std::exception& ex)
 	{

@@ -69,17 +69,26 @@ private:
 		RuleType t;
 		Flows::PVariable v;
 		Flows::VariableType vt;
+		Flows::PVariable previousOutput;
+		bool previousValue = false;
+		bool secondInput = false;
+		bool ignoreCase = false;
 		Flows::PVariable v2;
 		Flows::VariableType v2t;
+		bool previousValue2 = false;
+		bool secondInput2 = false;
 		std::regex regex;
-		bool previousValue = false;
 	};
 
 	typedef std::string Operator;
 
 	std::string _property;
-	Flows::PVariable _previousValue;
+	Flows::PVariable _previousInputValue;
+	Flows::PVariable _previousInputValue2;
 	std::vector<Rule> _rules;
+	bool _changesOnly = false;
+	bool _outputTrue = false;
+	bool _outputFalse = false;
 	bool _checkAll = true;
 
 	RuleType getRuleTypeFromString(std::string& t);

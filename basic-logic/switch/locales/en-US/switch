@@ -3,6 +3,9 @@
     "switch": {
       "label": {
         "property": "msg property",
+        "changes-only": "Forward changes of output only",
+        "output-true": "Output \"true\" instead of forwarding the message",
+        "output-false": "Output \"false\", too",
         "rule": "rule"
       },
       "and": "and",
@@ -20,8 +23,9 @@
           "else":"otherwise"
       },
       "previous": "previous value",
-      "paletteHelp": "<p>Route messages based on their property values.</p>",
-      "help": "<p>Route messages based on their property values.</p><h3>Details</h3><p>When a message arrives, the node will evaluate each of the defined rules and forward the message to the corresponding outputs of any matching rules.</p><p>Optionally, the node can be set to stop evaluating rules once it finds one that matches.</p>",
+      "input2": "2nd input",
+      "paletteHelp": "<p>Route messages based on their property values or the value of a second input.</p>",
+      "help": "<p>Route messages based on their property values or the value of a second input.</p><h3>Details</h3><p>When a message arrives, the node will evaluate each of the defined rules and forward the message to the corresponding outputs of any matching rules.</p><p>Optionally, the node can be set to stop evaluating rules once it finds one that matches.</p>",
       "input1Description": "The input to compare."
     }
   }

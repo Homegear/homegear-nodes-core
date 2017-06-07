@@ -32,6 +32,21 @@
         <input type="text" id="node-input-property" style="width: 70%"/>
         <input type="hidden" id="node-input-outputs"/>
     </div>
+    <div class="form-row" id="changes-only">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-changes-only" style="width: 70%;" data-i18n="switch.label.changes-only"></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-output-true" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-output-true" style="width: 70%;" data-i18n="switch.label.output-true"></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-output-false" style="width: 70%;" data-i18n="switch.label.output-false"></label>
+    </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
     </div>
@@ -82,8 +97,12 @@
         defaults: {
             name: {value:""},
             property: {value:"payload", required:true},
+            "changes-only": {value:false},
+            "output-true": {value:false},
+            "output-false": {value:false},
             rules: {value:[{t:"eq", v:""}]},
             checkall: {value:"true", required:true},
+            inputs: {value:1},
             outputs: {value:1}
         },
         inputs: 1,
@@ -95,8 +114,15 @@
         oneditprepare: function() {
             var node = this;
             var previousValueType = {value:"prev",label:this._("switch.previous"),hasValue:false};
+            var secondInputValueType = {value:"second",label:this._("switch.input2"),hasValue:false};
 
             var outputCount = $("#node-input-outputs").val("{}");
+
+            if(this['output-true']) $("#node-input-output-false").attr('disabled', false);
+            $("#node-input-output-true").on('click', function() {
+                if(this.checked) $("#node-input-output-false").attr('disabled', false);
+                else $("#node-input-output-false").attr('disabled', true);
+            });
 
             var andLabel = this._("switch.and");
             var caseLabel = this._("switch.ignorecase");
@@ -148,10 +174,10 @@
                     for (var d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(/^switch/.test(operators[d].t)?node._(operators[d].t):operators[d].t));
                     }
-                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType]});
-                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['bool','int','float','string','array','struct',previousValueType]});
+                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,secondInputValueType]});
+                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType]});
                     var btwnAndLabel = $('<span/>',{class:"node-input-rule-btwn-label"}).text(" "+andLabel+" ").appendTo(row3);
-                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['bool','int','float','string','array','struct',previousValueType]});
+                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType]});
                     var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index">'+i+'</span> ');
                     var caseSensitive = $('<input/>',{id:"node-input-rule-case-"+i,class:"node-input-rule-case",type:"checkbox",style:"width:auto;vertical-align:top"}).appendTo(row2);
@@ -263,6 +289,11 @@
                 }
                 node.rules.push(r);
             });
+            if($(".node-input-rule-value").typedInput('type') == "second" || $(".node-input-rule-btwn-value").typedInput('type') == "second" || $(".node-input-rule-btwn-value2").typedInput('type') == "second") {
+                this.inputs = 2;
+            } else {
+                this.inputs = 1;
+            }
         },
         oneditresize: function(size) {
             var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
