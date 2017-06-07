@@ -2,17 +2,15 @@
   "timers/interval.hni": {
     "interval": {
       "label": {
-        "interval": "Interval",
-        "interval2": "Interval in ms",
-        "resetafter": "Reset after",
-        "resetafter2": "Time in ms or 0",
-        "name": "Name"
+        "name": "Name",
+        "ontime": "On time",
+        "offtime": "Off time",
+        "latitude": "Latitude",
+        "longitude": "Longitude"
       },
-      "input1Description": "Set to <code>true</code> to enable the timer and to <code>false</code> to disable it.",
-      "output1Description": "Outputs the number of ticks since the timer was started.",
-      "output2Description": "Outputs <code>true</code> when the timer is finished.",
-      "paletteHelp": "<p>Generates an periodic event in constant intervals.</p>",
-      "help": "This node generates events in constant intervals. Set <code>EN</code> to \"true\" to enable the timer. You can set \"Reset after\" to automatically disable the timer."
+      "input1Description": "Set to <code>false</code> to disable the timer and to <code>true</code> to enable it again. By default the timer is enabled.",
+      "paletteHelp": "<p>Generates events at specific time points.</p>",
+      "help": "This node generates events at specific time points."
     }
   }
 }

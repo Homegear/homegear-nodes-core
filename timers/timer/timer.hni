@@ -12,18 +12,18 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
     </div>
     <div class="form-row">
-        <label style="width:16%" for="node-input-ontime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.ontime"></span></label>
+        <label style="width:16%" for="node-input-ontime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.ontime"></span></label>
         <input type="text" id="node-input-ontime" style="width:26%"/>
         <input type="hidden" id="node-input-ontimetype"/>
-        <label style="width:16%"  for="node-input-offtime"><i class="fa fa-envelope"></i> <span data-i18n="common.label.offtime"></span></label>
+        <label style="width:16%"  for="node-input-offtime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.offtime"></span></label>
         <input type="text" id="node-input-offtime" style="width:26%"/>
         <input type="hidden" id="node-input-offtimetype"/>
     </div>
     <div class="form-row">
-        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> Latitude</label>
+        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer.label.latitude"></span></label>
         <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
 
-        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> Longitude</label>
+        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="timer.label.longitude"></span></label>
         <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
     </div>
 </script>
@@ -56,11 +56,8 @@
         },
         oneditprepare: function() {
             if (($("#node-input-lat").val() === "") && ($("#node-input-lon").val() === "")) {
-                console.log("Moin2");
                 if ("geolocation" in navigator) {
-                    console.log("Moin3");
                     navigator.geolocation.getCurrentPosition(function(position) {
-                        console.log("Moin",position);
                         $("#node-input-lat").val(Number(position.coords.latitude.toFixed(5)));
                         $("#node-input-lon").val(Number(position.coords.longitude.toFixed(5)));
                     });
