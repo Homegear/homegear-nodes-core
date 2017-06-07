@@ -1,6 +1,6 @@
 {
-  "timers/interval.hni": {
-    "interval": {
+  "timers/timer.hni": {
+    "timer": {
       "label": {
         "name": "Name",
         "ontime": "On time",
