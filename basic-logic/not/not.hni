@@ -1,0 +1,41 @@
+<script type="text/x-homegear">
+{
+    "name": "not",
+    "readableName": "Not",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="not">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="not.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]not.label.name">
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('not',{
+        category: 'logic',
+        namespace: 'basic-logic',
+        color: "#e2d96e",
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+        	{
+        		types: ["any"]
+        	}
+        ],
+        outputs:1,
+        outputInfo: [
+        	{
+        		types: ["bool"]
+        	}
+        ],
+        icon: "function.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "not";
+        }
+    });
+</script>

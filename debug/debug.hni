@@ -29,9 +29,21 @@
     </div>
     <div class="form-row">
         <label for="node-input-console"><i class="fa fa-random"></i> <span data-i18n="debug.to"></span></label>
-        <select type="text" id="node-input-console" style="display: inline-block; width: 250px; vertical-align: top;">
-            <option value="false" data-i18n="debug.debtab"></option>
-            <option value="true" data-i18n="debug.tabcon"></option>
+        <select type="text" id="node-input-console" style="display: inline-block; width: 70%;">
+            <option value="debtab" data-i18n="debug.debtab"></option>
+            <option value="tabcon" data-i18n="debug.tabcon"></option>
+            <option value="hg" data-i18n="debug.hg"></option>
+            <option value="debtabhg" data-i18n="debug.debtabhg"></option>
+        </select>
+    </div>
+    <div id="node-input-loglevel-container" class="form-row hide">
+        <label for="node-input-loglevel"><i class="fa fa-random"></i> <span data-i18n="debug.loglevel"></span></label>
+        <select type="text" id="node-input-loglevel" style="display: inline-block; width: 70%;">
+            <option value="5" data-i18n="debug.debug"></option>
+            <option value="4" data-i18n="debug.info"></option>
+            <option value="3" data-i18n="debug.warning"></option>
+            <option value="2" data-i18n="debug.error"></option>
+            <option value="1" data-i18n="debug.critical"></option>
         </select>
     </div>
     <div class="form-row">
@@ -318,8 +330,9 @@
         defaults: {
             name: {value:""},
             active: {value:true},
-            console: {value:"false"},
-            complete: {value:"false", required:true}
+            console: {value:"debtab"},
+            complete: {value:"false", required:true},
+            loglevel: {value:"info"}
         },
         label: function() {
             var suffix = "";
@@ -492,6 +505,20 @@
                 ) {
                     $("#node-input-typed-complete").typedInput('value','payload');
                 }
+            });
+
+            function updateLogLevelOptions() {
+                var logType = $("#node-input-console").val();
+                if (logType == "hg" || logType == "debtabhg") {
+                    $("#node-input-loglevel-container").show();
+                } else {
+                    $("#node-input-loglevel-container").hide();
+                }
+            }
+
+            updateLogLevelOptions();
+            $("#node-input-console").on("change",function() {
+                updateLogLevelOptions();
             });
         },
         oneditsave: function() {

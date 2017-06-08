@@ -34,7 +34,7 @@
         <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
         </select>
     </div>
-    <div id="node-input-variable-container" clsee="hide">
+    <div id="node-input-variable-container" class="hide">
         <div class="form-row">
             <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.variable"></span></label>
             <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">

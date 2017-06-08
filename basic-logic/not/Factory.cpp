@@ -27,45 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "MyNode.h"
+#include "../config.h"
 
-#include <homegear-node/INode.h>
-
-namespace MyNode
+Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
-private:
-	bool _active = true;
-	bool _hg = false;
-	bool _debTabHg = true;
-	int32_t _logLevel = 4;
-
-	static std::string& stringReplace(std::string& haystack, std::string search, std::string replace)
-	{
-		if(search.empty()) return haystack;
-		int32_t pos = 0;
-		while(true)
-		{
-			 pos = haystack.find(search, pos);
-			 if (pos == (signed)std::string::npos) break;
-			 haystack.replace(pos, search.size(), replace);
-			 pos += replace.size();
-		}
-		return haystack;
-	}
-
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-};
-
+	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

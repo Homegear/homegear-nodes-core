@@ -27,45 +27,42 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
-
-#include <homegear-node/INode.h>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
-private:
-	bool _active = true;
-	bool _hg = false;
-	bool _debTabHg = true;
-	int32_t _logLevel = 4;
-
-	static std::string& stringReplace(std::string& haystack, std::string search, std::string replace)
-	{
-		if(search.empty()) return haystack;
-		int32_t pos = 0;
-		while(true)
-		{
-			 pos = haystack.find(search, pos);
-			 if (pos == (signed)std::string::npos) break;
-			 haystack.replace(pos, search.size(), replace);
-			 pos += replace.size();
-		}
-		return haystack;
-	}
-
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+{
+	try
+	{
+		Flows::PVariable& input = message->structValue->at("payload");
+		if(input->type != Flows::VariableType::tBoolean)
+		{
+			input->booleanValue = (bool)*input;
+			input->setType(Flows::VariableType::tBoolean);
+		}
+
+		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(!input->booleanValue));
+		output(0, outputMessage);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+}

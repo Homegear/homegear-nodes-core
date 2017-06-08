@@ -1,0 +1,13 @@
+{
+  "basic-logic/not.hni": {
+    "not": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "Converts an input to bool and negates it.",
+      "help": "<p>This node converts an input to bool and negates it.</p>",
+      "input1Description": "The input to negate.",
+      "output1Description": "Outputs the result of the boolean operation."
+    }
+  }
+}
