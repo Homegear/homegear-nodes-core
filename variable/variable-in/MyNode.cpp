@@ -86,13 +86,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
 			nodeEvent("statusBottom/" + _id, status);
 		}
-		else
-		{
-			_type = result->type;
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("0: " + result->toString()));
-			nodeEvent("statusTop/" + _id, status);
-		}
+		else _type = result->type;
 
 		subscribePeer(_peerId, _channel, _variable);
 

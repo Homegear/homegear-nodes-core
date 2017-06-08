@@ -15,7 +15,7 @@
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Subscribes to variable events.</p>",
-      "help": "This node subscribes to variable events.",
+      "help": "This node subscribes to variable events. To avoid events from reoccuring too fast, you can set \"Refractory period\" (in ms). To output all events, set \"Refractory period\" to <code>0</code>.",
       "output1Description": "Outputs the referenced variable on every variable update."
     }
   }

@@ -55,7 +55,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 		if(_interval < 1) _interval = 1;
 
-		_enabled = getNodeData("enabled")->booleanValue;
+		auto enabled = getNodeData("enabled");
+		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 
 		return true;
 	}
@@ -97,8 +98,23 @@ void MyNode::stop()
 {
 	try
 	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		_stopThread = true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::waitForStop()
+{
+	try
+	{
+		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		if(_timerThread.joinable()) _timerThread.join();
 	}
 	catch(const std::exception& ex)

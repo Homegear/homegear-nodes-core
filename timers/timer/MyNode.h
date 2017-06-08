@@ -47,6 +47,7 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
 	virtual void stop();
+	virtual void waitForStop();
 private:
 	SunTime _sunTime;
 	bool _enabled = false;
@@ -58,12 +59,14 @@ private:
 	int64_t _lastOffTime = 0;
 	double _latitude = 54.32;
 	double _longitude = 10.13;
+	std::vector<bool> _days;
+	std::vector<bool> _months;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
 
-	std::pair<std::string, std::string> splitFirst(std::string string, char delimiter);
+	std::vector<std::string> splitAll(std::string string, char delimiter);
 	void timer();
 	int64_t getTime(std::string time, std::string timeType);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);

@@ -66,6 +66,49 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("lon");
 		if(settingsIterator != info->info->structValue->end()) _longitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
 
+		_days.resize(7, true);
+		_months.resize(12, true);
+
+		settingsIterator = info->info->structValue->find("sun");
+		if(settingsIterator != info->info->structValue->end()) _days.at(0) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("mon");
+		if(settingsIterator != info->info->structValue->end()) _days.at(1) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("tue");
+		if(settingsIterator != info->info->structValue->end()) _days.at(2) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("wed");
+		if(settingsIterator != info->info->structValue->end()) _days.at(3) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("thu");
+		if(settingsIterator != info->info->structValue->end()) _days.at(4) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("fri");
+		if(settingsIterator != info->info->structValue->end()) _days.at(5) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("sat");
+		if(settingsIterator != info->info->structValue->end()) _days.at(6) = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("jan");
+		if(settingsIterator != info->info->structValue->end()) _months.at(0) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("feb");
+		if(settingsIterator != info->info->structValue->end()) _months.at(1) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("mar");
+		if(settingsIterator != info->info->structValue->end()) _months.at(2) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("apr");
+		if(settingsIterator != info->info->structValue->end()) _months.at(3) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("may");
+		if(settingsIterator != info->info->structValue->end()) _months.at(4) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("jun");
+		if(settingsIterator != info->info->structValue->end()) _months.at(5) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("jul");
+		if(settingsIterator != info->info->structValue->end()) _months.at(6) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("aug");
+		if(settingsIterator != info->info->structValue->end()) _months.at(7) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("sep");
+		if(settingsIterator != info->info->structValue->end()) _months.at(8) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("oct");
+		if(settingsIterator != info->info->structValue->end()) _months.at(9) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("nov");
+		if(settingsIterator != info->info->structValue->end()) _months.at(10) = settingsIterator->second->booleanValue;
+		settingsIterator = info->info->structValue->find("dec");
+		if(settingsIterator != info->info->structValue->end()) _months.at(11) = settingsIterator->second->booleanValue;
+
 		auto enabled = getNodeData("enabled");
 		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 		_lastOnTime = getNodeData("lastOnTime")->integerValue64;
@@ -111,8 +154,23 @@ void MyNode::stop()
 {
 	try
 	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		_stopThread = true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::waitForStop()
+{
+	try
+	{
+		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		if(_timerThread.joinable()) _timerThread.join();
 	}
 	catch(const std::exception& ex)
@@ -125,12 +183,17 @@ void MyNode::stop()
 	}
 }
 
-std::pair<std::string, std::string> MyNode::splitFirst(std::string string, char delimiter)
+std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 {
-	int32_t pos = string.find_first_of(delimiter);
-	if(pos == -1) return std::pair<std::string, std::string>(string, "");
-	if((unsigned)pos + 1 >= string.size()) return std::pair<std::string, std::string>(string.substr(0, pos), "");
-	return std::pair<std::string, std::string>(string.substr(0, pos), string.substr(pos + 1));
+	std::vector<std::string> elements;
+	std::stringstream stringStream(string);
+	std::string element;
+	while (std::getline(stringStream, element, delimiter))
+	{
+		elements.push_back(element);
+	}
+	if(string.back() == delimiter) elements.push_back(std::string());
+	return elements;
 }
 
 int64_t MyNode::getTime(std::string time, std::string timeType)
@@ -152,11 +215,23 @@ int64_t MyNode::getTime(std::string time, std::string timeType)
 			else if(time == "night") return sunTimes.times.at(SunTime::SunTimeTypes::night);
 			else if(time == "goldenHourEnd") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHourEnd);
 			else if(time == "goldenHour") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHour);
+			else if(time == "solarNoon") return sunTimes.solarNoon;
+			else if(time == "nadir") return sunTimes.nadir;
 		}
 		else
 		{
-			auto timePair = splitFirst(time, ':');
-			return (_sunTime.getLocalTime() / 86400000) * 86400000 + Flows::Math::getNumber64(timePair.first) * 3600000 + Flows::Math::getNumber64(timePair.second) * 60000;
+			auto timeVector = splitAll(time, ':');
+			int64_t time = (_sunTime.getLocalTime() / 86400000) * 86400000;
+			if(timeVector.size() > 0)
+			{
+				time += Flows::Math::getNumber64(timeVector.at(0)) * 3600000;
+				if(timeVector.size() > 1)
+				{
+					time += Flows::Math::getNumber64(timeVector.at(1)) * 60000;
+					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
+				}
+			}
+			return time;
 		}
 	}
 	catch(const std::exception& ex)
@@ -173,44 +248,73 @@ int64_t MyNode::getTime(std::string time, std::string timeType)
 void MyNode::timer()
 {
 	bool event = false;
+	bool update = false;
 	int64_t currentTime;
 	int64_t onTime = getTime(_onTime, _onTimeType);
 	int64_t offTime = getTime(_offTime, _offTimeType);
+	int32_t day = 0;
+	int32_t month = 0;
+
+	{
+		std::tm* tm = _sunTime.getTimeStruct();
+		day = tm->tm_wday;
+		month = tm->tm_mon;
+	}
+
 
 	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 
-	uint32_t i = 0;
 	while(!_stopThread)
 	{
 		try
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			if(i % 15 != 0) continue;
 			if(_stopThread) break;
 			currentTime = _sunTime.getLocalTime();
+			if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
+			{
+				if(onTime > offTime) _lastOffTime = offTime;
+				else _lastOnTime = onTime;
+			}
 			if(_lastOnTime < onTime && currentTime >= onTime)
 			{
-				event = true;
-				_lastOnTime = onTime;
-				setNodeData("lastOnTime", std::make_shared<Flows::Variable>(_lastOnTime));
-				message->structValue->at("payload")->booleanValue = true;
+				update = true;
+				if(_days.at(day) && _months.at(month))
+				{
+					event = true;
+					_lastOnTime = onTime;
+					setNodeData("lastOnTime", std::make_shared<Flows::Variable>(_lastOnTime));
+					message->structValue->at("payload")->booleanValue = true;
+				}
 			}
-			else if(_lastOffTime < offTime && currentTime >= offTime)
+			if(_lastOffTime < offTime && currentTime >= offTime)
 			{
-				event = true;
-				_lastOffTime = offTime;
-				setNodeData("lastOffTime", std::make_shared<Flows::Variable>(_lastOffTime));
-				message->structValue->at("payload")->booleanValue = false;
+				update = true;
+				if(_days.at(day) && _months.at(month))
+				{
+					event = true;
+					_lastOffTime = offTime;
+					setNodeData("lastOffTime", std::make_shared<Flows::Variable>(_lastOffTime));
+					message->structValue->at("payload")->booleanValue = false;
+				}
 			}
 			if(event)
 			{
 				event = false;
-				onTime = getTime(_onTime, _onTimeType);
-				offTime = getTime(_offTime, _offTimeType);
 				output(0, message);
 			}
-			i++;
+			if(update)
+			{
+				update = false;
+				onTime = getTime(_onTime, _onTimeType);
+				offTime = getTime(_offTime, _offTimeType);
+				{
+					std::tm* tm = _sunTime.getTimeStruct();
+					day = tm->tm_wday;
+					month = tm->tm_mon;
+				}
+			}
 		}
 		catch(const std::exception& ex)
 		{

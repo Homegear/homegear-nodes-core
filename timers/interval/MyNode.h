@@ -46,8 +46,9 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
 	virtual void stop();
+	virtual void waitForStop();
 private:
-	bool _enabled = false;
+	bool _enabled = true;
 	int64_t _inputTime = 0;
 	uint32_t _interval = 60000;
 	uint32_t _resetAfter = 0;

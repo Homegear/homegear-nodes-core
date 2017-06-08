@@ -45,7 +45,7 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 private:
 	bool _outputChangesOnly = false;
-	bool _outputFalse = false;
+	bool _outputFalse = true;
 	std::mutex _inputMutex;
 	std::atomic_bool _lastAnd;
 	std::vector<Flows::PVariable> _inputs;

@@ -81,10 +81,25 @@ int64_t SunTime::getLocalTime(int64_t utcTime)
 	else return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + millisecondOffset;
 }
 
+std::tm* SunTime::getTimeStruct(int64_t utcTime)
+{
+	std::time_t t;
+	if(utcTime > 0)
+	{
+		t = std::time_t(utcTime / 1000);
+	}
+	else
+	{
+		const auto timePoint = std::chrono::system_clock::now();
+		t = std::chrono::system_clock::to_time_t(timePoint);
+	}
+	return std::localtime(&t);
+}
+
 //{{{ date/time constants and conversions
 	long double SunTime::toJulian(long double date)
 	{
-		return (long double)(Flows::HelperFunctions::getTime()) / _dayMs - 0.5 + _J1970;
+		return (long double)date / _dayMs - 0.5 + _J1970;
 	}
 
 	long double SunTime::fromJulian(long double j)

@@ -6,10 +6,18 @@
     "maxThreadCount": 1
 }
 </script>
+<!-- Input definition partially copied from Node-REDs bigtimer by Peter Skargill (http://tech.scargill.net) -->
 <script type="text/x-red" data-template-name="timer">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer.label.latitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
+
+        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="timer.label.longitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
     </div>
     <div class="form-row">
         <label style="width:16%" for="node-input-ontime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.ontime"></span></label>
@@ -20,11 +28,36 @@
         <input type="hidden" id="node-input-offtimetype"/>
     </div>
     <div class="form-row">
-        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer.label.latitude"></span></label>
-        <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
-
-        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="timer.label.longitude"></span></label>
-        <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
+        <label  style="width:16%" for="node-input-startoff"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.onoffset"></span></label>
+        <input  style="width:26%" type="text" id="node-input-startoff" placeholder="0">
+    
+        <label  style="width:16%" for="node-input-endoff"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.offoffset"></span></label>
+        <input  style="width:26%" type="text" id="node-input-endoff" placeholder="0">
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-mon"><span data-i18n="timer.label.monday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-tue"><span data-i18n="timer.label.tuesday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-wed"><span data-i18n="timer.label.wednesday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-thu"><span data-i18n="timer.label.thursday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-fri"><span data-i18n="timer.label.friday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sat"><span data-i18n="timer.label.saturday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sun"><span data-i18n="timer.label.sunday"></span></span>
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jan"><span data-i18n="timer.label.january"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-feb"><span data-i18n="timer.label.february"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-mar"><span data-i18n="timer.label.march"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-apr"><span data-i18n="timer.label.april"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-may"><span data-i18n="timer.label.may"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jun"><span data-i18n="timer.label.june"></span></span>
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jul"><span data-i18n="timer.label.july"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-aug"><span data-i18n="timer.label.august"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sep"><span data-i18n="timer.label.september"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-oct"><span data-i18n="timer.label.october"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-nov"><span data-i18n="timer.label.november"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-dec"><span data-i18n="timer.label.december"></span></span>
     </div>
 </script>
 <script type="text/javascript">
@@ -36,10 +69,31 @@
             name: {value:""},
             ontime: {value:""},
             ontimetype: {value:"suntime", validate: RED.validators.typedInput("ontimetype")},
-            offtime: {value:"1:15"},
+            offtime: {value:"1:15:30"},
             offtimetype: {value:"time", validate: RED.validators.typedInput("offtimetype")},
             lat: {value:"", required: true},
-            lon: {value:"", required: true}
+            lon: {value:"", required: true},
+            startoff: {value:0, validate:RED.validators.number() },
+            endoff: {value:0, validate:RED.validators.number() },
+            sun: {value:true},
+            mon: {value:true},
+            tue: {value:true},
+            wed: {value:true},
+            thu: {value:true},
+            fri: {value:true},
+            sat: {value:true},
+            jan: {value:true},
+            feb: {value:true},
+            mar: {value:true},
+            apr: {value:true},
+            may: {value:true},
+            jun: {value:true},
+            jul: {value:true},
+            aug: {value:true},
+            sep: {value:true},
+            oct: {value:true},
+            nov: {value:true},
+            dec: {value:true}
         },
         inputs:1,
         inputInfo: [

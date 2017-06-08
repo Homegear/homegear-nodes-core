@@ -61,12 +61,12 @@
         defaults: {
             variabletype: {value: "device",required:true},
             family: {},
-            peerid: {value:0,validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
-            channel: {value:0,validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
+            peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
 
-            refractoryperiod: {value: 0,validate:RED.validators.number()},
+            refractoryperiod: {value: "200",validate:RED.validators.number()},
             name: {value:""}
         },
         inputs:0,

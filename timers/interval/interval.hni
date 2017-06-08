@@ -26,8 +26,8 @@
         namespace: 'timers',
         color:"#a6bbcf",
         defaults: {
-            interval: {value:60000,required:true,validate:RED.validators.number()},
-            resetafter: {value:0,required:true,validate:RED.validators.number()},
+            interval: {value:"60000",required:true,validate:RED.validators.number()},
+            resetafter: {value:"0",required:true,validate:RED.validators.number()},
             name: {value:""}
         },
         inputs:1,

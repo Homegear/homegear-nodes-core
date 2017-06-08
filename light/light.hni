@@ -78,14 +78,14 @@
         defaults: {
             variabletype: {value: "device",required:true},
             family: {},
-            peerid: {value:0,validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
-            channel: {value:0,validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
+            peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
             
             lighttype: {value:"switch"},
-            offvalue: {value:0,validate:RED.validators.number()},
-            onvalue: {value:100,validate:RED.validators.number()},
+            offvalue: {value:"0",validate:RED.validators.number()},
+            onvalue: {value:"100",validate:RED.validators.number()},
             twoinputs: {value:false},
             inputs: {value:1},
             name: {value:""}

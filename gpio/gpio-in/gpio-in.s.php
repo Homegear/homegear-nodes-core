@@ -98,12 +98,13 @@ public function start() : bool
 
 public function stop()
 {
-	if($this->thread)
-	{
-		$this->sharedData->stop = true;
-		$this->thread->join();
-		$this->thread = NULL;
-	}
+	if($this->thread) $this->sharedData->stop = true;
+}
+
+public function waitForStop()
+{
+	if($this->thread) $this->thread->join();
+	$this->thread = NULL;
 }
 
 }
