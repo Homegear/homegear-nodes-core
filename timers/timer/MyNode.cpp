@@ -60,6 +60,12 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("offtimetype");
 		if(settingsIterator != info->info->structValue->end()) _offTimeType = settingsIterator->second->stringValue;
 
+		settingsIterator = info->info->structValue->find("startoff");
+		if(settingsIterator != info->info->structValue->end()) _onOffset = Flows::Math::getNumber(settingsIterator->second->stringValue) * 60000;
+
+		settingsIterator = info->info->structValue->find("endoff");
+		if(settingsIterator != info->info->structValue->end()) _offOffset = Flows::Math::getNumber(settingsIterator->second->stringValue) * 60000;
+
 		settingsIterator = info->info->structValue->find("lat");
 		if(settingsIterator != info->info->structValue->end()) _latitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
 
@@ -196,32 +202,56 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 	return elements;
 }
 
-int64_t MyNode::getTime(std::string time, std::string timeType)
+int64_t MyNode::getSunTime(int64_t timeStamp, std::string time, int64_t offset)
+{
+	try
+	{
+		auto sunTimes = _sunTime.getTimesLocal(timeStamp, _latitude, _longitude);
+		if(time == "sunrise") return sunTimes.times.at(SunTime::SunTimeTypes::sunrise) + offset;
+		else if(time == "sunset") return sunTimes.times.at(SunTime::SunTimeTypes::sunset) + offset;
+		else if(time == "sunriseEnd") return sunTimes.times.at(SunTime::SunTimeTypes::sunriseEnd) + offset;
+		else if(time == "sunsetStart") return sunTimes.times.at(SunTime::SunTimeTypes::sunsetStart) + offset;
+		else if(time == "dawn") return sunTimes.times.at(SunTime::SunTimeTypes::dawn) + offset;
+		else if(time == "dusk") return sunTimes.times.at(SunTime::SunTimeTypes::dusk) + offset;
+		else if(time == "nauticalDawn") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDawn) + offset;
+		else if(time == "nauticalDusk") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDusk) + offset;
+		else if(time == "nightEnd") return sunTimes.times.at(SunTime::SunTimeTypes::nightEnd) + offset;
+		else if(time == "night") return sunTimes.times.at(SunTime::SunTimeTypes::night) + offset;
+		else if(time == "goldenHourEnd") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHourEnd) + offset;
+		else if(time == "goldenHour") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHour) + offset;
+		else if(time == "solarNoon") return sunTimes.solarNoon + offset;
+		else if(time == "nadir") return sunTimes.nadir + offset;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return 0;
+}
+
+int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset)
 {
 	try
 	{
 		if(timeType == "suntime")
 		{
-			auto sunTimes = _sunTime.getTimesLocal(_sunTime.getLocalTime(), _latitude, _longitude);
-			if(time == "sunrise") return sunTimes.times.at(SunTime::SunTimeTypes::sunrise);
-			else if(time == "sunset") return sunTimes.times.at(SunTime::SunTimeTypes::sunset);
-			else if(time == "sunriseEnd") return sunTimes.times.at(SunTime::SunTimeTypes::sunriseEnd);
-			else if(time == "sunsetStart") return sunTimes.times.at(SunTime::SunTimeTypes::sunsetStart);
-			else if(time == "dawn") return sunTimes.times.at(SunTime::SunTimeTypes::dawn);
-			else if(time == "dusk") return sunTimes.times.at(SunTime::SunTimeTypes::dusk);
-			else if(time == "nauticalDawn") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDawn);
-			else if(time == "nauticalDusk") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDusk);
-			else if(time == "nightEnd") return sunTimes.times.at(SunTime::SunTimeTypes::nightEnd);
-			else if(time == "night") return sunTimes.times.at(SunTime::SunTimeTypes::night);
-			else if(time == "goldenHourEnd") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHourEnd);
-			else if(time == "goldenHour") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHour);
-			else if(time == "solarNoon") return sunTimes.solarNoon;
-			else if(time == "nadir") return sunTimes.nadir;
+			int64_t sunTime = 1;
+			int64_t inputTime = currentTime - 86400000;
+			while(sunTime < currentTime && sunTime > 0)
+			{
+				sunTime = getSunTime(inputTime, time, offset);
+				inputTime += 86400000;
+			}
+			return sunTime;
 		}
 		else
 		{
 			auto timeVector = splitAll(time, ':');
-			int64_t time = (_sunTime.getLocalTime() / 86400000) * 86400000;
+			int64_t time = (_sunTime.getLocalTime() / 86400000) * 86400000 + offset - 86400000;
 			if(timeVector.size() > 0)
 			{
 				time += Flows::Math::getNumber64(timeVector.at(0)) * 3600000;
@@ -231,6 +261,7 @@ int64_t MyNode::getTime(std::string time, std::string timeType)
 					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
 				}
 			}
+			while(time < currentTime) time += 86400000;
 			return time;
 		}
 	}
@@ -311,8 +342,8 @@ void MyNode::timer()
 	bool event = false;
 	bool update = false;
 	int64_t currentTime = _sunTime.getLocalTime();
-	int64_t onTime = getTime(_onTime, _onTimeType);
-	int64_t offTime = getTime(_offTime, _offTimeType);
+	int64_t onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
+	int64_t offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 	int32_t day = 0;
 	int32_t month = 0;
 
@@ -370,8 +401,8 @@ void MyNode::timer()
 			if(update)
 			{
 				update = false;
-				onTime = getTime(_onTime, _onTimeType);
-				offTime = getTime(_offTime, _offTimeType);
+				onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
+				offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 				{
 					std::tm* tm = _sunTime.getTimeStruct();
 					day = tm->tm_wday;
