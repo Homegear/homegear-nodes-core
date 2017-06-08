@@ -116,7 +116,7 @@ public:
 	virtual ~SunTime();
 
 	int64_t getLocalTime(int64_t utcTime = 0);
-	std::tm* getTimeStruct(int64_t utcTime = 0);
+	void getTimeStruct(std::tm& timeStruct, int64_t utcTime = 0);
 	SunPosition getPosition(int64_t date, long double lat, long double lng);
 	SunTimes getTimesLocal(int64_t date, long double lat, long double lng);
 	SunTimes getTimesUtc(int64_t date, long double lat, long double lng);

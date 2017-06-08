@@ -9,6 +9,7 @@
         "name": "Name"
       },
       "input1Description": "Set to <code>true</code> to enable the timer and to <code>false</code> to disable it.",
+      "input2Description": "Set to <code>true</code> to reset the timer. Setting <code>EN</code> to false also resets the timer.",
       "output1Description": "Outputs the number of ticks since the timer was started.",
       "output2Description": "Outputs <code>true</code> when the timer is finished.",
       "paletteHelp": "<p>Generates an periodic event in constant intervals.</p>",

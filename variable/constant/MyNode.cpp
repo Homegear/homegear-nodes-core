@@ -92,7 +92,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::configNodesStarted()
+void MyNode::startUpComplete()
 {
 	try
 	{

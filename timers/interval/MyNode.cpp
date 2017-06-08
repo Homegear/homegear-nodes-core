@@ -58,6 +58,9 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto enabled = getNodeData("enabled");
 		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 
+		_tick = getNodeData("tick")->integerValue64;
+		_startTimeAll = getNodeData("startTimeAll")->integerValue64;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -77,6 +80,7 @@ bool MyNode::start()
 	{
 		if(!_enabled) return true;
 		std::lock_guard<std::mutex> timerGuard(_timerMutex);
+		_inputTime = Flows::HelperFunctions::getTime();
 		_stopThread = false;
 		if(_timerThread.joinable()) _timerThread.join();
 		_timerThread = std::thread(&MyNode::timer, this);
@@ -99,6 +103,8 @@ void MyNode::stop()
 	try
 	{
 		_stopThread = true;
+		setNodeData("tick", std::make_shared<Flows::Variable>(_tick));
+		setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
 	}
 	catch(const std::exception& ex)
 	{
@@ -129,21 +135,16 @@ void MyNode::waitForStop()
 
 void MyNode::timer()
 {
-	uint32_t i = 0;
 	int32_t sleepingTime = _interval - (Flows::HelperFunctions::getTime() - _inputTime);
 	if(sleepingTime < 1) sleepingTime = 1;
 
-	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(i));
-
-	int64_t startTimeAll = Flows::HelperFunctions::getTime();
 	int64_t startTime = Flows::HelperFunctions::getTime();
 
 	while(!_stopThread)
 	{
 		try
 		{
-			i++;
+			_tick++;
 			if(sleepingTime > 1000 && sleepingTime < 30000)
 			{
 				int32_t iterations = sleepingTime / 100;
@@ -166,8 +167,9 @@ void MyNode::timer()
 			}
 			else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
 			if(_stopThread) break;
-			message->structValue->at("payload")->integerValue = i;
-			if(_resetAfter > 0 && Flows::HelperFunctions::getTime() - startTimeAll >= _resetAfter)
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_tick));
+			if(_resetAfter > 0 && Flows::HelperFunctions::getTime() - _startTimeAll >= _resetAfter)
 			{
 				_stopThread = true;
 				_enabled = false;
@@ -202,27 +204,36 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		_inputTime = Flows::HelperFunctions::getTime();
-		_enabled = message->structValue->at("payload")->booleanValue;
-		setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
-		nodeEvent("statusTop/" + _id, status);
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		if(_enabled)
+		if(index == 0)
 		{
+			_inputTime = Flows::HelperFunctions::getTime();
+			_enabled = message->structValue->at("payload")->booleanValue;
+			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
+			nodeEvent("statusTop/" + _id, status);
+			std::lock_guard<std::mutex> timerGuard(_timerMutex);
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();
-			_stopThread = false;
-			_timerThread = std::thread(&MyNode::timer, this);
-		}
-		else
-		{
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
+			if(_enabled)
+			{
+				_tick = 0;
+				_startTimeAll = Flows::HelperFunctions::getTime();
+				_stopThread = false;
+				_timerThread = std::thread(&MyNode::timer, this);
+			}
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 			output(1, message);
+		}
+		else if(index == 1 && _enabled && message->structValue->at("payload")->booleanValue)
+		{
+			std::lock_guard<std::mutex> timerGuard(_timerMutex);
+			_stopThread = true;
+			if(_timerThread.joinable()) _timerThread.join();
+			_tick = 0;
+			_stopThread = false;
+			_timerThread = std::thread(&MyNode::timer, this);
 		}
 	}
 	catch(const std::exception& ex)

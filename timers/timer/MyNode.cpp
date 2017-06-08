@@ -348,9 +348,10 @@ void MyNode::timer()
 	int32_t month = 0;
 
 	{
-		std::tm* tm = _sunTime.getTimeStruct();
-		day = tm->tm_wday;
-		month = tm->tm_mon;
+		std::tm tm;
+		_sunTime.getTimeStruct(tm);
+		day = tm.tm_wday;
+		month = tm.tm_mon;
 	}
 
 
@@ -404,9 +405,10 @@ void MyNode::timer()
 				onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
 				offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 				{
-					std::tm* tm = _sunTime.getTimeStruct();
-					day = tm->tm_wday;
-					month = tm->tm_mon;
+					std::tm tm;
+					_sunTime.getTimeStruct(tm);
+					day = tm.tm_wday;
+					month = tm.tm_mon;
 				}
 				printNext(currentTime, onTime, offTime);
 			}

@@ -1,0 +1,58 @@
+<script type="text/x-homegear">
+{
+    "name": "clock",
+    "readableName": "Clock",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="clock">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-units"><i class="fa fa-clock-o"></i> <span data-i18n="clock.label.every"></span></label>
+        <select id="node-input-units" style="display: inline-block; width: 65%;">
+            <option value="ms" data-i18n="clock.milliseconds"></option>
+            <option value="s" data-i18n="clock.second"></option>
+            <option value="m" data-i18n="clock.minute"></option>
+            <option value="h" data-i18n="clock.hour"></option>
+            <option value="dom" data-i18n="clock.dayofmonth"></option>
+            <option value="dow" data-i18n="clock.dayofweek"></option>
+            <option value="doy" data-i18n="clock.dayofyear"></option>
+            <option value="w" data-i18n="clock.week"></option>
+            <option value="M" data-i18n="clock.month"></option>
+        </select><br/>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-timestamp" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-timestamp" style="width: 70%;" data-i18n="clock.label.timestamp"></label>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('clock',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            name: {value:""},
+            units: {value:"s",required:true},
+            timestamp: {value:true}
+        },
+        inputs:0,
+        outputs:1,
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "clock";
+        },
+        oneditprepare: function() {
+            $("#node-input-units").on("change", function() {
+                if($(this).val() == "dom" || $(this).val() == "dow" || $(this).val() == "w" || $(this).val() == "M") $("#node-input-timestamp").attr("disabled", true);
+                else $("#node-input-timestamp").attr("disabled", false);
+            });
+        }
+    });
+</script>

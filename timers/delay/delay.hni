@@ -16,7 +16,7 @@
     RED.nodes.registerType('delay',{
         category: 'time',
         namespace: 'timers',
-        color:"#C7E9C0",
+        color:"#FFCC66",
         defaults: {
             delay: {value:"10000",required:true,validate:RED.validators.number()},
             name: {value:""}

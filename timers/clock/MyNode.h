@@ -40,27 +40,41 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
+	enum class Units
+	{
+		ms,
+		s,
+		m,
+		h,
+		dom,
+		dow,
+		doy,
+		w,
+		M
+	};
+
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
+	virtual void startUpComplete();
 	virtual void stop();
 	virtual void waitForStop();
 private:
-	bool _enabled = true;
-	int64_t _startTimeAll = 0;
-	int64_t _tick = 0;
-	int64_t _inputTime = 0;
-	uint32_t _interval = 60000;
-	uint32_t _resetAfter = 0;
+	bool _timestamp = true;
+	Units _unit = Units::s;
+	int32_t _lastWeek = 0;
+	int32_t _lastMonth = 0;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
 
 	void timer();
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	void outputMessage(int64_t time);
+	std::pair<int64_t, int64_t> getLocalAndUtcTime(int64_t utcTime = 0);
+	void getTimeStruct(std::tm& timeStruct, int64_t utcTime = 0);
 };
 
 }
