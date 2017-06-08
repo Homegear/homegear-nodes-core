@@ -70,6 +70,7 @@ private:
 	void timer();
 	int64_t getTime(std::string time, std::string timeType);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 };
 
 }

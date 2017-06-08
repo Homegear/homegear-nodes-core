@@ -245,11 +245,72 @@ int64_t MyNode::getTime(std::string time, std::string timeType)
 	return 0;
 }
 
+void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
+{
+	try
+	{
+		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		if(currentTime >= onTime && currentTime >= offTime)
+		{
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Not today"));
+			nodeEvent("statusBottom/" + _id, status);
+			return;
+		}
+
+		bool on = false;
+		int64_t next = 0;
+		if(onTime >= currentTime && offTime >= currentTime)
+		{
+			if(onTime > offTime)
+			{
+				next = offTime;
+				on = false;
+			}
+			else
+			{
+				next = onTime;
+				on = true;
+			}
+		}
+		else if(onTime >= currentTime)
+		{
+			next = onTime;
+			on = true;
+		}
+		else //offTime >= currentTime
+		{
+			next = offTime;
+			on = false;
+		}
+
+		next = next / 1000;
+		next = next % 86400;
+		int32_t hours = next / 3600;
+		next = next % 3600;
+		int32_t minutes = next / 60;
+		int32_t seconds = next % 60;
+
+		std::ostringstream timeStream;
+		timeStream << std::setw(2) << std::setfill('0') << hours << ':' << std::setw(2) << minutes << ':' << std::setw(2) << seconds;
+
+		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str() + " (" + (on ? "on" : "off") + ")"));
+		nodeEvent("statusBottom/" + _id, status);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
 void MyNode::timer()
 {
 	bool event = false;
 	bool update = false;
-	int64_t currentTime;
+	int64_t currentTime = _sunTime.getLocalTime();
 	int64_t onTime = getTime(_onTime, _onTimeType);
 	int64_t offTime = getTime(_offTime, _offTimeType);
 	int32_t day = 0;
@@ -264,6 +325,8 @@ void MyNode::timer()
 
 	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+
+	printNext(currentTime, onTime, offTime);
 
 	while(!_stopThread)
 	{
@@ -314,6 +377,7 @@ void MyNode::timer()
 					day = tm->tm_wday;
 					month = tm->tm_mon;
 				}
+				printNext(currentTime, onTime, offTime);
 			}
 		}
 		catch(const std::exception& ex)
