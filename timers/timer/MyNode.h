@@ -46,11 +46,13 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
+	virtual void startUpComplete();
 	virtual void stop();
 	virtual void waitForStop();
 private:
 	SunTime _sunTime;
 	bool _enabled = false;
+	bool _outputOnStartUp = false;
 	std::string _onTime;
 	std::string _onTimeType;
 	std::string _offTime;
@@ -70,9 +72,11 @@ private:
 
 	std::vector<std::string> splitAll(std::string string, char delimiter);
 	void timer();
-	int64_t getSunTime(int64_t timeStamp, std::string time, int64_t offset);
+	std::string getDateString(int64_t time);
+	int64_t getSunTime(int64_t timeStamp, std::string time);
 	int64_t getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	std::pair<int64_t, bool> getNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 	void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 };
 

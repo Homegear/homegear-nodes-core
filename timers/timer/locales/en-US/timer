@@ -3,6 +3,7 @@
     "timer": {
       "label": {
         "name": "Name",
+        "startup": "Output state on start up",
         "ontime": "On time",
         "offtime": "Off time",
         "latitude": "Latitude",

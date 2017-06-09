@@ -268,6 +268,7 @@
             var ruleset;
             var node = this;
             node.rules = [];
+            node.inputs = 1;
             rules.each(function(i) {
                 var ruleData = $(this).data('data');
                 var rule = $(this);
@@ -288,12 +289,10 @@
                     }
                 }
                 node.rules.push(r);
+                if(rule.find(".node-input-rule-value").typedInput('type') == "second" || rule.find(".node-input-rule-btwn-value").typedInput('type') == "second" || rule.find(".node-input-rule-btwn-value2").typedInput('type') == "second") {
+                    node.inputs = 2;
+                }
             });
-            if($(".node-input-rule-value").typedInput('type') == "second" || $(".node-input-rule-btwn-value").typedInput('type') == "second" || $(".node-input-rule-btwn-value2").typedInput('type') == "second") {
-                this.inputs = 2;
-            } else {
-                this.inputs = 1;
-            }
         },
         oneditresize: function(size) {
             var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");

@@ -23,6 +23,7 @@
             <option value="doy" data-i18n="clock.dayofyear"></option>
             <option value="w" data-i18n="clock.week"></option>
             <option value="M" data-i18n="clock.month"></option>
+            <option value="Y" data-i18n="clock.year"></option>
         </select><br/>
     </div>
     <div class="form-row">
@@ -50,7 +51,7 @@
         },
         oneditprepare: function() {
             $("#node-input-units").on("change", function() {
-                if($(this).val() == "dom" || $(this).val() == "dow" || $(this).val() == "w" || $(this).val() == "M") $("#node-input-timestamp").attr("disabled", true);
+                if($(this).val() == "dom" || $(this).val() == "dow" || $(this).val() == "w" || $(this).val() == "M" || $(this).val() == "Y") $("#node-input-timestamp").attr("disabled", true);
                 else $("#node-input-timestamp").attr("disabled", false);
             });
         }

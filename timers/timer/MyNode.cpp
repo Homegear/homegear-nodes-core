@@ -49,7 +49,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("ontime");
+		auto settingsIterator = info->info->structValue->find("startup");
+		if(settingsIterator != info->info->structValue->end()) _outputOnStartUp = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("ontime");
 		if(settingsIterator != info->info->structValue->end()) _onTime = settingsIterator->second->stringValue;
 
 		settingsIterator = info->info->structValue->find("ontimetype");
@@ -138,12 +141,6 @@ bool MyNode::start()
 {
 	try
 	{
-		if(!_enabled) return true;
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = false;
-		if(_timerThread.joinable()) _timerThread.join();
-		_timerThread = std::thread(&MyNode::timer, this);
-
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -155,6 +152,26 @@ bool MyNode::start()
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
+}
+
+void MyNode::startUpComplete()
+{
+	try
+	{
+		std::lock_guard<std::mutex> timerGuard(_timerMutex);
+		if(!_enabled) return;
+		_stopThread = false;
+		if(_timerThread.joinable()) _timerThread.join();
+		_timerThread = std::thread(&MyNode::timer, this);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void MyNode::stop()
@@ -203,25 +220,25 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 	return elements;
 }
 
-int64_t MyNode::getSunTime(int64_t timeStamp, std::string time, int64_t offset)
+int64_t MyNode::getSunTime(int64_t timeStamp, std::string time)
 {
 	try
 	{
 		auto sunTimes = _sunTime.getTimesLocal(timeStamp, _latitude, _longitude);
-		if(time == "sunrise") return sunTimes.times.at(SunTime::SunTimeTypes::sunrise) + offset;
-		else if(time == "sunset") return sunTimes.times.at(SunTime::SunTimeTypes::sunset) + offset;
-		else if(time == "sunriseEnd") return sunTimes.times.at(SunTime::SunTimeTypes::sunriseEnd) + offset;
-		else if(time == "sunsetStart") return sunTimes.times.at(SunTime::SunTimeTypes::sunsetStart) + offset;
-		else if(time == "dawn") return sunTimes.times.at(SunTime::SunTimeTypes::dawn) + offset;
-		else if(time == "dusk") return sunTimes.times.at(SunTime::SunTimeTypes::dusk) + offset;
-		else if(time == "nauticalDawn") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDawn) + offset;
-		else if(time == "nauticalDusk") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDusk) + offset;
-		else if(time == "nightEnd") return sunTimes.times.at(SunTime::SunTimeTypes::nightEnd) + offset;
-		else if(time == "night") return sunTimes.times.at(SunTime::SunTimeTypes::night) + offset;
-		else if(time == "goldenHourEnd") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHourEnd) + offset;
-		else if(time == "goldenHour") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHour) + offset;
-		else if(time == "solarNoon") return sunTimes.solarNoon + offset;
-		else if(time == "nadir") return sunTimes.nadir + offset;
+		if(time == "sunrise") return sunTimes.times.at(SunTime::SunTimeTypes::sunrise);
+		else if(time == "sunset") return sunTimes.times.at(SunTime::SunTimeTypes::sunset);
+		else if(time == "sunriseEnd") return sunTimes.times.at(SunTime::SunTimeTypes::sunriseEnd);
+		else if(time == "sunsetStart") return sunTimes.times.at(SunTime::SunTimeTypes::sunsetStart);
+		else if(time == "dawn") return sunTimes.times.at(SunTime::SunTimeTypes::dawn);
+		else if(time == "dusk") return sunTimes.times.at(SunTime::SunTimeTypes::dusk);
+		else if(time == "nauticalDawn") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDawn);
+		else if(time == "nauticalDusk") return sunTimes.times.at(SunTime::SunTimeTypes::nauticalDusk);
+		else if(time == "nightEnd") return sunTimes.times.at(SunTime::SunTimeTypes::nightEnd);
+		else if(time == "night") return sunTimes.times.at(SunTime::SunTimeTypes::night);
+		else if(time == "goldenHourEnd") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHourEnd);
+		else if(time == "goldenHour") return sunTimes.times.at(SunTime::SunTimeTypes::goldenHour);
+		else if(time == "solarNoon") return sunTimes.solarNoon;
+		else if(time == "nadir") return sunTimes.nadir;
 	}
 	catch(const std::exception& ex)
 	{
@@ -231,7 +248,7 @@ int64_t MyNode::getSunTime(int64_t timeStamp, std::string time, int64_t offset)
 	{
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
-	return 0;
+	return -1;
 }
 
 int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset)
@@ -240,14 +257,16 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 	{
 		if(timeType == "suntime")
 		{
+			int32_t i = 0;
 			int64_t sunTime = 1;
 			int64_t inputTime = currentTime - 86400000;
-			while(sunTime < currentTime && sunTime > 0)
+			while(sunTime < currentTime && sunTime >= 0 && i < 1000)
 			{
-				sunTime = getSunTime(inputTime, time, offset);
+				sunTime = getSunTime(inputTime, time);
 				inputTime += 86400000;
+				i++;
 			}
-			return sunTime;
+			return sunTime + offset;
 		}
 		else
 		{
@@ -277,55 +296,104 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 	return 0;
 }
 
-void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
+std::pair<int64_t, bool> MyNode::getNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 {
 	try
 	{
-		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		if(currentTime >= onTime && currentTime >= offTime)
-		{
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Not today"));
-			nodeEvent("statusBottom/" + _id, status);
-			return;
-		}
+		std::pair<int64_t, bool> result = std::make_pair(-1, false);
 
-		bool on = false;
-		int64_t next = 0;
+		if((currentTime >= onTime && currentTime >= offTime)) return result;
+
 		if(onTime >= currentTime && offTime >= currentTime)
 		{
 			if(onTime > offTime)
 			{
-				next = offTime;
-				on = false;
+				result.first = offTime;
+				result.second = false;
 			}
 			else
 			{
-				next = onTime;
-				on = true;
+				result.first = onTime;
+				result.second = true;
 			}
 		}
 		else if(onTime >= currentTime)
 		{
-			next = onTime;
-			on = true;
+			result.first = onTime;
+			result.second = true;
 		}
 		else //offTime >= currentTime
 		{
-			next = offTime;
-			on = false;
+			result.first = offTime;
+			result.second = false;
 		}
 
-		next = next / 1000;
-		next = next % 86400;
-		int32_t hours = next / 3600;
-		next = next % 3600;
-		int32_t minutes = next / 60;
-		int32_t seconds = next % 60;
+		return result;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return std::make_pair(-1, false);
+}
+
+std::string MyNode::getDateString(int64_t time)
+{
+	const char timeFormat[] = "%x";
+	std::time_t t;
+	if(time > 0)
+	{
+		t = std::time_t(time / 1000);
+	}
+	else
+	{
+		const auto timePoint = std::chrono::system_clock::now();
+		t = std::chrono::system_clock::to_time_t(timePoint);
+	}
+	char timeString[50];
+	std::tm localTime;
+	localtime_r(&t, &localTime);
+	strftime(&timeString[0], 50, &timeFormat[0], &localTime);
+	std::ostringstream timeStream;
+	timeStream << timeString;
+	return timeStream.str();
+}
+
+void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
+{
+	try
+	{
+		auto next = getNext(currentTime, onTime, offTime);
+
+		Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		if(next.first == -1)
+		{
+			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Unknown"));
+			nodeEvent("statusBottom/" + _id, status);
+			return;
+		}
 
 		std::ostringstream timeStream;
-		timeStream << std::setw(2) << std::setfill('0') << hours << ':' << std::setw(2) << minutes << ':' << std::setw(2) << seconds;
+		if(next.first > currentTime + 86400000)
+		{
+			timeStream << getDateString(next.first);
+		}
+		else
+		{
+			next.first = next.first / 1000;
+			next.first = next.first % 86400;
+			int32_t hours = next.first / 3600;
+			next.first = next.first % 3600;
+			int32_t minutes = next.first / 60;
+			int32_t seconds = next.first % 60;
+			timeStream << std::setw(2) << std::setfill('0') << hours << ':' << std::setw(2) << minutes << ':' << std::setw(2) << seconds;
+		}
 
-		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str() + " (" + (on ? "on" : "off") + ")"));
+		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str() + " (" + (next.second ? "on" : "off") + ")"));
 		nodeEvent("statusBottom/" + _id, status);
 	}
 	catch(const std::exception& ex)
@@ -355,11 +423,18 @@ void MyNode::timer()
 		month = tm.tm_mon;
 	}
 
-
-	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-
 	printNext(currentTime, onTime, offTime);
+
+	if(_outputOnStartUp)
+	{
+		auto next = getNext(currentTime, onTime, offTime);
+		if(next.first != -1)
+		{
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(!next.second));
+			output(0, message);
+		}
+	}
 
 	while(!_stopThread)
 	{
@@ -367,6 +442,7 @@ void MyNode::timer()
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			if(_stopThread) break;
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			currentTime = _sunTime.getLocalTime();
 			if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
 			{
@@ -381,7 +457,8 @@ void MyNode::timer()
 					event = true;
 					_lastOnTime = onTime;
 					setNodeData("lastOnTime", std::make_shared<Flows::Variable>(_lastOnTime));
-					message->structValue->at("payload")->booleanValue = true;
+					message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+					if(onTime == offTime) _lastOffTime = offTime;
 				}
 			}
 			if(_lastOffTime < offTime && currentTime >= offTime)
@@ -392,7 +469,7 @@ void MyNode::timer()
 					event = true;
 					_lastOffTime = offTime;
 					setNodeData("lastOffTime", std::make_shared<Flows::Variable>(_lastOffTime));
-					message->structValue->at("payload")->booleanValue = false;
+					message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
 				}
 			}
 			if(event)

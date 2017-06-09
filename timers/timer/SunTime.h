@@ -107,8 +107,8 @@ public:
 
 	struct SunTimes
 	{
-		long double solarNoon;
-		long double nadir;
+		int64_t solarNoon;
+		int64_t nadir;
 		std::unordered_map<SunTimeTypes, int64_t, EnumClassHash> times;
 	};
 

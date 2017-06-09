@@ -251,8 +251,11 @@ SunTime::SunTimes SunTime::getTimesUtc(int64_t date, long double lat, long doubl
 		long double Jset = getSetJ(time.angle * _rad, lw, phi, dec, n, M, L);
 		long double Jrise = Jnoon - (Jset - Jnoon);
 
-		result.times.emplace(time.morningName, fromJulian(Jrise));
-		result.times.emplace(time.eveningName, fromJulian(Jset));
+		long double morning = fromJulian(Jrise);
+		long double evening = fromJulian(Jset);
+
+		result.times.emplace(time.morningName, morning == 0.0 || std::isnan(morning) ? 0.0 : morning);
+		result.times.emplace(time.eveningName, evening == 0.0 || std::isnan(evening) ? 0.0 : evening);
 	}
 
 	return result;
@@ -282,8 +285,11 @@ SunTime::SunTimes SunTime::getTimesLocal(int64_t date, long double lat, long dou
 		long double Jset = getSetJ(time.angle * _rad, lw, phi, dec, n, M, L);
 		long double Jrise = Jnoon - (Jset - Jnoon);
 
-		result.times.emplace(time.morningName, getLocalTime(fromJulian(Jrise)));
-		result.times.emplace(time.eveningName, getLocalTime(fromJulian(Jset)));
+		long double morning = fromJulian(Jrise);
+		long double evening = fromJulian(Jset);
+
+		result.times.emplace(time.morningName, morning == 0.0 || std::isnan(morning) ? 0.0 : getLocalTime(morning));
+		result.times.emplace(time.eveningName, evening == 0.0 || std::isnan(evening) ? 0.0 : getLocalTime(evening));
 	}
 
 	return result;
