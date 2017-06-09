@@ -43,11 +43,9 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
+	virtual void startUpComplete();
 private:
 	Flows::PVariable _value;
-
-	Flows::JsonDecoder _jsonDecoder;
 };
 
 }

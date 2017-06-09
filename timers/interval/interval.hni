@@ -1,0 +1,61 @@
+<script type="text/x-homegear">
+{
+    "name": "interval",
+    "readableName": "Interval",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="interval">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="interval.label.interval"></span></label>
+        <input type="text" id="node-input-interval" data-i18n="[placeholder]interval.label.interval2">
+    </div>
+    <div class="form-row">
+        <label for="node-input-resetafter"><i class="fa fa-list-ol"></i> <span data-i18n="interval.label.resetafter"></span></label>
+        <input type="text" id="node-input-resetafter" data-i18n="[placeholder]interval.label.resetafter2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('interval',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            interval: {value:"60000",required:true,validate:RED.validators.number()},
+            resetafter: {value:"0",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:2,
+        inputInfo: [
+            {
+                label: "EN",
+                types: ["boolean"]
+            },
+            {
+                label: "RES",
+                types: ["boolean"]
+            }
+        ],
+        outputs:2,
+        outputInfo: [
+            {
+		label: "t",
+                types: ["integer"]
+            },
+            {
+		label: "f",
+                types: ["boolean"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "interval";
+        }
+    });
+</script>

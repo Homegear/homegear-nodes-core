@@ -2,17 +2,36 @@
   "timers/timer.hni": {
     "timer": {
       "label": {
-        "interval": "Interval",
-        "interval2": "Interval in ms",
-        "resetafter": "Reset after",
-        "resetafter2": "Time in ms or 0",
-        "name": "Name"
+        "name": "Name",
+        "ontime": "On time",
+        "offtime": "Off time",
+        "latitude": "Latitude",
+        "longitude": "Longitude",
+        "onoffset": "On offset",
+        "offoffset": "Off offset",
+        "monday": "Mon",
+        "tuesday": "Tue",
+        "wednesday": "Wed",
+        "thursday": "Thu",
+        "friday": "Fri",
+        "saturday": "Sat",
+        "sunday": "Sun",
+        "january": "Jan",
+        "february": "Feb",
+        "march": "Mar",
+        "april": "Apr",
+        "may": "May",
+        "june": "Jun",
+        "july": "Jul",
+        "august": "Aug",
+        "september": "Sep",
+        "october": "Oct",
+        "november": "Nov",
+        "december": "Dec"
       },
-      "input1Description": "Set to <code>true</code> to enable the timer and to <code>false</code> to disable it.",
-      "output1Description": "Outputs the number of ticks since the timer was started.",
-      "output2Description": "Outputs <code>true</code> when the timer is finished.",
-      "paletteHelp": "<p>Generates an periodic event in constant intervals.</p>",
-      "help": "This node generates events in constant intervals. Set <code>EN</code> to \"true\" to enable the timer. You can set \"Reset after\" to automatically disable the timer."
+      "input1Description": "Set to <code>false</code> to disable the timer and to <code>true</code> to enable it again. By default the timer is enabled.",
+      "paletteHelp": "<p>Generates events at specific time points.</p>",
+      "help": "This node generates events at specific time points. For the \"sunlight times\" to work, \"Latitude\" and \"Longitude\" must be specified. \"On offset\" and \"Off offset\" (in minutes) are added to \"On time\" and \"Off time\". Make sure the time and time zone settings of the computer running the flow are correct.<h3>Sunlight Times</h3><dl><dt>sunrise</dt><dd>sunrise (top edge of the sun appears on the horizon)</dd><dt>sunset</dt><dd>sunset (sun disappears below the horizon, evening civil twilight starts)</dd><dt>sunriseEnd</dt><dd>sunrise ends (bottom edge of the sun touches the horizon)</dd><dt>sunsetStart</dt><dd>sunset starts (bottom edge of the sun touches the horizon)</dd><dt>dawn</dt><dd>dawn (morning nautical twilight ends, morning civil twilight starts)</dd><dt>dusk</dt><dd>dusk (evening nautical twilight starts)</dd><dt>nauticalDawn</dt><dd>nautical dawn (morning nautical twilight starts)</dd><dt>nauticalDusk</dt><dd>nautical dusk (evening astronomical twilight starts)</dd><dt>nightEnd</dt><dd>night ends (morning astronomical twilight starts)</dd><dt>night</dt><dd>night starts (dark enough for astronomical observations)</dd><dt>goldenHourEnd</dt><dd>morning golden hour (soft light, best time for photography) ends</dd><dt>goldenHour</dt><dd>evening golden hour starts</dd><dt>solarNoon</dt><dd>solar noon (sun is in the highest position)</dd><dt>nadir</dt><dd>nadir (darkest moment of the night, sun is in the lowest position)</dd></dl>"
     }
   }
 }

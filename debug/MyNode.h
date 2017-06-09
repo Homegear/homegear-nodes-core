@@ -41,9 +41,13 @@ public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
+	virtual bool init(Flows::PNodeInfo info);
 	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
 private:
 	bool _active = true;
+	bool _hg = false;
+	bool _debTabHg = true;
+	int32_t _logLevel = 4;
 
 	static std::string& stringReplace(std::string& haystack, std::string search, std::string replace)
 	{

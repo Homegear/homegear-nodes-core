@@ -30,6 +30,7 @@
 #ifndef MYNODE_H_
 #define MYNODE_H_
 
+#include "SunTime.h"
 #include <homegear-node/INode.h>
 #include <thread>
 #include <mutex>
@@ -46,18 +47,33 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
 	virtual void stop();
+	virtual void waitForStop();
 private:
+	SunTime _sunTime;
 	bool _enabled = false;
-	int64_t _inputTime = 0;
-	uint32_t _interval = 60000;
-	uint32_t _resetAfter = 0;
+	std::string _onTime;
+	std::string _onTimeType;
+	std::string _offTime;
+	std::string _offTimeType;
+	int64_t _onOffset = 0;
+	int64_t _offOffset = 0;
+	int64_t _lastOnTime = 0;
+	int64_t _lastOffTime = 0;
+	double _latitude = 54.32;
+	double _longitude = 10.13;
+	std::vector<bool> _days;
+	std::vector<bool> _months;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
 
+	std::vector<std::string> splitAll(std::string string, char delimiter);
 	void timer();
+	int64_t getSunTime(int64_t timeStamp, std::string time, int64_t offset);
+	int64_t getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 };
 
 }

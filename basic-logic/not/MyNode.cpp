@@ -27,33 +27,42 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
-
-#include <homegear-node/INode.h>
-#include <mutex>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	bool _outputChangesOnly = false;
-	bool _outputFalse = true;
-	std::mutex _inputMutex;
-	std::atomic_bool _lastAnd;
-	std::vector<Flows::PVariable> _inputs;
-
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool doAnd();
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+{
+	try
+	{
+		Flows::PVariable& input = message->structValue->at("payload");
+		if(input->type != Flows::VariableType::tBoolean)
+		{
+			input->booleanValue = (bool)*input;
+			input->setType(Flows::VariableType::tBoolean);
+		}
+
+		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(!input->booleanValue));
+		output(0, outputMessage);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+}

@@ -125,6 +125,22 @@ void MyNode::stop()
 	try
 	{
 		if(_mqtt) _mqtt->stop();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::waitForStop()
+{
+	try
+	{
+		if(_mqtt) _mqtt->waitForStop();
 		_mqtt.reset();
 	}
 	catch(const std::exception& ex)

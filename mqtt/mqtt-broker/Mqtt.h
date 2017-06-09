@@ -78,6 +78,7 @@ public:
 
 	void start();
 	void stop();
+	void waitForStop();
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
 

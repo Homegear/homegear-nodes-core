@@ -41,7 +41,8 @@ MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, co
 
 MyNode::~MyNode()
 {
-	stop();
+	_stopThreads = true;
+	waitForStop();
 }
 
 
@@ -88,8 +89,26 @@ void MyNode::stop()
 	try
 	{
 		_stopThreads = true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::waitForStop()
+{
+	try
+	{
+		std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
 		for(auto& timerThread : _timerThreads)
-		if(timerThread.joinable()) timerThread.join();
+		{
+			if(timerThread.joinable()) timerThread.join();
+		}
 	}
 	catch(const std::exception& ex)
 	{

@@ -107,40 +107,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		Flows::PVariable& input = message->structValue->at("payload");
 		if(input->type != Flows::VariableType::tBoolean)
 		{
-			switch(input->type)
-			{
-			case Flows::VariableType::tArray:
-				input->booleanValue = !input->arrayValue->empty();
-				break;
-			case Flows::VariableType::tBase64:
-				input->booleanValue = !input->stringValue.empty();
-				break;
-			case Flows::VariableType::tBinary:
-				input->booleanValue = !input->binaryValue.empty();
-				break;
-			case Flows::VariableType::tBoolean:
-				break;
-			case Flows::VariableType::tFloat:
-				input->booleanValue = input->floatValue;
-				break;
-			case Flows::VariableType::tInteger:
-				input->booleanValue = input->integerValue;
-				break;
-			case Flows::VariableType::tInteger64:
-				input->booleanValue = input->integerValue64;
-				break;
-			case Flows::VariableType::tString:
-				input->booleanValue = !input->stringValue.empty();
-				break;
-			case Flows::VariableType::tStruct:
-				input->booleanValue = !input->structValue->empty();
-				break;
-			case Flows::VariableType::tVariant:
-				break;
-			case Flows::VariableType::tVoid:
-				input->booleanValue = false;
-				break;
-			}
+			input->booleanValue = (bool)*input;
 			input->setType(Flows::VariableType::tBoolean);
 		}
 		_inputs.at(index) = input;

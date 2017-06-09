@@ -34,7 +34,7 @@
         <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
         </select>
     </div>
-    <div id="node-input-variable-container" clsee="hide">
+    <div id="node-input-variable-container" class="hide">
         <div class="form-row">
             <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.variable"></span></label>
             <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
@@ -61,12 +61,12 @@
         defaults: {
             variabletype: {value: "device",required:true},
             family: {},
-            peerid: {value:0,validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
-            channel: {value:0,validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
+            peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
 
-            refractoryperiod: {value: 0,validate:RED.validators.number()},
+            refractoryperiod: {value: "200",validate:RED.validators.number()},
             name: {value:""}
         },
         inputs:0,

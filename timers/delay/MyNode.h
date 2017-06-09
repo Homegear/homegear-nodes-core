@@ -46,6 +46,7 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
 	virtual void stop();
+	virtual void waitForStop();
 private:
 	uint32_t _delay = 10000;
 

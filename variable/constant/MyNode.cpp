@@ -75,7 +75,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 		}
 		else if(payloadType == "array" || payloadType == "struct")
 		{
-			_value = _jsonDecoder.decode(payload);
+			Flows::JsonDecoder jsonDecoder;
+			_value = jsonDecoder.decode(payload);
 		}
 
 		return true;
@@ -91,7 +92,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::configNodesStarted()
+void MyNode::startUpComplete()
 {
 	try
 	{

@@ -1,0 +1,22 @@
+{
+  "timers/clock.hni": {
+    "clock": {
+      "label": {
+        "name": "Name",
+        "every": "Output every",
+        "timestamp": "Output unix timestamp"
+      },
+      "milliseconds": "100 milliseconds",
+      "second": "second",
+      "minute": "minute",
+      "hour": "hour",
+      "dayofmonth": "day of month",
+      "dayofweek": "day of week",
+      "dayofyear": "day of year",
+      "week": "week number",
+      "month": "month",
+      "paletteHelp": "<p>Generates events at regular clock intervals (seconds, minutes, hours, ...).</p>",
+      "help": "This node generates events at regular clock intervals. \"Day of month\", \"day of week\", \"day of year\", \"month\" and \"week number\" start with \"1\". The first day of week is monday."
+    }
+  }
+}

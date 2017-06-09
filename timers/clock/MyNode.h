@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <thread>
 #include <mutex>
 
 namespace MyNode
@@ -39,19 +40,41 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
+	enum class Units
+	{
+		ms,
+		s,
+		m,
+		h,
+		dom,
+		dow,
+		doy,
+		w,
+		M
+	};
+
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
+	virtual void startUpComplete();
+	virtual void stop();
+	virtual void waitForStop();
 private:
-	bool _outputChangesOnly = false;
-	bool _outputFalse = true;
-	std::mutex _inputMutex;
-	std::atomic_bool _lastAnd;
-	std::vector<Flows::PVariable> _inputs;
+	bool _timestamp = true;
+	Units _unit = Units::s;
+	int32_t _lastWeek = 0;
+	int32_t _lastMonth = 0;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool doAnd();
+	std::mutex _timerMutex;
+	std::atomic_bool _stopThread;
+	std::thread _timerThread;
+
+	void timer();
+	void outputMessage(int64_t time);
+	std::pair<int64_t, int64_t> getLocalAndUtcTime(int64_t utcTime = 0);
+	void getTimeStruct(std::tm& timeStruct, int64_t utcTime = 0);
 };
 
 }

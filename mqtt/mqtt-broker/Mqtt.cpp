@@ -60,7 +60,7 @@ Mqtt::~Mqtt()
 {
 	try
 	{
-		stop();
+		waitForStop();
 		_bl.reset();
 	}
 	catch(const std::exception& ex)
@@ -84,8 +84,8 @@ void Mqtt::start()
 		if(_started) return;
 		_started = true;
 
-		startQueue(0, 1, 0, SCHED_OTHER);
-		startQueue(1, 5, 0, SCHED_OTHER);
+		startQueue(0, false, 1, 0, SCHED_OTHER);
+		startQueue(1, false, 5, 0, SCHED_OTHER);
 
 		_jsonEncoder = std::unique_ptr<BaseLib::Rpc::JsonEncoder>(new BaseLib::Rpc::JsonEncoder(_bl.get()));
 		_jsonDecoder = std::unique_ptr<BaseLib::Rpc::JsonDecoder>(new BaseLib::Rpc::JsonDecoder(_bl.get()));
@@ -109,6 +109,26 @@ void Mqtt::start()
 }
 
 void Mqtt::stop()
+{
+	try
+	{
+		_started = false;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void Mqtt::waitForStop()
 {
 	try
 	{

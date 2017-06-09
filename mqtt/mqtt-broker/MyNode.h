@@ -45,6 +45,7 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
 	virtual void stop();
+	virtual void waitForStop();
 private:
 	Flows::PNodeInfo _nodeInfo;
 	std::unique_ptr<Mqtt> _mqtt;

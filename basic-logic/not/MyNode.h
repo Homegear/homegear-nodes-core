@@ -41,17 +41,8 @@ class MyNode: public Flows::INode
 public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
 private:
-	bool _outputChangesOnly = false;
-	bool _outputFalse = true;
-	std::mutex _inputMutex;
-	std::atomic_bool _lastAnd;
-	std::vector<Flows::PVariable> _inputs;
-
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-	bool doAnd();
 };
 
 }

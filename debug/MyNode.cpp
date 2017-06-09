@@ -40,6 +40,35 @@ MyNode::~MyNode()
 {
 }
 
+bool MyNode::init(Flows::PNodeInfo info)
+{
+	try
+	{
+		std::string console;
+		auto settingsIterator = info->info->structValue->find("console");
+		if(settingsIterator != info->info->structValue->end()) console = settingsIterator->second->stringValue;
+		_hg = console == "hg" || console == "debtabhg";
+		_debTabHg = console != "hg";
+
+		settingsIterator = info->info->structValue->find("loglevel");
+		if(settingsIterator != info->info->structValue->end()) _logLevel = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+		settingsIterator = info->info->structValue->find("active");
+		if(settingsIterator != info->info->structValue->end()) _active = settingsIterator->second->stringValue == "true" || settingsIterator->second->booleanValue;
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
 void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 {
 	try
@@ -48,11 +77,11 @@ void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -60,7 +89,8 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		if(!*_frontendConnected || !_active) return;
+		if(!_active) return;
+		if(!_hg && !*_frontendConnected) return;
 		std::string property;
 		auto completeIterator = info->info->structValue->find("complete");
 		if(completeIterator == info->info->structValue->end() || completeIterator->second->stringValue == "false" || completeIterator->second->stringValue.empty())
@@ -78,58 +108,75 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			message = payloadIterator->second;
 		}
 
-		Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
-		object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
-		object->structValue->emplace("msg", message);
-
-		std::string format;
-		switch(message->type)
+		if(_hg)
 		{
-		case Flows::VariableType::tArray:
-			format = "array[" + std::to_string(message->arrayValue->size()) + "]";
-			break;
-		case Flows::VariableType::tBoolean:
-			format = "boolean";
-			break;
-		case Flows::VariableType::tFloat:
-			format = "number";
-			break;
-		case Flows::VariableType::tInteger:
-			format = "number";
-			break;
-		case Flows::VariableType::tInteger64:
-			format = "number";
-			break;
-		case Flows::VariableType::tString:
-			format = "string[" + std::to_string(message->stringValue.size()) + "]";
-			if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
-			break;
-		case Flows::VariableType::tStruct:
-			format = "Object";
-			break;
-		case Flows::VariableType::tBase64:
-			format = "string[" + std::to_string(message->stringValue.size()) + "]";
-			break;
-		case Flows::VariableType::tVariant:
-			break;
-		case Flows::VariableType::tBinary:
-			break;
-		case Flows::VariableType::tVoid:
-			break;
+			std::string logLevel;
+			if(_logLevel == 1) logLevel = "critical";
+			else if(_logLevel == 2) logLevel = "error";
+			else if(_logLevel == 3) logLevel = "warning";
+			else if(_logLevel == 4) logLevel = "info";
+			else if(_logLevel == 5) logLevel = "debug";
+
+			Flows::Output::printMessage("Debug node output (" + logLevel + "): " + message->print(false, false, true), _logLevel);
+			if(!*_frontendConnected) return;
 		}
 
-		if(!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
-		if(!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
-		nodeEvent("debug", object);
+		if(_debTabHg)
+		{
+			Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
+			object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
+			object->structValue->emplace("msg", message);
+
+			std::string format;
+			switch(message->type)
+			{
+			case Flows::VariableType::tArray:
+				format = "array[" + std::to_string(message->arrayValue->size()) + "]";
+				break;
+			case Flows::VariableType::tBoolean:
+				format = "boolean";
+				break;
+			case Flows::VariableType::tFloat:
+				format = "number";
+				break;
+			case Flows::VariableType::tInteger:
+				format = "number";
+				break;
+			case Flows::VariableType::tInteger64:
+				format = "number";
+				break;
+			case Flows::VariableType::tString:
+				format = "string[" + std::to_string(message->stringValue.size()) + "]";
+				if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
+				break;
+			case Flows::VariableType::tStruct:
+				format = "Object";
+				break;
+			case Flows::VariableType::tBase64:
+				format = "string[" + std::to_string(message->stringValue.size()) + "]";
+				break;
+			case Flows::VariableType::tVariant:
+				break;
+			case Flows::VariableType::tBinary:
+				break;
+			case Flows::VariableType::tVoid:
+				format = "null";
+				break;
+			}
+
+			if(!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
+			if(!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
+			nodeEvent("debug", object);
+		}
 	}
 	catch(const std::exception& ex)
 	{
-		log(2, std::string("Error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ": " + ex.what());
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		log(2, std::string("Unknown error in file ") + __FILE__ + " in line " + std::to_string(__LINE__) + " and function " + __PRETTY_FUNCTION__ + ".");
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
