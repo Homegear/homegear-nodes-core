@@ -40,7 +40,8 @@ MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, co
 
 MyNode::~MyNode()
 {
-	stop();
+	_stopThread = true;
+	waitForStop();
 }
 
 
