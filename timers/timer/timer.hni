@@ -13,6 +13,11 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
     </div>
     <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-startup" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-startup" style="width: 70%;" data-i18n="timer.label.startup"></label>
+    </div>
+    <div class="form-row">
         <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer.label.latitude"></span></label>
         <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
 
@@ -67,6 +72,7 @@
         color:"#FFCC66",
         defaults: {
             name: {value:""},
+            startup: {value: false},
             ontime: {value:"", validate: RED.validators.typedInput("ontime")},
             ontimetype: {value:"suntime"},
             offtime: {value:"1:15:30", validate: RED.validators.typedInput("offtime")},

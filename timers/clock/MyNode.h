@@ -50,7 +50,8 @@ public:
 		dow,
 		doy,
 		w,
-		M
+		M,
+		Y
 	};
 
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
@@ -66,6 +67,7 @@ private:
 	Units _unit = Units::s;
 	int32_t _lastWeek = 0;
 	int32_t _lastMonth = 0;
+	int32_t _lastYear = 0;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;

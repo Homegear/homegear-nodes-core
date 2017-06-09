@@ -50,7 +50,7 @@
         category: 'function',
         defaults: {
             name: {value:""},
-            func: {value:""},
+            func: {value:"$message['payload'] = true;\nreturn $message;"},
             inputs: {value:1},
             outputs: {value:1},
             noerr: {value:0,required:true,validate:function(v){ return ((!v) || (v === 0)) ? true : false; }}

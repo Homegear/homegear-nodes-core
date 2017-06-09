@@ -60,6 +60,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		else if(unit == "doy") _unit = Units::doy;
 		else if(unit == "w") _unit = Units::w;
 		else if(unit == "M") _unit = Units::M;
+		else if(unit == "Y") _unit = Units::Y;
 
 		settingsIterator = info->info->structValue->find("timestamp");
 		if(settingsIterator != info->info->structValue->end()) _timestamp = settingsIterator->second->booleanValue;
@@ -151,6 +152,31 @@ void MyNode::outputMessage(int64_t time)
 	try
 	{
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		std::tm tm;
+		getTimeStruct(tm, time);
+
+		int32_t weekNum = 0;
+		{
+			int32_t julian = tm.tm_yday;
+			int32_t dow = tm.tm_wday;
+			time -= julian * 86400000;
+			std::tm tm2;
+			getTimeStruct(tm2, time);
+			weekNum = ((julian + 6) / 7);
+			if(dow < tm2.tm_wday) weekNum++;
+		}
+
+		message->structValue->emplace("timestamp", std::make_shared<Flows::Variable>(time / 1000));
+		message->structValue->emplace("seconds", std::make_shared<Flows::Variable>((time / 1000) % 60));
+		message->structValue->emplace("minutes", std::make_shared<Flows::Variable>((time / 60000) % 60));
+		message->structValue->emplace("hours", std::make_shared<Flows::Variable>((time / 3600000) % 24));
+		message->structValue->emplace("dom", std::make_shared<Flows::Variable>(tm.tm_mday));
+		message->structValue->emplace("dow", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
+		message->structValue->emplace("doy", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
+		message->structValue->emplace("week", std::make_shared<Flows::Variable>(weekNum));
+		message->structValue->emplace("month", std::make_shared<Flows::Variable>(tm.tm_mon + 1));
+		message->structValue->emplace("year", std::make_shared<Flows::Variable>(tm.tm_year + 1900));
+
 		if(_unit == Units::ms)
 		{
 			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time));
@@ -173,35 +199,18 @@ void MyNode::outputMessage(int64_t time)
 		}
 		else if(_unit == Units::dom)
 		{
-			std::tm tm;
-			getTimeStruct(tm);
 			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_mday));
 		}
 		else if(_unit == Units::dow)
 		{
-			std::tm tm;
-			getTimeStruct(tm);
 			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
 		}
 		else if(_unit == Units::doy)
 		{
-			std::tm tm;
-			getTimeStruct(tm);
 			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
 		}
 		else if(_unit == Units::w)
 		{
-			int64_t time = Flows::HelperFunctions::getTime();
-			std::tm tm;
-			getTimeStruct(tm, time);
-			int32_t julian = tm.tm_yday;
-			int32_t dow = tm.tm_wday;
-			time -= julian * 86400000;
-			std::tm tm2;
-			getTimeStruct(tm2, time);
-			int32_t weekNum = ((julian + 6) / 7);
-			if(dow < tm2.tm_wday) weekNum++;
-
 			if(weekNum != _lastWeek)
 			{
 				_lastWeek = weekNum;
@@ -210,13 +219,20 @@ void MyNode::outputMessage(int64_t time)
 		}
 		else if(_unit == Units::M)
 		{
-			std::tm tm;
-			getTimeStruct(tm);
 			int32_t month = tm.tm_mon + 1;
 			if(month != _lastMonth)
 			{
 				_lastMonth = month;
 				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(month));
+			}
+		}
+		else if(_unit == Units::Y)
+		{
+			int32_t year = tm.tm_year + 1900;
+			if(year != _lastYear)
+			{
+				_lastYear = year;
+				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(year));
 			}
 		}
 		output(0, message);
@@ -346,6 +362,7 @@ void MyNode::timer()
 			case Units::doy:
 			case Units::w:
 			case Units::M:
+			case Units::Y:
 				if(currentLocalTime % 86400000 != 0) continue;
 				break;
 			}
