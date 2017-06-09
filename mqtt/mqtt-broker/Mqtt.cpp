@@ -60,7 +60,7 @@ Mqtt::~Mqtt()
 {
 	try
 	{
-		stop();
+		waitForStop();
 		_bl.reset();
 	}
 	catch(const std::exception& ex)
@@ -109,6 +109,26 @@ void Mqtt::start()
 }
 
 void Mqtt::stop()
+{
+	try
+	{
+		_started = false;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void Mqtt::waitForStop()
 {
 	try
 	{
