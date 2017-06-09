@@ -260,7 +260,7 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 			int32_t i = 0;
 			int64_t sunTime = 1;
 			int64_t inputTime = currentTime - 86400000;
-			while(sunTime < currentTime && sunTime >= 0 && i < 1000)
+			while(sunTime + offset < currentTime && sunTime >= 0 && i < 1000)
 			{
 				sunTime = getSunTime(inputTime, time);
 				inputTime += 86400000;

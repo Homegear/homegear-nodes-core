@@ -15,7 +15,7 @@
     <div class="form-row">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-startup" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-startup" style="width: 70%;" data-i18n="timer.label.startup"></label>
+        <label for="node-input-startup" style="width: 65%;" data-i18n="timer.label.startup"></label>
     </div>
     <div class="form-row">
         <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer.label.latitude"></span></label>
@@ -25,11 +25,13 @@
         <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
     </div>
     <div class="form-row">
-        <label style="width:16%" for="node-input-ontime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.ontime"></span></label>
-        <input type="text" id="node-input-ontime" style="width:26%"/>
+        <label for="node-input-ontime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.ontime"></span></label>
+        <input type="text" id="node-input-ontime" style="width:70%"/>
         <input type="hidden" id="node-input-ontimetype"/>
-        <label style="width:16%"  for="node-input-offtime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.offtime"></span></label>
-        <input type="text" id="node-input-offtime" style="width:26%"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-offtime"><i class="fa fa-clock-o"></i> <span data-i18n="timer.label.offtime"></span></label>
+        <input type="text" id="node-input-offtime" style="width:70%"/>
         <input type="hidden" id="node-input-offtimetype"/>
     </div>
     <div class="form-row">
