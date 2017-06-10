@@ -159,9 +159,9 @@ void MyNode::outputMessage(int64_t time)
 		{
 			int32_t julian = tm.tm_yday;
 			int32_t dow = tm.tm_wday;
-			time -= julian * 86400000;
+			int64_t time2 = time - (julian * 86400000);
 			std::tm tm2;
-			getTimeStruct(tm2, time);
+			getTimeStruct(tm2, time2);
 			weekNum = ((julian + 6) / 7);
 			if(dow < tm2.tm_wday) weekNum++;
 		}
