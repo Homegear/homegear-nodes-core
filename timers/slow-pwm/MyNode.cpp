@@ -34,8 +34,8 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_enabled = true;
 	_stopThread = true;
+	_enabled = true;
 }
 
 MyNode::~MyNode()
@@ -49,19 +49,31 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("interval");
-		if(settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+		auto settingsIterator = info->info->structValue->find("period");
+		if(settingsIterator != info->info->structValue->end()) _period = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-		settingsIterator = info->info->structValue->find("resetafter");
-		if(settingsIterator != info->info->structValue->end()) _resetAfter = Flows::Math::getNumber(settingsIterator->second->stringValue);
+		settingsIterator = info->info->structValue->find("dutycyclemin");
+		if(settingsIterator != info->info->structValue->end()) _dutyCycleMin = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-		if(_interval < 1) _interval = 1;
+		settingsIterator = info->info->structValue->find("dutycyclemax");
+		if(settingsIterator != info->info->structValue->end()) _dutyCycleMax = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+		if(_dutyCycleMax <= _dutyCycleMin)
+		{
+			Flows::Output::printError("Error: Duty cycle maximum is smaller than or equal to duty cycle minimum. Setting both to defaults.");
+			_dutyCycleMin = 0;
+			_dutyCycleMax = 100;
+		}
+
+		if(_period < 10) _period = 10;
 
 		auto enabled = getNodeData("enabled");
 		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 
-		_tick = getNodeData("tick")->integerValue64;
-		_startTimeAll = getNodeData("startTimeAll")->integerValue64;
+		_startTimeAll = getNodeData("startTimeAll")->integerValue;
+		if(_startTimeAll == 0) _startTimeAll = Flows::HelperFunctions::getTimeSeconds();
+
+		_currentDutyCycle = getNodeData("dutycycle")->integerValue;
 
 		return true;
 	}
@@ -82,7 +94,6 @@ bool MyNode::start()
 	{
 		if(!_enabled) return true;
 		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_inputTime = Flows::HelperFunctions::getTime();
 		_stopThread = false;
 		if(_timerThread.joinable()) _timerThread.join();
 		_timerThread = std::thread(&MyNode::timer, this);
@@ -105,7 +116,6 @@ void MyNode::stop()
 	try
 	{
 		_stopThread = true;
-		setNodeData("tick", std::make_shared<Flows::Variable>(_tick));
 		setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
 	}
 	catch(const std::exception& ex)
@@ -135,61 +145,39 @@ void MyNode::waitForStop()
 	}
 }
 
+int32_t MyNode::scale(int32_t value, int32_t valueMin, int32_t valueMax, int32_t scaleMin, int32_t scaleMax)
+{
+	double vPerc = ((double)(value - valueMin)) / (valueMax - valueMin);
+	double bigSpan = vPerc * (scaleMax - scaleMin);
+
+	return std::lround(scaleMin + bigSpan);
+}
+
 void MyNode::timer()
 {
-	int32_t sleepingTime = _interval - (Flows::HelperFunctions::getTime() - _inputTime);
-	if(sleepingTime < 1) sleepingTime = 1;
+	int32_t pwmPosition = (Flows::HelperFunctions::getTimeSeconds() - _startTimeAll) % _period;
+	bool pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
+	bool lastPwmState = pwmState;
 
-	int64_t startTime = Flows::HelperFunctions::getTime();
+	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(pwmState));
+	output(0, message);
 
 	while(!_stopThread)
 	{
 		try
 		{
-			_tick++;
-			if(sleepingTime > 1000 && sleepingTime < 30000)
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			if(_stopThread) return;
+
+			pwmPosition = (Flows::HelperFunctions::getTimeSeconds() - _startTimeAll) % _period;
+			pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
+			if(pwmState != lastPwmState)
 			{
-				int32_t iterations = sleepingTime / 100;
-				for(int32_t j = 0; j < iterations; j++)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
-					if(_stopThread) break;
-				}
-				if(sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
+				lastPwmState = pwmState;
+				message->structValue->at("payload")->booleanValue = pwmState;
+				output(0, message);
 			}
-			else if(sleepingTime >= 30000)
-			{
-				int32_t iterations = sleepingTime / 1000;
-				for(int32_t j = 0; j < iterations; j++)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-					if(_stopThread) break;
-				}
-				if(sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
-			}
-			else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-			if(_stopThread) break;
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_tick));
-			if(_resetAfter > 0 && Flows::HelperFunctions::getTime() - _startTimeAll >= _resetAfter)
-			{
-				_stopThread = true;
-				_enabled = false;
-				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-				output(1, message);
-				setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-				Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disabled"));
-				nodeEvent("statusTop/" + _id, status);
-				break;
-			}
-			output(0, message);
-			int64_t diff = Flows::HelperFunctions::getTime() - startTime;
-			if(diff <= _interval) sleepingTime = _interval;
-			else sleepingTime = _interval - (diff - _interval);
-			if(sleepingTime < 1) sleepingTime = 1;
-			startTime = Flows::HelperFunctions::getTime();
 		}
 		catch(const std::exception& ex)
 		{
@@ -206,8 +194,16 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		_inputTime = Flows::HelperFunctions::getTime();
 		if(index == 0)
+		{
+			int32_t dutyCycle = message->structValue->at("payload")->integerValue64;
+			if(dutyCycle > _dutyCycleMax) dutyCycle = _dutyCycleMax;
+			else if(dutyCycle < _dutyCycleMin) dutyCycle = _dutyCycleMin;
+			dutyCycle = std::lround((double)_period * (((double)(dutyCycle - _dutyCycleMin)) / (_dutyCycleMax - _dutyCycleMin)));
+			_currentDutyCycle = dutyCycle;
+			setNodeData("dutycycle", std::make_shared<Flows::Variable>(dutyCycle));
+		}
+		else if(index == 1)
 		{
 			_enabled = message->structValue->at("payload")->booleanValue;
 			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
@@ -219,21 +215,10 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			if(_timerThread.joinable()) _timerThread.join();
 			if(_enabled)
 			{
-				_tick = 0;
-				_startTimeAll = Flows::HelperFunctions::getTime();
+				_startTimeAll = Flows::HelperFunctions::getTimeSeconds();
 				_stopThread = false;
 				_timerThread = std::thread(&MyNode::timer, this);
 			}
-		}
-		else if(index == 1 && _enabled && message->structValue->at("payload"))
-		{
-			std::lock_guard<std::mutex> timerGuard(_timerMutex);
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
-			_tick = 0;
-			_startTimeAll = Flows::HelperFunctions::getTime();
-			_stopThread = false;
-			_timerThread = std::thread(&MyNode::timer, this);
 		}
 	}
 	catch(const std::exception& ex)
