@@ -163,6 +163,7 @@ void MyNode::timer()
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				if(_stopThread) break;
 			}
+			if(_stopThread) break;
 			auto sunPosition = _sunTime.getPosition(Flows::HelperFunctions::getTime(), _latitude, _longitude);
 			sunPositionPayload->structValue->clear();
 			sunPositionPayload->structValue->emplace("azimuth", std::make_shared<Flows::Variable>((double)sunPosition.azimuth));
