@@ -1,0 +1,55 @@
+<script type="text/x-homegear">
+{
+    "name": "sun-position",
+    "readableName": "Sun Position",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="sun-position">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="sun-position.label.latitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
+
+        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="sun-position.label.longitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('sun-position',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            name: {value:""},            
+            lat: {value:"", required: true},
+            lon: {value:"", required: true}
+        },
+        inputs:0,
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["struct"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "sun-position";
+        },
+        oneditprepare: function() {
+            if (($("#node-input-lat").val() === "") && ($("#node-input-lon").val() === "")) {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        $("#node-input-lat").val(Number(position.coords.latitude.toFixed(5)));
+                        $("#node-input-lon").val(Number(position.coords.longitude.toFixed(5)));
+                    });
+                }
+            }
+        }
+    });
+</script>
