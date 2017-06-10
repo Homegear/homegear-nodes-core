@@ -1,0 +1,19 @@
+{
+  "template/template.hni": {
+    "template": {
+      "label": {
+        "template": "Template",
+        "property": "Set property",
+        "format": "Syntax Highlight",
+        "syntax": "Format",
+        "output": "Output as",
+        "mustache": "Mustache template",
+        "plain": "Plain text",
+        "json": "Parsed JSON"
+      },
+      "templatevalue": "This is the payload: {{payload}} !",
+      "paletteHelp": "<p>Sets a property based on the provided template.</p>",
+      "help": "<p>Sets a property based on the provided template.</p><h3>Inputs</h3><dl class=\"message-properties\"><dt>$message <span class=\"property-type\">struct</span></dt><dd>A $message object containing information to populate the template.</dd></dl><h3>Outputs</h3><dl class=\"message-properties\"><dt>$message <span class=\"property-type\">struct</span></dt><dd>a $message with a property set by populating the configured template with properties from the incoming $message.</dd></dl><h3>Details</h3><p>By default this uses the <i><a href=\"http://mustache.github.io/mustache.5.html\" target=\"_blank\">mustache</a></i> format, but this can be switched off if required.</p><p>For example, when a template of: <pre>Hello {{name}}. Today is {{date}}</pre><p>receives a message containing: <pre>{\n  name: \"Fred\",\n  date: \"Monday\"\n  payload: ...\n}</pre><p>The resulting property will be: <pre>Hello Fred. Today is Monday</pre><p><b>Note: </b>By default, <i>mustache</i> will escape any HTML entities in the values it substitutes. To prevent this, use <code>{{{triple}}}</code> braces.</p>"
+    }
+  }
+}

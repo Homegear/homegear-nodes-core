@@ -22,7 +22,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('comment',{
-        category: 'function',
+        category: 'general',
         color:"#ffffff",
         defaults: {
             name: {value:""},
