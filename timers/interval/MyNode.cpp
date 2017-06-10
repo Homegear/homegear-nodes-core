@@ -205,9 +205,9 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
+		_inputTime = Flows::HelperFunctions::getTime();
 		if(index == 0)
 		{
-			_inputTime = Flows::HelperFunctions::getTime();
 			_enabled = message->structValue->at("payload")->booleanValue;
 			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
 			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -223,16 +223,14 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 				_stopThread = false;
 				_timerThread = std::thread(&MyNode::timer, this);
 			}
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-			output(1, message);
 		}
-		else if(index == 1 && _enabled && message->structValue->at("payload")->booleanValue)
+		else if(index == 1 && _enabled && message->structValue->at("payload"))
 		{
 			std::lock_guard<std::mutex> timerGuard(_timerMutex);
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();
 			_tick = 0;
+			_startTimeAll = Flows::HelperFunctions::getTime();
 			_stopThread = false;
 			_timerThread = std::thread(&MyNode::timer, this);
 		}

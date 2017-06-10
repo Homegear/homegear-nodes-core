@@ -11,9 +11,9 @@
       "input1Description": "Set to <code>true</code> to enable the timer and to <code>false</code> to disable it.",
       "input2Description": "Set to <code>true</code> to reset the timer. Setting <code>EN</code> to false also resets the timer.",
       "output1Description": "Outputs the number of ticks since the timer was started.",
-      "output2Description": "Outputs <code>true</code> when the timer is finished.",
+      "output2Description": "Outputs <code>true</code> when the timer is finished after the time defined in \"Reset after\" is up.",
       "paletteHelp": "<p>Generates an periodic event in constant intervals.</p>",
-      "help": "This node generates events in constant intervals. Set <code>EN</code> to \"true\" to enable the timer. You can set \"Reset after\" to automatically disable the timer."
+      "help": "This node generates events in constant intervals. Set <code>EN</code> to \"true\" to enable the timer. You can set \"Reset after\" to automatically disable the timer. When the timer is stopped after the time defined in \"Reset after\", output <code>f</code> is set to \"true\"."
     }
   }
 }
