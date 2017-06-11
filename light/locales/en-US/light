@@ -13,9 +13,12 @@
         "name": "Name",
         "lighttype": "Light type",
         "switch": "Switch",
+        "dimmerstate": "Dimmer state",
         "dimmer": "Dimmer",
         "offvalue": "Value off",
         "onvalue": "Value on",
+        "minvalue": "Min. value",
+        "maxvalue": "Max. value",
         "twoinputs": "2-channel input"
       },
       "paletteHelp": "<p>Switches a light or a socket.</p>",

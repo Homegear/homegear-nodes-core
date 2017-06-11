@@ -38,6 +38,13 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
+	enum class LightType
+	{
+		switchState,
+		dimmerState,
+		dimmer
+	};
+
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
@@ -47,10 +54,12 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 	bool _twoInputs = false;
-	bool _isDimmer = false;
+	LightType _lightType = LightType::switchState;
 
 	Flows::PVariable _onValue;
 	Flows::PVariable _offValue;
+	Flows::PVariable _minValue;
+	Flows::PVariable _maxValue;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };

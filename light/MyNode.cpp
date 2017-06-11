@@ -69,12 +69,17 @@ bool MyNode::init(Flows::PNodeInfo info)
 		}
 
 		settingsIterator = info->info->structValue->find("lighttype");
-		if(settingsIterator != info->info->structValue->end()) _isDimmer = settingsIterator->second->stringValue == "dimmer";
+		if(settingsIterator != info->info->structValue->end())
+		{
+			std::string lightType = settingsIterator->second->stringValue;
+			if(lightType == "dimmerstate") _lightType = LightType::dimmerState;
+			else if(lightType == "dimmer") _lightType = LightType::dimmer;
+		}
 
 		settingsIterator = info->info->structValue->find("twoinputs");
 		if(settingsIterator != info->info->structValue->end()) _twoInputs = settingsIterator->second->booleanValue;
 
-		if(_isDimmer)
+		if(_lightType == LightType::dimmerState)
 		{
 			std::string offValue = "0";
 			settingsIterator = info->info->structValue->find("offvalue");
@@ -89,6 +94,31 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
 			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
+		}
+		else if(_lightType == LightType::dimmer)
+		{
+			std::string offValue = "0";
+			settingsIterator = info->info->structValue->find("offvalue2");
+			if(settingsIterator != info->info->structValue->end()) offValue = settingsIterator->second->stringValue;
+
+			std::string minValue = "15";
+			settingsIterator = info->info->structValue->find("minvalue");
+			if(settingsIterator != info->info->structValue->end()) minValue = settingsIterator->second->stringValue;
+
+			std::string maxValue = "0";
+			settingsIterator = info->info->structValue->find("maxvalue");
+			if(settingsIterator != info->info->structValue->end()) maxValue = settingsIterator->second->stringValue;
+
+			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
+			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
+
+			if(minValue.find('.') != std::string::npos) _minValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(minValue));
+			else _minValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(minValue));
+
+			if(maxValue.find('.') != std::string::npos) _maxValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(maxValue));
+			else _maxValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(maxValue));
+
+			_onValue = _maxValue;
 		}
 		else
 		{
@@ -113,18 +143,29 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		bool value = message->structValue->at("payload")->booleanValue;
-		if(_twoInputs && !value) return;
-		bool state = _twoInputs ? (index == 0 ? true : false) : value;
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(state ? _onValue : _offValue);
+		bool value = message->structValue->at("payload");
 
-		Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		if(_lightType == LightType::dimmer && index > 0)
+		{
+			//Start dim thread on true and stop it on false
+			//Index 0 dim up
+			//Index 1 dim down
+		}
+		else
+		{
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->reserve(4);
+			parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+			parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+			parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+
+			if(_twoInputs && !value) return;
+			bool state = _twoInputs ? (index == 0 ? true : false) : value;
+			parameters->push_back(state ? _onValue : _offValue);
+
+			Flows::PVariable result = invoke("setValue", parameters);
+			if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		}
 	}
 	catch(const std::exception& ex)
 	{
