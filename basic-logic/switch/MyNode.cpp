@@ -76,8 +76,9 @@ void MyNode::convertType(Flows::PVariable& value, Flows::VariableType vt)
 {
 	if(vt == Flows::VariableType::tInteger)
 	{
-		value->setType(vt);
+		value->setType(Flows::VariableType::tInteger64);
 		value->integerValue = Flows::Math::getNumber(value->stringValue);
+		value->integerValue64 = value->integerValue;
 	}
 	else if(vt == Flows::VariableType::tInteger64)
 	{
@@ -230,6 +231,11 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 {
 	try
 	{
+		if(value->type == Flows::VariableType::tInteger)
+		{
+			value->setType(Flows::VariableType::tInteger64);
+			value->integerValue64 = value->integerValue;
+		}
 		if(rule.previousValue)
 		{
 			rule.v = _previousInputValue;
