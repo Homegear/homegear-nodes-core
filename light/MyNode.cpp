@@ -119,7 +119,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 			settingsIterator = info->info->structValue->find("interval");
 			if(settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getDouble(settingsIterator->second->stringValue);
-			if(_interval < 20) _interval = 20;
+			if(_interval < 10) _interval = 10;
 
 			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
 			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
@@ -198,7 +198,7 @@ void MyNode::dim(bool up)
 	try
 	{
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(5);
+		parameters->reserve(4);
 		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
 		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
@@ -214,7 +214,6 @@ void MyNode::dim(bool up)
 		}
 
 		parameters->push_back(startValue);
-		parameters->push_back(std::make_shared<Flows::Variable>(true)); //wait
 
 		while(!_stopThread)
 		{
@@ -250,7 +249,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		bool value = *message->structValue->at("payload");
+		bool value = *(message->structValue->at("payload"));
 
 		if(_lightType == LightType::dimmer && index > 0)
 		{
