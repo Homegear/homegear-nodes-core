@@ -19,6 +19,9 @@
         "onvalue": "Value on",
         "minvalue": "Min. value",
         "maxvalue": "Max. value",
+        "step": "Min. step",
+        "factor": "Factor",
+        "interval": "Interval",
         "twoinputs": "2-channel input"
       },
       "paletteHelp": "<p>Switches a light or a socket.</p>",

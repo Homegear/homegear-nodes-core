@@ -47,6 +47,18 @@
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-maxvalue"><span data-i18n="light.label.maxvalue"></span></label>
             <input style="width: 65%;" type="text" id="node-input-maxvalue">
         </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-step"><span data-i18n="light.label.step"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-step">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-factor"><span data-i18n="light.label.factor"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-factor">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-interval"><span data-i18n="light.label.interval"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-interval">
+        </div>
     </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="light.label.variabletype"></span></label>
@@ -99,11 +111,14 @@
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
             
             lighttype: {value:"switch"},
-            offvalue: {value:"0",validate:RED.validators.number()},
-            onvalue: {value:"100",validate:RED.validators.number()},
-            offvalue2: {value:"0",validate:RED.validators.number()},
-            minvalue: {value:"15",validate:RED.validators.number()},
-            maxvalue: {value:"100",validate:RED.validators.number()},
+            offvalue: {value:"0",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmer") return true; else return $.isNumeric(v); }},
+            onvalue: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmer") return true; else return $.isNumeric(v); }},
+            offvalue2: {value:"0",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            minvalue: {value:"15",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            maxvalue: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            step: {value:"1",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            factor: {value:"0.03",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            interval: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
             twoinputs: {value:false},
             inputs: {value:1},
             name: {value:""}
