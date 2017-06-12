@@ -16,13 +16,13 @@ function setNodeData(string $key, $value)
 function getFlowData(string $key)
 {
 	global $nodeInfo;
-	return \Homegear\Homegear::getNodeData($nodeInfo['z'], $key);
+	return \Homegear\Homegear::getNodeData($nodeInfo['info']['z'], $key);
 }
 
 function setFlowData(string $key, $value)
 {
 	global $nodeInfo;
-	\Homegear\Homegear::setNodeData($nodeInfo['z'], $key, $value);
+	\Homegear\Homegear::setNodeData($nodeInfo['info']['z'], $key, $value);
 }
 
 function getGlobalData(string $key)

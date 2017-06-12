@@ -342,24 +342,24 @@ public:
     }
 
     template <typename StreamType>
-    StreamType& render(const basic_data<string_type>& data, StreamType& stream) {
-        render(data, [&stream](const string_type& str) {
+    StreamType& render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData, StreamType& stream) {
+        render(data, addData, [&stream](const string_type& str) {
             stream << str;
         });
         return stream;
     }
     
-    string_type render(const basic_data<string_type>& data) {
+    string_type render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData) {
         std::basic_ostringstream<typename string_type::value_type> ss;
-        return render(data, ss).str();
+        return render(data, addData, ss).str();
     }
 
     using RenderHandler = std::function<void(const string_type&)>;
-    void render(const basic_data<string_type>& data, const RenderHandler& handler) {
+    void render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData, const RenderHandler& handler) {
         if (!is_valid()) {
             return;
         }
-        Context ctx{&data};
+        Context ctx{&data, addData};
         render(handler, ctx);
     }
 
@@ -406,8 +406,9 @@ private:
     
     class Context {
     public:
-        Context(const basic_data<string_type>* data) {
+        Context(const basic_data<string_type>* data, std::function<void(bool, std::string)> addData) {
             push(data);
+            _addData.swap(addData);
         }
 
         Context() {
@@ -441,18 +442,28 @@ private:
             if (names.size() == 0) {
                 names.resize(1);
             }
-            for (const auto& item : items_) {
-                auto var = item;
-                for (const auto& n : names) {
-                    var = var->get(n);
-                    if (!var) {
-                        break;
-                    }
-                }
-                if (var) {
-                    return var;
-                }
+            if(names.at(0) == "flow" || names.at(0) == "global") {
+            	for (const auto& item : items_) {
+					auto var = item;
+					var = var->get(names.at(0));
+					if (!var) {
+						continue;
+					}
+					if(_addData) _addData(names.at(0) == "global", names.at(1));
+				}
             }
+			for (const auto& item : items_) {
+				auto var = item;
+				for (const auto& n : names) {
+					var = var->get(n);
+					if (!var) {
+						break;
+					}
+				}
+				if (var) {
+					return var;
+				}
+			}
             return nullptr;
         }
 
@@ -473,6 +484,7 @@ private:
 
     private:
         std::vector<const basic_data<string_type>*> items_;
+        std::function<void(bool, std::string)> _addData;
     };
 
     class ContextPusher {
