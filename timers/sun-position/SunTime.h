@@ -46,6 +46,7 @@
 #include <homegear-node/HelperFunctions.h>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
 
 namespace MyNode
 {
