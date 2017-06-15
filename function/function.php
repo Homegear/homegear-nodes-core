@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 $nodeInfo;
 
 function getNodeData(string $key)
@@ -19,44 +21,57 @@ function output(int $outputIndex, array $message)
 	\Homegear\Homegear::nodeOutput($nodeInfo['id'], $outputIndex, $message);
 }
 
-function executeCode(int $inputIndex, array $message)
+class HomegearNode extends HomegearNodeBase
 {
-	global $nodeInfo;
-	$code = $nodeInfo["info"]["func"];
+
+private $hg = NULL;
+private $nodeInfo = NULL;
+
+public function __construct()
+{
+	$this->hg = new \Homegear\Homegear();
+}
+
+public function executeCode(int $inputIndex, array $message)
+{
+	$code = $this->nodeInfo["info"]["func"];
 	$hg = new \Homegear\Homegear();
 	return eval($code);
 }
 
-function input(array $localNodeInfo, int $inputIndex, array $message)
+public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 {
 	global $nodeInfo;
-	$nodeInfo = $localNodeInfo;
-	$result = executeCode($inputIndex, $message);
+	$nodeInfo = $nodeInfoLocal;
+	$this->nodeInfo = $nodeInfoLocal;
+	$result = $this->executeCode($inputIndex, $message);
 	if($result)
 	{
 		if(array_key_exists('payload', $result))
 		{
-			\Homegear\Homegear::nodeOutput($nodeInfo['id'], 0, $result);
+			$this->hg->nodeOutput($this->nodeInfo['id'], 0, $result);
 		}
 		else
 		{
-			$wireCount = count($nodeInfo['wiresOut']);
+			$wireCount = count($this->nodeInfo['wiresOut']);
 			foreach($result as $index => $value)
 			{
 				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
 				if(array_key_exists('payload', $value))
 				{
-					\Homegear\Homegear::nodeOutput($nodeInfo['id'], $index, $value);
+					$this->hg->nodeOutput($this->nodeInfo['id'], $index, $value);
 				}
 				else
 				{
 					foreach($value as $value2)
 					{
 						if(!$value2) continue;
-						\Homegear\Homegear::nodeOutput($nodeInfo['id'], $index, $value2);
+						$this->hg->nodeOutput($this->nodeInfo['id'], $index, $value2);
 					}
 				}
 			}
 		}
 	}
+}
+
 }
