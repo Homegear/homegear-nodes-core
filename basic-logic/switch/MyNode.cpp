@@ -367,6 +367,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			}
 			else if(_outputFalse)
 			{
+				Flows::Output::printInfo("Moin3 " + std::to_string(i) + " " + message->structValue->at(_property)->toString());
 				if(!_changesOnly || _rules.at(i).previousOutput->booleanValue)
 				{
 					Flows::PVariable falseValue = std::make_shared<Flows::Variable>(false);

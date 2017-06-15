@@ -44,6 +44,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+		_nodeInfo = info;
+
 		auto settingsIterator = info->info->structValue->find("template");
 		if(settingsIterator != info->info->structValue->end()) _plainTemplate = settingsIterator->second->stringValue;
 		_template.reset(new kainjow::mustache::mustache(_plainTemplate));
@@ -68,6 +70,30 @@ bool MyNode::init(Flows::PNodeInfo info)
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
+}
+
+void MyNode::addData(bool global, std::string key)
+{
+	try
+	{
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		parameters->reserve(2);
+		parameters->push_back(std::make_shared<Flows::Variable>(global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
+		parameters->push_back(std::make_shared<Flows::Variable>(key));
+		Flows::PVariable result = invoke("getNodeData", parameters);
+		if(result->errorStruct) return;
+		auto data = (mustache::data*)(_data.get(global ? "global" : "flow")); //This is dirty, but works as there is no access to _data, when addData is called.
+		if(!data) return;
+		setData(*data, key, result);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void MyNode::setData(mustache::data& data, std::string key, Flows::PVariable value)
@@ -116,14 +142,17 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		mustache::data data;
+		std::lock_guard<std::mutex> inputGuard(_inputMutex);
+		_data = mustache::data();
 		for(auto& element : *message->structValue)
 		{
-			setData(data, element.first, element.second);
+			setData(_data, element.first, element.second);
 		}
+		_data.set("flow", mustache::data(mustache::data::type::object));
+		_data.set("global", mustache::data(mustache::data::type::object));
 
 		Flows::PVariable result;
-		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(data));
+		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(bool, std::string)>(std::bind(&MyNode::addData, this, std::placeholders::_1, std::placeholders::_2))));
 		else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

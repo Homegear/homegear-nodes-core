@@ -47,13 +47,18 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
+	Flows::PNodeInfo _nodeInfo;
+
 	std::string _plainTemplate;
 	Flows::JsonDecoder _jsonDecoder;
 	std::unique_ptr<mustache::mustache> _template;
 	std::string _field;
 	bool _mustache = true;
 	bool _parseJson = false;
+	std::mutex _inputMutex;
+	mustache::data _data;
 
+	void addData(bool global, std::string key);
 	void setData(mustache::data& data, std::string key, Flows::PVariable value);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };

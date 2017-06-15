@@ -15,6 +15,30 @@ function setNodeData(string $key, $value)
 	\Homegear\Homegear::setNodeData($nodeInfo['id'], $key, $value);
 }
 
+function getFlowData(string $key)
+{
+	global $nodeInfo;
+	return \Homegear\Homegear::getNodeData($nodeInfo['info']['z'], $key);
+}
+
+function setFlowData(string $key, $value)
+{
+	global $nodeInfo;
+	\Homegear\Homegear::setNodeData($nodeInfo['info']['z'], $key, $value);
+}
+
+function getGlobalData(string $key)
+{
+	global $nodeInfo;
+	return \Homegear\Homegear::getNodeData('global', $key);
+}
+
+function setGlobalData(string $key, $value)
+{
+	global $nodeInfo;
+	\Homegear\Homegear::setNodeData('global', $key, $value);
+}
+
 function output(int $outputIndex, array $message)
 {
 	global $nodeInfo;
