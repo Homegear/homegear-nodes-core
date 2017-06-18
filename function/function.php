@@ -59,7 +59,6 @@ public function __construct()
 public function executeCode(int $inputIndex, array $message)
 {
 	$code = $this->nodeInfo["info"]["func"];
-	$message['broker'] = $this->getConfigParameter("11718f85.f5ca48", "broker");
 	$hg = new \Homegear\Homegear();
 	return eval($code);
 }
