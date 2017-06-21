@@ -472,7 +472,6 @@
                 } else if (msg.event === "mouseLeave") {
                     options.messageMouseLeave(msg.id);
                 } else if (msg.event === "mouseClick") {
-                	console.log("Moin0");
                     options.messageSourceClick(msg.id);
                 } else if (msg.event === "clear") {
                     options.clear();

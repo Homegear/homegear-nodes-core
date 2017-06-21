@@ -32,6 +32,7 @@
 
 #include <homegear-node/INode.h>
 #include <thread>
+#include <mutex>
 
 namespace MyNode
 {
@@ -39,39 +40,28 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	enum class LightType
-	{
-		switchState,
-		dimmerState,
-		dimmer
-	};
-
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
 	virtual void stop();
 	virtual void waitForStop();
 private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	bool _twoInputs = false;
-	LightType _lightType = LightType::switchState;
-	double _step = 1.0;
-	double _factor = 0.0;
-	int32_t _interval = 0;
+	std::atomic_bool _enabled;
+	uint32_t _period = 1800;
+	int32_t _dutyCycleMin = 0;
+	int32_t _dutyCycleMax = 100;
+	std::atomic<int32_t> _currentDutyCycle;
+
+	int32_t _startTimeAll = 0;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
 
-	Flows::PVariable _onValue;
-	Flows::PVariable _offValue;
-	Flows::PVariable _minValue;
-	Flows::PVariable _maxValue;
-
-	void dim(bool up);
+	int32_t scale(int32_t value, int32_t valueMin, int32_t valueMax, int32_t scaleMin, int32_t scaleMax);
+	void timer();
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

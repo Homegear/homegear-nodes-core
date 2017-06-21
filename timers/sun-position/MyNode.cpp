@@ -139,6 +139,18 @@ void MyNode::waitForStop()
 void MyNode::timer()
 {
 	int32_t i = 0;
+	{
+		std::random_device rd;
+		std::mt19937 gen(rd());
+		std::uniform_int_distribution<> dis(0, 60);
+		int32_t randomInterval = dis(gen);
+		for(i = 0; i < randomInterval; i++)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			if(_stopThread) break;
+		}
+	}
+
 	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 	Flows::PVariable sunPositionPayload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 	message->structValue->emplace("payload", sunPositionPayload);
@@ -151,6 +163,7 @@ void MyNode::timer()
 				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 				if(_stopThread) break;
 			}
+			if(_stopThread) break;
 			auto sunPosition = _sunTime.getPosition(Flows::HelperFunctions::getTime(), _latitude, _longitude);
 			sunPositionPayload->structValue->clear();
 			sunPositionPayload->structValue->emplace("azimuth", std::make_shared<Flows::Variable>((double)sunPosition.azimuth));

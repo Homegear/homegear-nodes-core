@@ -153,6 +153,24 @@ void MyNode::waitForStop()
 	}
 }
 
+Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
+{
+	try
+	{
+		auto settingsIterator = _nodeInfo->info->structValue->find(name);
+		if(settingsIterator != _nodeInfo->info->structValue->end()) return settingsIterator->second;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return std::make_shared<Flows::Variable>();
+}
+
 //{{{ RPC methods
 Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 {

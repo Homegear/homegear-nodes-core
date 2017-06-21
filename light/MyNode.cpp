@@ -69,12 +69,17 @@ bool MyNode::init(Flows::PNodeInfo info)
 		}
 
 		settingsIterator = info->info->structValue->find("lighttype");
-		if(settingsIterator != info->info->structValue->end()) _isDimmer = settingsIterator->second->stringValue == "dimmer";
+		if(settingsIterator != info->info->structValue->end())
+		{
+			std::string lightType = settingsIterator->second->stringValue;
+			if(lightType == "dimmerstate") _lightType = LightType::dimmerState;
+			else if(lightType == "dimmer") _lightType = LightType::dimmer;
+		}
 
 		settingsIterator = info->info->structValue->find("twoinputs");
 		if(settingsIterator != info->info->structValue->end()) _twoInputs = settingsIterator->second->booleanValue;
 
-		if(_isDimmer)
+		if(_lightType == LightType::dimmerState)
 		{
 			std::string offValue = "0";
 			settingsIterator = info->info->structValue->find("offvalue");
@@ -89,6 +94,52 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
 			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
+		}
+		else if(_lightType == LightType::dimmer)
+		{
+			std::string offValue = "0";
+			settingsIterator = info->info->structValue->find("offvalue2");
+			if(settingsIterator != info->info->structValue->end()) offValue = settingsIterator->second->stringValue;
+
+			std::string minValue = "15";
+			settingsIterator = info->info->structValue->find("minvalue");
+			if(settingsIterator != info->info->structValue->end()) minValue = settingsIterator->second->stringValue;
+
+			std::string maxValue = "0";
+			settingsIterator = info->info->structValue->find("maxvalue");
+			if(settingsIterator != info->info->structValue->end()) maxValue = settingsIterator->second->stringValue;
+
+			settingsIterator = info->info->structValue->find("step");
+			if(settingsIterator != info->info->structValue->end()) _step = Flows::Math::getDouble(settingsIterator->second->stringValue);
+			if(_step <= 0.0) _step = 0.001;
+
+			settingsIterator = info->info->structValue->find("factor");
+			if(settingsIterator != info->info->structValue->end()) _factor = Flows::Math::getDouble(settingsIterator->second->stringValue);
+			if(_factor < 0) _factor = 0;
+
+			settingsIterator = info->info->structValue->find("interval");
+			if(settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getDouble(settingsIterator->second->stringValue);
+			if(_interval < 10) _interval = 10;
+
+			if(offValue.find('.') != std::string::npos) _offValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(offValue));
+			else _offValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(offValue));
+
+			if(minValue.find('.') != std::string::npos) _minValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(minValue));
+			else
+			{
+				_minValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(minValue));
+				_minValue->floatValue = _minValue->integerValue;
+			}
+
+			if(maxValue.find('.') != std::string::npos) _maxValue = std::make_shared<Flows::Variable>(Flows::Math::getDouble(maxValue));
+			else
+			{
+				_maxValue = std::make_shared<Flows::Variable>(Flows::Math::getNumber(maxValue));
+				_maxValue->floatValue = _maxValue->integerValue;
+			}
+
+			_onValue = getNodeData("currentvalue");
+			if(!(*_onValue)) _onValue = _maxValue;
 		}
 		else
 		{
@@ -109,22 +160,127 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::stop()
 {
 	try
 	{
-		bool value = message->structValue->at("payload")->booleanValue;
-		if(_twoInputs && !value) return;
-		bool state = _twoInputs ? (index == 0 ? true : false) : value;
+		_stopThread = true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::waitForStop()
+{
+	try
+	{
+		std::lock_guard<std::mutex> timerGuard(_timerMutex);
+		if(_timerThread.joinable()) _timerThread.join();
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::dim(bool up)
+{
+	try
+	{
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(4);
 		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
 		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-		parameters->push_back(state ? _onValue : _offValue);
+		Flows::PVariable startValue = invoke("getValue", parameters);
 
-		Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		double currentValue = 0;
+		if(startValue->type == Flows::VariableType::tInteger) currentValue = startValue->integerValue;
+		else if(startValue->type == Flows::VariableType::tInteger64) currentValue = startValue->integerValue64;
+		else
+		{
+			startValue->type = Flows::VariableType::tFloat;
+			currentValue = startValue->floatValue;
+		}
+
+		parameters->push_back(startValue);
+
+		while(!_stopThread)
+		{
+			if(up) currentValue += (_step + (_factor * currentValue));
+			else currentValue -= (_step + (_factor * currentValue));
+
+			if(currentValue > _maxValue->floatValue) currentValue = _maxValue->floatValue;
+			else if(currentValue < _minValue->floatValue) currentValue = _minValue->floatValue;
+
+			if(startValue->type == Flows::VariableType::tInteger) parameters->at(3)->integerValue = std::lround(currentValue);
+			else if(startValue->type == Flows::VariableType::tInteger64) parameters->at(3)->integerValue64 = std::lround(currentValue);
+			else if(startValue->type == Flows::VariableType::tFloat) parameters->at(3)->floatValue = currentValue;
+			invoke("setValue", parameters);
+			std::this_thread::sleep_for(std::chrono::milliseconds(_interval));
+			if(up && currentValue == _maxValue->floatValue) break;
+			else if(!up && currentValue == _minValue->floatValue) break;
+		}
+
+		setNodeData("currentvalue", startValue);
+		_onValue = startValue;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+{
+	try
+	{
+		bool value = *(message->structValue->at("payload"));
+
+		if(_lightType == LightType::dimmer && index > 0)
+		{
+			std::lock_guard<std::mutex> timerGuard(_timerMutex);
+			_stopThread = true;
+			if(value)
+			{
+				if(_timerThread.joinable()) _timerThread.join();
+				_stopThread = false;
+				_timerThread = std::thread(&MyNode::dim, this, index == 1);
+			}
+			else
+			{
+				if(_timerThread.joinable()) _timerThread.join();
+			}
+		}
+		else
+		{
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->reserve(4);
+			parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+			parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+			parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+
+			if(_twoInputs && !value) return;
+			bool state = _twoInputs ? (index == 0 ? true : false) : value;
+			parameters->push_back(state ? _onValue : _offValue);
+
+			Flows::PVariable result = invoke("setValue", parameters);
+			if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+		}
 	}
 	catch(const std::exception& ex)
 	{

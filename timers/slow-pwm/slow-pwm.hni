@@ -1,0 +1,62 @@
+<script type="text/x-homegear">
+{
+    "name": "slow-pwm",
+    "readableName": "Slow PWM",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="slow-pwm">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-period"><i class="fa fa-id-badge"></i> <span data-i18n="slow-pwm.label.period"></span></label>
+        <input type="text" id="node-input-period" data-i18n="[placeholder]slow-pwm.label.period2">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dutycyclemin"><i class="fa fa-id-badge"></i> <span data-i18n="slow-pwm.label.dutycyclemin"></span></label>
+        <input type="text" id="node-input-dutycyclemin">
+    </div>
+    <div class="form-row">
+        <label for="node-input-dutycyclemax"><i class="fa fa-id-badge"></i> <span data-i18n="slow-pwm.label.dutycyclemax"></span></label>
+        <input type="text" id="node-input-dutycyclemax">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('slow-pwm',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            period: {value:"",required:true,validate:RED.validators.number()},
+            dutycyclemin: {value:"0",required:true,validate:RED.validators.number()},
+            dutycyclemax: {value:"100",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:2,
+        inputInfo: [
+            {
+                label: "D",
+                types: ["int"]
+            },
+            {
+                label: "EN",
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                label: "p",
+                types: ["boolean"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "slow-pwm";
+        }
+    });
+</script>

@@ -62,11 +62,15 @@ bool MyNode::init(Flows::PNodeInfo info)
 		{
 			_value->setType(Flows::VariableType::tInteger64);
 			_value->integerValue64 = Flows::Math::getNumber64(payload);
+			_value->integerValue = (int32_t)_value->integerValue64;
+			_value->floatValue = _value->integerValue64;
 		}
 		else if(payloadType == "float")
 		{
 			_value->setType(Flows::VariableType::tFloat);
 			_value->floatValue = Flows::Math::getDouble(payload);
+			_value->integerValue = _value->floatValue;
+			_value->integerValue64 = _value->floatValue;
 		}
 		else if(payloadType == "string")
 		{

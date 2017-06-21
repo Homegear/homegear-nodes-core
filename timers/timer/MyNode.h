@@ -51,7 +51,7 @@ public:
 	virtual void waitForStop();
 private:
 	SunTime _sunTime;
-	bool _enabled = false;
+	std::atomic_bool _enabled;
 	bool _outputOnStartUp = false;
 	std::string _onTime;
 	std::string _onTimeType;

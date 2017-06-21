@@ -46,6 +46,8 @@ public:
 	virtual bool start();
 	virtual void stop();
 	virtual void waitForStop();
+
+	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:
 	Flows::PNodeInfo _nodeInfo;
 	std::unique_ptr<Mqtt> _mqtt;

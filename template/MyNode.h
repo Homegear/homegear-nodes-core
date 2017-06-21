@@ -31,7 +31,10 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <thread>
+#include <homegear-node/JsonDecoder.h>
+#include "mustache.h"
+
+using namespace kainjow;
 
 namespace MyNode
 {
@@ -39,39 +42,24 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	enum class LightType
-	{
-		switchState,
-		dimmerState,
-		dimmer
-	};
-
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void stop();
-	virtual void waitForStop();
 private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	bool _twoInputs = false;
-	LightType _lightType = LightType::switchState;
-	double _step = 1.0;
-	double _factor = 0.0;
-	int32_t _interval = 0;
+	Flows::PNodeInfo _nodeInfo;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::thread _timerThread;
+	std::string _plainTemplate;
+	Flows::JsonDecoder _jsonDecoder;
+	std::unique_ptr<mustache::mustache> _template;
+	std::string _field;
+	bool _mustache = true;
+	bool _parseJson = false;
+	std::mutex _inputMutex;
+	mustache::data _data;
 
-	Flows::PVariable _onValue;
-	Flows::PVariable _offValue;
-	Flows::PVariable _minValue;
-	Flows::PVariable _maxValue;
-
-	void dim(bool up);
+	void addData(bool global, std::string key);
+	void setData(mustache::data& data, std::string key, Flows::PVariable value);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

@@ -286,12 +286,6 @@
                     updatePeerIdOptions();
                 });
             //}}}
-        },
-        oneditsave: function() {
-            if(!$("#node-input-peerid").val()) $("#node-input-peerid").val("0");
-            if(!$("#node-input-channel").val()) $("#node-input-channel").val("-1");
-            if(!$("#node-input-variabletext").val()) $("#node-input-variabletext").val($("#node-input-variable").val());
-            if(!$("#node-input-variable").val()) $("#node-input-variable").val($("#node-input-variabletext").val());
         }
     });
 </script>

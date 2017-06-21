@@ -3,7 +3,7 @@
     "name": "light",
     "readableName": "Light",
     "version": "0.0.1",
-    "maxThreadCount": 0
+    "maxThreadCount": 1
 }
 </script>
 <script type="text/x-red" data-template-name="light">
@@ -12,18 +12,19 @@
         <input style="width: 65%;" type="text" id="node-input-name" data-i18n="[placeholder]light.label.name">
     </div>
     <div class="form-row">
+        <label style="width: 110px;" for="node-input-lighttype"><i class="fa fa-random"></i> <span data-i18n="light.label.lighttype"></span></label>
+        <select type="text" id="node-input-lighttype" style="display: inline-block; width: 65%;">
+            <option value="switch" data-i18n="light.label.switch"></option>
+            <option value="dimmerstate" data-i18n="light.label.dimmerstate"></option>
+            <option value="dimmer" data-i18n="light.label.dimmer"></option>
+        </select>
+    </div>
+    <div id="node-input-twoinputs-container" class="form-row hide">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-twoinputs" style="display: inline-block; width: auto; vertical-align: top;">        
         <label for="node-input-twoinputs" style="width: 65%" data-i18n="light.label.twoinputs"></label>
     </div>
-    <div class="form-row">
-        <label style="width: 110px;" for="node-input-lighttype"><i class="fa fa-random"></i> <span data-i18n="light.label.lighttype"></span></label>
-        <select type="text" id="node-input-lighttype" style="display: inline-block; width: 65%;">
-            <option value="switch" data-i18n="light.label.switch"></option>
-            <option value="dimmer" data-i18n="light.label.dimmer"></option>
-        </select>
-    </div>
-    <div id="node-input-dimmer" class="form-row hide">
+    <div id="node-input-dimmerstate" class="form-row hide">
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-offvalue"><span data-i18n="light.label.offvalue"></span></label>
             <input style="width: 65%;" type="text" id="node-input-offvalue">
@@ -31,6 +32,32 @@
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-onvalue"><span data-i18n="light.label.onvalue"></span></label>
             <input style="width: 65%;" type="text" id="node-input-onvalue">
+        </div>
+    </div>
+    <div id="node-input-dimmer" class="form-row hide">
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-offvalue2"><span data-i18n="light.label.offvalue"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-offvalue2">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-minvalue"><span data-i18n="light.label.minvalue"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-minvalue">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-maxvalue"><span data-i18n="light.label.maxvalue"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-maxvalue">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-step"><span data-i18n="light.label.step"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-step">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-factor"><span data-i18n="light.label.factor"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-factor">
+        </div>
+        <div class="form-row">
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-interval"><span data-i18n="light.label.interval"></span></label>
+            <input style="width: 65%;" type="text" id="node-input-interval">
         </div>
     </div>
     <div class="form-row">
@@ -84,8 +111,14 @@
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
             
             lighttype: {value:"switch"},
-            offvalue: {value:"0",validate:RED.validators.number()},
-            onvalue: {value:"100",validate:RED.validators.number()},
+            offvalue: {value:"0",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmer") return true; else return $.isNumeric(v); }},
+            onvalue: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmer") return true; else return $.isNumeric(v); }},
+            offvalue2: {value:"0",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            minvalue: {value:"15",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            maxvalue: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            step: {value:"1",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            factor: {value:"0.03",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
+            interval: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
             twoinputs: {value:false},
             inputs: {value:1},
             name: {value:""}
@@ -314,10 +347,20 @@
             //}}}
 
             function updateSwitchOptions() {
-                if ($("#node-input-lighttype").val() == "dimmer") {
-                    $("#node-input-dimmer").show();
-                } else {
+                var lightType = $("#node-input-lighttype").val();
+                if (lightType == "dimmerstate") {
+                    $("#node-input-dimmerstate").show();
                     $("#node-input-dimmer").hide();
+                    $("#node-input-twoinputs-container").show();
+                } else if(lightType == "switch") {
+                    $("#node-input-dimmerstate").hide();
+                    $("#node-input-dimmer").hide();
+                    $("#node-input-twoinputs-container").show();
+                } else {
+                    $("#node-input-dimmerstate").hide();
+                    $("#node-input-dimmer").show();
+                    $("#node-input-twoinputs-container").hide();
+                    $("#node-input-twoinputs").prop("checked", false);
                 }
             }
             updateSwitchOptions();
@@ -326,7 +369,8 @@
             });
         },
         oneditsave: function() {
-            this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
+            if($("#node-input-lighttype").val() == "dimmer") this.inputs = 3;
+            else this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
         }
     });
 </script>

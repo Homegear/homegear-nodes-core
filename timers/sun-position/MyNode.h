@@ -34,6 +34,7 @@
 #include <homegear-node/INode.h>
 #include <thread>
 #include <mutex>
+#include <random>
 
 namespace MyNode
 {

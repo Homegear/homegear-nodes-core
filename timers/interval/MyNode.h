@@ -48,7 +48,7 @@ public:
 	virtual void stop();
 	virtual void waitForStop();
 private:
-	bool _enabled = true;
+	std::atomic_bool _enabled;
 	int64_t _startTimeAll = 0;
 	int64_t _tick = 0;
 	int64_t _inputTime = 0;

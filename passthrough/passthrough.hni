@@ -19,7 +19,7 @@
 </script>
 <script type="text/javascript">
 	RED.nodes.registerType('passthrough',{
-        category: 'filter',
+        category: 'general',
         namespace: 'passthrough',
         color: "#C0DEED",
         defaults: {
