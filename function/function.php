@@ -58,9 +58,17 @@ public function __construct()
 
 public function executeCode(int $inputIndex, array $message)
 {
-	$code = $this->nodeInfo["info"]["func"];
-	$hg = new \Homegear\Homegear();
-	return eval($code);
+	try
+	{
+		$code = $this->nodeInfo["info"]["func"];
+		$hg = new \Homegear\Homegear();
+		return eval($code);
+	}
+	catch(Exception $e)
+	{
+		$this->log(2, $e->message);
+	}
+	return NULL;
 }
 
 public function input(array $nodeInfoLocal, int $inputIndex, array $message)
