@@ -1,48 +1,48 @@
 <?php
 declare(strict_types=1);
 
-$nodeInfo;
+$nodeObject;
 
 function getNodeData(string $key)
 {
-	global $nodeInfo;
-	return \Homegear\Homegear::getNodeData($nodeInfo['id'], $key);
+	global $nodeObject;
+	return $nodeObject->getNodeData($key);
 }
 
 function setNodeData(string $key, $value)
 {
-	global $nodeInfo;
-	\Homegear\Homegear::setNodeData($nodeInfo['id'], $key, $value);
+	global $nodeObject;
+	return $nodeObject->setNodeData($key, $value);
 }
 
 function getFlowData(string $key)
 {
-	global $nodeInfo;
-	return \Homegear\Homegear::getNodeData($nodeInfo['info']['z'], $key);
+	global $nodeObject;
+	return $nodeObject->getFlowData($key);
 }
 
 function setFlowData(string $key, $value)
 {
-	global $nodeInfo;
-	\Homegear\Homegear::setNodeData($nodeInfo['info']['z'], $key, $value);
+	global $nodeObject;
+	return $nodeObject->setFlowData($key, $value);
 }
 
 function getGlobalData(string $key)
 {
-	global $nodeInfo;
-	return \Homegear\Homegear::getNodeData('global', $key);
+	global $nodeObject;
+	return $nodeObject->getGlobalData($key);
 }
 
 function setGlobalData(string $key, $value)
 {
-	global $nodeInfo;
-	\Homegear\Homegear::setNodeData('global', $key, $value);
+	global $nodeObject;
+	return $nodeObject->getGlobalData($key, $value);
 }
 
 function output(int $outputIndex, array $message)
 {
-	global $nodeInfo;
-	\Homegear\Homegear::nodeOutput($nodeInfo['id'], $outputIndex, $message);
+	global $nodeObject;
+	return $nodeObject->output($outputIndex, $message);
 }
 
 class HomegearNode extends HomegearNodeBase
@@ -53,6 +53,8 @@ private $nodeInfo = NULL;
 
 public function __construct()
 {
+	global $nodeObject;
+	$nodeObject = $this;
 	$this->hg = new \Homegear\Homegear();
 }
 
@@ -73,15 +75,13 @@ public function executeCode(int $inputIndex, array $message)
 
 public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 {
-	global $nodeInfo;
-	$nodeInfo = $nodeInfoLocal;
 	$this->nodeInfo = $nodeInfoLocal;
 	$result = $this->executeCode($inputIndex, $message);
 	if($result)
 	{
 		if(array_key_exists('payload', $result))
 		{
-			$this->hg->nodeOutput($this->nodeInfo['id'], 0, $result);
+			$this->output(0, $result);
 		}
 		else
 		{
@@ -91,14 +91,14 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
 				if(array_key_exists('payload', $value))
 				{
-					$this->hg->nodeOutput($this->nodeInfo['id'], $index, $value);
+					$this->output($index, $value);
 				}
 				else
 				{
 					foreach($value as $value2)
 					{
 						if(!$value2) continue;
-						$this->hg->nodeOutput($this->nodeInfo['id'], $index, $value2);
+						$this->output($index, $value2);
 					}
 				}
 			}
