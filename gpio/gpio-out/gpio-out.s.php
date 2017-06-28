@@ -42,7 +42,7 @@ public function start() : bool
 
 public function stop()
 {
-	if($this->gpioIndex)
+	if($this->gpio && $this->gpioIndex)
 	{
 		$this->gpio->close($this->gpioIndex);
 	}
