@@ -45,8 +45,11 @@ public function stop()
 	if($this->gpioIndex)
 	{
 		$this->gpio->close($this->gpioIndex);
-		$this->gpioIndex = NULL;
 	}
+}
+
+public function waitForStop()
+{
 }
 
 public function input(array $nodeInfo, int $inputIndex, array $message)
