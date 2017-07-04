@@ -117,15 +117,18 @@ void MyNode::waitForStop()
 
 void MyNode::timer(int64_t inputTime)
 {
-	int32_t delayTo = _delay + inputTime;
-	int32_t actTime = Flows::HelperFunctions::getTime();
-	if(delayTo < actTime) delayTo = actTime;
-
 	try
 	{
+		int32_t delayTo = _delay + inputTime;
+		int32_t actTime = Flows::HelperFunctions::getTime();
+		int32_t sleepingTime = 1000;
+		if(_delay <= 1000) sleepingTime = 10;
+		else if(_delay <= 30000) sleepingTime = 100;
+		if(delayTo < actTime) delayTo = actTime;
+
 		while (delayTo < Flows::HelperFunctions::getTime())
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
 			if(_stopThread)
 			{
 				return;
