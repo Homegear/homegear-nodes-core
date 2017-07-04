@@ -1,0 +1,13 @@
+{
+  "timers/off-delay.hni": {
+    "off-delay": {
+      "label": {
+        "off-delay": "Off-Delay",
+        "off-delay2": "Delay in ms",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Output goes true, when input goes true. If the input goes false, the output stays true until the configured time is over. The time starts again, when the input goes false again.</p>",
+      "help": "Output goes true, when input goes true. If the input goes false, the output stays true until the configured time is over. The time starts again, when the input goes false again."
+    }
+  }
+}
