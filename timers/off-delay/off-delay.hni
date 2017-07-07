@@ -22,7 +22,22 @@
             name: {value:""}
         },
         inputs:1,
-        outputs:1,
+        inputInfo: [
+        	{
+        		types: ["boolean"]
+        	}
+        ],
+        outputs:2,
+        outputInfo: [
+            {
+                label: "o",
+                types: ["boolean"]
+            },
+            {
+                label: "t",
+                types: ["int"]
+            }
+        ],
         icon: "serial.png",
         label: function() {
             if(this.name) return this.name;

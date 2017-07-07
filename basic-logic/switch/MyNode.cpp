@@ -271,20 +271,20 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 			rule.v = getFlowData(rule.flowVariable);
 			rule.vt = rule.v->type;
 		}
+		if(!rule.flowVariable2.empty())
+		{
+			rule.v2 = getFlowData(rule.flowVariable2);
+			rule.v2t = rule.v->type;
+		}
 		if(!rule.globalVariable.empty())
 		{
 			rule.v = getGlobalData(rule.globalVariable);
 			rule.vt = rule.v->type;
 		}
-		if(!rule.flowVariable2.empty())
-		{
-			rule.v = getFlowData(rule.flowVariable2);
-			rule.vt = rule.v->type;
-		}
 		if(!rule.globalVariable2.empty())
 		{
-			rule.v = getGlobalData(rule.globalVariable2);
-			rule.vt = rule.v->type;
+			rule.v2 = getGlobalData(rule.globalVariable2);
+			rule.v2t = rule.v2->type;
 		}
 
 		switch(rule.t)
