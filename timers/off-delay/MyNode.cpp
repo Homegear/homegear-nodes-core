@@ -68,7 +68,15 @@ bool MyNode::start()
 {
 	try
 	{
-		_stopThread = true;
+		int64_t delayTo = getNodeData("delayTo")->integerValue64;
+		if (delayTo > 0)
+		{
+			std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+			_stopThread = true;
+			if (_timerThread.joinable())_timerThread.join();
+			_stopThread = false;
+			_timerThread = std::thread(&MyNode::timer, this, delayTo);
+		}
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -115,28 +123,44 @@ void MyNode::waitForStop()
 	}
 }
 
-void MyNode::timer(int64_t inputTime)
+void MyNode::timer(int64_t delayTo)
 {
 	try
 	{
-		int32_t delayTo = _delay + inputTime;
-		int32_t actTime = Flows::HelperFunctions::getTime();
-		int32_t sleepingTime = 1000;
-		if(_delay <= 1000) sleepingTime = 10;
-		else if(_delay <= 30000) sleepingTime = 100;
-		if(delayTo < actTime) delayTo = actTime;
+		int64_t restTime = delayTo - Flows::HelperFunctions::getTime();
+		log(3, std::to_string(restTime));
+		int64_t sleepingTime = 10;
+		if(_delay >= 1000) sleepingTime = 100;
+		else if(_delay >= 30000) sleepingTime = 1000;
 
-		while (delayTo < Flows::HelperFunctions::getTime())
+		while (restTime > 0)
 		{
+			if ((restTime / sleepingTime) % (1000 / sleepingTime) == 0)
+			{
+				Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				outputMessage2->structValue->emplace("payload", std::make_shared<Flows::Variable>((restTime / sleepingTime) * sleepingTime));
+				output(1, outputMessage2); //rest time
+			}
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
 			if(_stopThread)
 			{
+				Flows::PVariable outputMessage3 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(-1));
+				output(1, outputMessage3); //rest time
 				return;
 			}
+
+			restTime = delayTo - Flows::HelperFunctions::getTime();
 		}
+		Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		outputMessage2->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
+		output(1, outputMessage2); //rest time
+
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
 		output(0, outputMessage); //false
+
+		setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
 	}
 	catch(const std::exception& ex)
 	{
@@ -152,19 +176,22 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		int64_t inputTime = Flows::HelperFunctions::getTime();
 		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-
+		if (_timerThread.joinable())_timerThread.join();
 		Flows::PVariable& input = message->structValue->at("payload");
 		if (*input)
 		{
 			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 			output(0, outputMessage); //true
+		}
+		else
+		{
+			int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
+			setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
 			_stopThread = false;
-			_timerThread = std::thread(&MyNode::timer, this, inputTime);
+			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
 	}
 	catch(const std::exception& ex)
