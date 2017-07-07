@@ -72,11 +72,15 @@ private:
 		Flows::PVariable previousOutput;
 		bool previousValue = false;
 		bool secondInput = false;
+		std::string flowVariable;
+		std::string globalVariable;
 		bool ignoreCase = false;
 		Flows::PVariable v2;
 		Flows::VariableType v2t;
 		bool previousValue2 = false;
 		bool secondInput2 = false;
+		std::string flowVariable2;
+		std::string globalVariable2;
 		std::regex regex;
 	};
 

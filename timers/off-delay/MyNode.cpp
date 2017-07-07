@@ -126,7 +126,7 @@ void MyNode::timer(int64_t inputTime)
 		else if(_delay <= 30000) sleepingTime = 100;
 		if(delayTo < actTime) delayTo = actTime;
 
-		while (delayTo < Flows::HelperFunctions::getTime())
+		while (delayTo <= Flows::HelperFunctions::getTime())
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
 			if(_stopThread)
