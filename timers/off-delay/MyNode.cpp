@@ -128,7 +128,6 @@ void MyNode::timer(int64_t delayTo)
 	try
 	{
 		int64_t restTime = delayTo - Flows::HelperFunctions::getTime();
-		log(3, std::to_string(restTime));
 		int64_t sleepingTime = 10;
 		if(_delay >= 1000) sleepingTime = 100;
 		else if(_delay >= 30000) sleepingTime = 1000;
