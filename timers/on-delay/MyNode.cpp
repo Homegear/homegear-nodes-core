@@ -48,7 +48,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("off-delay");
+		auto settingsIterator = info->info->structValue->find("on-delay");
 		if(settingsIterator != info->info->structValue->end()) _delay = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
 		return true;
@@ -157,8 +157,9 @@ void MyNode::timer(int64_t delayTo)
 		output(1, outputMessage2); //rest time
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-		output(0, outputMessage); //false
+		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+		output(0, outputMessage); //true
+		_lastOutputState = true;
 
 		setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
 	}
@@ -182,16 +183,20 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		Flows::PVariable& input = message->structValue->at("payload");
 		if (*input)
 		{
-			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-			output(0, outputMessage); //true
-		}
-		else
-		{
 			int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
 			setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
 			_stopThread = false;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
+		}
+		else
+		{
+			if (_lastOutputState == true)  //Only fire "false" once
+			{
+				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+				output(0, outputMessage); //false
+			}
+			_lastOutputState = false;
 		}
 	}
 	catch(const std::exception& ex)
@@ -205,3 +210,4 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 }
 
 }
+
