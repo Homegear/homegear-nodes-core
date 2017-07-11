@@ -105,6 +105,7 @@ void MyNode::waitForStop()
 	try
 	{
 		std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
+		_stopThreads = true;
 		for(auto& timerThread : _timerThreads)
 		{
 			if(timerThread.joinable()) timerThread.join();
