@@ -1,0 +1,47 @@
+<script type="text/x-homegear">
+{
+    "name": "on-delay",
+    "readableName": "on-delay",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="on-delay">
+    <div class="form-row">
+        <label for="node-input-on-delay"><i class="fa fa-id-badge"></i> <span data-i18n="on-delay.label.on-delay"></span></label>
+        <input type="text" id="node-input-on-delay" data-i18n="[placeholder]on-delay.label.on-delay2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('on-delay',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            "on-delay": {value:"10000",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["boolean"]
+            }
+        ],
+        outputs:2,
+        outputInfo: [
+            {
+                label: "o",
+                types: ["boolean"]
+            },
+            {
+                label: "t",
+                types: ["int"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "on-delay";
+        }
+    });
+</script>

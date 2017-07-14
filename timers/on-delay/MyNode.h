@@ -31,9 +31,8 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include <thread>
 #include <mutex>
-#include <regex>
 
 namespace MyNode
 {
@@ -41,65 +40,22 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	enum class RuleType
-	{
-		tEq,
-		tNeq,
-		tLt,
-		tLte,
-		tGt,
-		tGte,
-		tBtwn,
-		tCont,
-		tRegex,
-		tTrue,
-		tFalse,
-		tNull,
-		tNnull,
-		tElse
-	};
-
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
+	virtual void stop();
+	virtual void waitForStop();
 private:
-	struct Rule
-	{
-		RuleType t;
-		Flows::PVariable v;
-		Flows::VariableType vt;
-		Flows::PVariable previousOutput;
-		bool previousValue = false;
-		bool secondInput = false;
-		std::string flowVariable;
-		std::string globalVariable;
-		bool ignoreCase = false;
-		Flows::PVariable v2;
-		Flows::VariableType v2t;
-		bool previousValue2 = false;
-		bool secondInput2 = false;
-		std::string flowVariable2;
-		std::string globalVariable2;
-		std::regex regex;
-	};
+	uint32_t _delay = 10000;
 
-	typedef std::string Operator;
+	std::atomic_bool _stopThread;
+	std::mutex _timerThreadMutex;
+	std::thread _timerThread;
 
-	std::string _property;
-	Flows::PVariable _previousInputValue;
-	Flows::PVariable _previousInputValue2;
-	std::vector<Rule> _rules;
-	bool _changesOnly = false;
-	bool _outputTrue = false;
-	bool _outputFalse = false;
-	bool _checkAll = true;
-
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-	bool isTrue(Flows::PVariable& value);
-	bool match(Rule& rule, Flows::PVariable& value);
+	bool _lastOutputState = false;
+	void timer(int64_t inputTime);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

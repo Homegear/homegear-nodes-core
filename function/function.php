@@ -36,7 +36,7 @@ function getGlobalData(string $key)
 function setGlobalData(string $key, $value)
 {
 	global $nodeObject;
-	return $nodeObject->getGlobalData($key, $value);
+	return $nodeObject->setGlobalData($key, $value);
 }
 
 function output(int $outputIndex, array $message)

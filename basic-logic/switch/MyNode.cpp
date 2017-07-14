@@ -101,6 +101,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+		auto flowIdIterator = info->info->structValue->find("z");
+		if(flowIdIterator != info->info->structValue->end()) _flowId = flowIdIterator->second->stringValue;
+		else _flowId = "g";
+
 		auto settingsIterator = info->info->structValue->find("checkall");
 		if(settingsIterator != info->info->structValue->end()) _checkAll = settingsIterator->second->stringValue == "true" || settingsIterator->second->booleanValue;
 
@@ -145,8 +149,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 				{
 					rule.v = valueIterator->second;
 					rule.vt = getValueTypeFromString(valueTypeIterator->second->stringValue);
-					rule.previousValue = valueTypeIterator->second->stringValue == "prev";
-					rule.secondInput = valueTypeIterator->second->stringValue == "second";
+					if(valueTypeIterator->second->stringValue == "prev") rule.previousValue = true;
+					else if(valueTypeIterator->second->stringValue == "second") rule.secondInput = true;
+					else if(valueTypeIterator->second->stringValue == "flow") rule.flowVariable = rule.v->stringValue;
+					else if(valueTypeIterator->second->stringValue == "global") rule.globalVariable = rule.v->stringValue;
 					convertType(rule.v, rule.vt);
 				}
 				else rule.v = std::make_shared<Flows::Variable>();
@@ -159,8 +165,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 				{
 					rule.v2 = valueIterator->second;
 					rule.v2t = getValueTypeFromString(valueTypeIterator->second->stringValue);
-					rule.previousValue2 = valueTypeIterator->second->stringValue == "prev";
-					rule.secondInput2 = valueTypeIterator->second->stringValue == "second";
+					if(valueTypeIterator->second->stringValue == "prev") rule.previousValue2 = true;
+					else if(valueTypeIterator->second->stringValue == "second") rule.secondInput2 = true;
+					else if(valueTypeIterator->second->stringValue == "flow") rule.flowVariable2 = rule.v2->stringValue;
+					else if(valueTypeIterator->second->stringValue == "global") rule.globalVariable2 = rule.v2->stringValue;
 					convertType(rule.v2, rule.v2t);
 				}
 				else rule.v2 = std::make_shared<Flows::Variable>();
@@ -258,6 +266,27 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 			rule.v2 = _previousInputValue2;
 			rule.v2t = _previousInputValue2->type;
 		}
+		if(!rule.flowVariable.empty())
+		{
+			rule.v = getFlowData(rule.flowVariable);
+			rule.vt = rule.v->type;
+		}
+		if(!rule.flowVariable2.empty())
+		{
+			rule.v2 = getFlowData(rule.flowVariable2);
+			rule.v2t = rule.v->type;
+		}
+		if(!rule.globalVariable.empty())
+		{
+			rule.v = getGlobalData(rule.globalVariable);
+			rule.vt = rule.v->type;
+		}
+		if(!rule.globalVariable2.empty())
+		{
+			rule.v2 = getGlobalData(rule.globalVariable2);
+			rule.v2t = rule.v2->type;
+		}
+
 		switch(rule.t)
 		{
 		case RuleType::tEq:

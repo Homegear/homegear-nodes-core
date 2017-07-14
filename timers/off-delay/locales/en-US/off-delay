@@ -1,0 +1,16 @@
+{
+  "timers/off-delay.hni": {
+    "off-delay": {
+      "label": {
+        "off-delay": "Off-Delay",
+        "off-delay2": "Delay in ms",
+        "name": "Name"
+      },
+      "input1Description": "A boolean input. The timer is set when <code>false</code> is input and reset when input is set to <code>true</code>.",
+      "output1Description": "Outputs <code>true</code> when input is set to <code>true</code>. Outputs <code>false</code> when timer reaches <code>0</code>.",
+      "output2Description": "Outputs the time left before setting output \"o\" to <code>false</code>.",
+      "paletteHelp": "<p>Output is set to <code>true</code>, when input is <code>true</code>. If the input is set to <code>false</code>, the output stays <code>true</code> until the configured time is over. The timer is reset when the input is set to <code>true</code> and restarted when it is set to <code>false</code> again.</p>",
+      "help": "Output is set to <code>true</code>, when input is <code>true</code>. If the input is set to <code>false</code>, the output stays <code>true</code> until the configured time is over. The timer is reset when the input is set to <code>true</code> and restarted when it is set to <code>false</code> again."
+    }
+  }
+}
