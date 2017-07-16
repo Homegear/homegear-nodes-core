@@ -31,7 +31,7 @@
         		types: ["bool"]
         	}
         ],
-        outputs:4,
+        outputs:5,
         outputInfo: [
         	{
         		label: "1",
@@ -44,6 +44,10 @@
         	{
         		label: "3",
         		types: ["bool"]
+        	},
+        	{
+        		label: "n",
+        		types: ["int"]
         	},
         	{
         		label: "l",

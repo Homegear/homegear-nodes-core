@@ -11,7 +11,8 @@
       "output1Description": "Single short press.",
       "output2Description": "Double short press.",
       "output3Description": "Triple short press.",
-      "output4Description": "Long press."
+      "output4Description": "The number of short presses if more than three.",
+      "output5Description": "Long press."
     }
   }
 }

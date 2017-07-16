@@ -140,15 +140,18 @@ void MyNode::timer()
 		}
 
 		int32_t outputIndex = _counter;
-		if(outputIndex > 2) outputIndex = 2;
+		if(outputIndex > 3) outputIndex = 3;
 		if(_state)
 		{
 			_longPress = true;
-			outputIndex = 3;
+			outputIndex = 4;
 		}
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+		Flows::PVariable value;
+		if(outputIndex == 3) value = std::make_shared<Flows::Variable>((int32_t)_counter + 1);
+		else value = std::make_shared<Flows::Variable>(true);
+		outputMessage->structValue->emplace("payload", value);
 		output(outputIndex, outputMessage);
 
 		_firstPress = true;
@@ -193,7 +196,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 				_longPress = false;
 				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-				output(3, outputMessage);
+				output(4, outputMessage);
 			}
 		}
 	}
