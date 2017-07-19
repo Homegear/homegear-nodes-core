@@ -64,7 +64,23 @@
             });
 
             $("#node-input-payload").typedInput('type',this.payloadType);
-
+        },
+        button: {
+            enabled: function() {
+                return !this.changed
+            },
+            onclick: function() {
+                if (this.changed) {
+                    return RED.notify(RED._("notification.warning", {message:RED._("notification.warnings.undeployedChanges")}),"warning");
+                }
+                var value;
+                if (this.payloadType == 'bool') value = this.payload == 'true';
+                else if (this.payloadType == 'int') value = parseInt(this.payload);
+                else if (this.payloadType == 'float') value = parseFloat(this.payload);
+                else if (this.payloadType == 'array' || this.payloadType == 'struct') value = JSON.parse(this.payload);
+                else value = this.payload;
+                RED.comms.homegear().invoke("nodeOutput", null, this.id, 0, {'payload': value});
+            }
         }
     });
 </script>
