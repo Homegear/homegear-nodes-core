@@ -42,9 +42,11 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual void startUpComplete();
 private:
 	int64_t _lastInput = 0;
 	uint32_t _refractionPeriod = 0;
+	bool _outputOnStartup = false;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
 	std::string _variable;

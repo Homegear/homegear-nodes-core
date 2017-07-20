@@ -11,6 +11,7 @@
         "channel": "Channel",
         "variable": "Variable",
         "refractoryperiod": "Refractory period",
+        "outputonstartup": "Output value on startup",
         "name": "Name"
       },
       "tip": "Tip: See help tab for usage information.",
