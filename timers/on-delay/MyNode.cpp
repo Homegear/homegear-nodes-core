@@ -148,6 +148,7 @@ void MyNode::timer(int64_t delayTo)
 				Flows::PVariable outputMessage3 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 				outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(-1));
 				output(1, outputMessage3); //rest time
+				setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
 				return;
 			}
 
