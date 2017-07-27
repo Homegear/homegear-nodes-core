@@ -223,7 +223,7 @@
                             $.each(channels, function() {
                                 RED.comms.homegear().invoke("getDeviceDescription", function(message) {
                                     channelCount--;
-                                    if(!message.result || !message.result.CHANNEL || !message.result.PARAMSETS || message.result.PARAMSETS.indexOf("VALUES") === -1) return;
+                                    if(!message.result || typeof message.result.CHANNEL != "number" || !message.result.PARAMSETS || message.result.PARAMSETS.indexOf("VALUES") === -1) return;
                                     currentDevice[message.result.CHANNEL] = {};
                                     currentDevice[message.result.CHANNEL].channel = message.result.CHANNEL;
                                     currentDevice[message.result.CHANNEL].type = (message.result.TYPE ? message.result.TYPE : "");
