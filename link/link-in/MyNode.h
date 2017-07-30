@@ -45,7 +45,7 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
-	Flows::PVariable linkInput(Flows::PArray& parameters);
+	Flows::PVariable linkInput(Flows::PArray parameters);
 };
 
 }
