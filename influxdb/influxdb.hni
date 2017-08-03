@@ -1,0 +1,41 @@
+<script type="text/x-homegear">
+{
+    "name": "influxdb",
+    "readableName": "InfluxDB",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="influxdb">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-measurement"><i class="fa fa-id-badge"></i> <span data-i18n="influxdb.label.measurement"></span></label>
+        <input type="text" id="node-input-measurement" data-i18n="[placeholder]influxdb.label.measurement2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('influxdb',{
+        category: 'database',
+        namespace: 'influxdb',
+        color:"#C7E9C0",
+        defaults: {
+            measurement: {value:"",required:true},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+        	{
+        		types: ["any"]
+        	}
+        ],
+        outputs:0,
+        icon: "db.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "influxdb";
+        }
+    });
+</script>
