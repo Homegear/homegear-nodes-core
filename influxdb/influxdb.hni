@@ -22,7 +22,7 @@
         namespace: 'influxdb',
         color:"#C7E9C0",
         defaults: {
-            measurement: {value:"",required:true},
+            measurement: {value:""},
             name: {value:""}
         },
         inputs:1,

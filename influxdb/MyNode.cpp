@@ -48,8 +48,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("measurement");
 		if(settingsIterator != info->info->structValue->end()) _measurement = settingsIterator->second->stringValue;
 
-		if(_measurement.empty()) return false;
-
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -72,6 +70,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
+		auto measurementIterator = message->structValue->find("measurement");
+		std::string measurement = _measurement;
+		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = measurementIterator->second->stringValue;
+		if(measurement.empty()) return;
+
 		Flows::PVariable& input = message->structValue->at("payload");
 		if(input->type != Flows::VariableType::tBoolean && input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64 && input->type != Flows::VariableType::tString && input->type != Flows::VariableType::tBase64)
 		{
@@ -80,7 +83,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			input = encodedValue;
 		}
 
-		std::string query = _measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "");
+		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "");
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(false));
@@ -98,7 +101,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		{
 			_first = false;
 			parameters = std::make_shared<Flows::Array>();
-			parameters->push_back(std::make_shared<Flows::Variable>(_measurement));
+			parameters->push_back(std::make_shared<Flows::Variable>(measurement));
 			result = invoke("influxdbCreateContinuousQuery", parameters);
 		}
 	}
