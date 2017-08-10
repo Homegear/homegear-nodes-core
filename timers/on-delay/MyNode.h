@@ -50,6 +50,7 @@ public:
 private:
 	uint32_t _delay = 10000;
 
+	std::atomic_bool _threadRunning;
 	std::atomic_bool _stopThread;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;

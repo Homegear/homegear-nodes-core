@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
+	_threadRunning = false;
 }
 
 MyNode::~MyNode()
@@ -149,11 +150,14 @@ void MyNode::timer(int64_t delayTo)
 				outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(-1));
 				output(1, outputMessage3); //rest time
 				setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
+				_threadRunning = false;
 				return;
 			}
 
 			restTime = delayTo - Flows::HelperFunctions::getTime();
 		}
+		_threadRunning = false;
+
 		Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		outputMessage2->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
 		output(1, outputMessage2); //rest time
@@ -166,10 +170,12 @@ void MyNode::timer(int64_t delayTo)
 	}
 	catch(const std::exception& ex)
 	{
+		_threadRunning = false;
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
+		_threadRunning = false;
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
@@ -178,21 +184,27 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-		_stopThread = true;
-		if (_timerThread.joinable())_timerThread.join();
 		Flows::PVariable& input = message->structValue->at("payload");
+		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 		if (*input)
 		{
-			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-			output(0, outputMessage); //true
+			if(!_lastOutputState)
+			{
+				_stopThread = true;
+				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+				output(0, outputMessage); //true
+			}
+			_lastOutputState = true;
 		}
-		else
+		else if(!_threadRunning && _lastOutputState)
 		{
+			_lastOutputState = false;
 			int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
 			setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
+			if (_timerThread.joinable()) _timerThread.join();
 			_stopThread = false;
+			_threadRunning = true;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
 	}
