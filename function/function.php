@@ -68,7 +68,7 @@ public function executeCode(int $inputIndex, array $message)
 	}
 	catch(Exception $e)
 	{
-		$this->log(2, $e->message);
+		$this->log(2, $e->getMessage());
 	}
 	return NULL;
 }
