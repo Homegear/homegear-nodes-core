@@ -48,8 +48,8 @@ private:
 	std::string _topic;
 
 	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray& parameters);
-	Flows::PVariable setConnectionState(Flows::PArray& parameters);
+	Flows::PVariable publish(Flows::PArray parameters);
+	Flows::PVariable setConnectionState(Flows::PArray parameters);
 	//}}}
 };
 

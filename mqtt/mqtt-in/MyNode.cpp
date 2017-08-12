@@ -94,7 +94,7 @@ void MyNode::configNodesStarted()
 }
 
 //{{{ RPC methods
-	Flows::PVariable MyNode::publish(Flows::PArray& parameters)
+	Flows::PVariable MyNode::publish(Flows::PArray parameters)
 	{
 		try
 		{
@@ -123,7 +123,7 @@ void MyNode::configNodesStarted()
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
 
-	Flows::PVariable MyNode::setConnectionState(Flows::PArray& parameters)
+	Flows::PVariable MyNode::setConnectionState(Flows::PArray parameters)
 	{
 		try
 		{

@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <homegear-node/JsonEncoder.h>
 #include <thread>
 #include <mutex>
 
@@ -45,18 +46,11 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
 private:
-	uint32_t _delay = 10000;
+	Flows::JsonEncoder _jsonEncoder;
+	std::string _measurement;
+	bool _first = true;
 
-	std::atomic_bool _threadRunning;
-	std::atomic_bool _stopThread;
-	std::mutex _timerThreadMutex;
-	std::thread _timerThread;
-
-	bool _lastOutputState = false;
-	void timer(int64_t inputTime);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

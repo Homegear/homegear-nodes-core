@@ -130,7 +130,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 }
 
 //{{{ RPC methods
-	Flows::PVariable MyNode::setConnectionState(Flows::PArray& parameters)
+	Flows::PVariable MyNode::setConnectionState(Flows::PArray parameters)
 	{
 		try
 		{

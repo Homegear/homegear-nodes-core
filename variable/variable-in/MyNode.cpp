@@ -71,6 +71,28 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("refractoryperiod");
 		if(settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
+		settingsIterator = info->info->structValue->find("outputonstartup");
+		if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
+
+		subscribePeer(_peerId, _channel, _variable);
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+void MyNode::startUpComplete()
+{
+	try
+	{
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(3);
 		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
@@ -86,11 +108,21 @@ bool MyNode::init(Flows::PNodeInfo info)
 			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
 			nodeEvent("statusBottom/" + _id, status);
 		}
-		else _type = result->type;
+		else
+		{
+			_type = result->type;
 
-		subscribePeer(_peerId, _channel, _variable);
+			if(_outputOnStartup)
+			{
+				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+				message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+				message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+				message->structValue->emplace("payload", result);
 
-		return true;
+				output(0, message);
+			}
+		}
 	}
 	catch(const std::exception& ex)
 	{
@@ -100,7 +132,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 	{
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
-	return false;
 }
 
 void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)

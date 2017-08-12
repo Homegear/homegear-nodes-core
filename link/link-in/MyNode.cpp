@@ -60,7 +60,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 }
 
 
-Flows::PVariable MyNode::linkInput(Flows::PArray& parameters)
+Flows::PVariable MyNode::linkInput(Flows::PArray parameters)
 {
 	try
 	{

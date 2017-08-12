@@ -51,6 +51,11 @@
         <label style="width: 130px;" for="node-input-refractoryperiod"><i class="fa fa-clock-o"></i> <span data-i18n="variable-in.label.refractoryperiod"></span></label>
         <input style="width: 65%;" type="text" id="node-input-refractoryperiod" placeholder="Refractory period in ms">
     </div>
+    <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-outputonstartup" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-outputonstartup" style="width: 65%;" data-i18n="variable-in.label.outputonstartup"></label>
+    </div>
     <div class="form-tips" data-i18n="[html]variable-in.tip"></div>
 </script>
 <script type="text/javascript">
@@ -67,6 +72,7 @@
             variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
 
             refractoryperiod: {value: "200",validate:RED.validators.number()},
+            outputonstartup: {value: false},
             name: {value:""}
         },
         inputs:0,
@@ -217,7 +223,7 @@
                             $.each(channels, function() {
                                 RED.comms.homegear().invoke("getDeviceDescription", function(message) {
                                     channelCount--;
-                                    if(!message.result || !message.result.CHANNEL || !message.result.PARAMSETS || message.result.PARAMSETS.indexOf("VALUES") === -1) return;
+                                    if(!message.result || typeof message.result.CHANNEL != "number" || !message.result.PARAMSETS || message.result.PARAMSETS.indexOf("VALUES") === -1) return;
                                     currentDevice[message.result.CHANNEL] = {};
                                     currentDevice[message.result.CHANNEL].channel = message.result.CHANNEL;
                                     currentDevice[message.result.CHANNEL].type = (message.result.TYPE ? message.result.TYPE : "");

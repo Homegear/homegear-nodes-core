@@ -123,6 +123,7 @@ void MyNode::timer()
 	try
 	{
 		int64_t restTime = (_inputTime + _timeout) - Flows::HelperFunctions::getTime();
+		if(restTime < 1) restTime = 1;
 		int64_t sleepingTime = 10;
 		if(_timeout >= 1000) sleepingTime = 100;
 		else if(_timeout >= 30000) sleepingTime = 1000;
@@ -153,8 +154,6 @@ void MyNode::timer()
 		else value = std::make_shared<Flows::Variable>(true);
 		outputMessage->structValue->emplace("payload", value);
 		output(outputIndex, outputMessage);
-
-		_firstPress = true;
 	}
 	catch(const std::exception& ex)
 	{
@@ -164,6 +163,7 @@ void MyNode::timer()
 	{
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+	_firstPress = true;
 }
 
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
@@ -181,7 +181,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			{
 				_firstPress = false;
 				_stopThread = true;
-				if (_timerThread.joinable())_timerThread.join();
+				if (_timerThread.joinable()) _timerThread.join();
 				_stopThread = false;
 				_counter = 0;
 				_timerThread = std::thread(&MyNode::timer, this);

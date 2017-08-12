@@ -172,7 +172,7 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::publish(Flows::PArray& parameters)
+Flows::PVariable MyNode::publish(Flows::PArray parameters)
 {
 	try
 	{
@@ -196,7 +196,7 @@ Flows::PVariable MyNode::publish(Flows::PArray& parameters)
 	return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::registerNode(Flows::PArray& parameters)
+Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
@@ -218,7 +218,7 @@ Flows::PVariable MyNode::registerNode(Flows::PArray& parameters)
 	return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::registerTopic(Flows::PArray& parameters)
+Flows::PVariable MyNode::registerTopic(Flows::PArray parameters)
 {
 	try
 	{
@@ -241,7 +241,7 @@ Flows::PVariable MyNode::registerTopic(Flows::PArray& parameters)
 	return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::unregisterTopic(Flows::PArray& parameters)
+Flows::PVariable MyNode::unregisterTopic(Flows::PArray parameters)
 {
 	try
 	{

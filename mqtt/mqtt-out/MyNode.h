@@ -54,7 +54,7 @@ private:
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 
 	//{{{ RPC methods
-	Flows::PVariable setConnectionState(Flows::PArray& parameters);
+	Flows::PVariable setConnectionState(Flows::PArray parameters);
 	//}}}
 };
 

@@ -53,10 +53,10 @@ private:
 	std::unique_ptr<Mqtt> _mqtt;
 
 	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray& parameters);
-	Flows::PVariable registerNode(Flows::PArray& parameters);
-	Flows::PVariable registerTopic(Flows::PArray& parameters);
-	Flows::PVariable unregisterTopic(Flows::PArray& parameters);
+	Flows::PVariable publish(Flows::PArray parameters);
+	Flows::PVariable registerNode(Flows::PArray parameters);
+	Flows::PVariable registerTopic(Flows::PArray parameters);
+	Flows::PVariable unregisterTopic(Flows::PArray parameters);
 	//}}}
 };
 
