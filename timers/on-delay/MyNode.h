@@ -55,6 +55,7 @@ private:
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 
+	bool _firstInput = true;
 	bool _lastOutputState = false;
 	void timer(int64_t inputTime);
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
