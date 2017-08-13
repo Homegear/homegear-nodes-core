@@ -78,6 +78,10 @@ bool MyNode::start()
 			_stopThread = false;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
+
+		_lastOutputState = getNodeData("lastOutputState")->booleanValue;
+		if(getNodeData("firstInput")->type == Flows::VariableType::tVoid) _firstInput = false;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -165,7 +169,6 @@ void MyNode::timer(int64_t delayTo)
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 		output(0, outputMessage); //true
-		_lastOutputState = true;
 
 		setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
 	}
@@ -189,8 +192,10 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		Flows::PVariable& input = message->structValue->at("payload");
 		if (*input)
 		{
-			if(!_threadRunning && !_lastOutputState)
+			if(!_threadRunning && (!_lastOutputState || _firstInput))
 			{
+				_lastOutputState = true;
+				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(true));
 				int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
 				setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
 				if (_timerThread.joinable())_timerThread.join();
@@ -202,13 +207,19 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		else
 		{
 			_stopThread = true;
-			if (_lastOutputState == true)  //Only fire "false" once
+			if (_lastOutputState || _firstInput)  //Only fire "false" once
 			{
 				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
 				output(0, outputMessage); //false
 			}
 			_lastOutputState = false;
+			setNodeData("lastOutputState", std::make_shared<Flows::Variable>(false));
+		}
+		if(_firstInput)
+		{
+			_firstInput = false;
+			setNodeData("firstInput", std::make_shared<Flows::Variable>(false));
 		}
 	}
 	catch(const std::exception& ex)
