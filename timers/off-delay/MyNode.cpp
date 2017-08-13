@@ -80,7 +80,6 @@ bool MyNode::start()
 		}
 
 		_lastOutputState = getNodeData("lastOutputState")->booleanValue;
-		if(getNodeData("firstInput")->type == Flows::VariableType::tVoid) _firstInput = false;
 
 		return true;
 	}
@@ -213,11 +212,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			_threadRunning = true;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
-		if(_firstInput)
-		{
-			_firstInput = false;
-			setNodeData("firstInput", std::make_shared<Flows::Variable>(false));
-		}
+		if(_firstInput) _firstInput = false;
 	}
 	catch(const std::exception& ex)
 	{
