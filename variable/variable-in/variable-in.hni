@@ -296,6 +296,9 @@
                     updatePeerIdOptions();
                 });
             //}}}
+        },
+        oneditsave: function() {
+            $("#node-input-variabletext").val($("#node-input-variabletext").val().trim());
         }
     });
 </script>

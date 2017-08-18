@@ -371,6 +371,7 @@
         oneditsave: function() {
             if($("#node-input-lighttype").val() == "dimmer") this.inputs = 3;
             else this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
+            $("#node-input-variabletext").val($("#node-input-variabletext").val().trim());
         }
     });
 </script>
