@@ -1,0 +1,115 @@
+<script type="text/x-homegear">
+{
+    "name": "http-server",
+    "readableName": "HTTP server",
+    "version": "0.0.1",
+    "maxThreadCount": 6
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="http-server">
+    <div class="form-row">
+        <ul style="background: #fff; min-width: 600px; margin-bottom: 20px;" id="node-config-http-server-tabs"></ul>
+    </div>
+    <div id="node-config-http-server-tabs-content" style="min-height: 170px;">
+        <div id="http-server-tab-connection" style="display:none">
+            <div class="form-row node-input-listenaddress">
+                <label for="node-config-input-listenaddress"><i class="fa fa-globe"></i> <span data-i18n="http-server.label.listenaddress"></span></label>
+                <input class="input-append-left" type="text" id="node-config-input-listenaddress" placeholder="e.g. localhost" style="width:40%;" >
+                <label for="node-config-input-port" style="margin-left:20px; width:35px; "> <span data-i18n="http-server.label.port"></span></label>
+                <input type="text" id="node-config-input-port" data-i18n="[placeholder]http-server.label.port" style="width:55px">
+            </div>
+            <div class="form-row">
+                <input type="checkbox" id="node-config-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+                <label for="node-config-input-usetls" style="width: auto" data-i18n="http-server.label.use-tls"></label>
+                <div id="node-config-row-tls" class="hide">
+                    <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tls"><span data-i18n="http-server.label.tls-config"></span></label><input style="width: 300px;" type="text" id="node-config-input-tls">
+                </div>
+            </div>
+        </div>
+        <div id="http-server-tab-security" style="display:none">
+            <div class="form-row">
+                <label for="node-config-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+                <input type="text" id="node-config-input-user">
+            </div>
+            <div class="form-row">
+                <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+                <input type="password" id="node-config-input-password">
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('http-server',{
+        category: 'config',
+        namespace: 'http',
+        defaults: {
+            listenaddress: {value:"::",required:true},
+            port: {value:8080,required:true,validate:RED.validators.number()},
+            tls: {type:"tls-config",required: false},
+            usetls: {value: false},
+            verifyservercert: { value: false}
+            
+        },
+        label: function() {
+            var b = this.listenaddress;
+            if (b === "") { b = "undefined"; }
+            return (this.clientid?this.clientid+"@":"")+b+":"+this.port;
+        },
+        oneditprepare: function () {
+            var tabs = RED.tabs.create({
+                id: "node-config-http-server-tabs",
+                onchange: function(tab) {
+                    $("#node-config-http-server-tabs-content").children().hide();
+                    $("#" + tab.id).show();
+                }
+            });
+            tabs.addTab({
+                id: "http-server-tab-connection",
+                label: this._("http-server.tabs-label.connection")
+            });
+            tabs.addTab({
+                id: "http-server-tab-security",
+                label: this._("http-server.tabs-label.security")
+            });
+            setTimeout(function() { tabs.resize(); },0);
+            if (typeof this.usetls === 'undefined') {
+                this.usetls = false;
+                $("#node-config-input-usetls").prop("checked",false);
+            }
+
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-user").val(data.result)}, this.id, "username");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-password").val(data.result)}, this.id, "password");
+
+            function updateTLSOptions() {
+                if ($("#node-config-input-usetls").is(':checked')) {
+                    $("#node-config-row-tls").show();
+                } else {
+                    $("#node-config-row-tls").hide();
+                }
+            }
+            updateTLSOptions();
+            $("#node-config-input-usetls").on("click",function() {
+                updateTLSOptions();
+            });
+        },
+        oneditsave: function() {
+            if (!$("#node-config-input-usetls").is(':checked')) {
+                $("#node-config-input-tls").val("");
+            }
+            RED.comms.homegear().invoke("setNodeData", null, this.id, "username", $("#node-config-input-user").val());
+            if($("#node-config-input-password").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "password", $("#node-config-input-password").val());
+        }
+    });
+</script>

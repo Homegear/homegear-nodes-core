@@ -1,0 +1,20 @@
+{
+  "http/http-server.hni": {
+    "http-server": {
+    	"help": "<p>A minimum HTTP server connection requires only a listen address to be added to the default configuration.</p><p>To secure the connection with SSL/TLS, a TLS Configuration must also be configured and selected.</p>",
+    	"label": {
+	      "broker": "Server",
+	      "port": "Port",
+	      "use-tls": "Enable secure (SSL/TLS) connection",
+	      "tls-config": "TLS Configuration",
+	      "verify-server-cert": "Verify server certificate"
+	    },
+	    "tabs-label": {
+	      "connection": "Connection",
+	      "security": "Security"
+	    },
+	    "true": "true",
+	    "false": "false"
+    }
+  }
+}
