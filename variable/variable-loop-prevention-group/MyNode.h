@@ -48,6 +48,16 @@ public:
 	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:
 	Flows::PNodeInfo _nodeInfo;
+
+	uint32_t _refractoryPeriod = 1000;
+
+	std::mutex _lastEventMutex;
+	std::string _lastEventNode;
+	std::atomic<int64_t> _lastEvent;
+
+	//{{{ RPC methods
+	Flows::PVariable event(Flows::PArray parameters);
+	//}}}
 };
 
 }

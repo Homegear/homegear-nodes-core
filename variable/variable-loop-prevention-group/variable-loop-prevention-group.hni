@@ -23,13 +23,18 @@
         <label style="width: 130px;" for="node-config-input-uniqueid"><i class="fa fa-tag"></i> <span data-i18n="variable-loop-prevention-group.label.uniqueid"></span></label>
         <input style="width: 65%;" type="text" id="node-config-input-uniqueid" data-i18n="[placeholder]variable-loop-prevention-group.label.uniqueid">
     </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-config-input-refractoryperiod"><i class="fa fa-clock-o"></i> <span data-i18n="variable-loop-prevention-group.label.refractoryperiod"></span></label>
+        <input style="width: 65%;" type="text" id="node-config-input-refractoryperiod" placeholder="Refractory period in ms">
+    </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('variable-loop-prevention-group',{
         category: 'config',
         namespace: 'variable',
         defaults: {
-            uniqueid: {value:"",required:true},            
+            uniqueid: {value:"",required:true},
+            refractoryperiod: {value: "1000",validate:RED.validators.number()},          
         },
         label: function() {
             return (this.uniqueid === "" ? "undefined" : this.uniqueid);

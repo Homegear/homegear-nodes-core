@@ -14,12 +14,11 @@
         "outputonstartup": "Output value on startup",
         "name": "Name",
         "loopprevention": "Enable feedback loop prevention",
-        "looppreventiongroup": "Loop group",
-        "looppreventionrefractoryperiod": "Refractory period"
+        "looppreventiongroup": "Loop group"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Subscribes to variable events.</p>",
-      "help": "This node subscribes to variable events. To avoid events from reoccuring too fast, you can set \"Refractory period\" (in ms). To output all events, set \"Refractory period\" to <code>0</code>.",
+      "help": "<p>This node subscribes to variable events. To avoid events from reoccuring too fast, you can set \"Refractory period\" (in ms). To output all events, set \"Refractory period\" to <code>0</code>.<p><p>To inhibit feedback loops (variable 1 sets variable 2 which causes variable 2 to set variable 1) you can enable the feedback loop prevention. Add all variables causing the loop to the same loop prevention group and set a group refractory period long enough to catch all feedback events.</p>",
       "output1Description": "Outputs the referenced variable on every variable update."
     }
   }

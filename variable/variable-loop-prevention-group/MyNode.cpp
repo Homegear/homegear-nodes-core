@@ -34,6 +34,7 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
+	_localRpcMethods.emplace("event", std::bind(&MyNode::event, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -45,6 +46,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 	try
 	{
 		_nodeInfo = info;
+
+		auto settingsIterator = _nodeInfo->info->structValue->find("refractoryperiod");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) _refractoryPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -96,5 +101,34 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 	}
 	return std::make_shared<Flows::Variable>();
 }
+
+//{{{ RPC methods
+Flows::PVariable MyNode::event(Flows::PArray parameters)
+{
+	try
+	{
+		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+
+		std::lock_guard<std::mutex> lastEventGuard(_lastEventMutex);
+		if(Flows::HelperFunctions::getTime() - _lastEvent <= _refractoryPeriod && parameters->at(0)->stringValue != _lastEventNode)
+		{
+			return std::make_shared<Flows::Variable>(false);
+		}
+		_lastEvent = Flows::HelperFunctions::getTime();
+		_lastEventNode = parameters->at(0)->stringValue;
+		return std::make_shared<Flows::Variable>(true);
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+//}}}
 
 }

@@ -51,6 +51,8 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 	Flows::VariableType _type = Flows::VariableType::tVoid;
+	std::string _loopPreventionGroup;
+	bool _loopPrevention = false;
 
 	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
 };

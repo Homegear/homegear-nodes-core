@@ -74,6 +74,12 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("outputonstartup");
 		if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
 
+		settingsIterator = info->info->structValue->find("loopprevention");
+		if(settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("looppreventiongroup");
+		if(settingsIterator != info->info->structValue->end()) _loopPreventionGroup = settingsIterator->second->stringValue;
+
 		subscribePeer(_peerId, _channel, _variable);
 
 		return true;
@@ -146,6 +152,15 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
 		message->structValue->emplace("payload", value);
+
+		if(_loopPrevention && !_loopPreventionGroup.empty())
+		{
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->push_back(std::make_shared<Flows::Variable>(_id));
+			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters);
+			if(result->errorStruct) Flows::Output::printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+			if(!result->booleanValue) return;
+		}
 
 		output(0, message);
 	}
