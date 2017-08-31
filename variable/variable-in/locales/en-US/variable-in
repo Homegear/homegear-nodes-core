@@ -12,7 +12,10 @@
         "variable": "Variable",
         "refractoryperiod": "Refractory period",
         "outputonstartup": "Output value on startup",
-        "name": "Name"
+        "name": "Name",
+        "loopprevention": "Enable feedback loop prevention",
+        "looppreventiongroup": "Loop group",
+        "looppreventionrefractoryperiod": "Refractory period"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Subscribes to variable events.</p>",

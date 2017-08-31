@@ -56,6 +56,19 @@
         <input type="checkbox" id="node-input-outputonstartup" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-outputonstartup" style="width: 65%;" data-i18n="variable-in.label.outputonstartup"></label>
     </div>
+    <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-loopprevention" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-loopprevention" style="width: 65%;" data-i18n="variable-in.label.loopprevention"></label>
+    </div>
+    <div id="node-input-looppreventiongroup-container" class="form-row hide">
+        <label style="width: 130px;" for="node-input-looppreventiongroup"><i class="fa fa-globe"></i> <span data-i18n="variable-in.label.looppreventiongroup"></span></label>
+        <input style="width: 65%;" type="text" id="node-input-looppreventiongroup">
+    </div>
+    <div id="node-input-looppreventionrefractoryperiod-container" class="form-row hide">
+        <label style="width: 130px;" for="node-input-looppreventionrefractoryperiod"><i class="fa fa-clock-o"></i> <span data-i18n="variable-in.label.looppreventionrefractoryperiod"></span></label>
+        <input style="width: 65%;" type="text" id="node-input-looppreventionrefractoryperiod">
+    </div>
     <div class="form-tips" data-i18n="[html]variable-in.tip"></div>
 </script>
 <script type="text/javascript">
@@ -73,6 +86,9 @@
 
             refractoryperiod: {value: "200",validate:RED.validators.number()},
             outputonstartup: {value: false},
+            loopprevention: {value: false},
+            looppreventiongroup: {type:"variable-loop-prevention-group"},
+            looppreventionrefractoryperiod: {value: "1000",validate:RED.validators.number()},
             name: {value:""}
         },
         inputs:0,
@@ -295,6 +311,20 @@
 
                 $("#node-input-family").on("change",function() {
                     updatePeerIdOptions();
+                });
+            //}}}
+
+            //{{{ Loop prevention
+                if(this.loopprevention) $("#node-input-looppreventiongroup-container").show();
+                if(this.loopprevention) $("#node-input-looppreventionrefractoryperiod-container").show();
+                $("#node-input-loopprevention").on("click", function() {
+                    if(this.checked) {
+                        $("#node-input-looppreventiongroup-container").show();
+                        $("#node-input-looppreventionrefractoryperiod-container").show();
+                    } else {
+                        $("#node-input-looppreventiongroup-container").hide();
+                        $("#node-input-looppreventionrefractoryperiod-container").hide();
+                    }
                 });
             //}}}
         },

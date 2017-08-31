@@ -1,0 +1,9 @@
+{
+  "variable/variable-loop-prevention-group.hni": {
+    "variable-loop-prevention-group": {
+    	"label": {
+	      "uniqueid": "Unique ID"
+	    }
+    }
+  }
+}

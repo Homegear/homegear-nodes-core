@@ -6,7 +6,7 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/flows/nodes/variable
 
-lib_LTLIBRARIES = constant.la variable-in.la variable-out.la
+lib_LTLIBRARIES = constant.la variable-in.la variable-loop-prevention-group.la variable-out.la
 
 constant_la_SOURCES = constant/Factory.cpp constant/MyNode.cpp
 constant_la_LDFLAGS =-module -avoid-version -shared
@@ -17,12 +17,16 @@ variable_in_la_LDFLAGS =-module -avoid-version -shared
 variable_out_la_SOURCES = variable-out/Factory.cpp variable-out/MyNode.cpp
 variable_out_la_LDFLAGS =-module -avoid-version -shared
 
+variable_loop_prevention_group_la_SOURCES = variable-loop-prevention-group/Factory.cpp variable-loop-prevention-group/MyNode.cpp
+variable_loop_prevention_group_la_LDFLAGS =-module -avoid-version -shared
+
 variable_ladir = $(libdir)
-variable_la_DATA = constant/constant.hni variable-in/variable-in.hni variable-in/variable-in.png variable-out/variable-out.hni
+variable_la_DATA = constant/constant.hni variable-in/variable-in.hni variable-in/variable-in.png variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = constant/locales/en-US/constant variable-in/locales/en-US/variable-in variable-out/locales/en-US/variable-out
+locale_en_us_DATA = constant/locales/en-US/constant variable-in/locales/en-US/variable-in variable-loop-prevention-group/locales/en-US/variable-loop-prevention-group variable-out/locales/en-US/variable-out
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/constant.la
 	rm -f $(DESTDIR)$(libdir)/variable-in.la
+	rm -f $(DESTDIR)$(libdir)/variable-loop-prevention-group.la
 	rm -f $(DESTDIR)$(libdir)/variable-out.la
