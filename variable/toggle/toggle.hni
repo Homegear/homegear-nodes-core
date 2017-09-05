@@ -78,7 +78,7 @@
             if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "metadata" && this.variabletext) return this.peerid + ", " + this.variabletext;
             else if(this.variabletype == "system" && this.variabletext) return this.variabletext;
-            return "variable";
+            return "toggle";
         },
         oneditprepare: function() {
             var that = this;
