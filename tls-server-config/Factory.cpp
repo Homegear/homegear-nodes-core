@@ -27,50 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "MyNode.h"
+#include "../config.h"
 
-#include <homegear-node/INode.h>
-#include <homegear-base/BaseLib.h>
-
-namespace MyNode
+Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
-private:
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<BaseLib::HttpServer> _server;
-	std::string _username;
-	std::string _password;
-	BaseLib::Http _http;
-
-	std::mutex _nodesMutex;
-	std::map<std::string, std::map<std::string, std::string>> _nodes;
-
-	BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
-
-	BaseLib::TcpSocket::TcpPacket getError(int32_t code, std::string longDescription);
-	std::string constructHeader(uint32_t contentLength, int32_t code, Flows::PVariable headers);
-	void packetReceived(int32_t clientId, BaseLib::Http http);
-
-	//{{{ RPC methods
-		Flows::PVariable send(Flows::PArray parameters);
-		Flows::PVariable registerNode(Flows::PArray parameters);
-	//}}}
-};
-
+	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

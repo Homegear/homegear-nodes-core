@@ -57,9 +57,8 @@
         defaults: {
             listenaddress: {value:"::",required:true},
             port: {value:8080,required:true,validate:RED.validators.number()},
-            tls: {type:"tls-config",required: false},
-            usetls: {value: false},
-            verifyservercert: { value: false}
+            tls: {type:"tls-server-config",required: false},
+            usetls: {value: false}
             
         },
         label: function() {

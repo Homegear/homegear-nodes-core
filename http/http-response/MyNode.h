@@ -45,17 +45,11 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
 private:
-	Flows::JsonEncoder _jsonEncoder;
-
-	std::string _broker;
-	std::string _topic;
-	bool _retain = false;
+	std::string _server;
+	int32_t _statusCode = 200;
+	Flows::PVariable _headers;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
-
-	//{{{ RPC methods
-	Flows::PVariable setConnectionState(Flows::PArray parameters);
-	//}}}
 };
 
 }

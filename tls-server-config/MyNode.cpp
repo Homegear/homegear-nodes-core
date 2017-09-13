@@ -27,42 +27,59 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef SERVER_H_
-#define SERVER_H_
-
-#include <homegear-node/Variable.h>
-#include <homegear-node/Output.h>
-#include <homegear-node/HelperFunctions.h>
-#include <homegear-base/BaseLib.h>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class Server: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	Server(std::shared_ptr<BaseLib::SharedObjects> bl, std::string listenAddress, int32_t port);
-	virtual ~Server();
-
-	bool start();
-	void stop();
-	void waitForStop();
-private:
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	std::unique_ptr<BaseLib::TcpSocket> _socket;
-	std::atomic_bool _stopServer;
-	std::string _listenAddress;
-	int32_t _port = 8080;
-	int32_t _backLog = 10;
-	std::thread _listenThread;
-
-	void getSocketDescriptor();
-	int getClientSocketDescriptor(std::string& ipAddress, int32_t& port);
-	void mainThread();
-	void readClient(std::shared_ptr<BaseLib::TcpSocket> socket, const std::string& ipAddress, int32_t port);
-	void listen();
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+bool MyNode::init(Flows::PNodeInfo info)
+{
+	try
+	{
+		_settings = info->info;
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+
+Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
+{
+	try
+	{
+		if(name == "certdata.password" || name == "keydata.password" || name == "dhdata.password") return getNodeData(name);
+		else
+		{
+			auto settingsIterator = _settings->structValue->find(name);
+			if(settingsIterator != _settings->structValue->end()) return settingsIterator->second;
+		}
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return std::make_shared<Flows::Variable>();
+}
+
+}

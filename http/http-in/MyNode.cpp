@@ -34,8 +34,7 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
-	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
+	_localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -46,11 +45,17 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("broker");
-		if(settingsIterator != info->info->structValue->end()) _broker = settingsIterator->second->stringValue;
+		auto settingsIterator = info->info->structValue->find("server");
+		if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("topic");
-		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
+		settingsIterator = info->info->structValue->find("method");
+		if(settingsIterator != info->info->structValue->end()) _method = settingsIterator->second->stringValue;
+
+		settingsIterator = info->info->structValue->find("url");
+		if(settingsIterator != info->info->structValue->end()) _path = settingsIterator->second->stringValue;
+
+		settingsIterator = info->info->structValue->find("upload");
+		if(settingsIterator != info->info->structValue->end()) _fileUploads = settingsIterator->second->booleanValue;
 
 		return true;
 	}
@@ -69,19 +74,18 @@ void MyNode::configNodesStarted()
 {
 	try
 	{
-		if(_broker.empty())
+		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
+			Flows::Output::printError("Error: This node has no server assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
+		parameters->reserve(3);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		parameters->push_back(std::make_shared<Flows::Variable>(_method));
+		parameters->push_back(std::make_shared<Flows::Variable>(_path));
+		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
-		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		result = invokeNodeMethod(_broker, "registerTopic", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
@@ -93,57 +97,98 @@ void MyNode::configNodesStarted()
 	}
 }
 
+std::pair<std::string, std::string> MyNode::splitFirst(std::string string, char delimiter)
+{
+	int32_t pos = string.find_first_of(delimiter);
+	if(pos == -1) return std::pair<std::string, std::string>(string, "");
+	if((unsigned)pos + 1 >= string.size()) return std::pair<std::string, std::string>(string.substr(0, pos), "");
+	return std::pair<std::string, std::string>(string.substr(0, pos), string.substr(pos + 1));
+}
+
+std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
+{
+	std::vector<std::string> elements;
+	std::stringstream stringStream(string);
+	std::string element;
+	while (std::getline(stringStream, element, delimiter))
+	{
+		elements.push_back(element);
+	}
+	if(string.back() == delimiter) elements.push_back(std::string());
+	return elements;
+}
+
 //{{{ RPC methods
-	Flows::PVariable MyNode::publish(Flows::PArray parameters)
+	Flows::PVariable MyNode::packetReceived(Flows::PArray parameters)
 	{
 		try
 		{
-			if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
-			if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+			if(parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects exactly 6 parameters. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->at(0)->type != Flows::VariableType::tInteger) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-			if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+			if(parameters->at(2)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 3 is not of type string.");
+			if(parameters->at(3)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 4 is not of type string.");
+			if(parameters->at(4)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter 5 is not of type struct.");
+			if(parameters->at(5)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 6 is not of type string.");
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
-			message->structValue->emplace("retain", std::make_shared<Flows::Variable>(parameters->at(2)->booleanValue));
-
-			output(0, message);
-
-			return std::make_shared<Flows::Variable>();
-		}
-		catch(const std::exception& ex)
-		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-		return Flows::Variable::createError(-32500, "Unknown application error.");
-	}
-
-	Flows::PVariable MyNode::setConnectionState(Flows::PArray parameters)
-	{
-		try
-		{
-			if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-			if(parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
-
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			if(parameters->at(0)->booleanValue)
+			if(parameters->at(3)->stringValue == "application/x-www-form-urlencoded")
 			{
-				status->structValue->emplace("text", std::make_shared<Flows::Variable>("connected"));
-				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("green"));
-				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+				Flows::PVariable formData = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+				std::vector<std::string> elements = splitAll(parameters->at(5)->stringValue, '&');
+				for(auto& element : elements)
+				{
+					std::pair<std::string, std::string> variable = splitFirst(element, '=');
+					std::string key;
+					std::string value;
+					BaseLib::Html::unescapeHtmlEntities(variable.first, key);
+					BaseLib::Html::unescapeHtmlEntities(variable.second, value);
+					formData->structValue->emplace(key, std::make_shared<Flows::Variable>(value));
+				}
+
+				message->structValue->emplace("payload", formData);
+			}
+			else if(parameters->at(3)->stringValue == "application/json")
+			{
+				message->structValue->emplace("payload", _jsonDecoder.decode(parameters->at(5)->stringValue));
 			}
 			else
 			{
-				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disconnected"));
-				status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
-				status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
+				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(5)->stringValue));
 			}
-			nodeEvent("statusBottom/" + _id, status);
+
+			Flows::PVariable req = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+			req->structValue->emplace("query", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
+			req->structValue->emplace("method", std::make_shared<Flows::Variable>(parameters->at(2)->stringValue));
+			req->structValue->emplace("contentType", std::make_shared<Flows::Variable>(parameters->at(3)->stringValue));
+			req->structValue->emplace("headers", parameters->at(4));
+
+			Flows::PVariable cookies = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			auto cookieIterator = parameters->at(4)->structValue->find("cookie");
+			if(cookieIterator != parameters->at(4)->structValue->end())
+			{
+				std::vector<std::string> elements = splitAll(cookieIterator->second->stringValue, ';');
+				for(auto& element : elements)
+				{
+					Flows::HelperFunctions::trim(element);
+					std::pair<std::string, std::string> cookie = splitFirst(element, '=');
+					Flows::HelperFunctions::trim(cookie.first);
+					Flows::HelperFunctions::trim(cookie.second);
+					cookies->structValue->emplace(cookie.first, std::make_shared<Flows::Variable>(cookie.second));
+				}
+			}
+			req->structValue->emplace("cookies", cookies);
+
+			message->structValue->emplace("req", req);
+
+			Flows::PVariable internal = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			internal->structValue->emplace("clientId", std::make_shared<Flows::Variable>(parameters->at(0)->integerValue));
+
+			setInternalMessage(internal);
+
+			output(0, message);
 
 			return std::make_shared<Flows::Variable>();
 		}

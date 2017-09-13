@@ -31,7 +31,6 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-base/BaseLib.h>
 
 namespace MyNode
 {
@@ -43,32 +42,10 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
 
 	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<BaseLib::HttpServer> _server;
-	std::string _username;
-	std::string _password;
-	BaseLib::Http _http;
-
-	std::mutex _nodesMutex;
-	std::map<std::string, std::map<std::string, std::string>> _nodes;
-
-	BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
-
-	BaseLib::TcpSocket::TcpPacket getError(int32_t code, std::string longDescription);
-	std::string constructHeader(uint32_t contentLength, int32_t code, Flows::PVariable headers);
-	void packetReceived(int32_t clientId, BaseLib::Http http);
-
-	//{{{ RPC methods
-		Flows::PVariable send(Flows::PArray parameters);
-		Flows::PVariable registerNode(Flows::PArray parameters);
-	//}}}
+	Flows::PVariable _settings;
 };
 
 }

@@ -24,8 +24,12 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="http-in.label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row">
         <label for="node-input-statusCode"><i class="fa fa-long-arrow-left"></i> <span data-i18n="http-response.label.status"></span></label>
-        <input type="text" id="node-input-statusCode" placeholder="msg.statusCode">
+        <input type="text" id="node-input-statusCode" placeholder="$message['statusCode']">
     </div>
     <div class="form-row" style="margin-bottom:0;">
         <label><i class="fa fa-list"></i> <span data-i18n="http-response.label.headers"></span></label>
@@ -37,26 +41,12 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('http-response',{
-        headerTypes: [
-            {value:"content-type",label:"Content-Type",hasValue: false},
-            {value:"location",label:"Location",hasValue: false},
-            {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
-        ],
-        contentTypes: [
-            {value:"application/json",label:"application/json",hasValue: false},
-            {value:"application/xml",label:"application/xml",hasValue: false},
-            {value:"text/css",label:"text/css",hasValue: false},
-            {value:"text/html",label:"text/html",hasValue: false},
-            {value:"text/plain",label:"text/plain",hasValue: false},
-            {value:"image/gif",label:"image/gif",hasValue: false},
-            {value:"image/png",label:"image/png",hasValue: false},
-            {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
-        ],
         category: 'output',
         namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},
+            server: {type:"http-server", required:true},
             statusCode: {value:"",validate: RED.validators.number(true)},
             headers: {value:{}}
         },
@@ -76,7 +66,21 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
-            var that = this;
+            var headerTypes = [
+                {value:"Content-Type",label:"Content-Type",hasValue: false},
+                {value:"Location",label:"Location",hasValue: false},
+                {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
+            ];
+            var contentTypes = [
+                {value:"application/json",label:"application/json",hasValue: false},
+                {value:"application/xml",label:"application/xml",hasValue: false},
+                {value:"text/css",label:"text/css",hasValue: false},
+                {value:"text/html",label:"text/html",hasValue: false},
+                {value:"text/plain",label:"text/plain",hasValue: false},
+                {value:"image/gif",label:"image/gif",hasValue: false},
+                {value:"image/png",label:"image/png",hasValue: false},
+                {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
+            ];
             function resizeRule(rule) {
                 var newWidth = rule.width();
                 rule.find('.red-ui-typedInput').typedInput("width",(newWidth-15)/2);
@@ -87,15 +91,15 @@
                     var row = $('<div/>').appendTo(container);
                     var propertyName = $('<input/>',{class:"node-input-header-name",type:"text"})
                         .appendTo(row)
-                        .typedInput({types:that.headerTypes});
+                        .typedInput({types:headerTypes});
 
                     var propertyValue = $('<input/>',{class:"node-input-header-value",type:"text",style:"margin-left: 10px"})
                         .appendTo(row)
                         .typedInput({types:
-                            header.h === 'content-type'?that.contentTypes:[{value:"other",label:"other",icon:"red/images/typedInput/az.png"}]
+                            header.h === 'Content-Type'?contentTypes:[{value:"other",label:"other",icon:"red/images/typedInput/az.png"}]
                         });
 
-                    var matchedType = that.headerTypes.filter(function(ht) {
+                    var matchedType = headerTypes.filter(function(ht) {
                         return ht.value === header.h
                     });
                     if (matchedType.length === 0) {
@@ -105,8 +109,8 @@
                     } else {
                         propertyName.typedInput('type',header.h);
 
-                        if (header.h === "content-type") {
-                            matchedType = that.contentTypes.filter(function(ct) {
+                        if (header.h === "Content-Type") {
+                            matchedType = contentTypes.filter(function(ct) {
                                 return ct.value === header.v;
                             });
                             if (matchedType.length === 0) {
@@ -120,7 +124,7 @@
                         }
                     }
 
-                    matchedType = that.headerTypes.filter(function(ht) {
+                    matchedType = headerTypes.filter(function(ht) {
                         return ht.value === header.h
                     });
                     if (matchedType.length === 0) {
@@ -132,8 +136,8 @@
 
                     propertyName.on('change',function(event) {
                         var type = propertyName.typedInput('type');
-                        if (type === 'content-type') {
-                            propertyValue.typedInput('types',that.contentTypes);
+                        if (type === 'Content-Type') {
+                            propertyValue.typedInput('types',contentTypes);
                         } else {
                             propertyValue.typedInput('types',[{value:"other",label:"other",icon:"red/images/typedInput/az.png"}]);
                         }

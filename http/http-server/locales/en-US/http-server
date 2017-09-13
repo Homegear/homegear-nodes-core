@@ -3,11 +3,10 @@
     "http-server": {
     	"help": "<p>A minimum HTTP server connection requires only a listen address to be added to the default configuration.</p><p>To secure the connection with SSL/TLS, a TLS Configuration must also be configured and selected.</p>",
     	"label": {
-	      "broker": "Server",
+	      "listenaddress": "Listen addr.",
 	      "port": "Port",
 	      "use-tls": "Enable secure (SSL/TLS) connection",
-	      "tls-config": "TLS Configuration",
-	      "verify-server-cert": "Verify server certificate"
+	      "tls-config": "TLS Configuration"
 	    },
 	    "tabs-label": {
 	      "connection": "Connection",
