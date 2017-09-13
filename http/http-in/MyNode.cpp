@@ -123,20 +123,21 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 	{
 		try
 		{
-			if(parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects exactly 6 parameters. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->size() != 7) return Flows::Variable::createError(-1, "Method expects exactly 7 parameters. " + std::to_string(parameters->size()) + " given.");
 			if(parameters->at(0)->type != Flows::VariableType::tInteger) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 			if(parameters->at(2)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 3 is not of type string.");
 			if(parameters->at(3)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 4 is not of type string.");
-			if(parameters->at(4)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter 5 is not of type struct.");
-			if(parameters->at(5)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 6 is not of type string.");
+			if(parameters->at(4)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 5 is not of type string.");
+			if(parameters->at(5)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter 6 is not of type struct.");
+			if(parameters->at(6)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 7 is not of type string.");
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			if(parameters->at(3)->stringValue == "application/x-www-form-urlencoded")
+			if(parameters->at(4)->stringValue == "application/x-www-form-urlencoded")
 			{
 				Flows::PVariable formData = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
-				std::vector<std::string> elements = splitAll(parameters->at(5)->stringValue, '&');
+				std::vector<std::string> elements = splitAll(parameters->at(6)->stringValue, '&');
 				for(auto& element : elements)
 				{
 					std::pair<std::string, std::string> variable = splitFirst(element, '=');
@@ -149,25 +150,42 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 
 				message->structValue->emplace("payload", formData);
 			}
-			else if(parameters->at(3)->stringValue == "application/json")
+			else if(parameters->at(3)->stringValue == "GET")
 			{
-				message->structValue->emplace("payload", _jsonDecoder.decode(parameters->at(5)->stringValue));
+				Flows::PVariable getData = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+				std::vector<std::string> elements = splitAll(parameters->at(2)->stringValue, '&');
+				for(auto& element : elements)
+				{
+					std::pair<std::string, std::string> variable = splitFirst(element, '=');
+					std::string key;
+					std::string value;
+					BaseLib::Html::unescapeHtmlEntities(variable.first, key);
+					BaseLib::Html::unescapeHtmlEntities(variable.second, value);
+					getData->structValue->emplace(key, std::make_shared<Flows::Variable>(value));
+				}
+
+				message->structValue->emplace("payload", getData);
+			}
+			else if(parameters->at(4)->stringValue == "application/json")
+			{
+				message->structValue->emplace("payload", _jsonDecoder.decode(parameters->at(6)->stringValue));
 			}
 			else
 			{
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(5)->stringValue));
+				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(6)->stringValue));
 			}
 
 			Flows::PVariable req = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
 			req->structValue->emplace("query", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
-			req->structValue->emplace("method", std::make_shared<Flows::Variable>(parameters->at(2)->stringValue));
-			req->structValue->emplace("contentType", std::make_shared<Flows::Variable>(parameters->at(3)->stringValue));
-			req->structValue->emplace("headers", parameters->at(4));
+			req->structValue->emplace("method", std::make_shared<Flows::Variable>(parameters->at(3)->stringValue));
+			req->structValue->emplace("contentType", std::make_shared<Flows::Variable>(parameters->at(4)->stringValue));
+			req->structValue->emplace("headers", parameters->at(5));
 
 			Flows::PVariable cookies = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			auto cookieIterator = parameters->at(4)->structValue->find("cookie");
-			if(cookieIterator != parameters->at(4)->structValue->end())
+			auto cookieIterator = parameters->at(5)->structValue->find("cookie");
+			if(cookieIterator != parameters->at(5)->structValue->end())
 			{
 				std::vector<std::string> elements = splitAll(cookieIterator->second->stringValue, ';');
 				for(auto& element : elements)

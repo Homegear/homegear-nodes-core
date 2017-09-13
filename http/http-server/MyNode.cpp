@@ -248,9 +248,10 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 		std::string content(http.getContent().data(), http.getContentSize());
 
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(6);
+		parameters->reserve(7);
 		parameters->push_back(std::make_shared<Flows::Variable>(clientId));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().path));
+		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().args));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().method));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().contentType));
 		parameters->push_back(headers);
