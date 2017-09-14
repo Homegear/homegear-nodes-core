@@ -315,8 +315,6 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 			headers->structValue->emplace(header.first, std::make_shared<Flows::Variable>(header.second));
 		}
 
-		std::string content(http.getContent().data(), http.getContentSize());
-
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(8);
 		parameters->push_back(std::make_shared<Flows::Variable>(clientId));
@@ -326,7 +324,59 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().method));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().contentType));
 		parameters->push_back(headers);
-		parameters->push_back(std::make_shared<Flows::Variable>(content));
+		parameters->push_back(std::make_shared<Flows::Variable>());
+
+		if(http.getHeader().contentType == "multipart/form-data")
+		{
+			Flows::PVariable content = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+
+			auto formData = http.decodeMultipartFormdata();
+			for(auto& element : formData)
+			{
+				if(content->arrayValue->size() + 1 > content->arrayValue->capacity()) content->arrayValue->reserve(content->arrayValue->size() + 11);
+				if(element->contentType == "multipart/mixed")
+				{
+					for(auto& innerElement : element->multipartMixed)
+					{
+						if(content->arrayValue->size() + 1 > content->arrayValue->capacity()) content->arrayValue->reserve(content->arrayValue->size() + 11);
+						if(innerElement->contentType == "multipart/mixed") continue; //Not allowed nested
+
+						Flows::PVariable formElement = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+						for(auto& header : innerElement->header)
+						{
+							formElement->structValue->emplace(header.first, std::make_shared<Flows::Variable>(header.second));
+						}
+
+						formElement->structValue->emplace("name", std::make_shared<Flows::Variable>(innerElement->name));
+						formElement->structValue->emplace("filename", std::make_shared<Flows::Variable>(innerElement->filename));
+						formElement->structValue->emplace("file", std::make_shared<Flows::Variable>(*(innerElement->data)));
+
+						content->arrayValue->push_back(formElement);
+					}
+				}
+				else
+				{
+					Flows::PVariable formElement = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+					for(auto& header : element->header)
+					{
+						formElement->structValue->emplace(header.first, std::make_shared<Flows::Variable>(header.second));
+					}
+
+					formElement->structValue->emplace("name", std::make_shared<Flows::Variable>(element->name));
+					formElement->structValue->emplace("filename", std::make_shared<Flows::Variable>(element->filename));
+					formElement->structValue->emplace("file", std::make_shared<Flows::Variable>(*(element->data)));
+
+					content->arrayValue->push_back(formElement);
+				}
+			}
+
+			parameters->at(7) = content;
+		}
+		else
+		{
+			std::string content(http.getContent().data(), http.getContentSize());
+			parameters->at(7) = std::make_shared<Flows::Variable>(content);
+		}
 
 		for(auto& node : nodes)
 		{

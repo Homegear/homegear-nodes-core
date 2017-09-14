@@ -131,7 +131,6 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 			if(parameters->at(4)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 5 is not of type string.");
 			if(parameters->at(5)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 6 is not of type string.");
 			if(parameters->at(6)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter 7 is not of type struct.");
-			if(parameters->at(7)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 8 is not of type string.");
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			if(parameters->at(5)->stringValue == "application/x-www-form-urlencoded")
@@ -150,6 +149,11 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 				}
 
 				message->structValue->emplace("payload", formData);
+			}
+			else if(parameters->at(5)->stringValue == "multipart/form-data")
+			{
+				if(_fileUploads) message->structValue->emplace("payload", parameters->at(7));
+				else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(""));
 			}
 			else if(parameters->at(4)->stringValue == "GET")
 			{
