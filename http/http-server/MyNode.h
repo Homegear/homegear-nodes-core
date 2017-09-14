@@ -33,6 +33,8 @@
 #include <homegear-node/INode.h>
 #include <homegear-base/BaseLib.h>
 
+#include <regex>
+
 namespace MyNode
 {
 
@@ -49,6 +51,13 @@ public:
 
 	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:
+	struct NodeInfo
+	{
+		std::string id;
+		std::regex pathRegex;
+		std::unordered_map<int32_t, std::string> paramsMap;
+	};
+
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
 	Flows::PNodeInfo _nodeInfo;
 	std::unique_ptr<BaseLib::HttpServer> _server;
@@ -57,9 +66,11 @@ private:
 	BaseLib::Http _http;
 
 	std::mutex _nodesMutex;
-	std::map<std::string, std::map<std::string, std::string>> _nodes;
+	std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
 
 	BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
+
+	std::string& createPathRegex(std::string& path, std::unordered_map<int32_t, std::string>& paramsMap);
 
 	BaseLib::TcpSocket::TcpPacket getError(int32_t code, std::string longDescription);
 	std::string constructHeader(uint32_t contentLength, int32_t code, Flows::PVariable headers);

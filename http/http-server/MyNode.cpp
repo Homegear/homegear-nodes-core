@@ -174,6 +174,59 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 	return std::make_shared<Flows::Variable>();
 }
 
+std::string& MyNode::createPathRegex(std::string& path, std::unordered_map<int32_t, std::string>& paramsMap)
+{
+	if(path.empty()) return path;
+
+	BaseLib::HelperFunctions::stringReplace(path, "[", "\\[");
+	BaseLib::HelperFunctions::stringReplace(path, "]", "\\]");
+	BaseLib::HelperFunctions::stringReplace(path, "?", "\\?");
+	BaseLib::HelperFunctions::stringReplace(path, "(", "\\(");
+	BaseLib::HelperFunctions::stringReplace(path, ")", "\\)");
+	BaseLib::HelperFunctions::stringReplace(path, "\\", "\\\\");
+	BaseLib::HelperFunctions::stringReplace(path, "$", "\\$");
+	BaseLib::HelperFunctions::stringReplace(path, "^", "\\^");
+	BaseLib::HelperFunctions::stringReplace(path, "*", "\\*");
+	BaseLib::HelperFunctions::stringReplace(path, ".", "\\.");
+	BaseLib::HelperFunctions::stringReplace(path, "|", "\\|");
+
+	std::vector<std::string> parts = BaseLib::HelperFunctions::splitAll(path, '/');
+	path.clear();
+	for(uint32_t i = 0; i < parts.size(); i++)
+	{
+		if(parts[i].empty())
+		{
+			if(path.back() != '/') path.append("\\/");
+		}
+		else if(parts[i].front() == ':')
+		{
+			if(parts[i].size() == 1) paramsMap.emplace(i, std::to_string(i - 1));
+			else paramsMap.emplace(i, parts[i].substr(1));
+			path.append("[^\\/]+");
+			if(i != parts.size() - 1) path.append("\\/");
+		}
+		else if(parts[i].front() == '#')
+		{
+			if(parts[i].size() == 1) paramsMap.emplace(i, std::to_string(i - 1));
+			else paramsMap.emplace(i, parts[i].substr(1));
+			for(uint32_t j = i + 1; j < parts.size(); j++)
+			{
+				paramsMap.emplace(j, parts[j]);
+			}
+			path.append(".*");
+			break;
+		}
+		else
+		{
+			path.append(parts[i]);
+			if(i != parts.size() - 1) path.append("\\/");
+		}
+	}
+
+	path = "^" + path + "$";
+	return path;
+}
+
 BaseLib::TcpSocket::TcpPacket MyNode::getError(int32_t code, std::string longDescription)
 {
 	std::string codeDescription = _http.getStatusText(code);
@@ -217,21 +270,38 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 			}
 		}
 
-		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
-		std::string path = http.getHeader().path;
-		auto pathPair = BaseLib::HelperFunctions::splitFirst(path, '?');
-		path = pathPair.first;
-		pathPair = BaseLib::HelperFunctions::splitFirst(path, ':');
-		path = pathPair.first;
-		auto nodesIterator = _nodes.find(http.getHeader().path);
-		if(nodesIterator == _nodes.end())
+		std::set<std::pair<std::string, Flows::PVariable>> nodes;
+
 		{
-			BaseLib::TcpSocket::TcpPacket response = getError(404, "The requested URL " + http.getHeader().path + " was not found on this server.");
-			_server->send(clientId, response);
-			return;
+			std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
+			for(auto& node : _nodes)
+			{
+				auto methodIterator = node.second.find(http.getHeader().method);
+				if(methodIterator == node.second.end()) continue;
+				if(std::regex_match(http.getHeader().path, methodIterator->second.pathRegex))
+				{
+					Flows::PVariable params = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+					std::vector<std::string> parts = BaseLib::HelperFunctions::splitAll(http.getHeader().path, '/');
+					for(uint32_t i = 0; i < parts.size(); i++)
+					{
+						if(parts[i].empty()) continue;
+						auto paramIterator = methodIterator->second.paramsMap.find(i);
+						if(paramIterator != methodIterator->second.paramsMap.end())
+						{
+							params->structValue->emplace(paramIterator->second, std::make_shared<Flows::Variable>(parts[i]));
+						}
+						else
+						{
+							params->structValue->emplace(std::to_string(i - 1), std::make_shared<Flows::Variable>(parts[i]));
+						}
+					}
+
+					std::pair<std::string, Flows::PVariable> nodeInfo = std::make_pair(methodIterator->second.id, params);
+					nodes.emplace(nodeInfo);
+				}
+			}
 		}
-		auto methodIterator = nodesIterator->second.find(http.getHeader().method);
-		if(methodIterator == nodesIterator->second.end())
+		if(nodes.empty())
 		{
 			BaseLib::TcpSocket::TcpPacket response = getError(404, "The requested URL " + http.getHeader().path + " was not found on this server.");
 			_server->send(clientId, response);
@@ -248,16 +318,21 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 		std::string content(http.getContent().data(), http.getContentSize());
 
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(7);
+		parameters->reserve(8);
 		parameters->push_back(std::make_shared<Flows::Variable>(clientId));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().path));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().args));
+		parameters->push_back(std::make_shared<Flows::Variable>());
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().method));
 		parameters->push_back(std::make_shared<Flows::Variable>(http.getHeader().contentType));
 		parameters->push_back(headers);
 		parameters->push_back(std::make_shared<Flows::Variable>(content));
 
-		invokeNodeMethod(methodIterator->second, "packetReceived", parameters);
+		for(auto& node : nodes)
+		{
+			parameters->at(3) = node.second;
+			invokeNodeMethod(node.first, "packetReceived", parameters);
+		}
 	}
 	catch(const std::exception& ex)
 	{
@@ -332,8 +407,16 @@ std::string MyNode::constructHeader(uint32_t contentLength, int32_t code, Flows:
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 			if(parameters->at(2)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 3 is not of type string.");
 
+			NodeInfo info;
+			info.id = parameters->at(0)->stringValue;
+
+			std::unordered_map<int32_t, std::string> paramsMap;
+			createPathRegex(parameters->at(2)->stringValue, info.paramsMap);
+
+			info.pathRegex = std::regex(parameters->at(2)->stringValue);
+
 			std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
-			_nodes[parameters->at(2)->stringValue][BaseLib::HelperFunctions::toUpper(parameters->at(1)->stringValue)] = parameters->at(0)->stringValue;
+			_nodes[parameters->at(2)->stringValue].emplace(BaseLib::HelperFunctions::toUpper(parameters->at(1)->stringValue), std::move(info));
 
 			return std::make_shared<Flows::Variable>();
 		}
