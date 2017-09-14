@@ -56,6 +56,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("overwriteFile");
 		if(settingsIterator != info->info->structValue->end()) _operation = settingsIterator->second->stringValue;
 
+		if(_operation == "true") _operation = "overwrite";
+
 		return true;
 	}
 	catch(const std::exception& ex)

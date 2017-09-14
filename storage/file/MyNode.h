@@ -34,6 +34,8 @@
 #include <homegear-node/JsonDecoder.h>
 #include <homegear-base/BaseLib.h>
 
+#include <cstdio>
+
 namespace MyNode
 {
 
