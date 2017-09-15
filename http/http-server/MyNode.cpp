@@ -101,15 +101,26 @@ bool MyNode::start()
 				serverInfo.certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
 				serverInfo.keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
 				serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
+				serverInfo.requireClientCert = getConfigParameter(tlsNodeId, "clientauth")->booleanValue;
+				serverInfo.caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
+				serverInfo.caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
 			}
 		}
 
 		_username = getNodeData("username")->stringValue;
 		_password = getNodeData("password")->stringValue;
 
-		_server.reset(new BaseLib::HttpServer(_bl.get(), serverInfo));
-		std::string boundAddress;
-		_server->start(listenAddress, port, boundAddress);
+		try
+		{
+			_server.reset(new BaseLib::HttpServer(_bl.get(), serverInfo));
+			std::string boundAddress;
+			_server->start(listenAddress, port, boundAddress);
+		}
+		catch(BaseLib::Exception& ex)
+		{
+			Flows::Output::printError("Error starting server: " + ex.what());
+			return false;
+		}
 
 		return true;
 	}

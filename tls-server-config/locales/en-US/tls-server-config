@@ -8,12 +8,15 @@
             "upload": "Upload",
             "cert": "Certificate",
             "key": "Private key",
-            "dh": "DH parameters"
+            "dh": "DH parameters",
+            "ca": "CA certificate",
+            "clientauth": "Enable client certificate authentication"
         },
         "placeholder": {
             "cert":"path to certificate (PEM format)",
             "key":"path to private key (PEM format)",
-            "dh":"path to Diffie-Hellman parameters (PEM format)"
+            "dh":"path to Diffie-Hellman parameters (PEM format)",
+            "ca":"path to CA certificate (PEM format)"
         },
         "error": {
             "missing-file": "No certificate/key file provided"

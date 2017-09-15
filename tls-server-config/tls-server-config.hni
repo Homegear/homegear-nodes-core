@@ -23,6 +23,10 @@
 -->
 
 <script type="text/x-red" data-template-name="tls-server-config">
+    <div class="form-row">
+        <label style="width: 120px;" for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input style="width: 60%;" type="text" id="node-config-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
     <div class="form-row" class="hide" id="node-config-row-uselocalfiles">
         <input type="checkbox" id="node-config-input-uselocalfiles" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-config-input-uselocalfiles" style="width: 70%;"><span data-i18n="tls-server-config.label.use-local-files"></label>
@@ -64,8 +68,20 @@
         <input class="hide tls-server-config-input-path" style="width: 60%;" type="text" id="node-config-input-dh" data-i18n="[placeholder]tls-server-config.placeholder.dh">
     </div>
     <div class="form-row">
-        <label style="width: 120px;" for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
-        <input style="width: 60%;" type="text" id="node-config-input-name" data-i18n="[placeholder]common.label.name">
+        <input type="checkbox" id="node-config-input-clientauth" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-config-input-clientauth" style="width: auto" data-i18n="tls-server-config.label.clientauth"></label>
+        <div id="node-config-row-clientauth" class="hide">
+            <label style="width: 120px;" for="node-config-input-ca"><i class="fa fa-file-text-o"></i> <span data-i18n="tls-server-config.label.ca"></span></label>
+            <span class="tls-server-config-input-data">
+                <label class="editor-button" for="node-config-input-cafile"><i class="fa fa-upload"></i> <span data-i18n="tls-server-config.label.upload"></span></label>
+                <input class="hide" type="file" title=" " id="node-config-input-cafile">
+                <span id="tls-server-config-caname" style="width: 180px; overflow: hidden; line-height:34px; height:34px; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: middle;"> </span>
+                <button class="editor-button editor-button-small" id="tls-server-config-button-ca-clear" style="margin-left: 10px"><i class="fa fa-times"></i></button>
+            </span>
+            <input type="hidden" id="node-config-input-caname">
+            <input type="hidden" id="node-config-input-cadata">
+            <input class="hide tls-server-config-input-path" style="width: 60%;" type="text" id="node-config-input-ca" data-i18n="[placeholder]tls-server-config.placeholder.ca">
+        </div>
     </div>
 </script>
 <script type="text/javascript">
@@ -87,10 +103,25 @@
                 }
                 return currentCert === '' || v != '';
             }},
-            dh: {value:""},
+            dh: {value:"", validate: function(v) {
+                var currentDh = $("#node-config-input-dh").val();
+                if (currentDh === undefined) {
+                    currentDh = this.dh;
+                }
+                return currentDh === '' || v != '';
+            }},
+            ca: {value:"", validate: function(v) {
+                var currentCa = $("#node-config-input-ca").val();
+                if (currentCa === undefined) {
+                    currentCa = this.dh;
+                }
+                return currentCa === '' || v != '';
+            }},
             certname: {value:""},
             keyname: {value:""},
-            dhname: {value:""}
+            dhname: {value:""},
+            caname: {value:""},
+            clientauth: {value:false}
         },
         label: function() {
             return this.name || this._("tls-server-config.tls");
@@ -112,6 +143,7 @@
             RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-certdata").val(data.result)}, this.id, "certdata.password");
             RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-keydata").val(data.result)}, this.id, "keydata.password");
             RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-dhdata").val(data.result)}, this.id, "dhdata.password");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-config-input-cadata").val(data.result)}, this.id, "cadata.password");
 
             $("#node-config-input-uselocalfiles").on("click",function() {
                 updateFileUpload();
@@ -138,6 +170,9 @@
             $("#node-config-input-dhfile" ).change(function() {
                 saveFile("dh", this.files[0]);
             });
+            $("#node-config-input-cafile" ).change(function() {
+                saveFile("ca", this.files[0]);
+            });
 
             function clearNameData(prop) {
                 $("#tls-server-config-"+prop+"name").text("");
@@ -153,6 +188,9 @@
             $("#tls-server-config-button-dh-clear").click(function() {
                 clearNameData("dh");
             });
+            $("#tls-server-config-button-ca-clear").click(function() {
+                clearNameData("ca");
+            });
 
             if (RED.settings.nodeSettings.tlsConfigDisableLocalFiles) {
                 $("#node-config-row-uselocalfiles").hide();
@@ -166,21 +204,42 @@
             $("#tls-server-config-certname").text(this.certname);
             $("#tls-server-config-keyname").text(this.keyname);
             $("#tls-server-config-dhname").text(this.dhname);
+            $("#tls-server-config-caname").text(this.caname);
             updateFileUpload();
+
+            if (typeof this.clientauth === 'undefined') {
+                this.clientauth = false;
+                $("#node-config-input-clientauth").prop("checked",false);
+            }
+
+            function updateClientAuthOptions() {
+                if ($("#node-config-input-clientauth").is(':checked')) {
+                    $("#node-config-row-clientauth").show();
+                } else {
+                    $("#node-config-row-clientauth").hide();
+                }
+            }
+            updateClientAuthOptions();
+            $("#node-config-input-clientauth").on("click",function() {
+                updateClientAuthOptions();
+            });
         },
         oneditsave: function() {
             if ($("#node-config-input-uselocalfiles").is(':checked')) {
                 clearNameData("dh");
                 clearNameData("cert");
                 clearNameData("key");
+                clearNameData("ca");
             } else {
                 $("#node-config-input-dh").val("");
                 $("#node-config-input-cert").val("");
                 $("#node-config-input-key").val("");
+                $("#node-config-input-ca").val("");
             }
             if($("#node-config-input-certdata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "certdata.password", $("#node-config-input-certdata").val());
             if($("#node-config-input-keydata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "keydata.password", $("#node-config-input-keydata").val());
             if($("#node-config-input-dhdata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "dhdata.password", $("#node-config-input-dhdata").val());
+            if($("#node-config-input-cadata").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "cadata.password", $("#node-config-input-cadata").val());
         }
     });
 </script>

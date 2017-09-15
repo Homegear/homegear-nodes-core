@@ -64,7 +64,7 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 {
 	try
 	{
-		if(name == "certdata.password" || name == "keydata.password" || name == "dhdata.password") return getNodeData(name);
+		if(name == "certdata.password" || name == "keydata.password" || name == "dhdata.password" || name == "cadata.password") return getNodeData(name);
 		else
 		{
 			auto settingsIterator = _settings->structValue->find(name);
