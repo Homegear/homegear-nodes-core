@@ -85,6 +85,17 @@ void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 	}
 }
 
+std::string MyNode::stripNonPrintable(const std::string& s)
+{
+	std::string strippedString;
+	strippedString.reserve(s.size());
+	for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
+	{
+		if(std::isprint(*i)) strippedString.push_back(*i);
+	}
+	return strippedString;
+}
+
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
@@ -149,12 +160,15 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			case Flows::VariableType::tString:
 				format = "string[" + std::to_string(message->stringValue.size()) + "]";
 				if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
+				message->stringValue = stripNonPrintable(message->stringValue);
 				break;
 			case Flows::VariableType::tStruct:
 				format = "Object";
 				break;
 			case Flows::VariableType::tBase64:
 				format = "string[" + std::to_string(message->stringValue.size()) + "]";
+				if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
+				message->stringValue = stripNonPrintable(message->stringValue);
 				break;
 			case Flows::VariableType::tVariant:
 				break;

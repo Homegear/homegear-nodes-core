@@ -63,6 +63,8 @@ private:
 		return haystack;
 	}
 
+	std::string stripNonPrintable(const std::string& s);
+
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 
