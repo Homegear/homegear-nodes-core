@@ -1,0 +1,42 @@
+{
+  "http/http-in.hni": {
+    "http-in": {
+      "paletteHelp": "<p>Creates an HTTP end-point for creating web services.</p>",
+      "help": "<p>Creates an HTTP end-point for creating web services.</p><h3>Outputs</h3><dl class=\"message-properties\"><dt>payload</dt><dd>For a GET request, contains an object of any query string parameters. For file uploads (<code>multipart/form-data</code>) contains an object with the form data (filename is in <code>[&lt;index&gt;]['filename']</code>, the content in <code>[&lt;index&gt;]['file']</code>). Otherwise, contains the body of the HTTP request.</dd><dt>req<span class=\"property-type\">object</span></dt><dd>An HTTP request object. This object contains multiple properties that provide information about the request.<ul><li><code>method</code> - the HTTP method of the incoming request (e. g. <code>GET</code>).</li><li><code>headers</code> - an object containing the HTTP request headers.</li><li><code>query</code> - an object containing any query string parameters.</li><li><code>params</code> - an object containing any route parameters.</li><li><code>cookies</code> - an object containing the cookies for the request.</li></ul></dd></dl><h3>Details</h3><p>The node will listen on the configured path for requests of a particular type. The path can be fully specified, such as <code>/user</code>, or include named parameters that accept any value, such as <code>/user/:name/:info</code> (single level wildcard) or <code>/user/#name</code> (multilevel wildcard). When named parameters are used, their actual value in a request can be accessed under `$['message']['req']['params']`. For multilevel wildcards all levels following the <code>#</code> can be named like this: <code>/user/#name/nameLevel2/nameLevel3</code>. If no name is specified (e. g. <code>/user/:/:</code> or <code>/user/#</code>), the levels are named by their index.</p><p>For requests that include a body, such as a POST or PUT, the contents of the request is made available as <code>$message['payload']</code>.</p><p>If the content type of the request can be determined, the body will be parsed to any appropriate type. For example, <code>application/json</code> will be parsed to its JavaScript object representation.</p><p><b>Note:</b> this node does not send any response to the request. The flow must include an HTTP Response node to complete the request.</p>",
+      "output1Description": "For a GET request, <code>payload</code> contains an object of any query string parameters. Otherwise, contains the body of the HTTP request.",
+      "label": {
+          "server": "Server",
+          "method": "Method",
+          "url": "URL",
+          "doc": "Docs",
+          "return": "Return",
+          "upload": "Accept file uploads?",
+          "status": "Status code",
+          "headers": "Headers"
+      },
+      "server": "Server",
+      "setby": "- set by $message['method'] -",
+      "basicauth": "Use basic authentication",
+      "use-tls": "Enable secure (SSL/TLS) connection",
+      "tls-config":"TLS Configuration",
+      "utf8": "a UTF-8 string",
+      "binary": "a binary buffer",
+      "json": "a parsed JSON object",
+      "tip": {
+          "in": "The url will be relative to ",
+          "res": "The messages sent to this node <b>must</b> originate from an <i>http input</i> node",
+          "req": "Tip: If the JSON parse fails the fetched string is returned as-is."
+      },
+      "httpreq": "http request",
+      "errors": {
+          "not-created": "Cannot create http-in node when httpNodeRoot set to false",
+          "missing-path": "missing path",
+          "no-response": "No response object",
+          "json-error": "JSON parse error",
+          "no-url": "No url specified",
+          "deprecated-call":"Deprecated call to __method__",
+          "invalid-transport":"non-http transport requested"
+      }
+    }
+  }
+}

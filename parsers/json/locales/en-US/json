@@ -1,0 +1,13 @@
+{
+  "parsers/json.hni": {
+    "json": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Converts between a JSON string and its <code>Struct</code> representation, in either direction.</p>",
+      "help": "If the input is a JSON string it tries to parse it to a <code>Struct</code>. If the input is a <code>Struct</code> it creates a JSON string.",
+      "input1Description": "JSON string or <code>Struct</code>.",
+      "output1Description": "JSON string or <code>Struct</code>."
+    }
+  }
+}

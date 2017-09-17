@@ -31,6 +31,9 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <homegear-base/BaseLib.h>
+
+#include <regex>
 
 namespace MyNode
 {
@@ -42,19 +45,41 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-private:
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
+	virtual bool start();
+	virtual void stop();
+	virtual void waitForStop();
 
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
+private:
+	struct NodeInfo
+	{
+		std::string id;
+		std::regex pathRegex;
+		std::unordered_map<int32_t, std::string> paramsMap;
+	};
+
+	std::shared_ptr<BaseLib::SharedObjects> _bl;
+	Flows::PNodeInfo _nodeInfo;
+	std::unique_ptr<BaseLib::HttpServer> _server;
+	std::string _username;
+	std::string _password;
+	BaseLib::Http _http;
+
+	std::mutex _nodesMutex;
+	std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
+
+	BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
+
+	std::string& createPathRegex(std::string& path, std::unordered_map<int32_t, std::string>& paramsMap);
+
+	BaseLib::TcpSocket::TcpPacket getError(int32_t code, std::string longDescription);
+	std::string constructHeader(uint32_t contentLength, int32_t code, Flows::PVariable headers);
+	void packetReceived(int32_t clientId, BaseLib::Http http);
+
+	//{{{ RPC methods
+		Flows::PVariable send(Flows::PArray parameters);
+		Flows::PVariable registerNode(Flows::PArray parameters);
+	//}}}
 };
 
 }

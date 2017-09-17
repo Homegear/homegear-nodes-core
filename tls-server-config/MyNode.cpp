@@ -27,36 +27,59 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
-
-#include <homegear-node/INode.h>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-private:
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
-
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+bool MyNode::init(Flows::PNodeInfo info)
+{
+	try
+	{
+		_settings = info->info;
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+
+Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
+{
+	try
+	{
+		if(name == "certdata.password" || name == "keydata.password" || name == "dhdata.password" || name == "cadata.password") return getNodeData(name);
+		else
+		{
+			auto settingsIterator = _settings->structValue->find(name);
+			if(settingsIterator != _settings->structValue->end()) return settingsIterator->second;
+		}
+	}
+	catch(const std::exception& ex)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return std::make_shared<Flows::Variable>();
+}
+
+}

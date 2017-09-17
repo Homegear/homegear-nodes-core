@@ -1,0 +1,21 @@
+{
+  "variable/toggle.hni": {
+    "toggle": {
+      "label": {
+        "variabletype": "Variable type",
+        "devicevariable": "Device variable",
+        "metadata": "Metadata",
+        "systemvariable": "System variable",
+        "family": "Family",
+        "peerid": "Peer ID",
+        "channel": "Channel",
+        "variable": "Variable",
+        "name": "Name"
+      },
+      "tip": "Tip: See help tab for usage information.",
+      "paletteHelp": "<p>Toggles a variable.</p>",
+      "help": "Use this node to toggle a variable in Homegear.",
+      "input1Description": "Every input toggles the specified variable."
+    }
+  }
+}

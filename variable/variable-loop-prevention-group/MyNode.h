@@ -42,19 +42,22 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-private:
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
+	virtual bool start();
+	virtual void stop();
 
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
+private:
+	Flows::PNodeInfo _nodeInfo;
+
+	uint32_t _refractoryPeriod = 1000;
+
+	std::mutex _lastEventMutex;
+	std::string _lastEventNode;
+	std::atomic<int64_t> _lastEvent;
+
+	//{{{ RPC methods
+	Flows::PVariable event(Flows::PArray parameters);
+	//}}}
 };
 
 }

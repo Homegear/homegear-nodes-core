@@ -31,6 +31,8 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <homegear-node/JsonDecoder.h>
+#include <homegear-base/BaseLib.h>
 
 namespace MyNode
 {
@@ -42,19 +44,21 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
+	virtual void configNodesStarted();
 private:
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
+	std::string _server;
+	std::string _method;
+	std::string _path;
+	bool _fileUploads = false;
 
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	Flows::JsonDecoder _jsonDecoder;
+
+	std::pair<std::string, std::string> splitFirst(std::string string, char delimiter);
+	std::vector<std::string> splitAll(std::string string, char delimiter);
+
+	//{{{ RPC methods
+		Flows::PVariable packetReceived(Flows::PArray parameters);
+	//}}}
 };
 
 }
