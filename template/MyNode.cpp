@@ -158,7 +158,15 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		if(_parseJson)
 		{
-			Flows::PVariable json = _jsonDecoder.decode(result->stringValue);
+			Flows::PVariable json;
+			result->stringValue = Flows::HelperFunctions::trim(result->stringValue);
+			if(result->stringValue.empty()) json = std::make_shared<Flows::Variable>();
+			else if(result->stringValue.front() != '[' && result->stringValue.front() != '{')
+			{
+				result->stringValue = '[' + result->stringValue + ']';
+				json = _jsonDecoder.decode(result->stringValue)->arrayValue->at(0);
+			}
+			else json = _jsonDecoder.decode(result->stringValue);
 			if(_field.empty() && json->type == Flows::VariableType::tStruct)
 			{
 				outputMessage = json;
