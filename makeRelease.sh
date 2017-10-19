@@ -10,5 +10,4 @@ rm -Rf autom4te.cache
 ./bootstrap || exit 1
 ./configure --prefix=/usr --localstatedir=/var --sysconfdir=/etc --libdir=/usr/lib || exit 1
 make -j${BUILDTHREADS} || exit 1
-strip -s src/.libs/mod_enocean.so
 make install

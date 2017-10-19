@@ -3,7 +3,7 @@
     "name": "http-server",
     "readableName": "HTTP server",
     "version": "0.0.1",
-    "maxThreadCount": 6
+    "maxThreadCount": 1
 }
 </script>
 <!--
