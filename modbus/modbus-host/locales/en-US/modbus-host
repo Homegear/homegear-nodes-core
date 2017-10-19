@@ -1,0 +1,11 @@
+{
+  "modbus/modbus-host.hni": {
+    "modbus-host": {
+    	"help": "<p>A Modbus connection requires only a Modbus server address to be added to the default configuration.</p>",
+    	"label": {
+	      "server": "Server",
+	      "port": "Port"
+	    }
+    }
+  }
+}
