@@ -1,25 +1,14 @@
 {
   "modbus/modbus-in.hni": {
     "modbus-in": {
-      "paletteHelp": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p>",
-      "help": "<p>Connects to a MQTT broker and subscribes to the specified topic.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['topic']</code></li><li><code>$message['payload']</code></li><li><code>$message['retain']</code></li></ul><p><code>$message['payload']</code> will be a String.</p>",
-      "output1Description": "The payload received from the MQTT broker.",
+      "paletteHelp": "<p>Connects to a Modbus server and subscribes to the specified registers.</p>",
+      "help": "<p>Connects to a Modbus server and subscribes to the specified registers.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['register']</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> will be binary.</p>",
+      "output1Description": "The payload received from the Modbus server.",
       "label": {
-	      "broker": "Server",
-	      "qos": "QoS"
-	    },
-      "state": {
-        "connected": "Connected to broker: __broker__",
-        "disconnected": "Disconnected from broker: __broker__",
-        "connect-failed": "Connection failed to broker: __broker__"
-      },
-      "errors": {
-        "not-defined": "topic not defined",
-        "missing-config": "missing broker configuration",
-        "invalid-topic": "Invalid topic specified",
-        "nonclean-missingclientid": "No client ID set, using clean session"
-      },
-      "tip": "Tip: Leave topic, qos or retain blank if you want to set them via msg properties."
+	      "server": "Server",
+	      "register": "Register",
+        "count": "Count"
+	    }
     }
   }
 }

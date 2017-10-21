@@ -46,11 +46,14 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("broker");
-		if(settingsIterator != info->info->structValue->end()) _broker = settingsIterator->second->stringValue;
+		auto settingsIterator = info->info->structValue->find("server");
+		if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("topic");
-		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
+		settingsIterator = info->info->structValue->find("register");
+		if(settingsIterator != info->info->structValue->end()) _register = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+		settingsIterator = info->info->structValue->find("count");
+		if(settingsIterator != info->info->structValue->end()) _count = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
 		return true;
 	}
@@ -69,19 +72,18 @@ void MyNode::configNodesStarted()
 {
 	try
 	{
-		if(_broker.empty())
+		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
+			Flows::Output::printError("Error: This node has no Modbus server assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
+		parameters->reserve(3);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		parameters->push_back(std::make_shared<Flows::Variable>(_register));
+		parameters->push_back(std::make_shared<Flows::Variable>(_count));
+		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
-		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		result = invokeNodeMethod(_broker, "registerTopic", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{

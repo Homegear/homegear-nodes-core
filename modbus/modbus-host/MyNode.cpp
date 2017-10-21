@@ -34,10 +34,7 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
 	_localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
-	_localRpcMethods.emplace("registerTopic", std::bind(&MyNode::registerTopic, this, std::placeholders::_1));
-	_localRpcMethods.emplace("unregisterTopic", std::bind(&MyNode::unregisterTopic, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -66,46 +63,21 @@ bool MyNode::start()
 {
 	try
 	{
-		std::shared_ptr<Mqtt::MqttSettings> mqttSettings = std::make_shared<Mqtt::MqttSettings>();
+		std::shared_ptr<Modbus::ModbusSettings> modbusSettings = std::make_shared<Modbus::ModbusSettings>();
 
-		auto settingsIterator = _nodeInfo->info->structValue->find("broker");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->brokerHostname = settingsIterator->second->stringValue;
+		auto settingsIterator = _nodeInfo->info->structValue->find("server");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->server = settingsIterator->second->stringValue;
 
 		settingsIterator = _nodeInfo->info->structValue->find("port");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->brokerPort = settingsIterator->second->stringValue;
+		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->port = settingsIterator->second->stringValue;
 
-		settingsIterator = _nodeInfo->info->structValue->find("usetls");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->enableSSL = settingsIterator->second->booleanValue;
-
-		settingsIterator = _nodeInfo->info->structValue->find("clientid");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->clientId = settingsIterator->second->stringValue;
-		if(mqttSettings->clientId.empty()) mqttSettings->clientId = "HomegearNode." + _id + "." + BaseLib::HelperFunctions::getHexString(BaseLib::HelperFunctions::getRandomNumber(0, 16777215));
-
-		mqttSettings->username = getNodeData("username")->stringValue;
-		mqttSettings->password = getNodeData("password")->stringValue;
-
-		if(mqttSettings->enableSSL)
-		{
-			std::string tlsNodeId;
-			settingsIterator = _nodeInfo->info->structValue->find("tls");
-			if(settingsIterator != _nodeInfo->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
-
-			if(!tlsNodeId.empty())
-			{
-				mqttSettings->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
-				mqttSettings->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-				mqttSettings->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
-				mqttSettings->caPath = getConfigParameter(tlsNodeId, "ca")->stringValue;
-				mqttSettings->certPath = getConfigParameter(tlsNodeId, "cert")->stringValue;
-				mqttSettings->keyPath = getConfigParameter(tlsNodeId, "key")->stringValue;
-				mqttSettings->verifyCertificate = getConfigParameter(tlsNodeId, "verifyservercert")->booleanValue;
-			}
-		}
+		settingsIterator = _nodeInfo->info->structValue->find("interval");
+		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
-		_mqtt.reset(new Mqtt(bl, mqttSettings));
-		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
-		_mqtt->start();
+		_modbus.reset(new Modbus(bl, modbusSettings));
+		_modbus->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
+		_modbus->start();
 
 		return true;
 	}
@@ -124,7 +96,7 @@ void MyNode::stop()
 {
 	try
 	{
-		if(_mqtt) _mqtt->stop();
+		if(_modbus) _modbus->stop();
 	}
 	catch(const std::exception& ex)
 	{
@@ -140,8 +112,8 @@ void MyNode::waitForStop()
 {
 	try
 	{
-		if(_mqtt) _mqtt->waitForStop();
-		_mqtt.reset();
+		if(_modbus) _modbus->waitForStop();
+		_modbus.reset();
 	}
 	catch(const std::exception& ex)
 	{
@@ -172,84 +144,16 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::publish(Flows::PArray parameters)
-{
-	try
-	{
-		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-		if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
-
-		if(_mqtt) _mqtt->queueMessage(parameters->at(0)->stringValue, parameters->at(1)->stringValue, parameters->at(2)->booleanValue);
-
-		return std::make_shared<Flows::Variable>();
-	}
-	catch(const std::exception& ex)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
-}
-
 Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter is not of type string.");
-
-		if(_mqtt) _mqtt->registerNode(parameters->at(0)->stringValue);
-
-		return std::make_shared<Flows::Variable>();
-	}
-	catch(const std::exception& ex)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
-}
-
-Flows::PVariable MyNode::registerTopic(Flows::PArray parameters)
-{
-	try
-	{
-		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameter. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
+		if(parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+		if(parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");
 
-		if(_mqtt) _mqtt->registerTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
-
-		return std::make_shared<Flows::Variable>();
-	}
-	catch(const std::exception& ex)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
-}
-
-Flows::PVariable MyNode::unregisterTopic(Flows::PArray parameters)
-{
-	try
-	{
-		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-
-		if(_mqtt) _mqtt->unregisterTopic(parameters->at(0)->stringValue, parameters->at(1)->stringValue);
+		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue64, parameters->at(2)->integerValue64);
 
 		return std::make_shared<Flows::Variable>();
 	}

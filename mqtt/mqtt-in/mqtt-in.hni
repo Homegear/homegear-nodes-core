@@ -32,13 +32,13 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
-        <label style="width: 130px;">&nbsp;</label>
+        <label>&nbsp;</label>
         <input type="checkbox" id="node-input-loopprevention" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-loopprevention" style="width: 65%;" data-i18n="mqtt-in.label.loopprevention"></label>
     </div>
     <div id="node-input-looppreventiongroup-container" class="form-row hide">
-        <label style="width: 130px;" for="node-input-looppreventiongroup"><i class="fa fa-globe"></i> <span data-i18n="mqtt-in.label.looppreventiongroup"></span></label>
-        <input style="width: 65%;" type="text" id="node-input-looppreventiongroup">
+        <label for="node-input-looppreventiongroup"><i class="fa fa-globe"></i> <span data-i18n="mqtt-in.label.looppreventiongroup"></span></label>
+        <input type="text" id="node-input-looppreventiongroup">
     </div>
 </script>
 <script type="text/javascript">

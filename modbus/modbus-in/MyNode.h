@@ -44,8 +44,9 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
 private:
-	std::string _broker;
-	std::string _topic;
+	std::string _server;
+	uint32_t _register = 0;
+	uint32_t _count = 0;
 
 	//{{{ RPC methods
 	Flows::PVariable publish(Flows::PArray parameters);

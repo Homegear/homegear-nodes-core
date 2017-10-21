@@ -261,6 +261,9 @@
 
             //{{{ Peers
                 function fillPeerIdOptions() {
+                    $("#node-input-peerid").empty();
+                    $("#node-input-channel").empty();
+                    $("#node-input-variable").empty();
                     var currentFamily = $("#node-input-family").val();
                     var peerSelect = $("#node-input-peerid");
                     $.each(devices, function() {
@@ -271,28 +274,6 @@
                     updateChannelOptions();
                 }
 
-                function updatePeerIdOptions() {
-                    var currentFamily = $("#node-input-family").val();
-                    $("#node-input-peerid").empty();
-                    $("#node-input-channel").empty();
-                    $("#node-input-variable").empty();
-                    var deviceCount = 0;
-                    $.each(devices, function() {
-                        if(this.family == currentFamily && !this.name) deviceCount++;
-                    });
-                    if(deviceCount > 0) {
-                        $.each(devices, function() {
-                            if(this.family == currentFamily && !this.name) {
-                                RED.comms.homegear().invoke("getName", function(message) {
-                                    devices[this.id].name = message.result;
-                                    deviceCount--;
-                                    if(!deviceCount) fillPeerIdOptions();
-                                }.bind(this), this.id);
-                            }
-                        });
-                    } else fillPeerIdOptions();
-                }
-
                 RED.comms.homegear().invoke("listDevices", function(message) {
                     var familySelect = $("#node-input-family");
                     $.each(message.result, function() {
@@ -300,12 +281,13 @@
                         devices[this.ID].id = this.ID;
                         devices[this.ID].family = this.FAMILY;
                         devices[this.ID].type = this.TYPE;
+                        devices[this.id].name = this.NAME;
                     });
-                    updatePeerIdOptions();
-                }, false, ["ID", "FAMILY", "TYPE"]);
+                    fillPeerIdOptions();
+                }, false, ["ID", "FAMILY", "TYPE", "NAME"]);
 
                 $("#node-input-family").on("change",function() {
-                    updatePeerIdOptions();
+                    fillPeerIdOptions();
                 });
             //}}}
 

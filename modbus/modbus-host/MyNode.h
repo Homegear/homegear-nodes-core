@@ -31,7 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include "Mqtt.h"
+#include "Modbus.h"
 
 namespace MyNode
 {
@@ -50,13 +50,10 @@ public:
 	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
 private:
 	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<Mqtt> _mqtt;
+	std::unique_ptr<Modbus> _modbus;
 
 	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray parameters);
 	Flows::PVariable registerNode(Flows::PArray parameters);
-	Flows::PVariable registerTopic(Flows::PArray parameters);
-	Flows::PVariable unregisterTopic(Flows::PArray parameters);
 	//}}}
 };
 
