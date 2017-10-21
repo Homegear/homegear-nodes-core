@@ -46,6 +46,8 @@ public:
 private:
 	std::string _broker;
 	std::string _topic;
+	std::string _loopPreventionGroup;
+	bool _loopPrevention = false;
 
 	//{{{ RPC methods
 	Flows::PVariable publish(Flows::PArray parameters);

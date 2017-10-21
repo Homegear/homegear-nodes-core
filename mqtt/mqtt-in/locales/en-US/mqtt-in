@@ -6,7 +6,9 @@
       "output1Description": "The payload received from the MQTT broker.",
       "label": {
 	      "broker": "Server",
-	      "qos": "QoS"
+	      "qos": "QoS",
+        "loopprevention": "Enable feedback loop prevention",
+        "looppreventiongroup": "Loop group"
 	    },
       "state": {
         "connected": "Connected to broker: __broker__",

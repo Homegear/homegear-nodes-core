@@ -52,6 +52,12 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("topic");
 		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
 
+		settingsIterator = info->info->structValue->find("loopprevention");
+		if(settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("looppreventiongroup");
+		if(settingsIterator != info->info->structValue->end()) _loopPreventionGroup = settingsIterator->second->stringValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -102,6 +108,15 @@ void MyNode::configNodesStarted()
 			if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 			if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+
+			if(_loopPrevention && !_loopPreventionGroup.empty())
+			{
+				Flows::PArray parameters = std::make_shared<Flows::Array>();
+				parameters->push_back(std::make_shared<Flows::Variable>(_id));
+				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters);
+				if(result->errorStruct) Flows::Output::printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+				if(!result->booleanValue) return std::make_shared<Flows::Variable>();;
+			}
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
