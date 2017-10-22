@@ -79,5 +79,5 @@ stamp-h?
 *~
 
 #CLion
-cmake-build-debug
+cmake*           
 .idea
