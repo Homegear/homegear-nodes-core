@@ -207,7 +207,7 @@ std::string& MyNode::createPathRegex(std::string& path, std::unordered_map<int32
 	{
 		if(parts[i].empty())
 		{
-			if(path.back() != '/') path.append("\\/");
+			if(!path.empty() && path.back() != '/') path.append("\\/");
 		}
 		else if(parts[i].front() == ':')
 		{
