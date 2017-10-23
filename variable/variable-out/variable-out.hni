@@ -132,6 +132,8 @@
                     if(!currentVariable) return;
                     if($("#node-input-variable").val()) {
                         var html = "<table>";
+                        if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
+                        if(currentVariable.description) html += "<tr><td><b>Description</b></td><td>" + currentVariable.description + "</td></tr>";
                         html += "<tr><td><b>Type</b></td><td>" + currentVariable.type + "</td></tr>";
                         if(currentVariable.min || currentVariable.min === 0) html += "<tr><td><b>Min</b></td><td>" + currentVariable.min + "</td></tr>";
                         if(currentVariable.max || currentVariable.min === 0) html += "<tr><td><b>Max</b></td><td>" + currentVariable.max + "</td></tr>";
@@ -181,6 +183,8 @@
                                 if(this.TYPE != "BOOL" && this.TYPE != "ACTION") variables[this.ID].max = this.MAX;
                                 if(this.SPECIAL) variables[this.ID].special = this.SPECIAL;
                                 if(this.VALUE_LIST) variables[this.ID].valueList = this.VALUE_LIST;
+                                if(this.LABEL) variables[this.ID].label = this.LABEL;
+                                if(this.DESCRIPTION) variables[this.ID].label = this.DESCRIPTION;
                                 variableSelect.append($("<option />").val(this.ID).text(this.ID));
                             });
                             variableSelect.val(that.variable);
