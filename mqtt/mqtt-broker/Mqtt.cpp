@@ -1003,6 +1003,10 @@ void Mqtt::registerNode(std::string& node)
 	{
 		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 		_nodes.emplace(node);
+
+        Flows::PArray parameters = std::make_shared<Flows::Array>();
+        parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
+        _invoke(node, "setConnectionState", parameters);
 	}
 	catch(const std::exception& ex)
 	{

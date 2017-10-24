@@ -73,6 +73,7 @@ bool MyNode::start()
 
 		settingsIterator = _nodeInfo->info->structValue->find("interval");
 		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        if(modbusSettings->interval < 1) modbusSettings->interval = 1;
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_modbus.reset(new Modbus(bl, modbusSettings));
@@ -148,12 +149,13 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameter. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 4) return Flows::Variable::createError(-1, "Method expects exactly four parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
-		if(parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");
+		if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+		if(parameters->at(2)->type != Flows::VariableType::tInteger && parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");
+		if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
 
-		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue64, parameters->at(2)->integerValue64);
+		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue);
 
 		return std::make_shared<Flows::Variable>();
 	}

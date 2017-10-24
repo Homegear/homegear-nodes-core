@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -34,7 +35,7 @@ namespace MyNode
 
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
+	_localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
 	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
 
@@ -78,10 +79,11 @@ void MyNode::configNodesStarted()
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(3);
+		parameters->reserve(4);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
 		parameters->push_back(std::make_shared<Flows::Variable>(_register));
 		parameters->push_back(std::make_shared<Flows::Variable>(_count));
+        parameters->push_back(std::make_shared<Flows::Variable>(true));
 		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
@@ -96,19 +98,19 @@ void MyNode::configNodesStarted()
 }
 
 //{{{ RPC methods
-	Flows::PVariable MyNode::publish(Flows::PArray parameters)
+	Flows::PVariable MyNode::packetReceived(Flows::PArray parameters)
 	{
 		try
 		{
-			if(parameters->size() != 3) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
-			if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
-			if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+            if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+			if(parameters->at(0)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 1 is not of type binary.");
+
+            Flows::Output::printInfo("Moin a " + BaseLib::HelperFunctions::getHexString(parameters->at(0)->binaryValue));
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
-			message->structValue->emplace("retain", std::make_shared<Flows::Variable>(parameters->at(2)->booleanValue));
+			message->structValue->emplace("register", std::make_shared<Flows::Variable>(_register));
+			message->structValue->emplace("count", std::make_shared<Flows::Variable>(_count));
+			message->structValue->emplace("payload", parameters->at(0));
 
 			output(0, message);
 

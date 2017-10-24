@@ -56,8 +56,15 @@ public:
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
 
-	void registerNode(std::string& node, uint32_t startRegister, uint32_t count);
+	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in);
 private:
+	struct NodeInfo
+    {
+        std::string id;
+        uint32_t startRegister;
+        uint32_t count;
+    };
+
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
 	BaseLib::Output _out;
 	std::shared_ptr<ModbusSettings> _settings;
@@ -67,10 +74,18 @@ private:
 	std::atomic<modbus_t*> _modbus;
 
 	std::mutex _nodesMutex;
-	std::set<std::string> _nodes;
+	std::list<NodeInfo> _inNodes;
+    std::list<NodeInfo> _outNodes;
 	std::thread _listenThread;
 	std::atomic_bool _started;
+    int32_t _inStartRegister = -1;
+    int32_t _inEndRegister = -1;
+    int32_t _inRegisterCount = -1;
+    int32_t _outStartRegister = -1;
+    int32_t _outEndRegister = -1;
+    int32_t _outRegisterCount = -1;
 
+    std::mutex _bufferMutex;
 	std::vector<uint16_t> _writeBuffer;
 	std::vector<uint16_t> _readBuffer;
 
@@ -78,6 +93,7 @@ private:
 	Modbus& operator=(const Modbus&);
 	void connect();
 	void disconnect();
+    void setConnectionState(bool connected);
 	void listen();
 };
 
