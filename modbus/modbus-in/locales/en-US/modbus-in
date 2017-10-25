@@ -2,12 +2,14 @@
   "modbus/modbus-in.hni": {
     "modbus-in": {
       "paletteHelp": "<p>Connects to a Modbus server and subscribes to the specified registers.</p>",
-      "help": "<p>Connects to a Modbus server and subscribes to the specified registers.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['register']</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> will be binary.</p>",
+      "help": "<p>Connects to a Modbus server and subscribes to the specified registers.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['register']</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> will be binary. \"Invert bytes\" inverts the two bytes within each register. \"Invert registers\" inverts the order of the registers returned.</p>",
       "output1Description": "The payload received from the Modbus server.",
       "label": {
 	      "server": "Server",
 	      "register": "Register",
-        "count": "Count"
+        "count": "Count",
+        "invertbytes": "Invert bytes",
+        "invertregisters": "Invert regs"
 	    }
     }
   }

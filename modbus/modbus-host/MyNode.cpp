@@ -72,8 +72,64 @@ bool MyNode::start()
 		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->port = settingsIterator->second->stringValue;
 
 		settingsIterator = _nodeInfo->info->structValue->find("interval");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+		if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            int32_t interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+            if(interval < 0) interval = 100;
+            else if(interval > 10000) interval = 10000;
+            modbusSettings->interval = interval;
+        }
         if(modbusSettings->interval < 1) modbusSettings->interval = 1;
+
+        settingsIterator = _nodeInfo->info->structValue->find("delay");
+        if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->delay = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        if(modbusSettings->delay > modbusSettings->interval) modbusSettings->delay = modbusSettings->interval;
+
+        settingsIterator = _nodeInfo->info->structValue->find("readregisters");
+        if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                auto startIterator = element->structValue->find("s");
+                if(startIterator == element->structValue->end()) continue;
+
+                auto endIterator = element->structValue->find("e");
+                if(endIterator == element->structValue->end()) continue;
+
+                auto invIterator = element->structValue->find("inv");
+                if(invIterator == element->structValue->end()) continue;
+
+                int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
+                int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
+
+                if(start < 0 || end < 0 || end < start) continue;
+
+                modbusSettings->readRegisters.push_back(std::make_tuple(start, end, invIterator->second->booleanValue));
+            }
+        }
+
+        settingsIterator = _nodeInfo->info->structValue->find("writeregisters");
+        if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                auto startIterator = element->structValue->find("s");
+                if(startIterator == element->structValue->end()) continue;
+
+                auto endIterator = element->structValue->find("e");
+                if(endIterator == element->structValue->end()) continue;
+
+                auto invIterator = element->structValue->find("inv");
+                if(invIterator == element->structValue->end()) continue;
+
+                int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
+                int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
+
+                if(start < 0 || end < 0 || end < start) continue;
+
+                modbusSettings->writeRegisters.push_back(std::make_tuple(start, end, invIterator->second->booleanValue));
+            }
+        }
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_modbus.reset(new Modbus(bl, modbusSettings));
@@ -149,13 +205,15 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 4) return Flows::Variable::createError(-1, "Method expects exactly four parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects exactly six parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
 		if(parameters->at(2)->type != Flows::VariableType::tInteger && parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");
 		if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
+        if(parameters->at(4)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 5 is not of type boolean.");
+        if(parameters->at(5)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 6 is not of type boolean.");
 
-		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue);
+		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue, parameters->at(4)->booleanValue, parameters->at(5)->booleanValue);
 
 		return std::make_shared<Flows::Variable>();
 	}

@@ -48,6 +48,9 @@ private:
 	std::string _server;
 	uint32_t _register = 0;
 	uint32_t _count = 0;
+	bool _invertBytes = false;
+    bool _invertRegisters = false;
+    std::vector<uint8_t> _lastValue;
 
 	//{{{ RPC methods
 	Flows::PVariable packetReceived(Flows::PArray parameters);

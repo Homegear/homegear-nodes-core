@@ -45,6 +45,9 @@ public:
 		std::string server;
 		std::string port;
 		uint32_t interval = 100;
+        uint32_t delay = 0;
+		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
+        std::vector<std::tuple<int32_t, int32_t, bool>> writeRegisters;
 	};
 
 	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<ModbusSettings> settings);
@@ -56,13 +59,27 @@ public:
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
-	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in);
+	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in, bool invertBytes, bool invertRegisters);
 private:
 	struct NodeInfo
     {
         std::string id;
-        uint32_t startRegister;
-        uint32_t count;
+        uint32_t startRegister = 0;
+        uint32_t count = 0;
+        bool invertBytes = false;
+        bool invertRegisters = false;
+    };
+
+    struct RegisterInfo
+    {
+        bool newData = false;
+        uint32_t start = 0;
+        uint32_t end = 0;
+        uint32_t count = 0;
+        bool invert = false;
+        std::list<NodeInfo> nodes;
+        std::vector<uint16_t> buffer1;
+        std::vector<uint16_t> buffer2;
     };
 
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
@@ -73,21 +90,11 @@ private:
 	std::mutex _modbusMutex;
 	std::atomic<modbus_t*> _modbus;
 
-	std::mutex _nodesMutex;
-	std::list<NodeInfo> _inNodes;
-    std::list<NodeInfo> _outNodes;
 	std::thread _listenThread;
 	std::atomic_bool _started;
-    int32_t _inStartRegister = -1;
-    int32_t _inEndRegister = -1;
-    int32_t _inRegisterCount = -1;
-    int32_t _outStartRegister = -1;
-    int32_t _outEndRegister = -1;
-    int32_t _outRegisterCount = -1;
-
-    std::mutex _bufferMutex;
-	std::vector<uint16_t> _writeBuffer;
-	std::vector<uint16_t> _readBuffer;
+    std::mutex _registersMutex;
+    std::list<RegisterInfo> _readRegisters;
+    std::list<RegisterInfo> _writeRegisters;
 
 	Modbus(const Modbus&);
 	Modbus& operator=(const Modbus&);

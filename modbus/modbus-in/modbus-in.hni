@@ -35,6 +35,16 @@
         <label for="node-input-count"><i class="fa fa-tasks"></i> <span data-i18n="modbus-in.label.count"></span></label>
         <input type="text" id="node-input-count" data-i18n="[placeholder]modbus-in.label.count">
     </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-invertbytes" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-invertbytes" style="width: 70%;" data-i18n="modbus-in.label.invertbytes"></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-invertregisters" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-invertregisters" style="width: 70%;" data-i18n="modbus-in.label.invertregisters"></label>
+    </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('modbus-in',{
@@ -44,7 +54,9 @@
             name: {value:""},
             register: {value:"0",required:true,validate:RED.validators.number()},
             count: {value:"1",required:true,validate:RED.validators.number()},
-            server: {type:"modbus-host", required:true}
+            server: {type:"modbus-host", required:true},
+            invertbytes: {value:false,required:true},
+            invertregisters: {value:false,required:true}
         },
         color:"#FFF0F0",
         inputs:0,

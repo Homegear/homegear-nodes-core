@@ -56,6 +56,12 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("count");
 		if(settingsIterator != info->info->structValue->end()) _count = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
+        settingsIterator = info->info->structValue->find("invertbytes");
+        if(settingsIterator != info->info->structValue->end()) _invertBytes = settingsIterator->second->booleanValue;
+
+        settingsIterator = info->info->structValue->find("invertregisters");
+        if(settingsIterator != info->info->structValue->end()) _invertRegisters = settingsIterator->second->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -84,6 +90,8 @@ void MyNode::configNodesStarted()
 		parameters->push_back(std::make_shared<Flows::Variable>(_register));
 		parameters->push_back(std::make_shared<Flows::Variable>(_count));
         parameters->push_back(std::make_shared<Flows::Variable>(true));
+        parameters->push_back(std::make_shared<Flows::Variable>(_invertBytes));
+        parameters->push_back(std::make_shared<Flows::Variable>(_invertRegisters));
 		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
@@ -105,12 +113,13 @@ void MyNode::configNodesStarted()
             if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
 			if(parameters->at(0)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 1 is not of type binary.");
 
-            Flows::Output::printInfo("Moin a " + BaseLib::HelperFunctions::getHexString(parameters->at(0)->binaryValue));
+            if(parameters->at(0)->binaryValue == _lastValue) return std::make_shared<Flows::Variable>();
+            _lastValue = parameters->at(0)->binaryValue;
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			message->structValue->emplace("register", std::make_shared<Flows::Variable>(_register));
 			message->structValue->emplace("count", std::make_shared<Flows::Variable>(_count));
-			message->structValue->emplace("payload", parameters->at(0));
+            message->structValue->emplace("payload", parameters->at(0));
 
 			output(0, message);
 

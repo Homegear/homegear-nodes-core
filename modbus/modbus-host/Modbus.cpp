@@ -37,6 +37,29 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Modbu
 		_settings = settings;
 		_started = false;
         _modbus = nullptr;
+
+        for(auto& element : settings->readRegisters)
+        {
+            RegisterInfo info;
+            info.start = (uint32_t)std::get<0>(element);
+            info.end = (uint32_t)std::get<1>(element);
+            info.count = info.end - info.start + 1;
+            info.invert = std::get<2>(element);
+            info.buffer1.resize(info.count, 0);
+            info.buffer2.resize(info.count, 0);
+            _readRegisters.emplace_back(info);
+        }
+
+        for(auto& element : settings->writeRegisters)
+        {
+            RegisterInfo info;
+            info.start = (uint32_t)std::get<0>(element);
+            info.end = (uint32_t)std::get<1>(element);
+            info.count = info.end - info.start + 1;
+            info.invert = std::get<2>(element);
+            info.buffer1.resize(info.count, 0);
+            _writeRegisters.emplace_back(info);
+        }
 	}
 	catch(const std::exception& ex)
 	{
@@ -145,8 +168,6 @@ void Modbus::listen()
     int64_t timeToSleep;
     int result = 0;
 
-    std::vector<uint16_t> readBuffer(_readBuffer.size(), 0);
-
 	while(_started)
 	{
 		try
@@ -161,35 +182,21 @@ void Modbus::listen()
 			}
 
             {
-                std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-                if (_readBuffer.empty() || _inStartRegister == -1)
+                std::lock_guard<std::mutex> registersGuard(_registersMutex);
+                for(auto& registerElement : _readRegisters)
                 {
-                    if (!_writeBuffer.empty() && _outStartRegister != -1) result = modbus_write_registers(_modbus, _outStartRegister, _writeBuffer.size(), _writeBuffer.data());
-                    else result = 0;
+                    result = modbus_read_registers(_modbus, registerElement.start, registerElement.buffer2.size(), registerElement.buffer2.data());
 
                     if (result == -1)
                     {
-                        disconnect();
-                        continue;
-                    }
-                }
-                else
-                {
-                    if (readBuffer.size() != _readBuffer.size()) readBuffer.resize(_readBuffer.size(), 0);
-
-                    //std::cerr << 'W' << BaseLib::HelperFunctions::getHexString(_writeBuffer) << std::endl;
-                    if (!_writeBuffer.empty() && _outStartRegister != -1) result = modbus_write_and_read_registers(_modbus, _outStartRegister, _writeBuffer.size(), _writeBuffer.data(), _inStartRegister, readBuffer.size(), readBuffer.data());
-                    else result = modbus_read_registers(_modbus, _inStartRegister, _readBuffer.size(), readBuffer.data());
-
-                    if (result == -1)
-                    {
+                        Flows::Output::printError("Error reading from Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                         disconnect();
                         continue;
                     }
 
-                    if (!std::equal(readBuffer.begin(), readBuffer.end(), _readBuffer.begin()))
+                    if (!std::equal(registerElement.buffer2.begin(), registerElement.buffer2.end(), registerElement.buffer1.begin()))
                     {
-                        _readBuffer = readBuffer;
+                        registerElement.buffer1 = registerElement.buffer2;
 
                         std::vector<uint16_t> destinationData;
                         std::vector<uint8_t> destinationData2;
@@ -197,26 +204,99 @@ void Modbus::listen()
                         Flows::PArray parameters = std::make_shared<Flows::Array>();
                         parameters->push_back(std::make_shared<Flows::Variable>());
 
-                        std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
-                        for(auto& node : _inNodes)
+                        for(auto& node : registerElement.nodes)
                         {
                             destinationData.clear();
-                            destinationData.insert(destinationData.end(), readBuffer.begin() + node.startRegister, readBuffer.begin() + node.startRegister + node.count);
+                            destinationData.insert(destinationData.end(), registerElement.buffer1.begin() + (node.startRegister - registerElement.start), registerElement.buffer1.begin() + (node.startRegister - registerElement.start) + node.count);
                             destinationData2.resize(destinationData.size() * 2);
 
-                            for(uint32_t i = 0; i < destinationData.size(); i++)
+                            if(node.invertRegisters)
                             {
-                                destinationData2[i * 2] = destinationData[i] >> 8;
-                                destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
+                                for (uint32_t i = 0; i < destinationData.size(); i++)
+                                {
+                                    if (registerElement.invert)
+                                    {
+                                        if (node.invertBytes)
+                                        {
+                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
+                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                        }
+                                        else
+                                        {
+                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (node.invertBytes)
+                                        {
+                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        }
+                                        else
+                                        {
+                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
+                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                        }
+                                    }
+                                }
                             }
-
-                            _out.printInfo("Moin " + BaseLib::HelperFunctions::getHexString(destinationData2) + " " + BaseLib::HelperFunctions::getHexString(destinationData));
+                            else
+                            {
+                                for (uint32_t i = 0; i < destinationData.size(); i++)
+                                {
+                                    if (registerElement.invert)
+                                    {
+                                        if (node.invertBytes)
+                                        {
+                                            destinationData2[i * 2] = destinationData[i] >> 8;
+                                            destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
+                                        }
+                                        else
+                                        {
+                                            destinationData2[i * 2] = destinationData[i] & 0xFF;
+                                            destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (node.invertBytes)
+                                        {
+                                            destinationData2[i * 2] = destinationData[i] & 0xFF;
+                                            destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
+                                        }
+                                        else
+                                        {
+                                            destinationData2[i * 2] = destinationData[i] >> 8;
+                                            destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
+                                        }
+                                    }
+                                }
+                            }
 
                             parameters->at(0) = std::make_shared<Flows::Variable>(destinationData2);
 
                             _invoke(node.id, "packetReceived", parameters, false);
                         }
                     }
+
+                    if(_settings->delay > 0) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                }
+
+                for(auto& registerElement : _writeRegisters)
+                {
+                    if(!registerElement.newData) continue;
+                    result = modbus_write_registers(_modbus, registerElement.start, registerElement.buffer1.size(), registerElement.buffer1.data());
+
+                    if (result == -1)
+                    {
+                        Flows::Output::printError("Error writing to Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                        disconnect();
+                        continue;
+                    }
+
+                    if(_settings->delay > 0) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                 }
             }
 
@@ -224,7 +304,7 @@ void Modbus::listen()
             timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
             if(timeToSleep < 500) timeToSleep = 500;
             std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
-            startTime = endTime;
+            startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
 		}
 		catch(const std::exception& ex)
 		{
@@ -248,14 +328,20 @@ void Modbus::setConnectionState(bool connected)
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(std::make_shared<Flows::Variable>(connected));
 
-        std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
-        for(auto& node : _inNodes)
+        std::lock_guard<std::mutex> registersGuard(_registersMutex);
+        for(auto& element : _readRegisters)
         {
-            _invoke(node.id, "setConnectionState", parameters, false);
+            for(auto& node : element.nodes)
+            {
+                _invoke(node.id, "setConnectionState", parameters, false);
+            }
         }
-        for(auto& node : _outNodes)
+        for(auto& element : _writeRegisters)
         {
-            _invoke(node.id, "setConnectionState", parameters, false);
+            for(auto& node : element.nodes)
+            {
+                _invoke(node.id, "setConnectionState", parameters, false);
+            }
         }
     }
     catch(const std::exception& ex)
@@ -298,18 +384,12 @@ void Modbus::connect()
 		}
 		int result = modbus_connect(_modbus);
 		if(result == -1)
-		{
-			_out.printError("Error: Could not connect to BK90x0: " + std::string(modbus_strerror(errno)));
-			modbus_free(_modbus);
-			_modbus = nullptr;
-            setConnectionState(false);
-			return;
-		}
-
         {
-            std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-            _readBuffer.clear();
-            _readBuffer.resize(_inRegisterCount);
+            _out.printError("Error: Could not connect to BK90x0: " + std::string(modbus_strerror(errno)));
+            modbus_free(_modbus);
+            _modbus = nullptr;
+            setConnectionState(false);
+            return;
         }
 
         setConnectionState(true);
@@ -360,33 +440,37 @@ void Modbus::disconnect()
 	}
 }
 
-void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in)
+void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in, bool invertBytes, bool invertRegisters)
 {
 	try
 	{
-		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
         NodeInfo info;
         info.id = node;
         info.startRegister = startRegister;
         info.count = count;
-		if(in) _inNodes.emplace_back(info);
-        else _outNodes.emplace_back(info);
+        info.invertBytes = invertBytes;
+        info.invertRegisters = invertRegisters;
 
+        if(in)
         {
-            std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-            if (in)
+            std::lock_guard<std::mutex> registersGuard(_registersMutex);
+            for(auto& element : _readRegisters)
             {
-                if (_inStartRegister == -1 || (int32_t)startRegister < _inStartRegister) _inStartRegister = startRegister;
-                if (_inEndRegister == -1 || (int32_t)startRegister + (int32_t)count - 1 > _inEndRegister) _inEndRegister = startRegister + count - 1;
-                _inRegisterCount = (_inEndRegister - _inStartRegister) + 1;
-                _readBuffer.resize(_inRegisterCount);
+                if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
+                {
+                    element.nodes.emplace_back(info);
+                }
             }
-            else
+        }
+        else
+        {
+            std::lock_guard<std::mutex> registersGuard(_registersMutex);
+            for(auto& element : _writeRegisters)
             {
-                if (_outStartRegister == -1 || (int32_t)startRegister < _outStartRegister) _outStartRegister = startRegister;
-                if (_outEndRegister == -1 || (int32_t)startRegister + (int32_t)count - 1 > _outEndRegister) _outEndRegister = startRegister + count - 1;
-                _outRegisterCount = (_outEndRegister - _outStartRegister) + 1;
-                _writeBuffer.resize(_outRegisterCount);
+                if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
+                {
+                    element.nodes.emplace_back(info);
+                }
             }
         }
 
