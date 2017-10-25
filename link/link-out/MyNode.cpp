@@ -81,7 +81,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		{
 			Flows::PArray parameters = std::make_shared<Flows::Array>();
 			parameters->push_back(message);
-			Flows::PVariable result = invokeNodeMethod(link, "linkInput", parameters);
+			Flows::PVariable result = invokeNodeMethod(link, "linkInput", parameters, true);
 			if(result->errorStruct) Flows::Output::printError("Error: Could not execute linkInput: " + result->structValue->at("faultString")->stringValue);
 		}
 	}

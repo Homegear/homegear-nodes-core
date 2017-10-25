@@ -83,10 +83,10 @@ void MyNode::configNodesStarted()
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		result = invokeNodeMethod(_broker, "registerTopic", parameters);
+		result = invokeNodeMethod(_broker, "registerTopic", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
@@ -113,7 +113,7 @@ void MyNode::configNodesStarted()
 			{
 				Flows::PArray parameters = std::make_shared<Flows::Array>();
 				parameters->push_back(std::make_shared<Flows::Variable>(_id));
-				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters);
+				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
 				if(result->errorStruct) Flows::Output::printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
 				if(!result->booleanValue) return std::make_shared<Flows::Variable>();;
 			}

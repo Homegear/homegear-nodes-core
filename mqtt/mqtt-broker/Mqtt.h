@@ -80,7 +80,7 @@ public:
 	void stop();
 	void waitForStop();
 
-	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
+	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
 	void registerNode(std::string& node);
 	void registerTopic(std::string& node, std::string& topic);
@@ -144,7 +144,7 @@ private:
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
 	BaseLib::Output _out;
 	std::shared_ptr<MqttSettings> _settings;
-	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> _invoke;
+	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 	std::mutex _topicsMutex;
 	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
 	std::mutex _nodesMutex;

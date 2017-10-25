@@ -214,7 +214,7 @@ void Modbus::listen()
 
                             parameters->at(0) = std::make_shared<Flows::Variable>(destinationData2);
 
-                            _invoke(node.id, "packetReceived", parameters);
+                            _invoke(node.id, "packetReceived", parameters, false);
                         }
                     }
                 }
@@ -251,11 +251,11 @@ void Modbus::setConnectionState(bool connected)
         std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
         for(auto& node : _inNodes)
         {
-            _invoke(node.id, "setConnectionState", parameters);
+            _invoke(node.id, "setConnectionState", parameters, false);
         }
         for(auto& node : _outNodes)
         {
-            _invoke(node.id, "setConnectionState", parameters);
+            _invoke(node.id, "setConnectionState", parameters, false);
         }
     }
     catch(const std::exception& ex)
@@ -392,7 +392,7 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(std::make_shared<Flows::Variable>((bool)_modbus));
-        _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters);
+        _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
 	}
 	catch(const std::exception& ex)
 	{

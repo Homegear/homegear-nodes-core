@@ -195,7 +195,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(headers);
 		parameters->push_back(message->structValue->at("payload"));
 
-		Flows::PVariable result = invokeNodeMethod(_server, "send", parameters);
+		Flows::PVariable result = invokeNodeMethod(_server, "send", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error sending data: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)

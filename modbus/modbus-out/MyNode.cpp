@@ -78,7 +78,7 @@ void MyNode::configNodesStarted()
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
@@ -116,7 +116,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(payload);
 		parameters->push_back(std::make_shared<Flows::Variable>(retain));
 
-		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters);
+		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
 	}
 	catch(const std::exception& ex)

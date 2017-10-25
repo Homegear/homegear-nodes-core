@@ -84,7 +84,7 @@ void MyNode::configNodesStarted()
 		parameters->push_back(std::make_shared<Flows::Variable>(_register));
 		parameters->push_back(std::make_shared<Flows::Variable>(_count));
         parameters->push_back(std::make_shared<Flows::Variable>(true));
-		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters);
+		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
 		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)

@@ -157,7 +157,7 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		{
 			Flows::PArray parameters = std::make_shared<Flows::Array>();
 			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters);
+			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
 			if(result->errorStruct) Flows::Output::printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
 			if(!result->booleanValue) return;
 		}

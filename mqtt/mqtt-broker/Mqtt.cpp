@@ -587,7 +587,7 @@ void Mqtt::processPublish(std::vector<char>& data)
 					parameters->push_back(std::make_shared<Flows::Variable>(topic));
 					parameters->push_back(std::make_shared<Flows::Variable>(payload));
 					parameters->push_back(std::make_shared<Flows::Variable>(retain));
-					_invoke(node, "publish", parameters);
+					_invoke(node, "publish", parameters, false);
 				}
 			}
 		}
@@ -755,7 +755,7 @@ void Mqtt::reconnectThread()
 		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 		for(auto& node : _nodes)
 		{
-			_invoke(node, "setConnectionState", parameters);
+			_invoke(node, "setConnectionState", parameters, false);
 		}
 	}
     catch(const std::exception& ex)
@@ -1006,7 +1006,7 @@ void Mqtt::registerNode(std::string& node)
 
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
-        _invoke(node, "setConnectionState", parameters);
+        _invoke(node, "setConnectionState", parameters, false);
 	}
 	catch(const std::exception& ex)
 	{

@@ -77,7 +77,7 @@ bool MyNode::start()
 
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_modbus.reset(new Modbus(bl, modbusSettings));
-		_modbus->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)));
+		_modbus->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 		_modbus->start();
 
 		return true;

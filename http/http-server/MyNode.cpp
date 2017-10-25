@@ -392,7 +392,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 		for(auto& node : nodes)
 		{
 			parameters->at(3) = node.second;
-			invokeNodeMethod(node.first, "packetReceived", parameters);
+			invokeNodeMethod(node.first, "packetReceived", parameters, false);
 		}
 	}
 	catch(const std::exception& ex)

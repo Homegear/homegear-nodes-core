@@ -54,7 +54,7 @@ public:
 	void stop();
 	void waitForStop();
 
-	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> value) { _invoke.swap(value); }
+	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
 	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in);
 private:
@@ -68,7 +68,7 @@ private:
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
 	BaseLib::Output _out;
 	std::shared_ptr<ModbusSettings> _settings;
-	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&)> _invoke;
+	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 
 	std::mutex _modbusMutex;
 	std::atomic<modbus_t*> _modbus;
