@@ -45,16 +45,46 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("broker");
-		if(settingsIterator != info->info->structValue->end()) _broker = settingsIterator->second->stringValue;
+        int32_t inputIndex = -1;
 
-		settingsIterator = info->info->structValue->find("topic");
-		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
+        auto settingsIterator = info->info->structValue->find("server");
+        if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("retain");
-		if(settingsIterator != info->info->structValue->end()) _retain = settingsIterator->second->booleanValue;
+        settingsIterator = info->info->structValue->find("registers");
+        if(settingsIterator != info->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                inputIndex++;
 
-		return true;
+                auto indexIterator = element->structValue->find("r");
+                if(indexIterator == element->structValue->end()) continue;
+
+                auto countIterator = element->structValue->find("c");
+                if(countIterator == element->structValue->end()) continue;
+
+                auto ibIterator = element->structValue->find("ib");
+                if(ibIterator == element->structValue->end()) continue;
+
+                auto irIterator = element->structValue->find("ir");
+                if(irIterator == element->structValue->end()) continue;
+
+                int32_t index = Flows::Math::getNumber(indexIterator->second->stringValue);
+                int32_t count = Flows::Math::getNumber(countIterator->second->stringValue);
+
+                if(index < 0 || count < 1) continue;
+
+                auto registerInfo = std::make_shared<RegisterInfo>();
+                registerInfo->inputIndex = (uint32_t)inputIndex;
+                registerInfo->index = (uint32_t)index;
+                registerInfo->count = (uint32_t)count;
+                registerInfo->invertBytes = ibIterator->second->booleanValue;
+                registerInfo->invertRegisters = irIterator->second->booleanValue;
+                _registers.emplace(inputIndex, registerInfo);
+            }
+        }
+
+        return true;
 	}
 	catch(const std::exception& ex)
 	{
@@ -67,57 +97,39 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::configNodesStarted()
-{
-	try
-	{
-		if(_broker.empty())
-		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
-			return;
-		}
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
-	}
-	catch(const std::exception& ex)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
 void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
 {
 	try
 	{
-		std::string topic;
-		auto messageIterator = message->structValue->find("topic");
-		if(messageIterator != message->structValue->end()) topic = messageIterator->second->stringValue;
-		else topic = _topic;
-
-		bool retain;
-		messageIterator = message->structValue->find("retain");
-		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
-		else retain = _retain;
-
 		Flows::PVariable payload = message->structValue->at("payload");
-		if(payload->type == Flows::VariableType::tArray || payload->type == Flows::VariableType::tStruct) payload->stringValue = _jsonEncoder.getString(payload);
-		else if(payload->type != Flows::VariableType::tString) payload->stringValue = payload->toString();
-		payload->setType(Flows::VariableType::tString);
+		if(payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
+        else if(payload->type == Flows::VariableType::tBoolean)
+        {
+
+        }
+        else if(payload->type == Flows::VariableType::tInteger)
+        {
+
+        }
+        else if(payload->type == Flows::VariableType::tFloat)
+        {
+
+        }
+        payload->setType(Flows::VariableType::tBinary);
+        if(payload->binaryValue.empty()) return;
+
+        auto registersIterator = _registers.find(index);
+        if(registersIterator == _registers.end()) return;
 
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(3);
-		parameters->push_back(std::make_shared<Flows::Variable>(topic));
+		parameters->reserve(5);
+		parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
+        parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
+        parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertBytes));
+        parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertRegisters));
 		parameters->push_back(payload);
-		parameters->push_back(std::make_shared<Flows::Variable>(retain));
 
-		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters, true);
-		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
+		invokeNodeMethod(_server, "writeRegisters", parameters, false);
 	}
 	catch(const std::exception& ex)
 	{

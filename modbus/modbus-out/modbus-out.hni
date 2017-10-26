@@ -69,10 +69,10 @@
                     }
                     var register = opt.r;
                     if (!register.hasOwnProperty('r')) {
-                        register.r = '0';
+                        register.r = '';
                     }
                     if (!register.hasOwnProperty('c')) {
-                        register.c = '0';
+                        register.c = '';
                     }
                     if (!opt.hasOwnProperty('i')) {
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)

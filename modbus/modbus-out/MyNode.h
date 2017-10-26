@@ -31,7 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonEncoder.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -43,13 +43,18 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
 private:
-	Flows::JsonEncoder _jsonEncoder;
+	struct RegisterInfo
+	{
+		uint32_t inputIndex = 0;
+		uint32_t index = 0;
+		uint32_t count = 0;
+		bool invertBytes = false;
+		bool invertRegisters = false;
+	};
 
-	std::string _broker;
-	std::string _topic;
-	bool _retain = false;
+	std::string _server;
+	std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
 
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 

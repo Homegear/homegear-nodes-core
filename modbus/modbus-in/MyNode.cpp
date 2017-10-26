@@ -135,10 +135,9 @@ void MyNode::configNodesStarted()
             for(auto& count : index.second)
             {
                 Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                element->arrayValue->reserve(5);
+                element->arrayValue->reserve(4);
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
-                element->arrayValue->push_back(std::make_shared<Flows::Variable>(true));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
                 registers->arrayValue->push_back(element);

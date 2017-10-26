@@ -59,7 +59,8 @@ public:
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
-	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in, bool invertBytes, bool invertRegisters);
+	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
+	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, std::vector<uint8_t> value);
 private:
 	struct NodeInfo
     {

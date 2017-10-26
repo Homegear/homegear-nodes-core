@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
+	_localRpcMethods.emplace("writeRegisters", std::bind(&MyNode::writeRegisters, this, std::placeholders::_1));
 }
 
 MyNode::~MyNode()
@@ -211,8 +212,8 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 
         for(auto& element : *parameters->at(1)->arrayValue)
         {
-            if(element->arrayValue->size() != 5) continue;
-            if (_modbus) _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->booleanValue, element->arrayValue->at(3)->booleanValue, element->arrayValue->at(4)->booleanValue);
+            if(element->arrayValue->size() != 4) continue;
+            if (_modbus) _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->booleanValue, element->arrayValue->at(3)->booleanValue);
         }
 
 		return std::make_shared<Flows::Variable>();
@@ -226,6 +227,32 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+
+Flows::PVariable MyNode::writeRegisters(Flows::PArray parameters)
+{
+    try
+    {
+        if(parameters->size() != 5) return Flows::Variable::createError(-1, "Method expects exactly five parameters. " + std::to_string(parameters->size()) + " given.");
+        if(parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
+        if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+        if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+        if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
+        if(parameters->at(4)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 5 is not of type binary.");
+
+        if(_modbus) _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->booleanValue, parameters->at(4)->binaryValue);
+
+        return std::make_shared<Flows::Variable>();
+    }
+    catch(const std::exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+    return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 //}}}
 

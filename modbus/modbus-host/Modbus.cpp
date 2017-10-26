@@ -496,7 +496,7 @@ void Modbus::disconnect()
 	}
 }
 
-void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool in, bool invertBytes, bool invertRegisters)
+void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters)
 {
 	try
 	{
@@ -507,26 +507,12 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
         info.invertBytes = invertBytes;
         info.invertRegisters = invertRegisters;
 
-        if(in)
+        std::lock_guard<std::mutex> registersGuard(_registersMutex);
+        for(auto& element : _readRegisters)
         {
-            std::lock_guard<std::mutex> registersGuard(_registersMutex);
-            for(auto& element : _readRegisters)
+            if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
             {
-                if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
-                {
-                    element.nodes.emplace_back(info);
-                }
-            }
-        }
-        else
-        {
-            std::lock_guard<std::mutex> registersGuard(_registersMutex);
-            for(auto& element : _writeRegisters)
-            {
-                if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
-                {
-                    element.nodes.emplace_back(info);
-                }
+                element.nodes.emplace_back(info);
             }
         }
 
@@ -546,4 +532,24 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 	{
 		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+}
+
+void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, std::vector<uint8_t> value)
+{
+    try
+    {
+
+    }
+    catch(const std::exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }

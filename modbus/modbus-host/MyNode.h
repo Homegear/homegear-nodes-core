@@ -54,6 +54,7 @@ private:
 
 	//{{{ RPC methods
 	Flows::PVariable registerNode(Flows::PArray parameters);
+	Flows::PVariable writeRegisters(Flows::PArray parameters);
 	//}}}
 };
 
