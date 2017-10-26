@@ -323,7 +323,7 @@
                         devices[this.ID].id = this.ID;
                         devices[this.ID].family = this.FAMILY;
                         devices[this.ID].type = this.TYPE;
-                        devices[this.id].name = this.NAME;
+                        devices[this.ID].name = this.NAME;
                     });
                     fillPeerIdOptions();
                 }, false, ["ID", "FAMILY", "TYPE", "NAME"]);

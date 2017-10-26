@@ -91,6 +91,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
 		parameters->push_back(message->structValue->at("payload"));
+		parameters->push_back(std::make_shared<Flows::Variable>(false));
 
 		Flows::PVariable result = invoke("setValue", parameters);
 		if(result->errorStruct) Flows::Output::printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
