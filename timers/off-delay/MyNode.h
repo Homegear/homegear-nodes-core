@@ -53,6 +53,7 @@ private:
 	bool _firstInput = true;
 	bool _lastOutputState = false;
 	std::atomic_bool _threadRunning;
+	std::atomic_bool _stopped;
 	std::atomic_bool _stopThread;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;

@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
+	_stopped = true;
 	_threadRunning = false;
 }
 
@@ -69,6 +70,7 @@ bool MyNode::start()
 {
 	try
 	{
+		_stopped = false;
 		int64_t delayTo = getNodeData("delayTo")->integerValue64;
 		if (delayTo > 0)
 		{
@@ -98,6 +100,7 @@ void MyNode::stop()
 {
 	try
 	{
+		_stopped = true;
 		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 		_stopThread = true;
 	}
@@ -187,7 +190,6 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
-		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 		Flows::PVariable& input = message->structValue->at("payload");
 		if (*input)
 		{
@@ -197,7 +199,10 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(true));
 				int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
 				setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
+				std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+                _stopThread = true;
 				if (_timerThread.joinable())_timerThread.join();
+				if(_stopped) return;
 				_stopThread = false;
 				_threadRunning = true;
 				_timerThread = std::thread(&MyNode::timer, this, delayTo);
@@ -205,7 +210,10 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		}
 		else
 		{
-			_stopThread = true;
+			{
+				std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+				_stopThread = true;
+			}
 			if (_lastOutputState || _firstInput)  //Only fire "false" once
 			{
 				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

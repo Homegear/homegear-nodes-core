@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
+	_stopped = true;
 	_enabled = true;
 }
 
@@ -141,6 +142,7 @@ bool MyNode::start()
 {
 	try
 	{
+		_stopped = false;
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -178,6 +180,7 @@ void MyNode::stop()
 {
 	try
 	{
+		_stopped = true;
 		_stopThread = true;
 	}
 	catch(const std::exception& ex)
@@ -516,6 +519,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			{
 				_stopThread = true;
 				if(_timerThread.joinable()) _timerThread.join();
+				if(_stopped) return;
 				_stopThread = false;
 				_timerThread = std::thread(&MyNode::timer, this);
 			}

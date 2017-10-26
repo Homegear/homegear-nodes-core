@@ -52,6 +52,7 @@ private:
 
 	std::atomic_bool _threadRunning;
 	std::atomic_bool _stopThread;
+	std::atomic_bool _stopped;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 

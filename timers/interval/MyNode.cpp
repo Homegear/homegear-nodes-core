@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_enabled = true;
+	_stopped = true;
 	_stopThread = true;
 }
 
@@ -80,6 +81,7 @@ bool MyNode::start()
 {
 	try
 	{
+        _stopped = false;
 		if(!_enabled) return true;
 		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		_inputTime = Flows::HelperFunctions::getTime();
@@ -105,6 +107,7 @@ void MyNode::stop()
 	try
 	{
 		_stopThread = true;
+		_stopped = true;
 		setNodeData("tick", std::make_shared<Flows::Variable>(_tick));
 		setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
 	}
@@ -218,6 +221,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			std::lock_guard<std::mutex> timerGuard(_timerMutex);
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();
+            if(_stopped) return;
 			if(_enabled)
 			{
 				_tick = 0;
@@ -231,6 +235,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			std::lock_guard<std::mutex> timerGuard(_timerMutex);
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();
+            if(_stopped) return;
 			_tick = 0;
 			_startTimeAll = Flows::HelperFunctions::getTime();
 			_stopThread = false;

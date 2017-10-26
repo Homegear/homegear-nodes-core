@@ -74,6 +74,9 @@
                     if (!register.hasOwnProperty('c')) {
                         register.c = '';
                     }
+                    if (!register.hasOwnProperty('t')) {
+                        register.t = 'bin';
+                    }
                     if (!opt.hasOwnProperty('i')) {
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }

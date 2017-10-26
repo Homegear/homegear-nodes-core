@@ -57,6 +57,7 @@ private:
 	int32_t _startTimeAll = 0;
 
 	std::mutex _timerMutex;
+	std::atomic_bool _stopped;
 	std::atomic_bool _stopThread;
 	std::thread _timerThread;
 

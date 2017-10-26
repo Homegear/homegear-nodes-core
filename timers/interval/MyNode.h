@@ -57,6 +57,7 @@ private:
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
+	std::atomic_bool _stopped;
 	std::thread _timerThread;
 
 	void timer();
