@@ -20,51 +20,143 @@
 -->
 <script type="text/x-red" data-template-name="modbus-out">
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-out.label.server"></span></label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="common.label.topic"></span></label>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
-    </div>
-    <div class="form-row">
-        <i class="fa fa-history"></i>&nbsp;<span data-i18n="modbus-out.retain"></span> &nbsp;<select id="node-input-retain" style="width:125px !important">
-            <option value=""></option>
-            <option value="false" data-i18n="modbus-out.false"></option>
-            <option value="true" data-i18n="modbus-out.true"></option>
-        </select>
-    </div>
-    <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
-    <div class="form-tips"><span data-i18n="modbus-out.tip"></span></div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-out.label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row node-input-registers-container-row">
+        <input type="hidden" id="node-input-inputs"/>
+        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-out.label.registers"></span></label>
+        <ol id="node-input-registers-container"></ol>
+    </div>
 </script>
 <script type="text/javascript">
+(function() {
     RED.nodes.registerType('modbus-out',{
         category: 'output',
         namespace: 'modbus',
         defaults: {
             name: {value:""},
-            topic: {value:""},
-            retain: {value:""},
-            server: {type:"modbus-host", required:true}
+            server: {type:"modbus-host", required:true},
+            registers: {value:[{r:"1", c:"1", ir:false, ib:false}]},
+            inputs: {value:1}
         },
         color:"#FFF0F0",
         inputs:1,
-        inputInfo: [
-        	{
-        		types: ["binary"]
-        	}
-        ],
         outputs:0,
         icon: "bridge.png",
-        align: "right",
         label: function() {
             return this.name||this.topic||"modbus";
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            var indexLabelText = this._("modbus-out.label.index");
+            var countLabelText = this._("modbus-out.label.count");
+            var invertBytesLabelText = this._("modbus-out.label.invertbytes");
+            var invertRegistersLabelText = this._("modbus-out.label.invertregisters");
+
+            var inputCount = $("#node-input-inputs").val("{}");
+
+            $("#node-input-registers-container").css('min-height','150px').css('min-width','450px').editableList({
+                addItem: function(container,i,opt) {
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var register = opt.r;
+                    if (!register.hasOwnProperty('r')) {
+                        register.r = '0';
+                    }
+                    if (!register.hasOwnProperty('c')) {
+                        register.c = '0';
+                    }
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
+                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
+                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertBytesLabel = $('<span/>',{class:"node-input-register-invertbytes-label"}).text(" "+invertBytesLabelText+" ").appendTo(row);
+                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertRegistersLabel = $('<span/>',{class:"node-input-register-invertregisters-label"}).text(" "+invertRegistersLabelText+" ").appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
+
+                    indexField.val(register.r);
+                    countField.val(register.c);
+                    invertBytesField.prop('checked', register.ib);
+                    invertRegistersField.prop('checked', register.ir);
+
+                    var currentInputs = JSON.parse(inputCount.val()||"{}");
+                    currentInputs[opt.hasOwnProperty('i')?opt.i:opt._i] = i;
+                    inputCount.val(JSON.stringify(currentInputs));
+                },
+                removeItem: function(opt) {
+                    var currentInputs = JSON.parse(inputCount.val()||"{}");
+                    if (opt.hasOwnProperty('i')) {
+                        currentInputs[opt.i] = -1;
+                    } else {
+                        delete currentInputs[opt._i];
+                    }
+                    var rules = $("#node-input-registers-container").editableList('items');
+                    rules.each(function(i) {
+                        $(this).find(".node-input-index").html(i);
+                        var data = $(this).data('data');
+                        currentInputs[data.hasOwnProperty('i')?data.i:data._i] = i;
+                    });
+                    inputCount.val(JSON.stringify(currentInputs));
+                },
+                sortItems: function(registers) {
+                    var currentInputs = JSON.parse(inputCount.val()||"{}");
+                    var registers = $("#node-input-registers-container").editableList('items');
+                    registers.each(function(i) {
+                        $(this).find(".node-input-index").html(i);
+                        var data = $(this).data('data');
+                        currentInputs[data.hasOwnProperty('i')?data.i:data._i] = i;
+                    });
+                    inputCount.val(JSON.stringify(currentInputs));
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.registers.length;i++) {
+                var register = this.registers[i];
+                $("#node-input-registers-container").editableList('addItem',{r:register,i:i});
+            }
+        },
+        oneditsave: function() {
+            var node = this;
+
+            var registers = $("#node-input-registers-container").editableList('items');
+            node.registers = [];
+            registers.each(function(i) {
+                var registerData = $(this).data('data');
+                var register = $(this);
+                var index = register.find(".node-input-register-index").val();
+                var count = register.find(".node-input-register-count").val();
+                var invertBytes = register.find(".node-input-register-invertbytes").prop('checked');
+                var invertRegisters = register.find(".node-input-register-invertregisters").prop('checked');
+                node.registers.push({r:index,c:count,ib:invertBytes,ir:invertRegisters});
+            });
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-input-registers-container-row)");
+            var height = size.height;
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-input-registers-container-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $("#node-input-registers-container").editableList('height',height);
         }
     });
+})();
 </script>

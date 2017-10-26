@@ -30,7 +30,9 @@
 #ifndef MYNODE_H_
 #define MYNODE_H_
 
+#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -44,13 +46,29 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
 private:
+    enum class RegisterType
+    {
+        tBin,
+        tBool,
+        tInt,
+        tFloat,
+        tString
+    };
 
-	std::string _server;
-	uint32_t _register = 0;
-	uint32_t _count = 0;
-	bool _invertBytes = false;
-    bool _invertRegisters = false;
-    std::vector<uint8_t> _lastValue;
+    struct RegisterInfo
+    {
+        uint32_t outputIndex = 0;
+        uint32_t index = 0;
+        uint32_t count = 0;
+        RegisterType type = RegisterType::tBin;
+        bool invertBytes = false;
+        bool invertRegisters = false;
+        std::vector<uint8_t> lastValue;
+    };
+
+    std::string _server;
+    uint32_t _outputs = 0;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
 
 	//{{{ RPC methods
 	Flows::PVariable packetReceived(Flows::PArray parameters);

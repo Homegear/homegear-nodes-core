@@ -52,7 +52,7 @@
             interval: {value:"100",required:true,validate:RED.validators.number()},
             delay: {value:"10",required:true,validate:RED.validators.number()},
             readregisters: {value:[{s:"0", e:"100", inv:false}]},
-            writeregisters: {value:[{s:"0", e:"100", inv:false}]}
+            writeregisters: {value:[]}
         },
         label: function() {
             var b = this.server;

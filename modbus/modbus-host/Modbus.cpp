@@ -200,9 +200,7 @@ void Modbus::listen()
 
                         std::vector<uint16_t> destinationData;
                         std::vector<uint8_t> destinationData2;
-
-                        Flows::PArray parameters = std::make_shared<Flows::Array>();
-                        parameters->push_back(std::make_shared<Flows::Variable>());
+                        std::unordered_map<std::string, Flows::PVariable> data;
 
                         for(auto& node : registerElement.nodes)
                         {
@@ -275,13 +273,42 @@ void Modbus::listen()
                                 }
                             }
 
-                            parameters->at(0) = std::make_shared<Flows::Variable>(destinationData2);
+                            Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                            dataElement->arrayValue->reserve(3);
+                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
+                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
+                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
+                            auto dataIterator = data.find(node.id);
+                            if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                            else dataIterator->second->arrayValue->push_back(dataElement);
+                        }
 
-                            _invoke(node.id, "packetReceived", parameters, false);
+                        Flows::PArray parameters = std::make_shared<Flows::Array>();
+                        parameters->push_back(std::make_shared<Flows::Variable>());
+                        for(auto& element : data)
+                        {
+                            parameters->at(0) = element.second;
+                            _invoke(element.first, "packetReceived", parameters, false);
                         }
                     }
 
-                    if(_settings->delay > 0) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay > 0)
+                    {
+                        if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                        else
+                        {
+                            int32_t maxIndex = _settings->delay / 1000;
+                            int32_t rest = _settings->delay % 1000;
+                            for(int32_t i = 0; i < maxIndex; i++)
+                            {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                                if(!_started) break;
+                            }
+                            if(!_started) break;
+                            if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        }
+                        if(!_started) break;
+                    }
                 }
 
                 for(auto& registerElement : _writeRegisters)
@@ -296,14 +323,43 @@ void Modbus::listen()
                         continue;
                     }
 
-                    if(_settings->delay > 0) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay > 0)
+                    {
+                        if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                        else
+                        {
+                            int32_t maxIndex = _settings->delay / 1000;
+                            int32_t rest = _settings->delay % 1000;
+                            for(int32_t i = 0; i < maxIndex; i++)
+                            {
+                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                                if(!_started) break;
+                            }
+                            if(!_started) break;
+                            if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        }
+                        if(!_started) break;
+                    }
                 }
             }
 
             endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
             timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
             if(timeToSleep < 500) timeToSleep = 500;
-            std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
+            if(timeToSleep <= 1000000) std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
+            else
+            {
+                timeToSleep /= 1000;
+                int32_t maxIndex = timeToSleep / 1000;
+                int32_t rest = timeToSleep % 1000;
+                for(int32_t i = 0; i < maxIndex; i++)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    if(!_started) break;
+                }
+                if(!_started) break;
+                if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+            }
             startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
 		}
 		catch(const std::exception& ex)
@@ -371,21 +427,21 @@ void Modbus::connect()
 		}
 		if(_settings->server.empty())
 		{
-			_out.printError("Error: Could not connect to BK90x0: Please set \"host\" in \"beckhoffbk90x0.conf\".");
+			_out.printError("Error: Could not connect to Modbus device: Please set a host name.");
             setConnectionState(false);
 			return;
 		}
 		_modbus = modbus_new_tcp(_settings->server.c_str(), BaseLib::Math::getNumber(_settings->port));
 		if(!_modbus)
 		{
-			_out.printError("Error: Could not connect to BK90x0: Could not create modbus handle. Are hostname and port set correctly?");
+			_out.printError("Error: Could not connect to Modbus device: Could not create modbus handle. Are hostname and port set correctly?");
             setConnectionState(false);
 			return;
 		}
 		int result = modbus_connect(_modbus);
 		if(result == -1)
         {
-            _out.printError("Error: Could not connect to BK90x0: " + std::string(modbus_strerror(errno)));
+            _out.printError("Error: Could not connect to Modbus device: " + std::string(modbus_strerror(errno)));
             modbus_free(_modbus);
             _modbus = nullptr;
             setConnectionState(false);

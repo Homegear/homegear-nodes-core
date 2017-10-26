@@ -205,15 +205,15 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects exactly six parameters. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-		if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
-		if(parameters->at(2)->type != Flows::VariableType::tInteger && parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");
-		if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
-        if(parameters->at(4)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 5 is not of type boolean.");
-        if(parameters->at(5)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 6 is not of type boolean.");
+		if(parameters->at(1)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 2 is not of type array.");
 
-		if(_modbus) _modbus->registerNode(parameters->at(0)->stringValue, parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue, parameters->at(4)->booleanValue, parameters->at(5)->booleanValue);
+        for(auto& element : *parameters->at(1)->arrayValue)
+        {
+            if(element->arrayValue->size() != 5) continue;
+            if (_modbus) _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->booleanValue, element->arrayValue->at(3)->booleanValue, element->arrayValue->at(4)->booleanValue);
+        }
 
 		return std::make_shared<Flows::Variable>();
 	}
