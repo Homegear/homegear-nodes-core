@@ -70,7 +70,12 @@
                 types: ["any"]
             }
         ],
-        outputs:0,
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["bool"]
+            }
+        ],
         icon: "arrow-in.png",
         align: "right",
         label: function() {

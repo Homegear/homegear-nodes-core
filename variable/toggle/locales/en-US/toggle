@@ -14,8 +14,9 @@
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Toggles a variable.</p>",
-      "help": "Use this node to toggle a variable in Homegear.",
-      "input1Description": "Every input toggles the specified variable."
+      "help": "Use this node to toggle a variable in Homegear. It outputs the new value.",
+      "input1Description": "Every input toggles the specified variable.",
+      "output1Description": "Outputs the new value of the variable."
     }
   }
 }
