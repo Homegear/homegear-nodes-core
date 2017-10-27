@@ -74,7 +74,7 @@ private:
 	std::thread _timerThread;
 
 	void timer();
-	void outputMessage(int64_t time);
+	void outputMessage(int64_t localTime, int64_t utcTime);
 	std::pair<int64_t, int64_t> getLocalAndUtcTime(int64_t utcTime = 0);
 	void getTimeStruct(std::tm& timeStruct, int64_t utcTime = 0);
 };
