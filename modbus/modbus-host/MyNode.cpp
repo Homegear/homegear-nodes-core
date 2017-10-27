@@ -123,12 +123,15 @@ bool MyNode::start()
                 auto invIterator = element->structValue->find("inv");
                 if(invIterator == element->structValue->end()) continue;
 
+                auto rocIterator = element->structValue->find("roc");
+                if(rocIterator == element->structValue->end()) continue;
+
                 int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
                 int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
 
                 if(start < 0 || end < 0 || end < start) continue;
 
-                modbusSettings->writeRegisters.push_back(std::make_tuple(start, end, invIterator->second->booleanValue));
+                modbusSettings->writeRegisters.push_back(std::make_tuple(start, end, invIterator->second->booleanValue, rocIterator->second->booleanValue));
             }
         }
 
@@ -240,7 +243,7 @@ Flows::PVariable MyNode::writeRegisters(Flows::PArray parameters)
         if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
         if(parameters->at(4)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 5 is not of type binary.");
 
-        if(_modbus) _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->booleanValue, parameters->at(4)->binaryValue);
+        if(_modbus) _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->booleanValue, false, parameters->at(4)->binaryValue);
 
         return std::make_shared<Flows::Variable>();
     }

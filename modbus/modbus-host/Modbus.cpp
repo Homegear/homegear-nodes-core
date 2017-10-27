@@ -36,6 +36,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Modbu
 		_bl = bl;
 		_settings = settings;
 		_started = false;
+        _connected = false;
         _modbus = nullptr;
 
         for(auto& element : settings->readRegisters)
@@ -59,6 +60,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Modbu
             info->end = (uint32_t)std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->invert = std::get<2>(element);
+            info->readOnConnect = std::get<3>(element);
             info->buffer1.resize(info->count, 0);
             _writeRegisters.emplace_back(info);
         }
@@ -163,6 +165,48 @@ void Modbus::waitForStop()
 	}
 }
 
+void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
+{
+    try
+    {
+        int result = modbus_read_registers(_modbus, info->start, info->buffer1.size(), info->buffer1.data());
+        if (result == -1)
+        {
+            Flows::Output::printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
+        }
+
+        if(_settings->delay > 0)
+        {
+            if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+            else
+            {
+                int32_t maxIndex = _settings->delay / 1000;
+                int32_t rest = _settings->delay % 1000;
+                for(int32_t i = 0; i < maxIndex; i++)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    if(!_started) return;
+                }
+                if(!_started) return;
+                if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+            }
+            if(!_started) return;
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+}
+
 void Modbus::listen()
 {
     int64_t startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
@@ -185,6 +229,43 @@ void Modbus::listen()
 
             std::list<std::shared_ptr<RegisterInfo>> registers;
             {
+                std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
+                registers = _writeRegisters;
+            }
+
+            for(auto& registerElement : registers)
+            {
+                if(!registerElement->newData) continue;
+                registerElement->newData = false;
+                result = modbus_write_registers(_modbus, registerElement->start, registerElement->buffer1.size(), registerElement->buffer1.data());
+
+                if (result == -1)
+                {
+                    Flows::Output::printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    disconnect();
+                    continue;
+                }
+
+                if(_settings->delay > 0)
+                {
+                    if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    else
+                    {
+                        int32_t maxIndex = _settings->delay / 1000;
+                        int32_t rest = _settings->delay % 1000;
+                        for(int32_t i = 0; i < maxIndex; i++)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                            if(!_started) break;
+                        }
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                    }
+                    if(!_started) break;
+                }
+            }
+
+            {
                 std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
                 registers = _readRegisters;
             }
@@ -195,7 +276,7 @@ void Modbus::listen()
 
                 if (result == -1)
                 {
-                    Flows::Output::printError("Error reading from Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    Flows::Output::printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                     disconnect();
                     continue;
                 }
@@ -317,43 +398,6 @@ void Modbus::listen()
                 }
             }
 
-            {
-                std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
-                registers = _writeRegisters;
-            }
-
-            for(auto& registerElement : registers)
-            {
-                if(!registerElement->newData) continue;
-                registerElement->newData = false;
-                result = modbus_write_registers(_modbus, registerElement->start, registerElement->buffer1.size(), registerElement->buffer1.data());
-
-                if (result == -1)
-                {
-                    Flows::Output::printError("Error writing to Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
-                    disconnect();
-                    continue;
-                }
-
-                if(_settings->delay > 0)
-                {
-                    if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
-                    else
-                    {
-                        int32_t maxIndex = _settings->delay / 1000;
-                        int32_t rest = _settings->delay % 1000;
-                        for(int32_t i = 0; i < maxIndex; i++)
-                        {
-                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                            if(!_started) break;
-                        }
-                        if(!_started) break;
-                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
-                    }
-                    if(!_started) break;
-                }
-            }
-
             endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
             timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
             if(timeToSleep < 500) timeToSleep = 500;
@@ -465,6 +509,29 @@ void Modbus::connect()
             return;
         }
 
+        std::list<std::shared_ptr<RegisterInfo>> registers;
+        {
+            std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
+            registers = _writeRegisters;
+        }
+
+        for(auto& registerElement : registers)
+        {
+            if(!registerElement->readOnConnect) continue;
+            readWriteRegister(registerElement);
+        }
+
+        _connected = true;
+
+        {
+            std::lock_guard<std::mutex> writeBufferGuard(_writeBufferMutex);
+            for(auto& element : _writeBuffer)
+            {
+                writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
+            }
+            _writeBuffer.clear();
+        }
+
         setConnectionState(true);
 		return;
     }
@@ -492,6 +559,7 @@ void Modbus::disconnect()
 	try
 	{
 		std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
+        _connected = false;
 		if(_modbus)
 		{
 			modbus_close(_modbus);
@@ -553,10 +621,26 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 	}
 }
 
-void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, std::vector<uint8_t> value)
+void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value)
 {
     try
     {
+        if(!_connected && !retry)
+        {
+            std::lock_guard<std::mutex> writeBufferGuard(_writeBufferMutex);
+            if(_writeBuffer.size() > 10000) return;
+
+            std::shared_ptr<WriteInfo> writeInfo = std::make_shared<WriteInfo>();
+            writeInfo->start = startRegister;
+            writeInfo->count = count;
+            writeInfo->invertBytes = invertBytes;
+            writeInfo->invertRegisters = invertRegisters;
+            writeInfo->value = value;
+
+            _writeBuffer.push_back(writeInfo);
+            return;
+        }
+
         if(value.size() < count * 2)
         {
             std::vector<uint8_t> value2;

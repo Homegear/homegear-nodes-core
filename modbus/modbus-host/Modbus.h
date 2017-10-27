@@ -47,7 +47,7 @@ public:
 		uint32_t interval = 100;
         uint32_t delay = 0;
 		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
-        std::vector<std::tuple<int32_t, int32_t, bool>> writeRegisters;
+        std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
 	};
 
 	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<ModbusSettings> settings);
@@ -60,7 +60,7 @@ public:
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
 	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
-	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, std::vector<uint8_t> value);
+	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value);
 private:
 	struct NodeInfo
     {
@@ -78,9 +78,19 @@ private:
         uint32_t end = 0;
         uint32_t count = 0;
         bool invert = false;
+        bool readOnConnect = false;
         std::list<NodeInfo> nodes;
         std::vector<uint16_t> buffer1;
         std::vector<uint16_t> buffer2;
+    };
+
+    struct WriteInfo
+    {
+        uint32_t start = 0;
+        uint32_t count = 0;
+        bool invertBytes = false;
+        bool invertRegisters = false;
+        std::vector<uint8_t> value;
     };
 
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
@@ -90,6 +100,7 @@ private:
 
 	std::mutex _modbusMutex;
 	std::atomic<modbus_t*> _modbus;
+    std::atomic_bool _connected;
 
 	std::thread _listenThread;
 	std::atomic_bool _started;
@@ -97,6 +108,8 @@ private:
     std::list<std::shared_ptr<RegisterInfo>> _readRegisters;
     std::mutex _writeRegistersMutex;
     std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
+    std::mutex _writeBufferMutex;
+    std::list<std::shared_ptr<WriteInfo>> _writeBuffer;
 
 	Modbus(const Modbus&);
 	Modbus& operator=(const Modbus&);
@@ -104,6 +117,7 @@ private:
 	void disconnect();
     void setConnectionState(bool connected);
 	void listen();
+    void readWriteRegister(std::shared_ptr<RegisterInfo>& info);
 };
 
 #endif
