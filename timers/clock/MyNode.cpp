@@ -331,7 +331,7 @@ void MyNode::timer()
 					currentLocalTime = (currentTimes.first / 1000) * 1000 + 1000;
 					currentUtcTime = (currentTimes.second / 1000) * 1000 + 1000;
 				}
-				outputMessage(currentLocalTime);
+				outputMessage(currentUtcTime);
 			}
 			std::tm timeStruct;
 			getTimeStruct(timeStruct);
@@ -367,7 +367,7 @@ void MyNode::timer()
 				if(currentLocalTime % 86400000 != 0) continue;
 				break;
 			}
-			outputMessage(currentLocalTime);
+			outputMessage(currentUtcTime);
 		}
 		catch(const std::exception& ex)
 		{
