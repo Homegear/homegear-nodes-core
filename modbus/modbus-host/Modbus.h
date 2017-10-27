@@ -73,7 +73,7 @@ private:
 
     struct RegisterInfo
     {
-        bool newData = false;
+        std::atomic_bool newData;
         uint32_t start = 0;
         uint32_t end = 0;
         uint32_t count = 0;
@@ -93,9 +93,10 @@ private:
 
 	std::thread _listenThread;
 	std::atomic_bool _started;
-    std::mutex _registersMutex;
-    std::list<RegisterInfo> _readRegisters;
-    std::list<RegisterInfo> _writeRegisters;
+    std::mutex _readRegistersMutex;
+    std::list<std::shared_ptr<RegisterInfo>> _readRegisters;
+    std::mutex _writeRegistersMutex;
+    std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
 
 	Modbus(const Modbus&);
 	Modbus& operator=(const Modbus&);

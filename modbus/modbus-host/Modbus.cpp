@@ -40,24 +40,26 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Modbu
 
         for(auto& element : settings->readRegisters)
         {
-            RegisterInfo info;
-            info.start = (uint32_t)std::get<0>(element);
-            info.end = (uint32_t)std::get<1>(element);
-            info.count = info.end - info.start + 1;
-            info.invert = std::get<2>(element);
-            info.buffer1.resize(info.count, 0);
-            info.buffer2.resize(info.count, 0);
+            std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
+            info->newData = false;
+            info->start = (uint32_t)std::get<0>(element);
+            info->end = (uint32_t)std::get<1>(element);
+            info->count = info->end - info->start + 1;
+            info->invert = std::get<2>(element);
+            info->buffer1.resize(info->count, 0);
+            info->buffer2.resize(info->count, 0);
             _readRegisters.emplace_back(info);
         }
 
         for(auto& element : settings->writeRegisters)
         {
-            RegisterInfo info;
-            info.start = (uint32_t)std::get<0>(element);
-            info.end = (uint32_t)std::get<1>(element);
-            info.count = info.end - info.start + 1;
-            info.invert = std::get<2>(element);
-            info.buffer1.resize(info.count, 0);
+            std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
+            info->newData = false;
+            info->start = (uint32_t)std::get<0>(element);
+            info->end = (uint32_t)std::get<1>(element);
+            info->count = info->end - info->start + 1;
+            info->invert = std::get<2>(element);
+            info->buffer1.resize(info->count, 0);
             _writeRegisters.emplace_back(info);
         }
 	}
@@ -181,165 +183,176 @@ void Modbus::listen()
 				continue;
 			}
 
+            std::list<std::shared_ptr<RegisterInfo>> registers;
             {
-                std::lock_guard<std::mutex> registersGuard(_registersMutex);
-                for(auto& registerElement : _readRegisters)
+                std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
+                registers = _readRegisters;
+            }
+
+            for(auto& registerElement : registers)
+            {
+                result = modbus_read_registers(_modbus, registerElement->start, registerElement->buffer2.size(), registerElement->buffer2.data());
+
+                if (result == -1)
                 {
-                    result = modbus_read_registers(_modbus, registerElement.start, registerElement.buffer2.size(), registerElement.buffer2.data());
+                    Flows::Output::printError("Error reading from Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    disconnect();
+                    continue;
+                }
 
-                    if (result == -1)
+                if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
+                {
+                    registerElement->buffer1 = registerElement->buffer2;
+                    std::cout << "Moin2 " << BaseLib::HelperFunctions::getHexString(registerElement->buffer1) << std::endl;
+
+                    std::vector<uint16_t> destinationData;
+                    std::vector<uint8_t> destinationData2;
+                    std::unordered_map<std::string, Flows::PVariable> data;
+
+                    for (auto& node : registerElement->nodes)
                     {
-                        Flows::Output::printError("Error reading from Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
-                        disconnect();
-                        continue;
-                    }
+                        destinationData.clear();
+                        destinationData.insert(destinationData.end(), registerElement->buffer1.begin() + (node.startRegister - registerElement->start), registerElement->buffer1.begin() + (node.startRegister - registerElement->start) + node.count);
+                        destinationData2.resize(destinationData.size() * 2);
 
-                    if (!std::equal(registerElement.buffer2.begin(), registerElement.buffer2.end(), registerElement.buffer1.begin()))
-                    {
-                        registerElement.buffer1 = registerElement.buffer2;
-
-                        std::vector<uint16_t> destinationData;
-                        std::vector<uint8_t> destinationData2;
-                        std::unordered_map<std::string, Flows::PVariable> data;
-
-                        for(auto& node : registerElement.nodes)
+                        if (node.invertRegisters)
                         {
-                            destinationData.clear();
-                            destinationData.insert(destinationData.end(), registerElement.buffer1.begin() + (node.startRegister - registerElement.start), registerElement.buffer1.begin() + (node.startRegister - registerElement.start) + node.count);
-                            destinationData2.resize(destinationData.size() * 2);
-
-                            if(node.invertRegisters)
+                            for (uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                for (uint32_t i = 0; i < destinationData.size(); i++)
+                                if (registerElement->invert)
                                 {
-                                    if (registerElement.invert)
+                                    if (node.invertBytes)
                                     {
-                                        if (node.invertBytes)
-                                        {
-                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
-                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        }
-                                        else
-                                        {
-                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
-                                        }
+                                        destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
                                     }
                                     else
                                     {
-                                        if (node.invertBytes)
-                                        {
-                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
-                                        }
-                                        else
-                                        {
-                                            destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
-                                            destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        }
+                                        destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                 }
-                            }
-                            else
-                            {
-                                for (uint32_t i = 0; i < destinationData.size(); i++)
+                                else
                                 {
-                                    if (registerElement.invert)
+                                    if (node.invertBytes)
                                     {
-                                        if (node.invertBytes)
-                                        {
-                                            destinationData2[i * 2] = destinationData[i] >> 8;
-                                            destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
-                                        }
-                                        else
-                                        {
-                                            destinationData2[i * 2] = destinationData[i] & 0xFF;
-                                            destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
-                                        }
+                                        destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
+                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                     else
                                     {
-                                        if (node.invertBytes)
-                                        {
-                                            destinationData2[i * 2] = destinationData[i] & 0xFF;
-                                            destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
-                                        }
-                                        else
-                                        {
-                                            destinationData2[i * 2] = destinationData[i] >> 8;
-                                            destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
-                                        }
+                                        destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
                                     }
                                 }
                             }
-
-                            Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                            dataElement->arrayValue->reserve(3);
-                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
-                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
-                            dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
-                            auto dataIterator = data.find(node.id);
-                            if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
-                            else dataIterator->second->arrayValue->push_back(dataElement);
                         }
-
-                        Flows::PArray parameters = std::make_shared<Flows::Array>();
-                        parameters->push_back(std::make_shared<Flows::Variable>());
-                        for(auto& element : data)
-                        {
-                            parameters->at(0) = element.second;
-                            _invoke(element.first, "packetReceived", parameters, false);
-                        }
-                    }
-
-                    if(_settings->delay > 0)
-                    {
-                        if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                         else
                         {
-                            int32_t maxIndex = _settings->delay / 1000;
-                            int32_t rest = _settings->delay % 1000;
-                            for(int32_t i = 0; i < maxIndex; i++)
+                            for (uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                                if(!_started) break;
+                                if (registerElement->invert)
+                                {
+                                    if (node.invertBytes)
+                                    {
+                                        destinationData2[i * 2] = destinationData[i] >> 8;
+                                        destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
+                                    }
+                                    else
+                                    {
+                                        destinationData2[i * 2] = destinationData[i] & 0xFF;
+                                        destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
+                                    }
+                                }
+                                else
+                                {
+                                    if (node.invertBytes)
+                                    {
+                                        destinationData2[i * 2] = destinationData[i] & 0xFF;
+                                        destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
+                                    }
+                                    else
+                                    {
+                                        destinationData2[i * 2] = destinationData[i] >> 8;
+                                        destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
+                                    }
+                                }
                             }
-                            if(!_started) break;
-                            if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                         }
-                        if(!_started) break;
+
+                        Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                        dataElement->arrayValue->reserve(3);
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
+                        auto dataIterator = data.find(node.id);
+                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        else dataIterator->second->arrayValue->push_back(dataElement);
+                    }
+
+                    Flows::PArray parameters = std::make_shared<Flows::Array>();
+                    parameters->push_back(std::make_shared<Flows::Variable>());
+                    for (auto& element : data)
+                    {
+                        parameters->at(0) = element.second;
+                        _invoke(element.first, "packetReceived", parameters, false);
                     }
                 }
 
-                for(auto& registerElement : _writeRegisters)
+                if (_settings->delay > 0)
                 {
-                    if(!registerElement.newData) continue;
-                    result = modbus_write_registers(_modbus, registerElement.start, registerElement.buffer1.size(), registerElement.buffer1.data());
-
-                    if (result == -1)
+                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    else
                     {
-                        Flows::Output::printError("Error writing to Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
-                        disconnect();
-                        continue;
-                    }
-
-                    if(_settings->delay > 0)
-                    {
-                        if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
-                        else
+                        int32_t maxIndex = _settings->delay / 1000;
+                        int32_t rest = _settings->delay % 1000;
+                        for (int32_t i = 0; i < maxIndex; i++)
                         {
-                            int32_t maxIndex = _settings->delay / 1000;
-                            int32_t rest = _settings->delay % 1000;
-                            for(int32_t i = 0; i < maxIndex; i++)
-                            {
-                                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                                if(!_started) break;
-                            }
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                            if (!_started) break;
+                        }
+                        if (!_started) break;
+                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                    }
+                    if (!_started) break;
+                }
+            }
+
+            {
+                std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
+                registers = _writeRegisters;
+            }
+
+            for(auto& registerElement : registers)
+            {
+                if(!registerElement->newData) continue;
+                registerElement->newData = false;
+                std::cout << "Moin " << BaseLib::HelperFunctions::getHexString(registerElement->buffer1) << std::endl;
+                result = modbus_write_registers(_modbus, registerElement->start, registerElement->buffer1.size(), registerElement->buffer1.data());
+
+                if (result == -1)
+                {
+                    Flows::Output::printError("Error writing to Modbus device: " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    disconnect();
+                    continue;
+                }
+
+                if(_settings->delay > 0)
+                {
+                    if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    else
+                    {
+                        int32_t maxIndex = _settings->delay / 1000;
+                        int32_t rest = _settings->delay % 1000;
+                        for(int32_t i = 0; i < maxIndex; i++)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
                             if(!_started) break;
-                            if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                         }
                         if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                     }
+                    if(!_started) break;
                 }
             }
 
@@ -384,19 +397,25 @@ void Modbus::setConnectionState(bool connected)
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(std::make_shared<Flows::Variable>(connected));
 
-        std::lock_guard<std::mutex> registersGuard(_registersMutex);
-        for(auto& element : _readRegisters)
         {
-            for(auto& node : element.nodes)
+            std::lock_guard<std::mutex> registersGuard(_readRegistersMutex);
+            for (auto& element : _readRegisters)
             {
-                _invoke(node.id, "setConnectionState", parameters, false);
+                for (auto& node : element->nodes)
+                {
+                    _invoke(node.id, "setConnectionState", parameters, false);
+                }
             }
         }
-        for(auto& element : _writeRegisters)
+
         {
-            for(auto& node : element.nodes)
+            std::lock_guard<std::mutex> registersGuard(_writeRegistersMutex);
+            for (auto& element : _writeRegisters)
             {
-                _invoke(node.id, "setConnectionState", parameters, false);
+                for (auto& node : element->nodes)
+                {
+                    _invoke(node.id, "setConnectionState", parameters, false);
+                }
             }
         }
     }
@@ -507,12 +526,14 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
         info.invertBytes = invertBytes;
         info.invertRegisters = invertRegisters;
 
-        std::lock_guard<std::mutex> registersGuard(_registersMutex);
-        for(auto& element : _readRegisters)
         {
-            if(startRegister >= element.start && (startRegister + count - 1) <= element.end)
+            std::lock_guard<std::mutex> registersGuard(_readRegistersMutex);
+            for (auto& element : _readRegisters)
             {
-                element.nodes.emplace_back(info);
+                if (startRegister >= element->start && (startRegister + count - 1) <= element->end)
+                {
+                    element->nodes.emplace_back(info);
+                }
             }
         }
 
@@ -538,7 +559,55 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
 {
     try
     {
+        if(value.size() < count * 2)
+        {
+            std::vector<uint8_t> value2;
+            value2.reserve(count * 2);
+            value2.resize((count * 2) - value.size(), 0);
+            value2.insert(value2.end(), value.begin(), value.end());
+            value.swap(value2);
+        }
 
+        std::lock_guard<std::mutex> registersGuard(_writeRegistersMutex);
+        for(auto& element : _writeRegisters)
+        {
+            if(startRegister >= element->start && (startRegister + count - 1) <= element->end)
+            {
+                element->newData = true;
+                if (invertRegisters)
+                {
+                    for(uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++)
+                    {
+                        if(element->invert)
+                        {
+                            if(invertBytes) element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                            else element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                        }
+                        else
+                        {
+                            if(invertBytes) element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                            else element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                        }
+                    }
+                }
+                else
+                {
+                    for(uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++)
+                    {
+                        if(element->invert)
+                        {
+                            if(invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                            else element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                        }
+                        else
+                        {
+                            if(invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                            else element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                        }
+                    }
+                }
+            }
+        }
     }
     catch(const std::exception& ex)
     {

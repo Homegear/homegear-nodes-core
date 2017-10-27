@@ -101,25 +101,116 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 {
 	try
 	{
+        auto registersIterator = _registers.find(index);
+        if(registersIterator == _registers.end()) return;
+
 		Flows::PVariable payload = message->structValue->at("payload");
 		if(payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
-        else if(payload->type == Flows::VariableType::tBoolean)
-        {
-
-        }
+        else if(payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back(1);
         else if(payload->type == Flows::VariableType::tInteger)
         {
-
+            if(registersIterator->second->count == 1)
+            {
+                payload->binaryValue.reserve(2);
+                payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue & 0xFF);
+            }
+            else if(registersIterator->second->count == 2)
+            {
+                payload->binaryValue.reserve(4);
+                payload->binaryValue.push_back(payload->integerValue >> 24);
+                payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue & 0xFF);
+            }
+            else if(registersIterator->second->count == 3)
+            {
+                payload->binaryValue.reserve(6);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(payload->integerValue >> 24);
+                payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue & 0xFF);
+            }
+            else if(registersIterator->second->count == 4)
+            {
+                payload->binaryValue.reserve(8);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(0);
+                payload->binaryValue.push_back(payload->integerValue >> 24);
+                payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue & 0xFF);
+            }
+        }
+        else if(payload->type == Flows::VariableType::tInteger64)
+        {
+            if(registersIterator->second->count == 1)
+            {
+                payload->binaryValue.reserve(2);
+                payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+            }
+            else if(registersIterator->second->count == 2)
+            {
+                payload->binaryValue.reserve(4);
+                payload->binaryValue.push_back(payload->integerValue64 >> 24);
+                payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+            }
+            else if(registersIterator->second->count == 3)
+            {
+                payload->binaryValue.reserve(6);
+                payload->binaryValue.push_back((payload->integerValue64 >> 40) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 32) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 24) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+            }
+            else if(registersIterator->second->count == 4)
+            {
+                payload->binaryValue.reserve(8);
+                payload->binaryValue.push_back(payload->integerValue64 >> 56);
+                payload->binaryValue.push_back((payload->integerValue64 >> 48) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 40) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 32) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 24) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+            }
         }
         else if(payload->type == Flows::VariableType::tFloat)
         {
-
+            if(registersIterator->second->count == 2)
+            {
+                uint32_t floatValue = Flows::Math::getIeee754Binary32(payload->floatValue);
+                payload->binaryValue.reserve(4);
+                payload->binaryValue.push_back(floatValue >> 24);
+                payload->binaryValue.push_back((floatValue >> 16) & 0xFF);
+                payload->binaryValue.push_back((floatValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(floatValue & 0xFF);
+            }
+            else if(registersIterator->second->count == 4)
+            {
+                uint64_t doubleValue = Flows::Math::getIeee754Binary64(payload->floatValue);
+                payload->binaryValue.push_back(doubleValue >> 56);
+                payload->binaryValue.push_back((doubleValue >> 48) & 0xFF);
+                payload->binaryValue.push_back((doubleValue >> 40) & 0xFF);
+                payload->binaryValue.push_back((doubleValue >> 32) & 0xFF);
+                payload->binaryValue.push_back((doubleValue >> 24) & 0xFF);
+                payload->binaryValue.push_back((doubleValue >> 16) & 0xFF);
+                payload->binaryValue.push_back((doubleValue >> 8) & 0xFF);
+                payload->binaryValue.push_back(doubleValue & 0xFF);
+            }
         }
         payload->setType(Flows::VariableType::tBinary);
         if(payload->binaryValue.empty()) return;
-
-        auto registersIterator = _registers.find(index);
-        if(registersIterator == _registers.end()) return;
 
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(5);
