@@ -203,7 +203,6 @@ void Modbus::listen()
                 if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
                 {
                     registerElement->buffer1 = registerElement->buffer2;
-                    std::cout << "Moin2 " << BaseLib::HelperFunctions::getHexString(registerElement->buffer1) << std::endl;
 
                     std::vector<uint16_t> destinationData;
                     std::vector<uint8_t> destinationData2;
@@ -327,7 +326,6 @@ void Modbus::listen()
             {
                 if(!registerElement->newData) continue;
                 registerElement->newData = false;
-                std::cout << "Moin " << BaseLib::HelperFunctions::getHexString(registerElement->buffer1) << std::endl;
                 result = modbus_write_registers(_modbus, registerElement->start, registerElement->buffer1.size(), registerElement->buffer1.data());
 
                 if (result == -1)
