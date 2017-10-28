@@ -50,7 +50,7 @@ public:
         std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
 	};
 
-	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<ModbusSettings> settings);
+	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
 	virtual ~Modbus();
 
 	void start();
@@ -94,7 +94,7 @@ private:
     };
 
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	BaseLib::Output _out;
+	std::shared_ptr<Flows::Output> _out;
 	std::shared_ptr<ModbusSettings> _settings;
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 

@@ -67,11 +67,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -82,17 +82,17 @@ void MyNode::configNodesStarted()
 	{
 		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no server assigned.");
+			_out->printError("Error: This node has no server assigned.");
 			return;
 		}
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -102,21 +102,21 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	{
 		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no server assigned.");
+			_out->printError("Error: This node has no server assigned.");
 			return;
 		}
 
 		auto messageIterator = message->structValue->find("_internal");
 		if(messageIterator == message->structValue->end())
 		{
-			Flows::Output::printError("Error: No internal data found in message object.");
+			_out->printError("Error: No internal data found in message object.");
 			return;
 		}
 
 		auto internalIterator = messageIterator->second->structValue->find("clientId");
 		if(internalIterator == messageIterator->second->structValue->end())
 		{
-			Flows::Output::printError("Error: No clientId found in internal data.");
+			_out->printError("Error: No clientId found in internal data.");
 			return;
 		}
 
@@ -196,15 +196,15 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(message->structValue->at("payload"));
 
 		Flows::PVariable result = invokeNodeMethod(_server, "send", parameters, true);
-		if(result->errorStruct) Flows::Output::printError("Error sending data: " + result->structValue->at("faultString")->stringValue);
+		if(result->errorStruct) _out->printError("Error sending data: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

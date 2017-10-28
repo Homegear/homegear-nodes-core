@@ -129,11 +129,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -147,11 +147,11 @@ bool MyNode::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -168,11 +168,11 @@ void MyNode::startUpComplete()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -185,11 +185,11 @@ void MyNode::stop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -203,11 +203,11 @@ void MyNode::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -246,11 +246,11 @@ int64_t MyNode::getSunTime(int64_t timeStamp, std::string time)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return -1;
 }
@@ -291,11 +291,11 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return 0;
 }
@@ -336,11 +336,11 @@ std::pair<int64_t, bool> MyNode::getNext(int64_t currentTime, int64_t onTime, in
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return std::make_pair(-1, false);
 }
@@ -402,11 +402,11 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -497,11 +497,11 @@ void MyNode::timer()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 	}
 }
@@ -532,11 +532,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

@@ -52,11 +52,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -95,7 +95,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		{
 			parameters->at(0)->booleanValue = true;
 			result = invoke("influxdbWrite", parameters);
-			if(result && result->errorStruct) Flows::Output::printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
+			if(result && result->errorStruct) _out->printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
 		}
 		else if(_first)
 		{
@@ -107,11 +107,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

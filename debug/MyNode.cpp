@@ -60,11 +60,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -77,11 +77,11 @@ void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -128,7 +128,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			else if(_logLevel == 4) logLevel = "info";
 			else if(_logLevel == 5) logLevel = "debug";
 
-			Flows::Output::printMessage("Debug node output (" + logLevel + "): " + message->print(false, false, true), _logLevel);
+			_out->printMessage("Debug node output (" + logLevel + "): " + message->print(false, false, true), _logLevel);
 			if(!*_frontendConnected) return;
 		}
 
@@ -186,11 +186,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

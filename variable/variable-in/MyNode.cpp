@@ -86,11 +86,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -107,7 +107,7 @@ void MyNode::startUpComplete()
 		Flows::PVariable result = invoke("getValue", parameters);
 		if(result->errorStruct)
 		{
-			Flows::Output::printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+			_out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
 			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
 			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
@@ -132,11 +132,11 @@ void MyNode::startUpComplete()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -158,7 +158,7 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 			Flows::PArray parameters = std::make_shared<Flows::Array>();
 			parameters->push_back(std::make_shared<Flows::Variable>(_id));
 			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
-			if(result->errorStruct) Flows::Output::printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+			if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
 			if(!result->booleanValue) return;
 		}
 
@@ -166,11 +166,11 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

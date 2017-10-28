@@ -56,11 +56,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -118,7 +118,7 @@ bool MyNode::start()
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			Flows::Output::printError("Error starting server: " + ex.what());
+			_out->printError("Error starting server: " + ex.what());
 			return false;
 		}
 
@@ -126,11 +126,11 @@ bool MyNode::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -143,11 +143,11 @@ void MyNode::stop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -159,11 +159,11 @@ void MyNode::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -176,11 +176,11 @@ Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return std::make_shared<Flows::Variable>();
 }
@@ -397,11 +397,11 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -450,11 +450,11 @@ std::string MyNode::constructHeader(uint32_t contentLength, int32_t code, Flows:
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
@@ -483,11 +483,11 @@ std::string MyNode::constructHeader(uint32_t contentLength, int32_t code, Flows:
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

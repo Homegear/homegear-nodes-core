@@ -104,11 +104,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -119,7 +119,7 @@ void MyNode::configNodesStarted()
 	{
 		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no Modbus server assigned.");
+			_out->printError("Error: This node has no Modbus server assigned.");
 			return;
 		}
 
@@ -147,16 +147,16 @@ void MyNode::configNodesStarted()
         if(!registers->arrayValue->empty())
         {
             Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
-            if (result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+            if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
         }
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -245,11 +245,11 @@ void MyNode::configNodesStarted()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
@@ -280,11 +280,11 @@ void MyNode::configNodesStarted()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

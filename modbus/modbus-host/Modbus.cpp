@@ -29,11 +29,12 @@
 
 #include "Modbus.h"
 
-Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<ModbusSettings> settings)
+Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings)
 {
 	try
 	{
 		_bl = bl;
+        _out = output;
 		_settings = settings;
 		_started = false;
         _connected = false;
@@ -67,15 +68,15 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Modbu
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -88,15 +89,15 @@ Modbus::~Modbus()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -111,15 +112,15 @@ void Modbus::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -131,15 +132,15 @@ void Modbus::stop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -153,15 +154,15 @@ void Modbus::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -172,7 +173,7 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
         int result = modbus_read_registers(_modbus, info->start, info->buffer1.size(), info->buffer1.data());
         if (result == -1)
         {
-            Flows::Output::printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
+            _out->printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
         }
 
         if(_settings->delay > 0)
@@ -195,15 +196,15 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
     }
     catch(const std::exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }
 
@@ -241,7 +242,7 @@ void Modbus::listen()
 
                 if (result == -1)
                 {
-                    Flows::Output::printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _out->printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                     disconnect();
                     continue;
                 }
@@ -276,7 +277,7 @@ void Modbus::listen()
 
                 if (result == -1)
                 {
-                    Flows::Output::printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _out->printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                     disconnect();
                     continue;
                 }
@@ -419,15 +420,15 @@ void Modbus::listen()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 	}
 }
@@ -463,15 +464,15 @@ void Modbus::setConnectionState(bool connected)
     }
     catch(const std::exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }
 
@@ -488,21 +489,21 @@ void Modbus::connect()
 		}
 		if(_settings->server.empty())
 		{
-			_out.printError("Error: Could not connect to Modbus device: Please set a host name.");
+			_out->printError("Error: Could not connect to Modbus device: Please set a host name.");
             setConnectionState(false);
 			return;
 		}
 		_modbus = modbus_new_tcp(_settings->server.c_str(), BaseLib::Math::getNumber(_settings->port));
 		if(!_modbus)
 		{
-			_out.printError("Error: Could not connect to Modbus device: Could not create modbus handle. Are hostname and port set correctly?");
+			_out->printError("Error: Could not connect to Modbus device: Could not create modbus handle. Are hostname and port set correctly?");
             setConnectionState(false);
 			return;
 		}
 		int result = modbus_connect(_modbus);
 		if(result == -1)
         {
-            _out.printError("Error: Could not connect to Modbus device: " + std::string(modbus_strerror(errno)));
+            _out->printError("Error: Could not connect to Modbus device: " + std::string(modbus_strerror(errno)));
             modbus_free(_modbus);
             _modbus = nullptr;
             setConnectionState(false);
@@ -537,15 +538,15 @@ void Modbus::connect()
     }
     catch(const std::exception& ex)
     {
-        _out.printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        _out.printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        _out.printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
     if(_modbus)
     {
@@ -569,15 +570,15 @@ void Modbus::disconnect()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -609,15 +610,15 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -693,14 +694,14 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
     }
     catch(const std::exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }

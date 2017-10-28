@@ -73,7 +73,7 @@ public:
 		bool retain = true;
 	};
 
-	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<MqttSettings> settings);
+	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings);
 	virtual ~Mqtt();
 
 	void start();
@@ -142,7 +142,7 @@ private:
 	};
 
 	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	BaseLib::Output _out;
+	std::shared_ptr<Flows::Output> _out;
 	std::shared_ptr<MqttSettings> _settings;
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 	std::mutex _topicsMutex;

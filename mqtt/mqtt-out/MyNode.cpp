@@ -58,11 +58,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -73,21 +73,21 @@ void MyNode::configNodesStarted()
 	{
 		if(_broker.empty())
 		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
+			_out->printError("Error: This node has no broker assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
 		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+		if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -117,15 +117,15 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(std::make_shared<Flows::Variable>(retain));
 
 		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters, true);
-		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
+		if(result->errorStruct) _out->printError("Error publishing topic: " + topic);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -156,11 +156,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

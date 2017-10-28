@@ -62,11 +62,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -83,7 +83,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 
 			if(filename.empty())
 			{
-				Flows::Output::printError("Error: filename is not set.");
+				_out->printError("Error: filename is not set.");
 				return;
 			}
 		}
@@ -100,7 +100,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			if(_createDirectory) BaseLib::Io::createDirectory(directory, S_IRWXU | S_IRWXG);
 			if(!BaseLib::Io::directoryExists(directory))
 			{
-				Flows::Output::printError("Error: Directory " + directory + " doesn't exist. If \"create directory\" is set, it couldn't be created.");
+				_out->printError("Error: Directory " + directory + " doesn't exist. If \"create directory\" is set, it couldn't be created.");
 				return;
 			}
 		}
@@ -123,11 +123,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
