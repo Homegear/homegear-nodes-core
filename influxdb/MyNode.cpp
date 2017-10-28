@@ -99,10 +99,10 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		}
 		else if(_first)
 		{
-			_first = false;
 			parameters = std::make_shared<Flows::Array>();
 			parameters->push_back(std::make_shared<Flows::Variable>(measurement));
 			result = invoke("influxdbCreateContinuousQuery", parameters);
+			if(!result->errorStruct) _first = false;
 		}
 	}
 	catch(const std::exception& ex)
