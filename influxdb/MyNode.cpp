@@ -83,7 +83,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			input = encodedValue;
 		}
 
-		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "");
+		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "") + (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64 ? "i" : "");
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(false));
