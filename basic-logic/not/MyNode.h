@@ -42,7 +42,7 @@ public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 private:
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

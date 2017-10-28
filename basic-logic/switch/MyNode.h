@@ -100,7 +100,7 @@ private:
 	void convertType(Flows::PVariable& value, Flows::VariableType vt);
 	bool isTrue(Flows::PVariable& value);
 	bool match(Rule& rule, Flows::PVariable& value);
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

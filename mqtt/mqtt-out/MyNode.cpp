@@ -91,7 +91,7 @@ void MyNode::configNodesStarted()
 	}
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
@@ -105,7 +105,8 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
 		else retain = _retain;
 
-		Flows::PVariable payload = message->structValue->at("payload");
+		Flows::PVariable payload = std::make_shared<Flows::Variable>();
+		*payload = *message->structValue->at("payload");
 		if(payload->type == Flows::VariableType::tArray || payload->type == Flows::VariableType::tStruct) payload->stringValue = _jsonEncoder.getString(payload);
 		else if(payload->type != Flows::VariableType::tString) payload->stringValue = payload->toString();
 		payload->setType(Flows::VariableType::tString);

@@ -57,7 +57,7 @@ private:
 	std::array<std::thread, 10> _timerThreads;
 
 	void timer(int64_t inputTime, Flows::PVariable message);
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

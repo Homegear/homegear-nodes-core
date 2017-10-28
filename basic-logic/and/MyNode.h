@@ -50,7 +50,7 @@ private:
 	std::atomic_bool _lastAnd;
 	std::vector<Flows::PVariable> _inputs;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 	bool doAnd();
 };
 

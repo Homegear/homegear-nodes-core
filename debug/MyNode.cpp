@@ -96,27 +96,29 @@ std::string MyNode::stripNonPrintable(const std::string& s)
 	return strippedString;
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
 		if(!_active) return;
 		if(!_hg && !*_frontendConnected) return;
 		std::string property;
+        Flows::PVariable myMessage = std::make_shared<Flows::Variable>();
+        *myMessage = *message;
 		auto completeIterator = info->info->structValue->find("complete");
 		if(completeIterator == info->info->structValue->end() || completeIterator->second->stringValue == "false" || completeIterator->second->stringValue.empty())
 		{
-			auto payloadIterator = message->structValue->find("payload");
-			if(payloadIterator == message->structValue->end()) return;
+			auto payloadIterator = myMessage->structValue->find("payload");
+			if(payloadIterator == myMessage->structValue->end()) return;
 			property = "payload";
-			message = payloadIterator->second;
+            myMessage = payloadIterator->second;
 		}
 		else if(completeIterator->second->stringValue != "true")
 		{
-			auto payloadIterator = message->structValue->find(completeIterator->second->stringValue);
-			if(payloadIterator == message->structValue->end()) return;
+			auto payloadIterator = myMessage->structValue->find(completeIterator->second->stringValue);
+			if(payloadIterator == myMessage->structValue->end()) return;
 			property = completeIterator->second->stringValue;
-			message = payloadIterator->second;
+            myMessage = payloadIterator->second;
 		}
 
 		if(_hg)
@@ -128,7 +130,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			else if(_logLevel == 4) logLevel = "info";
 			else if(_logLevel == 5) logLevel = "debug";
 
-			_out->printMessage("Debug node output (" + logLevel + "): " + message->print(false, false, true), _logLevel);
+			_out->printMessage("Debug node output (" + logLevel + "): " + myMessage->print(false, false, true), _logLevel);
 			if(!*_frontendConnected) return;
 		}
 
@@ -137,13 +139,13 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
 			object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
-			object->structValue->emplace("msg", message);
+			object->structValue->emplace("msg", myMessage);
 
 			std::string format;
-			switch(message->type)
+			switch(myMessage->type)
 			{
 			case Flows::VariableType::tArray:
-				format = "array[" + std::to_string(message->arrayValue->size()) + "]";
+				format = "array[" + std::to_string(myMessage->arrayValue->size()) + "]";
 				break;
 			case Flows::VariableType::tBoolean:
 				format = "boolean";
@@ -158,17 +160,17 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 				format = "number";
 				break;
 			case Flows::VariableType::tString:
-				format = "string[" + std::to_string(message->stringValue.size()) + "]";
-				if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
-				message->stringValue = stripNonPrintable(message->stringValue);
+				format = "string[" + std::to_string(myMessage->stringValue.size()) + "]";
+				if(myMessage->stringValue.size() > 1000) myMessage->stringValue = myMessage->stringValue.substr(0, 1000) + "...";
+                myMessage->stringValue = stripNonPrintable(myMessage->stringValue);
 				break;
 			case Flows::VariableType::tStruct:
 				format = "Object";
 				break;
 			case Flows::VariableType::tBase64:
-				format = "string[" + std::to_string(message->stringValue.size()) + "]";
-				if(message->stringValue.size() > 1000) message->stringValue = message->stringValue.substr(0, 1000) + "...";
-				message->stringValue = stripNonPrintable(message->stringValue);
+				format = "string[" + std::to_string(myMessage->stringValue.size()) + "]";
+				if(myMessage->stringValue.size() > 1000) myMessage->stringValue = myMessage->stringValue.substr(0, 1000) + "...";
+                myMessage->stringValue = stripNonPrintable(myMessage->stringValue);
 				break;
 			case Flows::VariableType::tVariant:
 				break;

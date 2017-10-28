@@ -63,7 +63,7 @@ private:
 
 	int32_t scale(int32_t value, int32_t valueMin, int32_t valueMax, int32_t scaleMin, int32_t scaleMax);
 	void timer();
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

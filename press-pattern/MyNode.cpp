@@ -166,7 +166,7 @@ void MyNode::timer()
 	_firstPress = true;
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{

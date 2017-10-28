@@ -176,7 +176,7 @@ void MyNode::timer(int64_t inputTime, Flows::PVariable message)
 	_currentTimerThreadCount--;
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{

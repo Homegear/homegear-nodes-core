@@ -56,7 +56,7 @@ private:
 	std::string _server;
 	std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 
 	//{{{ RPC methods
 	Flows::PVariable setConnectionState(Flows::PArray parameters);
