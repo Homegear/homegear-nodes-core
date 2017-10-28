@@ -46,7 +46,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	try
 	{
 		auto settingsIterator = info->info->structValue->find("measurement");
-		if(settingsIterator != info->info->structValue->end()) _measurement = settingsIterator->second->stringValue;
+		if(settingsIterator != info->info->structValue->end()) _measurement = stripNonAlphaNumeric(settingsIterator->second->stringValue);
 
 		return true;
 	}
@@ -66,13 +66,24 @@ bool MyNode::start()
 	return true;
 }
 
+std::string MyNode::stripNonAlphaNumeric(const std::string& s)
+{
+    std::string strippedString;
+    strippedString.reserve(s.size());
+    for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
+    {
+        if(isalpha(*i) || isdigit(*i) || (*i == '_') || (*i == '-')) strippedString.push_back(*i);
+    }
+    return strippedString;
+}
+
 void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
 		auto measurementIterator = message->structValue->find("measurement");
 		std::string measurement = _measurement;
-		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = measurementIterator->second->stringValue;
+		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = stripNonAlphaNumeric(measurementIterator->second->stringValue);
 		if(measurement.empty()) return;
 
 		Flows::PVariable& input = message->structValue->at("payload");

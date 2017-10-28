@@ -51,6 +51,7 @@ private:
 	std::string _measurement;
 	bool _first = true;
 
+	std::string stripNonAlphaNumeric(const std::string& s);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
