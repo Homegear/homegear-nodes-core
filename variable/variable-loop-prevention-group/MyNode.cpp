@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_localRpcMethods.emplace("event", std::bind(&MyNode::event, this, std::placeholders::_1));
+	_lastEvent = 0;
 }
 
 MyNode::~MyNode()
