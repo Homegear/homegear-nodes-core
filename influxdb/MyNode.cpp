@@ -72,7 +72,8 @@ std::string MyNode::stripNonAlphaNumeric(const std::string& s)
     strippedString.reserve(s.size());
     for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
     {
-        if(isalpha(*i) || isdigit(*i) || (*i == '_') || (*i == '-')) strippedString.push_back(*i);
+        if(*i == ' ') strippedString.push_back('_');
+        else if(isalpha(*i) || isdigit(*i) || (*i == '_') || (*i == '-') || (*i == '.') || (*i == ';')) strippedString.push_back(*i);
     }
     return strippedString;
 }
