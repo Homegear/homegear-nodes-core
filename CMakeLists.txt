@@ -32,6 +32,10 @@ set(SOURCE_FILES
         http/http-response/Factory.h
         http/http-response/MyNode.cpp
         http/http-response/MyNode.h
+        http/http-request/Factory.cpp
+        http/http-request/Factory.h
+        http/http-request/MyNode.cpp
+        http/http-request/MyNode.h
         http/http-server/Factory.cpp
         http/http-server/Factory.h
         http/http-server/MyNode.cpp

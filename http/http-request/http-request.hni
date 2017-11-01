@@ -1,0 +1,154 @@
+<script type="text/x-homegear">
+{
+    "name": "http-request",
+    "readableName": "HTTP request",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="http-request">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-tasks"></i> <span data-i18n="http-request.label.method"></span></label>
+        <select type="text" id="node-input-method" style="width:70%;">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+        <option value="use" data-i18n="http-request.setby"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> <span data-i18n="http-request.label.url"></span></label>
+        <input id="node-input-url" type="text" placeholder="http://">
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-usetls" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-usetls" style="width: auto" data-i18n="http-request.use-tls"></label>
+        <div id="node-row-tls" class="hide">
+            <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-input-tls"><span data-i18n="http-request.tls-config"></span></label><input type="text" style="width: 300px" id="node-input-tls">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <input type="checkbox" id="node-input-useAuth" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-useAuth" style="width: 70%;"><span data-i18n="http-request.basicauth"></span></label>
+        <div style="margin-left: 20px" class="node-input-useAuth-row hide">
+            <div class="form-row">
+                <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+                <input type="text" id="node-input-user">
+            </div>
+            <div class="form-row">
+                <label for="node-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+                <input type="password" id="node-input-password">
+            </div>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <label for="node-input-ret"><i class="fa fa-arrow-left"></i> <span data-i18n="http-request.label.return"></span></label>
+        <select type="text" id="node-input-ret" style="width:70%;">
+        <option value="txt" data-i18n="http-request.utf8"></option>
+        <option value="bin" data-i18n="http-request.binary"></option>
+        <option value="obj" data-i18n="http-request.json"></option>
+        </select>
+    </div>
+    <div class="form-tips" id="tip-json" hidden><span data-i18n="http-request.tip.req"></span></div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('http-request',{
+        category: 'input',
+        namespace: 'http',
+        color:"rgb(231, 231, 174)",
+        defaults: {
+            name: {value:""},
+            method:{value:"GET"},
+            ret: {value:"txt"},
+            url:{value:"",validate:function(v) { return (v.trim().length === 0) || (v.indexOf("://") === -1) || (v.trim().indexOf("http") === 0)} },
+            usetls: {value: false},
+            tls: {type:"tls-config",required: false}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["any"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["string","struct","binary"]
+            }
+        ],
+        icon: "white-globe.png",
+        label: function() {
+            return this.name||"http request";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            $("#node-input-useAuth").change(function() {
+                if ($(this).is(":checked")) {
+                    $(".node-input-useAuth-row").show();
+                } else {
+                    $(".node-input-useAuth-row").hide();
+                    $('#node-input-user').val('');
+                    $('#node-input-password').val('');
+                }
+            });
+
+            if (typeof this.usetls === 'undefined') {
+                this.usetls = false;
+                $("#node-input-usetls").prop("checked",false);
+            }
+
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-input-user").val(data.result)}, this.id, "username");
+            RED.comms.homegear().invoke("getNodeData", function(data) {$("#node-input-password").val(data.result)}, this.id, "password");
+
+            function updateTLSOptions() {
+                if ($("#node-input-usetls").is(':checked')) {
+                    $("#node-row-tls").show();
+                } else {
+                    $("#node-row-tls").hide();
+                }
+            }
+            updateTLSOptions();
+            $("#node-input-usetls").on("click",function() {
+                updateTLSOptions();
+            });
+
+            $("#node-input-ret").change(function() {
+                if ($("#node-input-ret").val() === "obj") {
+                    $("#tip-json").show();
+                } else {
+                    $("#tip-json").hide();
+                }
+            });
+        },
+        oneditsave: function() {
+            if (!$("#node-input-usetls").is(':checked')) {
+                $("#node-input-tls").val("");
+            }
+            RED.comms.homegear().invoke("setNodeData", null, this.id, "username", $("#node-input-user").val());
+            if($("#node-input-password").val() != '*') RED.comms.homegear().invoke("setNodeData", null, this.id, "password", $("#node-input-password").val());
+        }
+    });
+</script>

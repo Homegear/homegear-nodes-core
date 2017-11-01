@@ -1,0 +1,25 @@
+{
+  "http/http-request.hni": {
+    "http-request": {
+      "paletteHelp": "<p>Sends HTTP requests and returns the response.</p>",
+      "help": "<p>Sends HTTP requests and returns the response.</p><h3>Inputs</h3><dl class=\"message-properties\"><dt class=\"optional\">url <span class=\"property-type\">string</span></dt><dd>If not configured in the node, this optional property sets the url of the request.</dd><dt class=\"optional\">method <span class=\"property-type\">string</span></dt><dd>If not configured in the node, this optional property sets the HTTP method of the request. Must be one of <code>GET</code>, <code>PUT</code>, <code>POST</code>, <code>PATCH</code> or <code>DELETE</code>.</dd> <dt class=\"optional\">headers <span class=\"property-type\">object</span></dt><dd>Sets the HTTP headers of the request.</dd><dt class=\"optional\">payload</dt><dd>Sent as the body of the request.</dd></dl><h3>Outputs</h3><dl class=\"message-properties\"><dt>payload <span class=\"property-type\">string | object | buffer</span></dt><dd>The body of the response. The node can be configured to return the body as a string, attempt to parse it as a JSON string or leave it as a binary buffer.</dd><dt>statusCode <span class=\"property-type\">number</span></dt><dd>The status code of the response, or the error code if the request could not be completed.</dd><dt>headers <span class=\"property-type\">object</span></dt><dd>An object containing the response headers.</dd></dl></p>",
+      "input1Description": "The input triggering the request.",
+      "output1Description": "The resposne received from the web server.",
+      "label": {
+          "method": "Method",
+          "url": "URL",
+          "return": "Return"
+      },
+      "setby": "- set by $message['method'] -",
+      "basicauth": "Use basic authentication",
+      "use-tls": "Enable secure (SSL/TLS) connection",
+      "tls-config":"TLS Configuration",
+      "utf8": "a string",
+      "binary": "a binary buffer",
+      "json": "a parsed JSON object",
+      "tip": {
+          "req": "Tip: If the JSON parse fails the fetched string is returned as-is."
+      }
+    }
+  }
+}

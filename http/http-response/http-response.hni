@@ -195,31 +195,3 @@
         }
     });
 </script>
-<script type="text/javascript">
-    RED.nodes.registerType('mqtt-out',{
-        category: 'output',
-        namespace: 'mqtt',
-        defaults: {
-            name: {value:""},
-            topic: {value:""},
-            retain: {value:""},
-            broker: {type:"mqtt-broker", required:true}
-        },
-        color:"#d8bfd8",
-        inputs:1,
-        inputInfo: [
-        	{
-        		types: ["any"]
-        	}
-        ],
-        outputs:0,
-        icon: "bridge.png",
-        align: "right",
-        label: function() {
-            return this.name||this.topic||"mqtt";
-        },
-        labelStyle: function() {
-            return this.name?"node_label_italic":"";
-        }
-    });
-</script>
