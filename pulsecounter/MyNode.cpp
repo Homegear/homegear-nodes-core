@@ -163,7 +163,6 @@ void MyNode::worker(int64_t maxgap)
 						calcTime = actGapTime;
 					countsPerMinute = (60000.0 / calcTime);
 					lastGapTimeToSave = calcTime;
-					//_out->printError("countsPerMinute: " + std::to_string(countsPerMinute) + " calcTime: " + std::to_string(calcTime));
 				}
 				else
 					countsPerMinute = 0.0;

@@ -1,0 +1,13 @@
+{
+  "basic-logic/risingedge.hni": {
+    "risingedge": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "The output is set to <code>true</code> when the input is set to <code>true</code>. It only forwards the <code>true</code> message",
+      "help": "<p>The output is set to <code>true</code> when the input is set to <code>true</code>.</p><p>It only forwards the <code>true</code> message.</p>",
+      "inputDescription": "The boolean value.",
+      "outputDescription": "Outputs the result."
+    }
+  }
+}

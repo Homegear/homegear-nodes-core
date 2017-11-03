@@ -6,11 +6,9 @@
         "maxgap": "Max gap in ms",
         "name": "Name"
       },
-      "input1Description": "A boolean input. The timer is set when <code>true</code> is input and reset when input is set to <code>false</code>.",
-      "output1Description": "Outputs <code>false</code> when input is set to <code>false</code>. Outputs <code>true</code> when timer reaches <code>0</code>.",
-      "output2Description": "Outputs the time left before setting output \"o\" to <code>true</code>.",
-      "paletteHelp": "<p>When the input is set to true, the output stays false until the configured delay time. If the delay time is over, the output is set to true. If the input is set to false, the output is set to false immediately.</p>",
-      "help": "When the input is set to true, the output stays false until the configured delay time. If the delay time is over, the output is set to true. If the input is set to false, the output is set to false immediately."
+      "input1Description": "A boolean input. When input is set to <code>true</code> the calculation starts.",
+      "output1Description": "Outputs the counts per minute. If the gap between two inpute is higher than maxGap, the output ist set to 0.",
+      "help": "Outputs the counts per minute. If the gap between two inpute is higher than maxGap, the output ist set to 0."
     }
   }
 }

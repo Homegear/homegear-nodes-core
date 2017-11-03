@@ -8,6 +8,10 @@ set(SOURCE_FILES
         basic-logic/and/Factory.h
         basic-logic/and/MyNode.cpp
         basic-logic/and/MyNode.h
+	basic-logic/fallingedge/Factory.cpp
+        basic-logic/fallingedge/Factory.h
+        basic-logic/fallingedge/MyNode.cpp
+        basic-logic/fallingedge/MyNode.h
         basic-logic/not/Factory.cpp
         basic-logic/not/Factory.h
         basic-logic/not/MyNode.cpp
@@ -16,6 +20,10 @@ set(SOURCE_FILES
         basic-logic/or/Factory.h
         basic-logic/or/MyNode.cpp
         basic-logic/or/MyNode.h
+	basic-logic/risingedge/Factory.cpp
+        basic-logic/risingedge/Factory.h
+        basic-logic/risingedge/MyNode.cpp
+        basic-logic/risingedge/MyNode.h
         basic-logic/switch/Factory.cpp
         basic-logic/switch/Factory.h
         basic-logic/switch/MyNode.cpp
