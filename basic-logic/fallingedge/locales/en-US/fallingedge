@@ -1,0 +1,13 @@
+{
+  "basic-logic/fallingedge.hni": {
+    "fallingedge": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "The output is set to <code>true</code> when the input is set to <code>false</code>. It never forwards <code>true</code> message",
+      "help": "<p>The output is set to <code>true</code> when the input is set to <code>false</code>.</p><p>It never forwards the <code>true</code> message.</p>",
+      "inputDescription": "The boolean value.",
+      "outputDescription": "Outputs the result."
+    }
+  }
+}
