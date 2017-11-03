@@ -92,6 +92,10 @@ set(SOURCE_FILES
         press-pattern/Factory.h
         press-pattern/MyNode.cpp
         press-pattern/MyNode.h
+        pulsecounter/Factory.cpp
+        pulsecounter/Factory.h
+        pulsecounter/MyNode.cpp
+        pulsecounter/MyNode.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp
