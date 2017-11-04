@@ -45,6 +45,7 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void startUpComplete();
 private:
+	bool _outputOnStartup = true;
 	Flows::PVariable _value;
 };
 

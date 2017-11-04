@@ -1,0 +1,13 @@
+{
+  "sequence/sequence.hni": {
+    "sequence": {
+      "label": {
+        "name": "Name",
+        "outputs": "Outputs"
+      },
+      "paletteHelp": "<p>This node forwards the input to the outputs in exact sequence.</p>",
+      "help": "<p>This node forwards the input to the outputs in exact sequence. It waits for each following node to finish before the next node is executed.</p>",
+      "input1Description": "The value to forward."
+    }
+  }
+}

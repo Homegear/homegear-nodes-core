@@ -2,7 +2,8 @@
   "variable/constant.hni": {
     "constant": {
       "label": {
-        "name": "Name"
+        "name": "Name",
+        "outputonstartup": "Output value on startup"
       },
       "paletteHelp": "<p>Provides a constant value.</p>",
       "help": "This node provices a constant value which is transmitted once on each reload.",

@@ -130,54 +130,56 @@ void MyNode::worker(int64_t maxgap)
 		int64_t aktTime = 0;
 		int64_t triggerTimeLast = 0;
 		int64_t cycleEndTime = 0;
-		int64_t sleepingTime = 0;
 		int64_t cycleTime = 0;
 		int64_t actGapTime = 0;
 		int64_t lastGapTime = 0;
 		int64_t lastGapTimeSaved = getNodeData("lastGapTimeSaved")->integerValue64;
 		int64_t lastGapTimeToSave = 0;
+        uint32_t counts = 0;
 		float countsPerMinute = 0;
 		bool running = false;
 		while (!_stopThread)
 		{
 			aktTime = Flows::HelperFunctions::getTime();
-			if (_trigger == true)
+
+            {
+                std::lock_guard<std::mutex> countsMutex(_countsMutex);
+                counts = _counts;
+                _counts = 0;
+            }
+
+			if (counts > 0)
 			{
 				triggerTimeLast = aktTime;
 				lastGapTime = actGapTime;
 				actGapTime = 0;
-				_trigger = false;
 			}
 			running = ((triggerTimeLast > 0) && ((aktTime - triggerTimeLast) < maxgap));
-			if (sleepingTime >= 1000)
-			{
-				if (running)
-				{
-					int64_t calcTime = lastGapTime;
-					if (lastGapTimeSaved > 0)
-					{
-						calcTime = lastGapTimeSaved;
-						lastGapTimeSaved = 0;
-					}
-					else if (actGapTime > lastGapTime)
-						calcTime = actGapTime;
-					countsPerMinute = (60000.0 / calcTime);
-					lastGapTimeToSave = calcTime;
-				}
-				else
-					countsPerMinute = 0.0;
-				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(countsPerMinute));
-				output(0, outputMessage); //countsPerMinute
-				sleepingTime -= 1000;
-			}
+            if(running)
+            {
+                int64_t calcTime = lastGapTime;
+                if (lastGapTimeSaved > 0)
+                {
+                    calcTime = lastGapTimeSaved;
+                    lastGapTimeSaved = 0;
+                }
+                else if (actGapTime > lastGapTime)
+                    calcTime = actGapTime;
+                countsPerMinute = (60000.0 / calcTime) * counts;
+                lastGapTimeToSave = calcTime;
+            }
+            else
+            {
+                countsPerMinute = 0.0;
+            }
+            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(countsPerMinute));
+            output(0, outputMessage); //countsPerMinute
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Limit to one output per second
 			cycleEndTime = Flows::HelperFunctions::getTime();
 			cycleTime = cycleEndTime - cycleStartTime;
-			sleepingTime += cycleTime;
-			if (running)
-				actGapTime += cycleTime;
+			if(running) actGapTime += cycleTime;
 			cycleStartTime = cycleEndTime;
 		}
 		setNodeData("lastGapTimeSaved", std::make_shared<Flows::Variable>(lastGapTimeToSave));
@@ -202,7 +204,9 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	try
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
-		_trigger = *input;
+        if(!*input) return;
+		std::lock_guard<std::mutex> countsMutex(_countsMutex);
+		_counts++;
 	}
 	catch(const std::exception& ex)
 	{

@@ -31,7 +31,6 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <thread>
 #include <mutex>
 
 namespace MyNode
@@ -42,23 +41,8 @@ class MyNode: public Flows::INode
 public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
 private:
-	int64_t _maxgap = 10000;
-	std::mutex _countsMutex;
-	uint32_t _counts = 0;
-
-	std::atomic_bool _threadRunning;
-	std::atomic_bool _stopThread;
-	std::mutex _workerThreadMutex;
-	std::thread _workerThread;
-
-	void worker(int64_t inputTime);
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

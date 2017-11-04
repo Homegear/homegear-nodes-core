@@ -16,6 +16,11 @@
         <input type="text" id="node-input-payload" style="width:70%"/>
         <input type="hidden" id="node-input-payloadType"/>
     </div>
+    <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-outputonstartup" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-outputonstartup" style="width: 65%;" data-i18n="constant.label.outputonstartup"></label>
+    </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('constant',{
@@ -25,7 +30,8 @@
         defaults: {
             name: {value:""},
             payload: {value:"", validate: RED.validators.typedInput("payload")},
-            payloadType: {value:"int"}
+            payloadType: {value:"int"},
+            outputonstartup: {value: true}
         },
         inputs:0,
         outputs:1,

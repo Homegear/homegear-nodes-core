@@ -34,7 +34,7 @@
         outputInfo: [
             {
                 label: "cnts/min",
-                types: ["any"]
+                types: ["int"]
             }
         ],
         icon: "serial.png",
