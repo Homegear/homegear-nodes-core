@@ -21,6 +21,7 @@ case $1 in
 		rm -Rf /var/lib/homegear/flows/nodes/basic-logic/locales/en-US/greater-than
 		rm -Rf /var/lib/homegear/flows/nodes/basic-logic/locales/en-US/less-or-equal
 		rm -Rf /var/lib/homegear/flows/nodes/basic-logic/locales/en-US/less-than
+		rm -Rf /var/lib/homegear/flows/nodes/sequence
 		chown -R homegear:homegear /var/lib/homegear/flows/nodes
 		chmod -R 550 /var/lib/homegear/flows/nodes
 		homegear -e mls > /dev/null 2>&1

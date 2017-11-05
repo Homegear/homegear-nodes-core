@@ -44,7 +44,10 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-		outputSequence(message);
+        for(uint32_t outputIndex = 0; outputIndex < info->wiresOut.size(); outputIndex++)
+        {
+            output(outputIndex, message, true);
+        }
 	}
 	catch(const std::exception& ex)
 	{
