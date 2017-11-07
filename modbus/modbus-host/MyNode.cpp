@@ -77,7 +77,6 @@ bool MyNode::start()
         {
             int32_t interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
             if(interval < 0) interval = 100;
-            else if(interval > 10000) interval = 10000;
             modbusSettings->interval = interval;
         }
         if(modbusSettings->interval < 1) modbusSettings->interval = 1;
