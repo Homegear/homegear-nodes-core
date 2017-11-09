@@ -155,7 +155,6 @@ void MyNode::worker(int64_t maxgap)
 				actGapTime = 0;
 			}
 			running = ((triggerTimeLast > 0) && ((aktTime - triggerTimeLast) < maxgap));
-            _out->printInfo("Moin " + std::to_string(triggerTimeLast) + " " + std::to_string(aktTime) + " " + std::to_string(maxgap));
             if(running)
             {
                 int64_t calcTime = lastGapTime;
@@ -165,8 +164,11 @@ void MyNode::worker(int64_t maxgap)
                     lastGapTimeSaved = 0;
                 }
                 else if (actGapTime > lastGapTime)
+                {
                     calcTime = actGapTime;
-                countsPerMinute = (60000.0 / calcTime) * counts;
+                }
+                if(calcTime == 0) calcTime = 1;
+                countsPerMinute = (60000.0 / calcTime) * ((counts == 0) ? 1 : counts);
                 lastGapTimeToSave = calcTime;
             }
             else
