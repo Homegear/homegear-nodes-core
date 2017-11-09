@@ -244,7 +244,7 @@ void Modbus::listen()
                 {
                     _out->printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                     disconnect();
-                    continue;
+                    break;
                 }
 
                 if(_settings->delay > 0)
@@ -265,6 +265,7 @@ void Modbus::listen()
                     if(!_started) break;
                 }
             }
+            if(!_modbus) continue;
 
             {
                 std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
@@ -279,7 +280,7 @@ void Modbus::listen()
                 {
                     _out->printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
                     disconnect();
-                    continue;
+                    break;
                 }
 
                 if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
@@ -398,6 +399,7 @@ void Modbus::listen()
                     if (!_started) break;
                 }
             }
+            if(!_modbus) continue;
 
             endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
             timeToSleep = (_settings->interval * 1000) - (endTime - startTime);

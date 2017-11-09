@@ -155,6 +155,7 @@ void MyNode::worker(int64_t maxgap)
 				actGapTime = 0;
 			}
 			running = ((triggerTimeLast > 0) && ((aktTime - triggerTimeLast) < maxgap));
+            _out->printInfo("Moin " + std::to_string(triggerTimeLast) + " " + std::to_string(aktTime) + " " + std::to_string(maxgap));
             if(running)
             {
                 int64_t calcTime = lastGapTime;
@@ -182,10 +183,9 @@ void MyNode::worker(int64_t maxgap)
 			if(running) actGapTime += cycleTime;
 			cycleStartTime = cycleEndTime;
 		}
+
 		setNodeData("lastGapTimeSaved", std::make_shared<Flows::Variable>(lastGapTimeToSave));
 		_threadRunning = false;
-		
-
 	}
 	catch(const std::exception& ex)
 	{
