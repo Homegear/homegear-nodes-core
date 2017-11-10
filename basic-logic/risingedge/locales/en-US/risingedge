@@ -1,6 +1,6 @@
 {
-  "basic-logic/frisingedge.hni": {
-    "frisingedge": {
+  "basic-logic/risingedge.hni": {
+    "risingedge": {
       "label": {
         "name": "Name"
       },
