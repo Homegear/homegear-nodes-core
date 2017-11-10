@@ -25,9 +25,14 @@
             "on-delay": {value:"10000",required:true,validate:RED.validators.number()},
             name: {value:""}
         },
-        inputs:1,
+        inputs:2,
         inputInfo: [
             {
+                label: ["t"],
+                types: ["boolean"]
+            },
+            {
+                label: "RES",
                 types: ["boolean"]
             }
         ],
