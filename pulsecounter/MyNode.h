@@ -33,6 +33,7 @@
 #include <homegear-node/INode.h>
 #include <thread>
 #include <mutex>
+#include <queue>
 
 namespace MyNode
 {
@@ -49,15 +50,14 @@ public:
 	virtual void waitForStop();
 private:
 	int64_t _maxgap = 10000;
-	std::mutex _countsMutex;
-	uint32_t _counts = 0;
+	std::mutex _queueMutex;
+	std::queue<int64_t> _pulses;
 
-	std::atomic_bool _threadRunning;
 	std::atomic_bool _stopThread;
 	std::mutex _workerThreadMutex;
 	std::thread _workerThread;
 
-	void worker(int64_t inputTime);
+	void worker();
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

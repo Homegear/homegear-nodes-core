@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -35,7 +36,6 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
-	_threadRunning = false;
 }
 
 MyNode::~MyNode()
@@ -69,11 +69,20 @@ bool MyNode::start()
 {
 	try
 	{
-		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-            	_stopThread = true;
+        {
+            std::lock_guard<std::mutex> queueGuard(_queueMutex);
+            auto pulses = getNodeData("pulses");
+            for (auto& pulse : *pulses->arrayValue)
+            {
+                _pulses.push(pulse->integerValue64);
+            }
+        }
+
+        std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+        _stopThread = true;
 		if (_workerThread.joinable())_workerThread.join();
 		_stopThread = false;
-		_workerThread = std::thread(&MyNode::worker, this, _maxgap);
+		_workerThread = std::thread(&MyNode::worker, this);
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -93,6 +102,15 @@ void MyNode::stop()
 	{
 		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
 		_stopThread = true;
+        std::lock_guard<std::mutex> queueGuard(_queueMutex);
+        Flows::PVariable pulses = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+        pulses->arrayValue->reserve(_pulses.size());
+        while(!_pulses.empty())
+        {
+            pulses->arrayValue->push_back(std::make_shared<Flows::Variable>(_pulses.front()));
+            _pulses.pop();
+        }
+        setNodeData("pulses", pulses);
 	}
 	catch(const std::exception& ex)
 	{
@@ -122,81 +140,34 @@ void MyNode::waitForStop()
 	}
 }
 
-void MyNode::worker(int64_t maxgap)
+void MyNode::worker()
 {
 	try
 	{
-		int64_t cycleStartTime = Flows::HelperFunctions::getTime();
-		int64_t aktTime = 0;
-		int64_t triggerTimeLast = 0;
-		int64_t cycleEndTime = 0;
-		int64_t cycleTime = 0;
-		int64_t actGapTime = 0;
-		int64_t lastGapTime = 0;
-		int64_t lastGapTimeSaved = getNodeData("lastGapTimeSaved")->integerValue64;
-		int64_t lastGapTimeToSave = 0;
-        uint32_t counts = 0;
-		float countsPerMinute = 0;
-		bool running = false;
+        int64_t now = 0;
+        int64_t size = 0;
 		while (!_stopThread)
 		{
-			aktTime = Flows::HelperFunctions::getTime();
-
             {
-                std::lock_guard<std::mutex> countsMutex(_countsMutex);
-                counts = _counts;
-                _counts = 0;
+                now = BaseLib::HelperFunctions::getTime();
+                std::lock_guard<std::mutex> queueGuard(_queueMutex);
+                while(!_pulses.empty() && now - _pulses.front() > _maxgap) _pulses.pop();
+                size = _pulses.size();
             }
 
-			if (counts > 0)
-			{
-				triggerTimeLast = aktTime;
-				lastGapTime = actGapTime;
-				actGapTime = 0;
-			}
-			running = ((triggerTimeLast > 0) && ((aktTime - triggerTimeLast) < maxgap));
-            if(running)
-            {
-                int64_t calcTime = lastGapTime;
-                if (lastGapTimeSaved > 0)
-                {
-                    calcTime = lastGapTimeSaved;
-                    lastGapTimeSaved = 0;
-                }
-                else if (actGapTime > lastGapTime)
-                {
-                    calcTime = actGapTime;
-                }
-                if(calcTime == 0) calcTime = 1;
-                countsPerMinute = (60000.0 / calcTime) * ((counts == 0) ? 1 : counts);
-                lastGapTimeToSave = calcTime;
-            }
-            else
-            {
-                countsPerMinute = 0.0;
-            }
             Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(countsPerMinute));
+            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(size));
             output(0, outputMessage); //countsPerMinute
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Limit to one output per second
-			cycleEndTime = Flows::HelperFunctions::getTime();
-			cycleTime = cycleEndTime - cycleStartTime;
-			if(running) actGapTime += cycleTime;
-			cycleStartTime = cycleEndTime;
 		}
-
-		setNodeData("lastGapTimeSaved", std::make_shared<Flows::Variable>(lastGapTimeToSave));
-		_threadRunning = false;
 	}
 	catch(const std::exception& ex)
 	{
-		_threadRunning = false;
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		_threadRunning = false;
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
@@ -207,8 +178,8 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
         if(!*input) return;
-		std::lock_guard<std::mutex> countsMutex(_countsMutex);
-		_counts++;
+		std::lock_guard<std::mutex> queueGuard(_queueMutex);
+		_pulses.push(BaseLib::HelperFunctions::getTime());
 	}
 	catch(const std::exception& ex)
 	{
