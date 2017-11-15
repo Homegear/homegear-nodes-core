@@ -1,0 +1,51 @@
+<script type="text/x-homegear">
+{
+    "name": "ping",
+    "readableName": "ping",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="ping">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-host"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.host"></span></label>
+        <input type="text" id="node-input-host" data-i18n="[placeholder]ping.label.host">
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.interval"></span></label>
+        <input type="text" id="node-input-interval" data-i18n="[placeholder]ping.label.interval">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('ping',{
+        color:"#fdd0a2",
+        category: 'function',
+        defaults: {
+            "host": {value:"",required:true},
+            name: {value:""},
+            "interval": {value:"60",required:true,validate:RED.validators.number()}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                label: "",
+                types: ["boolean"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "ping";
+        }
+    });
+</script>
