@@ -50,8 +50,8 @@ public:
 	virtual void waitForStop();
 private:
 	int64_t _maxgap = 10000;
-	std::mutex _queueMutex;
-	std::queue<int64_t> _pulses;
+	std::mutex _listMutex;
+	std::list<int64_t> _pulses;
 
 	std::atomic_bool _stopThread;
 	std::mutex _workerThreadMutex;

@@ -7,8 +7,8 @@
         "name": "Name"
       },
       "input1Description": "A boolean input. When input is set to <code>true</code> the calculation starts.",
-      "output1Description": "Outputs the counts per minute. When the gap between two inputs is higher than maxGap, the output is set to 0.",
-      "help": "Outputs the counts per minute. When the gap between two inputs is higher than maxGap, the output is set to 0."
+      "output1Description": "Outputs the counts per minute. If the gap between two inputs is higher than <code>Max gap</code>, the output ist set to <code>0</code>.",
+      "help": "Outputs the counts per minute. If the gap between two inputs is higher than <code>Max gap</code>, the output ist set to <code>0</code>."
     }
   }
 }

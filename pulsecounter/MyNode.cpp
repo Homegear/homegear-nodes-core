@@ -70,11 +70,11 @@ bool MyNode::start()
 	try
 	{
         {
-            std::lock_guard<std::mutex> queueGuard(_queueMutex);
+            std::lock_guard<std::mutex> listGuard(_listMutex);
             auto pulses = getNodeData("pulses");
             for (auto& pulse : *pulses->arrayValue)
             {
-                _pulses.push(pulse->integerValue64);
+                _pulses.push_back(pulse->integerValue64);
             }
         }
 
@@ -102,13 +102,13 @@ void MyNode::stop()
 	{
 		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
 		_stopThread = true;
-        std::lock_guard<std::mutex> queueGuard(_queueMutex);
+        std::lock_guard<std::mutex> listGuard(_listMutex);
         Flows::PVariable pulses = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
         pulses->arrayValue->reserve(_pulses.size());
         while(!_pulses.empty())
         {
             pulses->arrayValue->push_back(std::make_shared<Flows::Variable>(_pulses.front()));
-            _pulses.pop();
+            _pulses.pop_front();
         }
         setNodeData("pulses", pulses);
 	}
@@ -146,17 +146,37 @@ void MyNode::worker()
 	{
         int64_t now = 0;
         int64_t size = 0;
+        float duration = 0;
 		while (!_stopThread)
 		{
             {
                 now = BaseLib::HelperFunctions::getTime();
-                std::lock_guard<std::mutex> queueGuard(_queueMutex);
-                while(!_pulses.empty() && now - _pulses.front() > _maxgap) _pulses.pop();
-                size = _pulses.size();
+                std::lock_guard<std::mutex> listGuard(_listMutex);
+                while(!_pulses.empty() && now - _pulses.front() > _maxgap) _pulses.pop_front();
+                
+                int64_t x_last = 0;
+                int64_t durationAll = 0;
+                for (auto it = _pulses.begin(); it != _pulses.end(); ++it)
+                {
+				    int64_t x = *it;
+				    if (x_last != 0)
+				    {
+				    	duration = x - x_last;
+				    	durationAll += duration;
+				    	//_out->printInfo(std::to_string(duration) + "ms");
+					}
+				    x_last = x;
+				}
+				size = _pulses.size();
+				if (size > 1)
+					duration = (60000.0 / ((float)durationAll / (float)(size - 1)));
+				else
+					duration = 0.0;
+				//_out->printInfo("---- AVG: " + std::to_string(duration) + " cnt/min");
             }
 
             Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(size));
+            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(duration));
             output(0, outputMessage); //countsPerMinute
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Limit to one output per second
@@ -178,8 +198,8 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
         if(!*input) return;
-		std::lock_guard<std::mutex> queueGuard(_queueMutex);
-		_pulses.push(BaseLib::HelperFunctions::getTime());
+		std::lock_guard<std::mutex> listGuard(_listMutex);
+		_pulses.push_back(BaseLib::HelperFunctions::getTime());
 	}
 	catch(const std::exception& ex)
 	{
