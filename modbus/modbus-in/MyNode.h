@@ -46,6 +46,12 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
 private:
+	enum class ModbusType
+	{
+		tRegister = 0,
+		tCoil = 1
+	};
+
     enum class RegisterType
     {
         tBin,
@@ -57,6 +63,7 @@ private:
 
     struct RegisterInfo
     {
+        ModbusType modbusType = ModbusType::tRegister;
         uint32_t outputIndex = 0;
         uint32_t index = 0;
         uint32_t count = 0;
@@ -69,6 +76,7 @@ private:
     std::string _server;
     uint32_t _outputs = 0;
     std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
 
 	//{{{ RPC methods
 	Flows::PVariable packetReceived(Flows::PArray parameters);

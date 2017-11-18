@@ -117,9 +117,7 @@
                     currentOutputs[opt.hasOwnProperty('i')?opt.i:opt._i] = i;
                     outputCount.val(JSON.stringify(currentOutputs));
 
-                    function updateVisibility(e) {
-                        if(!e) return;
-                        var type = $(e.target).val();
+                    function updateVisibility(type) {
                         if(type == 'Reg.') {
                             countLabel.show();
                             countField.show();
@@ -140,8 +138,14 @@
                             invertRegistersField.hide();
                         }
                     }
-                    updateVisibility();
-                    modbusTypeField.on('click', updateVisibility);                
+
+                    function updateVisibilityEvent(e) {
+                        if(!e) return;
+                        updateVisibility($(e.target).val());
+                    }
+                    
+                    updateVisibility(modbusTypeField.val());
+                    modbusTypeField.on('click', updateVisibilityEvent);                
                 },
                 removeItem: function(opt) {
                     var currentOutputs = JSON.parse(outputCount.val()||"{}");

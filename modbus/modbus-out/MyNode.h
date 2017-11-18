@@ -44,8 +44,15 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
+	enum class ModbusType
+	{
+		tRegister = 0,
+		tCoil = 1
+	};
+
 	struct RegisterInfo
 	{
+		ModbusType modbusType = ModbusType::tRegister;
 		uint32_t inputIndex = 0;
 		uint32_t index = 0;
 		uint32_t count = 0;

@@ -65,6 +65,30 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
             info->buffer1.resize(info->count, 0);
             _writeRegisters.emplace_back(info);
         }
+
+        for(auto& element : settings->readCoils)
+        {
+            std::shared_ptr<CoilInfo> info = std::make_shared<CoilInfo>();
+            info->newData = false;
+            info->start = (uint32_t)std::get<0>(element);
+            info->end = (uint32_t)std::get<1>(element);
+            info->count = info->end - info->start + 1;
+            info->buffer1.resize(info->count, 0);
+            info->buffer2.resize(info->count, 0);
+            _readCoils.emplace_back(info);
+        }
+
+        for(auto& element : settings->writeCoils)
+        {
+            std::shared_ptr<CoilInfo> info = std::make_shared<CoilInfo>();
+            info->newData = false;
+            info->start = (uint32_t)std::get<0>(element);
+            info->end = (uint32_t)std::get<1>(element);
+            info->count = info->end - info->start + 1;
+            info->readOnConnect = std::get<2>(element);
+            info->buffer1.resize(info->count, 0);
+            _writeCoils.emplace_back(info);
+        }
 	}
 	catch(const std::exception& ex)
 	{
@@ -363,10 +387,119 @@ void Modbus::listen()
                         }
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                        dataElement->arrayValue->reserve(3);
+                        dataElement->arrayValue->reserve(4);
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
+                        auto dataIterator = data.find(node.id);
+                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        else dataIterator->second->arrayValue->push_back(dataElement);
+                    }
+
+                    Flows::PArray parameters = std::make_shared<Flows::Array>();
+                    parameters->push_back(std::make_shared<Flows::Variable>());
+                    for (auto& element : data)
+                    {
+                        parameters->at(0) = element.second;
+                        _invoke(element.first, "packetReceived", parameters, false);
+                    }
+                }
+
+                if (_settings->delay > 0)
+                {
+                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    else
+                    {
+                        int32_t maxIndex = _settings->delay / 1000;
+                        int32_t rest = _settings->delay % 1000;
+                        for (int32_t i = 0; i < maxIndex; i++)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                            if (!_started) break;
+                        }
+                        if (!_started) break;
+                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                    }
+                    if (!_started) break;
+                }
+            }
+            if(!_modbus) continue;
+            registers.clear();
+
+            std::list<std::shared_ptr<CoilInfo>> coils;
+            {
+                std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
+                coils = _writeCoils;
+            }
+
+            for(auto& coilElement : coils)
+            {
+                if(!coilElement->newData) continue;
+                coilElement->newData = false;
+                result = modbus_write_bits(_modbus, coilElement->start, coilElement->buffer1.size(), coilElement->buffer1.data());
+
+                if (result == -1)
+                {
+                    _out->printError("Error writing to Modbus registers " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    disconnect();
+                    break;
+                }
+
+                if(_settings->delay > 0)
+                {
+                    if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    else
+                    {
+                        int32_t maxIndex = _settings->delay / 1000;
+                        int32_t rest = _settings->delay % 1000;
+                        for(int32_t i = 0; i < maxIndex; i++)
+                        {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                            if(!_started) break;
+                        }
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                    }
+                    if(!_started) break;
+                }
+            }
+            if(!_modbus) continue;
+
+            {
+                std::lock_guard<std::mutex> readCoilsGuard(_readCoilsMutex);
+                coils = _readCoils;
+            }
+
+            for(auto& coilElement : coils)
+            {
+                result = modbus_read_input_bits(_modbus, coilElement->start, coilElement->buffer2.size(), coilElement->buffer2.data());
+
+                if (result == -1)
+                {
+                    _out->printError("Error reading from Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    disconnect();
+                    break;
+                }
+
+                if (!std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin()))
+                {
+                    coilElement->buffer1 = coilElement->buffer2;
+
+                    std::vector<uint8_t> destinationData;
+                    std::unordered_map<std::string, Flows::PVariable> data;
+
+                    for (auto& node : coilElement->nodes)
+                    {
+                        destinationData.clear();
+                        destinationData.insert(destinationData.end(), coilElement->buffer1.begin() + (node.startRegister - coilElement->start), coilElement->buffer1.begin() + (node.startRegister - coilElement->start) + node.count);
+
+                        Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                        dataElement->arrayValue->reserve(4);
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData));
                         auto dataIterator = data.find(node.id);
                         if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
                         else dataIterator->second->arrayValue->push_back(dataElement);
@@ -527,12 +660,21 @@ void Modbus::connect()
         _connected = true;
 
         {
-            std::lock_guard<std::mutex> writeBufferGuard(_writeBufferMutex);
-            for(auto& element : _writeBuffer)
+            std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+            for(auto& element : _registerWriteBuffer)
             {
                 writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
             }
-            _writeBuffer.clear();
+            _registerWriteBuffer.clear();
+        }
+
+        {
+            std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+            for(auto& element : _coilWriteBuffer)
+            {
+                writeRegisters(element->start, element->count, true, element->value);
+            }
+            _coilWriteBuffer.clear();
         }
 
         setConnectionState(true);
@@ -589,6 +731,7 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 	try
 	{
         NodeInfo info;
+        info.type = ModbusType::tRegister;
         info.id = node;
         info.startRegister = startRegister;
         info.count = count;
@@ -624,14 +767,53 @@ void Modbus::registerNode(std::string& node, uint32_t startRegister, uint32_t co
 	}
 }
 
+void Modbus::registerNode(std::string& node, uint32_t startCoil, uint32_t count)
+{
+    try
+    {
+        NodeInfo info;
+        info.type = ModbusType::tCoil;
+        info.id = node;
+        info.startRegister = startCoil;
+        info.count = count;
+
+        {
+            std::lock_guard<std::mutex> registersGuard(_readCoilsMutex);
+            for (auto& element : _readCoils)
+            {
+                if (startCoil >= element->start && (startCoil + count - 1) <= element->end)
+                {
+                    element->nodes.emplace_back(info);
+                }
+            }
+        }
+
+        Flows::PArray parameters = std::make_shared<Flows::Array>();
+        parameters->push_back(std::make_shared<Flows::Variable>((bool)_modbus));
+        _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+}
+
 void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value)
 {
     try
     {
         if(!_connected && !retry)
         {
-            std::lock_guard<std::mutex> writeBufferGuard(_writeBufferMutex);
-            if(_writeBuffer.size() > 10000) return;
+            std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+            if(_registerWriteBuffer.size() > 10000) return;
 
             std::shared_ptr<WriteInfo> writeInfo = std::make_shared<WriteInfo>();
             writeInfo->start = startRegister;
@@ -640,7 +822,7 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
             writeInfo->invertRegisters = invertRegisters;
             writeInfo->value = value;
 
-            _writeBuffer.push_back(writeInfo);
+            _registerWriteBuffer.push_back(writeInfo);
             return;
         }
 
@@ -690,6 +872,51 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
                             else element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
                         }
                     }
+                }
+            }
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+}
+
+void Modbus::writeRegisters(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t>& value)
+{
+    try
+    {
+        if(!_connected && !retry)
+        {
+            std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+            if(_coilWriteBuffer.size() > 10000) return;
+
+            std::shared_ptr<WriteInfo> writeInfo = std::make_shared<WriteInfo>();
+            writeInfo->start = startCoil;
+            writeInfo->count = count;
+            writeInfo->value = value;
+
+            _coilWriteBuffer.push_back(writeInfo);
+            return;
+        }
+
+        std::lock_guard<std::mutex> registersGuard(_writeCoilsMutex);
+        for(auto& element : _writeCoils)
+        {
+            if(startCoil >= element->start && (startCoil + count - 1) <= element->end)
+            {
+                element->newData = true;
+                for(uint32_t i = startCoil - element->start; i < (startCoil - element->start) + count; i++)
+                {
+                    element->buffer1[i] = value[i - (startCoil - element->start)];
                 }
             }
         }

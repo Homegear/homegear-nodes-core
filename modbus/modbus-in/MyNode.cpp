@@ -61,6 +61,9 @@ bool MyNode::init(Flows::PNodeInfo info)
             {
                 outputIndex++;
 
+                auto modbustypeIterator = element->structValue->find("mt");
+                if(modbustypeIterator == element->structValue->end()) continue;
+
                 auto indexIterator = element->structValue->find("r");
                 if(indexIterator == element->structValue->end()) continue;
 
@@ -79,12 +82,14 @@ bool MyNode::init(Flows::PNodeInfo info)
                 int32_t index = Flows::Math::getNumber(indexIterator->second->stringValue);
                 int32_t count = Flows::Math::getNumber(countIterator->second->stringValue);
 
-                if(index < 0 || count < 1) continue;
+                if(index < 0) continue;
+                if(count < 1) count = 1;
 
                 auto registerInfo = std::make_shared<RegisterInfo>();
+                registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
                 registerInfo->outputIndex = (uint32_t)outputIndex;
                 registerInfo->index = (uint32_t)index;
-                registerInfo->count = (uint32_t)count;
+                registerInfo->count = registerInfo->modbusType == ModbusType::tRegister ? (uint32_t)count : 1;
 
                 auto& type = typeIterator->second->stringValue;
                 if(type == "bool") registerInfo->type = RegisterType::tBool;
@@ -95,7 +100,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 
                 registerInfo->invertBytes = ibIterator->second->booleanValue;
                 registerInfo->invertRegisters = irIterator->second->booleanValue;
-                _registers[registerInfo->index].emplace(registerInfo->count, registerInfo);
+                if(registerInfo->modbusType == ModbusType::tRegister) _registers[registerInfo->index].emplace(registerInfo->count, registerInfo);
+                else if(registerInfo->modbusType == ModbusType::tCoil) _coils[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 _outputs++;
             }
         }
@@ -144,6 +150,18 @@ void MyNode::configNodesStarted()
             }
         }
 
+        for(auto& index : _coils)
+        {
+            for(auto& count : index.second)
+            {
+                Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                element->arrayValue->reserve(2);
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+                registers->arrayValue->push_back(element);
+            }
+        }
+
         if(!registers->arrayValue->empty())
         {
             Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
@@ -170,75 +188,99 @@ void MyNode::configNodesStarted()
 
             for(auto& packet : *parameters->at(0)->arrayValue)
             {
-                if(packet->arrayValue->size() != 3) continue;
-                auto indexIterator = _registers.find(packet->arrayValue->at(0)->integerValue);
-                if(indexIterator == _registers.end()) continue;
+                if(packet->arrayValue->size() != 4 || packet->arrayValue->at(3)->binaryValue.empty()) continue;
 
-                auto countIterator = indexIterator->second.find(packet->arrayValue->at(1)->integerValue);
-                if(countIterator == indexIterator->second.end()) continue;
-
-                if(packet->arrayValue->at(2)->binaryValue == countIterator->second->lastValue) continue;
-                countIterator->second->lastValue = packet->arrayValue->at(2)->binaryValue;
-
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("register", std::make_shared<Flows::Variable>(indexIterator->first));
-                message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
-
-                switch(countIterator->second->type)
+                if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tRegister)
                 {
-                    case RegisterType::tBin:
-                        message->structValue->emplace("payload", packet->arrayValue->at(2));
-                        break;
-                    case RegisterType::tBool:
-                        {
-                            bool payload = false;
-                            for(auto& byte : packet->arrayValue->at(2)->binaryValue)
+                    auto indexIterator = _registers.find(packet->arrayValue->at(1)->integerValue);
+                    if (indexIterator == _registers.end()) continue;
+
+                    auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
+                    if (countIterator == indexIterator->second.end()) continue;
+
+                    if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+                    countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
+
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    message->structValue->emplace("register", std::make_shared<Flows::Variable>(indexIterator->first));
+                    message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
+
+                    switch (countIterator->second->type)
+                    {
+                        case RegisterType::tBin:
+                            message->structValue->emplace("payload", packet->arrayValue->at(3));
+                            break;
+                        case RegisterType::tBool:
                             {
-                                if((bool)byte)
+                                bool payload = false;
+                                for (auto& byte : packet->arrayValue->at(3)->binaryValue)
                                 {
-                                    payload = true;
-                                    break;
+                                    if ((bool) byte)
+                                    {
+                                        payload = true;
+                                        break;
+                                    }
+                                }
+                                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
+                            }
+                            break;
+                        case RegisterType::tInt:
+                            {
+                                if (packet->arrayValue->at(3)->binaryValue.size() == 4)
+                                {
+                                    int32_t number = (((int32_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 24) | (((int32_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 16) | (((int32_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 8) | packet->arrayValue->at(3)->binaryValue.at(3);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else if (packet->arrayValue->at(3)->binaryValue.size() == 8)
+                                {
+                                    int64_t number = (((int64_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 56) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 48) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 40) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(3)) << 32) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(4)) << 24) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(5)) << 16) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(6)) << 8) | packet->arrayValue->at(3)->binaryValue.at(7);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
                                 }
                             }
-                            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
-                        }
-                        break;
-                    case RegisterType::tInt:
-                        {
-                            if(packet->arrayValue->at(2)->binaryValue.size() == 4)
+                            break;
+                        case RegisterType::tFloat:
                             {
-                                int32_t number = (((int32_t)packet->arrayValue->at(2)->binaryValue.at(0)) << 24) | (((int32_t)packet->arrayValue->at(2)->binaryValue.at(1)) << 16) | (((int32_t)packet->arrayValue->at(2)->binaryValue.at(2)) << 8) | packet->arrayValue->at(2)->binaryValue.at(3);
-                                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                if (packet->arrayValue->at(3)->binaryValue.size() == 4)
+                                {
+                                    uint32_t intNumber = (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 24) | (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 16) | (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 8) | packet->arrayValue->at(3)->binaryValue.at(3);
+                                    float number = Flows::Math::getFloatFromIeee754Binary32(intNumber);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else if (packet->arrayValue->at(3)->binaryValue.size() == 8)
+                                {
+                                    uint64_t intNumber = (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 56) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 48) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 40) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(3)) << 32) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(4)) << 24) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(5)) << 16) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(6)) << 8) | packet->arrayValue->at(3)->binaryValue.at(7);
+                                    double number = Flows::Math::getDoubleFromIeee754Binary64(intNumber);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
                             }
-                            else if(packet->arrayValue->at(2)->binaryValue.size() == 8)
-                            {
-                                int64_t number = (((int64_t)packet->arrayValue->at(2)->binaryValue.at(0)) << 56) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(1)) << 48) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(2)) << 40) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(3)) << 32) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(4)) << 24) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(5)) << 16) | (((int64_t)packet->arrayValue->at(2)->binaryValue.at(6)) << 8) | packet->arrayValue->at(2)->binaryValue.at(7);
-                                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
-                            }
-                        }
-                        break;
-                    case RegisterType::tFloat:
-                        {
-                            if(packet->arrayValue->at(2)->binaryValue.size() == 4)
-                            {
-                                uint32_t intNumber = (((uint32_t)packet->arrayValue->at(2)->binaryValue.at(0)) << 24) | (((uint32_t)packet->arrayValue->at(2)->binaryValue.at(1)) << 16) | (((uint32_t)packet->arrayValue->at(2)->binaryValue.at(2)) << 8) | packet->arrayValue->at(2)->binaryValue.at(3);
-                                float number = Flows::Math::getFloatFromIeee754Binary32(intNumber);
-                                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
-                            }
-                            else if(packet->arrayValue->at(2)->binaryValue.size() == 8)
-                            {
-                                uint64_t intNumber = (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(0)) << 56) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(1)) << 48) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(2)) << 40) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(3)) << 32) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(4)) << 24) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(5)) << 16) | (((uint64_t)packet->arrayValue->at(2)->binaryValue.at(6)) << 8) | packet->arrayValue->at(2)->binaryValue.at(7);
-                                double number = Flows::Math::getDoubleFromIeee754Binary64(intNumber);
-                                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
-                            }
-                        }
-                        break;
-                    case RegisterType::tString:
-                        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string((char*)packet->arrayValue->at(2)->binaryValue.data(), packet->arrayValue->at(2)->binaryValue.size())));
-                        break;
-                }
+                            break;
+                        case RegisterType::tString:
+                            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string((char*) packet->arrayValue->at(3)->binaryValue.data(), packet->arrayValue->at(3)->binaryValue.size())));
+                            break;
+                    }
 
-                output(countIterator->second->outputIndex, message);
+                    output(countIterator->second->outputIndex, message);
+                }
+                else
+                {
+                    auto indexIterator = _coils.find(packet->arrayValue->at(1)->integerValue);
+                    if (indexIterator == _coils.end()) continue;
+
+                    auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
+                    if (countIterator == indexIterator->second.end()) continue;
+
+                    if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+                    countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
+
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    message->structValue->emplace("coil", std::make_shared<Flows::Variable>(indexIterator->first));
+                    message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
+
+                    if(countIterator->first > 1) message->structValue->emplace("payload", packet->arrayValue->at(3));
+                    else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((bool)packet->arrayValue->at(3)->binaryValue.back()));
+
+                    output(countIterator->second->outputIndex, message);
+                }
             }
 
 			return std::make_shared<Flows::Variable>();

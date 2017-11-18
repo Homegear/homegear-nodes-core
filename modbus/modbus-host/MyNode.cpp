@@ -134,6 +134,49 @@ bool MyNode::start()
             }
         }
 
+        settingsIterator = _nodeInfo->info->structValue->find("readcoils");
+        if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                auto startIterator = element->structValue->find("s");
+                if(startIterator == element->structValue->end()) continue;
+
+                auto endIterator = element->structValue->find("e");
+                if(endIterator == element->structValue->end()) continue;
+
+                int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
+                int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
+
+                if(start < 0 || end < 0 || end < start) continue;
+
+                modbusSettings->readCoils.push_back(std::make_tuple(start, end));
+            }
+        }
+
+        settingsIterator = _nodeInfo->info->structValue->find("writecoils");
+        if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                auto startIterator = element->structValue->find("s");
+                if(startIterator == element->structValue->end()) continue;
+
+                auto endIterator = element->structValue->find("e");
+                if(endIterator == element->structValue->end()) continue;
+
+                auto rocIterator = element->structValue->find("roc");
+                if(rocIterator == element->structValue->end()) continue;
+
+                int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
+                int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
+
+                if(start < 0 || end < 0 || end < start) continue;
+
+                modbusSettings->writeCoils.push_back(std::make_tuple(start, end, rocIterator->second->booleanValue));
+            }
+        }
+
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_modbus.reset(new Modbus(bl, _out, modbusSettings));
 		_modbus->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
@@ -212,10 +255,18 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 2 is not of type array.");
 
+		if(!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
         for(auto& element : *parameters->at(1)->arrayValue)
         {
-            if(element->arrayValue->size() != 4) continue;
-            if (_modbus) _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->booleanValue, element->arrayValue->at(3)->booleanValue);
+
+            if(element->arrayValue->size() == 4)
+            {
+                _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->booleanValue, element->arrayValue->at(3)->booleanValue);
+            }
+            else if(element->arrayValue->size() == 2)
+            {
+                _modbus->registerNode(parameters->at(0)->stringValue, element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue);
+            }
         }
 
 		return std::make_shared<Flows::Variable>();
@@ -235,14 +286,27 @@ Flows::PVariable MyNode::writeRegisters(Flows::PArray parameters)
 {
     try
     {
-        if(parameters->size() != 5) return Flows::Variable::createError(-1, "Method expects exactly five parameters. " + std::to_string(parameters->size()) + " given.");
-        if(parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
-        if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
-        if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
-        if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
-        if(parameters->at(4)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 5 is not of type binary.");
+        if(parameters->size() != 3 && parameters->size() != 5) return Flows::Variable::createError(-1, "Method expects three or five parameters. " + std::to_string(parameters->size()) + " given.");
+        if (!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
 
-        if(_modbus) _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->booleanValue, false, parameters->at(4)->binaryValue);
+        if(parameters->size() == 5)
+        {
+            if(parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
+            if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+            if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+            if(parameters->at(3)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 4 is not of type boolean.");
+            if(parameters->at(4)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 5 is not of type binary.");
+
+            _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->booleanValue, false, parameters->at(4)->binaryValue);
+        }
+        else
+        {
+            if(parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
+            if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+            if(parameters->at(2)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 3 is not of type binary.");
+
+            _modbus->writeRegisters(parameters->at(0)->integerValue, parameters->at(1)->integerValue, false, parameters->at(2)->binaryValue);
+        }
 
         return std::make_shared<Flows::Variable>();
     }

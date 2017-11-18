@@ -48,6 +48,8 @@ public:
         uint32_t delay = 0;
 		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
         std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
+        std::vector<std::tuple<int32_t, int32_t>> readCoils;
+        std::vector<std::tuple<int32_t, int32_t, bool>> writeCoils;
 	};
 
 	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
@@ -60,10 +62,19 @@ public:
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
 	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
+	void registerNode(std::string& node, uint32_t startCoil, uint32_t count);
 	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value);
+    void writeRegisters(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t>& value);
 private:
+    enum class ModbusType
+    {
+        tRegister = 0,
+        tCoil = 1
+    };
+
 	struct NodeInfo
     {
+        ModbusType type = ModbusType::tRegister;
         std::string id;
         uint32_t startRegister = 0;
         uint32_t count = 0;
@@ -82,6 +93,18 @@ private:
         std::list<NodeInfo> nodes;
         std::vector<uint16_t> buffer1;
         std::vector<uint16_t> buffer2;
+    };
+
+    struct CoilInfo
+    {
+        std::atomic_bool newData;
+        uint32_t start = 0;
+        uint32_t end = 0;
+        uint32_t count = 0;
+        bool readOnConnect = false;
+        std::list<NodeInfo> nodes;
+        std::vector<uint8_t> buffer1;
+        std::vector<uint8_t> buffer2;
     };
 
     struct WriteInfo
@@ -108,8 +131,14 @@ private:
     std::list<std::shared_ptr<RegisterInfo>> _readRegisters;
     std::mutex _writeRegistersMutex;
     std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
-    std::mutex _writeBufferMutex;
-    std::list<std::shared_ptr<WriteInfo>> _writeBuffer;
+    std::mutex _registerWriteBufferMutex;
+    std::list<std::shared_ptr<WriteInfo>> _registerWriteBuffer;
+    std::mutex _readCoilsMutex;
+    std::list<std::shared_ptr<CoilInfo>> _readCoils;
+    std::mutex _writeCoilsMutex;
+    std::list<std::shared_ptr<CoilInfo>> _writeCoils;
+    std::mutex _coilWriteBufferMutex;
+    std::list<std::shared_ptr<WriteInfo>> _coilWriteBuffer;
 
 	Modbus(const Modbus&);
 	Modbus& operator=(const Modbus&);
