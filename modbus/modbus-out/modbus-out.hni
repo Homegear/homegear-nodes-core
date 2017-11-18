@@ -41,7 +41,7 @@
         defaults: {
             name: {value:""},
             server: {type:"modbus-host", required:true},
-            registers: {value:[{r:"1", c:"1", ir:false, ib:false}]},
+            registers: {value:[{mt:"0",r:"1", c:"1", ir:false, ib:false}]},
             inputs: {value:1}
         },
         color:"#FFF0F0",
@@ -62,12 +62,15 @@
 
             var inputCount = $("#node-input-inputs").val("{}");
 
-            $("#node-input-registers-container").css('min-height','150px').css('min-width','450px').editableList({
+            $("#node-input-registers-container").css('min-height','150px').css('min-width','500px').editableList({
                 addItem: function(container,i,opt) {
                     if (!opt.hasOwnProperty('r')) {
                         opt.r = {};
                     }
                     var register = opt.r;
+                    if (!register.hasOwnProperty('mt')) {
+                        register.mt = '0';
+                    }
                     if (!register.hasOwnProperty('r')) {
                         register.r = '';
                     }
@@ -81,6 +84,9 @@
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }
                     var row = $('<div/>').appendTo(container);
+                    var modbusTypeField = $('<select/>',{style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
+                    modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
                     var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
@@ -92,6 +98,7 @@
                     var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
+                    modbusTypeField.val(register.mt == 1 ? 'Coil' : 'Reg.');
                     indexField.val(register.r);
                     countField.val(register.c);
                     invertBytesField.prop('checked', register.ib);
@@ -100,6 +107,28 @@
                     var currentInputs = JSON.parse(inputCount.val()||"{}");
                     currentInputs[opt.hasOwnProperty('i')?opt.i:opt._i] = i;
                     inputCount.val(JSON.stringify(currentInputs));
+
+                    function updateVisibility(e) {
+                        if(!e) return;
+                        var type = $(e.target).val();
+                        if(type == 'Reg.') {
+                            countLabel.show();
+                            countField.show();
+                            invertBytesLabel.show();
+                            invertBytesField.show();
+                            invertRegistersLabel.show();
+                            invertRegistersField.show();
+                        } else {
+                            countLabel.hide();
+                            countField.hide();
+                            invertBytesLabel.hide();
+                            invertBytesField.hide();
+                            invertRegistersLabel.hide();
+                            invertRegistersField.hide();
+                        }
+                    }
+                    updateVisibility();
+                    modbusTypeField.on('click', updateVisibility);             
                 },
                 removeItem: function(opt) {
                     var currentInputs = JSON.parse(inputCount.val()||"{}");
@@ -143,11 +172,12 @@
             registers.each(function(i) {
                 var registerData = $(this).data('data');
                 var register = $(this);
+                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : '1';
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
                 var invertBytes = register.find(".node-input-register-invertbytes").prop('checked');
                 var invertRegisters = register.find(".node-input-register-invertregisters").prop('checked');
-                node.registers.push({r:index,c:count,ib:invertBytes,ir:invertRegisters});
+                node.registers.push({mt:modbusType,r:index,c:count,ib:invertBytes,ir:invertRegisters});
             });
         },
         oneditresize: function(size) {

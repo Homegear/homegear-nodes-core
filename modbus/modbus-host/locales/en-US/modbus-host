@@ -9,6 +9,8 @@
         "delay": "Min. delay",
         "read-registers": "Registers to read",
         "write-registers": "Registers to write",
+        "read-coils": "Coils to read",
+        "write-coils": "Coils to write",
         "first": "First",
         "last": "Last",
         "invert": "Invert bytes",
