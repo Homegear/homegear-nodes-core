@@ -6,7 +6,7 @@
         "outputs": "Outputs"
       },
       "paletteHelp": "<p>This node forwards the input to the outputs in exact sequence.</p>",
-      "help": "<p>This node forwards the input to the outputs in exact sequence and enables synchronous output for all following nodes. It waits for each following node path to finish before the next output is executed and causes all outputs of following nodes to be executed in sequence. Please note that this doesn't work if two or more PHP nodes are directly connected to each other. There needs to be at least one C++ node between two PHP nodes.</p>",
+      "help": "<p>This node forwards the input to the outputs in exact sequence and enables synchronous output for all following nodes. It waits for each following node path to finish before the next output is executed and causes all outputs of following nodes to be executed in sequence. Please note that the synchronous sequence is broken by PHP nodes. It works for the PHP node itself but not for nodes following it.</p>",
       "input1Description": "The value to forward."
     }
   }
