@@ -147,6 +147,7 @@ private:
     void setConnectionState(bool connected);
 	void listen();
     void readWriteRegister(std::shared_ptr<RegisterInfo>& info);
+    void readWriteCoil(std::shared_ptr<CoilInfo>& info);
 };
 
 #endif

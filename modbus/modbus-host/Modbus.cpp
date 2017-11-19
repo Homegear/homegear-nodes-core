@@ -232,6 +232,48 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
     }
 }
 
+void Modbus::readWriteCoil(std::shared_ptr<CoilInfo>& info)
+{
+    try
+    {
+        int result = modbus_read_bits(_modbus, info->start, info->buffer1.size(), info->buffer1.data());
+        if (result == -1)
+        {
+            _out->printError("Error reading from Modbus coils " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
+        }
+
+        if(_settings->delay > 0)
+        {
+            if(_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+            else
+            {
+                int32_t maxIndex = _settings->delay / 1000;
+                int32_t rest = _settings->delay % 1000;
+                for(int32_t i = 0; i < maxIndex; i++)
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                    if(!_started) return;
+                }
+                if(!_started) return;
+                if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+            }
+            if(!_started) return;
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+}
+
 void Modbus::listen()
 {
     int64_t startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
@@ -655,6 +697,18 @@ void Modbus::connect()
         {
             if(!registerElement->readOnConnect) continue;
             readWriteRegister(registerElement);
+        }
+
+        std::list<std::shared_ptr<CoilInfo>> coils;
+        {
+            std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
+            coils = _writeCoils;
+        }
+
+        for(auto& coilElement : coils)
+        {
+            if(!coilElement->readOnConnect) continue;
+            readWriteCoil(coilElement);
         }
 
         _connected = true;
