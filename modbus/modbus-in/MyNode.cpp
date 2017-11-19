@@ -274,10 +274,7 @@ void MyNode::configNodesStarted()
 
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                     message->structValue->emplace("coil", std::make_shared<Flows::Variable>(indexIterator->first));
-                    message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
-
-                    if(countIterator->first > 1) message->structValue->emplace("payload", packet->arrayValue->at(3));
-                    else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((bool)packet->arrayValue->at(3)->binaryValue.back()));
+                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>((bool)packet->arrayValue->at(3)->binaryValue.back()));
 
                     output(countIterator->second->outputIndex, message);
                 }

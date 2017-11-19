@@ -109,7 +109,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         auto registersIterator = _registers.find(index);
         if(registersIterator == _registers.end()) return;
 
-		Flows::PVariable payload = message->structValue->at("payload");
+		Flows::PVariable payload = std::make_shared<Flows::Variable>();
+        *payload = *(message->structValue->at("payload"));
         if(registersIterator->second->modbusType == ModbusType::tRegister)
         {
             if (payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
