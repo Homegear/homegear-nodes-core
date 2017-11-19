@@ -87,7 +87,7 @@
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }
                     var row = $('<div/>').appendTo(container);
-                    var modbusTypeField = $('<select/>',{style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
@@ -95,7 +95,7 @@
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
                     var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var typeLabel = $('<span/>',{class:"node-input-register-type-label"}).text(" "+typeLabelText+" ").appendTo(row);
-                    var selectField = $('<select/>',{style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    var selectField = $('<select/>',{class:"node-input-register-type", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
                     for (var d in types) {
                         selectField.append($("<option></option>").val(types[d]).text(types[d]));
                     }
@@ -192,7 +192,7 @@
                 var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : '1';
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
-                var type = register.find("select").val();
+                var type = register.find(".node-input-register-type").val();
                 var invertBytes = register.find(".node-input-register-invertbytes").prop('checked');
                 var invertRegisters = register.find(".node-input-register-invertregisters").prop('checked');
                 node.registers.push({mt:modbusType,r:index,c:count,t:type,ib:invertBytes,ir:invertRegisters});

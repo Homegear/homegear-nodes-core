@@ -84,7 +84,7 @@
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }
                     var row = $('<div/>').appendTo(container);
-                    var modbusTypeField = $('<select/>',{style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
