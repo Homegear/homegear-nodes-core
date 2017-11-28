@@ -95,6 +95,24 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("sat");
 		if(settingsIterator != info->info->structValue->end()) _days.at(6) = settingsIterator->second->booleanValue;
 
+        bool reactivate = true;
+        for(auto day : _days)
+        {
+            if(day)
+            {
+                reactivate = false;
+                break;
+            }
+        }
+        if(reactivate)
+        {
+            _out->printWarning("Warning: No day selected.");
+            for(auto day : _days)
+            {
+                day = true;
+            }
+        }
+
 		settingsIterator = info->info->structValue->find("jan");
 		if(settingsIterator != info->info->structValue->end()) _months.at(0) = settingsIterator->second->booleanValue;
 		settingsIterator = info->info->structValue->find("feb");
@@ -119,6 +137,24 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) _months.at(10) = settingsIterator->second->booleanValue;
 		settingsIterator = info->info->structValue->find("dec");
 		if(settingsIterator != info->info->structValue->end()) _months.at(11) = settingsIterator->second->booleanValue;
+
+        reactivate = true;
+        for(auto month : _months)
+        {
+            if(month)
+            {
+                reactivate = false;
+                break;
+            }
+        }
+        if(reactivate)
+        {
+            _out->printWarning("Warning: No month selected.");
+            for(auto month : _months)
+            {
+                month = true;
+            }
+        }
 
 		auto enabled = getNodeData("enabled");
 		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
@@ -285,7 +321,15 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
 				}
 			}
-			while(time < currentTime) time += 86400000;
+            std::tm timeStruct;
+            _sunTime.getTimeStruct(timeStruct);
+            int64_t utcTime = _sunTime.getUtcTime(time);
+			while(time < currentTime || !_days.at(timeStruct.tm_wday) || !_months.at(timeStruct.tm_mon))
+            {
+                time += 86400000;
+                utcTime = _sunTime.getUtcTime(time);
+                _sunTime.getTimeStruct(timeStruct, utcTime);
+            }
 			return time;
 		}
 	}
@@ -415,6 +459,7 @@ void MyNode::timer()
 	bool event = false;
 	bool update = false;
 	int64_t currentTime = _sunTime.getLocalTime();
+    int64_t lastTime = currentTime;
 	int64_t onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
 	int64_t offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 	int32_t day = 0;
@@ -448,6 +493,19 @@ void MyNode::timer()
 			if(_stopThread) break;
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			currentTime = _sunTime.getLocalTime();
+            if(currentTime % 86400 < lastTime % 86400) //New day?
+            {
+                onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
+                offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
+                {
+                    std::tm tm;
+                    _sunTime.getTimeStruct(tm);
+                    day = tm.tm_wday;
+                    month = tm.tm_mon;
+                }
+                printNext(currentTime, onTime, offTime);
+            }
+            lastTime = currentTime;
 			if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
 			{
 				if(onTime > offTime) _lastOffTime = offTime;
