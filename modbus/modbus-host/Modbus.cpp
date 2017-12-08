@@ -287,10 +287,15 @@ void Modbus::listen()
 		{
 			if(!_modbus)
 			{
+                _out->printError("Moin0");
 				if(!_started) return;
+                _out->printError("Moin1");
 				connect();
+                _out->printError("Moin2");
 				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+                _out->printError("Moin3");
 				if(!_started) return;
+                _out->printError("Moin4");
 				continue;
 			}
 
@@ -670,13 +675,14 @@ void Modbus::connect()
             setConnectionState(false);
 			return;
 		}
-		_modbus = modbus_new_tcp(_settings->server.c_str(), BaseLib::Math::getNumber(_settings->port));
+		_modbus = modbus_new_tcp_pi(_settings->server.c_str(), _settings->port.c_str());
 		if(!_modbus)
 		{
 			_out->printError("Error: Could not connect to Modbus device: Could not create modbus handle. Are hostname and port set correctly?");
             setConnectionState(false);
 			return;
 		}
+
 		int result = modbus_connect(_modbus);
 		if(result == -1)
         {
