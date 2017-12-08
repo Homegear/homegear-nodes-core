@@ -287,15 +287,10 @@ void Modbus::listen()
 		{
 			if(!_modbus)
 			{
-                _out->printError("Moin0");
 				if(!_started) return;
-                _out->printError("Moin1");
 				connect();
-                _out->printError("Moin2");
 				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-                _out->printError("Moin3");
 				if(!_started) return;
-                _out->printError("Moin4");
 				continue;
 			}
 
