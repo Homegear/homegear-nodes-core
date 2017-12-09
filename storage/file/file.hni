@@ -22,6 +22,10 @@
   limitations under the License.
 -->
 <script type="text/x-red" data-template-name="file">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
     <div class="form-row node-input-filename">
          <label for="node-input-filename"><i class="fa fa-file"></i> <span data-i18n="file.label.filename"></span></label>
          <input id="node-input-filename" type="text">
@@ -43,10 +47,6 @@
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-createDir" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-createDir" style="width: 70%;"><span data-i18n="file.label.createdir"></span></label>
-    </div>
-    <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
-        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-tips"><span data-i18n="file.tip"></span></div>
 </script>

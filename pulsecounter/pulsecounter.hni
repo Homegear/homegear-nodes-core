@@ -1,0 +1,46 @@
+<script type="text/x-homegear">
+{
+    "name": "pulsecounter",
+    "readableName": "pulsecounter",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="pulsecounter">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maxgap"><i class="fa fa-id-badge"></i> <span data-i18n="pulsecounter.label.maxgap"></span></label>
+        <input type="text" id="node-input-maxgap" data-i18n="[placeholder]pulsecounter.label.maxgap">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('pulsecounter',{
+        color:"#fdd0a2",
+        category: 'function',
+        defaults: {
+            "maxgap": {value:"10000",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                label: "cnts/min",
+                types: ["int"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "pulsecounter";
+        }
+    });
+</script>

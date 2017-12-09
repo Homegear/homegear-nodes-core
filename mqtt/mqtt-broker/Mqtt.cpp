@@ -29,13 +29,14 @@
 
 #include "Mqtt.h"
 
-Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<MqttSettings> settings) : BaseLib::IQueue(bl.get(), 2, 1000)
+Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings) : BaseLib::IQueue(bl.get(), 2, 1000)
 {
 	try
 	{
 		_packetId = 1;
 
 		_bl = bl;
+		_out = output;
 		_settings = settings;
 		_started = false;
 		_reconnecting = false;
@@ -44,15 +45,15 @@ Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<MqttSetti
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -65,15 +66,15 @@ Mqtt::~Mqtt()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -96,15 +97,15 @@ void Mqtt::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -116,15 +117,15 @@ void Mqtt::stop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -146,15 +147,15 @@ void Mqtt::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -200,22 +201,22 @@ void Mqtt::printConnectionError(char resultCode)
 	case 0: //No error
 		break;
 	case 1:
-		Flows::Output::printError("Error: Connection refused. Unacceptable protocol version.");
+		_out->printError("Error: Connection refused. Unacceptable protocol version.");
 		break;
 	case 2:
-		Flows::Output::printError("Error: Connection refused. Client identifier rejected. Please change the client identifier in mqtt.conf.");
+		_out->printError("Error: Connection refused. Client identifier rejected. Please change the client identifier in mqtt.conf.");
 		break;
 	case 3:
-		Flows::Output::printError("Error: Connection refused. Server unavailable.");
+		_out->printError("Error: Connection refused. Server unavailable.");
 		break;
 	case 4:
-		Flows::Output::printError("Error: Connection refused. Bad username or password.");
+		_out->printError("Error: Connection refused. Bad username or password.");
 		break;
 	case 5:
-		Flows::Output::printError("Error: Connection refused. Unauthorized.");
+		_out->printError("Error: Connection refused. Unauthorized.");
 		break;
 	default:
-		Flows::Output::printError("Error: Connection refused. Unknown error: " + std::to_string(resultCode));
+		_out->printError("Error: Connection refused. Unknown error: " + std::to_string(resultCode));
 		break;
 	}
 }
@@ -226,7 +227,7 @@ void Mqtt::getResponseByType(const std::vector<char>& packet, std::vector<char>&
 	{
 		if(!_socket->connected())
 		{
-			if(errors) Flows::Output::printError("Error: Could not send packet to MQTT server, because we are not connected.");
+			if(errors) _out->printError("Error: Could not send packet to MQTT server, because we are not connected.");
 			return;
 		}
 		std::shared_ptr<RequestByType> request(new RequestByType());
@@ -240,7 +241,7 @@ void Mqtt::getResponseByType(const std::vector<char>& packet, std::vector<char>&
 
 			if(!request->conditionVariable.wait_for(lock, std::chrono::milliseconds(5000), [&] { return request->mutexReady; }))
 			{
-				if(errors) Flows::Output::printError("Error: No response received to packet: " + Flows::HelperFunctions::getHexString(packet));
+				if(errors) _out->printError("Error: No response received to packet: " + Flows::HelperFunctions::getHexString(packet));
 			}
 			responseBuffer = request->response;
 
@@ -251,23 +252,23 @@ void Mqtt::getResponseByType(const std::vector<char>& packet, std::vector<char>&
 		}
 		catch(BaseLib::SocketClosedException&)
 		{
-			if(errors) Flows::Output::printError("Error: Socket closed while sending packet.");
+			if(errors) _out->printError("Error: Socket closed while sending packet.");
 		}
 		catch(BaseLib::SocketTimeOutException& ex) { _socket->close(); }
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		_requestsByTypeMutex.unlock();
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		_requestsByTypeMutex.unlock();
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		_requestsByTypeMutex.unlock();
 	}
 }
@@ -278,7 +279,7 @@ void Mqtt::getResponse(const std::vector<char>& packet, std::vector<char>& respo
 	{
 		if(!_socket->connected())
 		{
-			if(errors) Flows::Output::printError("Error: Could not send packet to MQTT server, because we are not connected.");
+			if(errors) _out->printError("Error: Could not send packet to MQTT server, because we are not connected.");
 			return;
 		}
 		std::shared_ptr<Request> request(new Request(responseType));
@@ -292,7 +293,7 @@ void Mqtt::getResponse(const std::vector<char>& packet, std::vector<char>& respo
 
 			if(!request->conditionVariable.wait_for(lock, std::chrono::milliseconds(5000), [&] { return request->mutexReady; }))
 			{
-				if(errors) Flows::Output::printError("Error: No response received to packet: " + Flows::HelperFunctions::getHexString(packet));
+				if(errors) _out->printError("Error: No response received to packet: " + Flows::HelperFunctions::getHexString(packet));
 			}
 			responseBuffer = request->response;
 
@@ -303,23 +304,23 @@ void Mqtt::getResponse(const std::vector<char>& packet, std::vector<char>& respo
 		}
 		catch(BaseLib::SocketClosedException&)
 		{
-			Flows::Output::printError("Error: Socket closed while sending packet.");
+			_out->printError("Error: Socket closed while sending packet.");
 		}
 		catch(BaseLib::SocketTimeOutException& ex) { _socket->close(); }
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		_requestsMutex.unlock();
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		_requestsMutex.unlock();
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		_requestsMutex.unlock();
 	}
 }
@@ -338,7 +339,7 @@ void Mqtt::ping()
 				getResponseByType(ping, pong, 0xD0, false);
 				if(pong.empty())
 				{
-					Flows::Output::printError("Error: No PINGRESP received.");
+					_out->printError("Error: No PINGRESP received.");
 					_socket->close();
 				}
 			}
@@ -353,15 +354,15 @@ void Mqtt::ping()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -399,7 +400,7 @@ void Mqtt::listen()
 						data.insert(data.end(), &buffer.at(0), &buffer.at(0) + bytesReceived);
 						if(data.size() > 1000000)
 						{
-							Flows::Output::printError("Could not read packet: Too much data.");
+							_out->printError("Could not read packet: Too much data.");
 							break;
 						}
 					}
@@ -429,7 +430,7 @@ void Mqtt::listen()
 			catch(BaseLib::SocketClosedException& ex)
 			{
 				_socket->close();
-				if(_started) Flows::Output::printWarning("Warning: Connection to MQTT server closed.");
+				if(_started) _out->printWarning("Warning: Connection to MQTT server closed.");
 				continue;
 			}
 			catch(BaseLib::SocketTimeOutException& ex)
@@ -439,7 +440,7 @@ void Mqtt::listen()
 			catch(BaseLib::SocketOperationException& ex)
 			{
 				_socket->close();
-				Flows::Output::printError("Error: " + ex.what());
+				_out->printError("Error: " + ex.what());
 				continue;
 			}
 
@@ -457,15 +458,15 @@ void Mqtt::listen()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		data.clear();
 		length = 0;
@@ -524,20 +525,20 @@ void Mqtt::processData(std::vector<char>& data)
 		if(data.size() > 4 && (data[0] & 0xF0) == 0x30) //PUBLISH
 		{
 			std::shared_ptr<BaseLib::IQueueEntry> entry(new QueueEntryReceived(data));
-			if(!enqueue(1, entry)) Flows::Output::printError("Error: Too many received packets are queued to be processed. Your packet processing is too slow. Dropping packet.");
+			if(!enqueue(1, entry)) _out->printError("Error: Too many received packets are queued to be processed. Your packet processing is too slow. Dropping packet.");
 		}
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -549,7 +550,7 @@ void Mqtt::processPublish(std::vector<char>& data)
 		uint32_t length = getLength(data, lengthBytes);
 		if(1 + lengthBytes >= data.size() - 1 || length == 0)
 		{
-			Flows::Output::printError("Error: Invalid packet format: " + BaseLib::HelperFunctions::getHexString(data));
+			_out->printError("Error: Invalid packet format: " + BaseLib::HelperFunctions::getHexString(data));
 			return;
 		}
 		uint8_t qos = data[0] & 6;
@@ -558,12 +559,12 @@ void Mqtt::processPublish(std::vector<char>& data)
 		uint32_t payloadPos = (qos > 0) ? topicLength + 2 : topicLength;
 		if(payloadPos >= data.size())
 		{
-			Flows::Output::printError("Error: Packet has no payload: " + BaseLib::HelperFunctions::getHexString(data));
+			_out->printError("Error: Packet has no payload: " + BaseLib::HelperFunctions::getHexString(data));
 			return;
 		}
 		if(qos == 4)
 		{
-			Flows::Output::printError("Error: Received publish packet with QoS 2. That was not requested.");
+			_out->printError("Error: Received publish packet with QoS 2. That was not requested.");
 		}
 		else if(qos == 2)
 		{
@@ -587,22 +588,22 @@ void Mqtt::processPublish(std::vector<char>& data)
 					parameters->push_back(std::make_shared<Flows::Variable>(topic));
 					parameters->push_back(std::make_shared<Flows::Variable>(payload));
 					parameters->push_back(std::make_shared<Flows::Variable>(retain));
-					_invoke(node, "publish", parameters);
+					_invoke(node, "publish", parameters, false);
 				}
 			}
 		}
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -614,7 +615,7 @@ void Mqtt::send(const std::vector<char>& data)
 	}
 	catch(BaseLib::SocketClosedException&)
 	{
-		Flows::Output::printError("Error: Socket closed while sending packet.");
+		_out->printError("Error: Socket closed while sending packet.");
 	}
 	catch(BaseLib::SocketTimeOutException& ex) { _socket->close(); }
 	catch(BaseLib::SocketOperationException& ex) { _socket->close(); }
@@ -655,7 +656,7 @@ void Mqtt::subscribe(std::string& topic)
 			}
 			catch(BaseLib::SocketClosedException&)
 			{
-				Flows::Output::printError("Error: Socket closed while sending packet.");
+				_out->printError("Error: Socket closed while sending packet.");
 				break;
 			}
 			catch(BaseLib::SocketTimeOutException& ex)
@@ -667,15 +668,15 @@ void Mqtt::subscribe(std::string& topic)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -709,7 +710,7 @@ void Mqtt::unsubscribe(std::string& topic)
 			}
 			catch(BaseLib::SocketClosedException&)
 			{
-				Flows::Output::printError("Error: Socket closed while sending packet.");
+				_out->printError("Error: Socket closed while sending packet.");
 				break;
 			}
 			catch(BaseLib::SocketTimeOutException& ex)
@@ -721,15 +722,15 @@ void Mqtt::unsubscribe(std::string& topic)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -755,20 +756,20 @@ void Mqtt::reconnectThread()
 		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 		for(auto& node : _nodes)
 		{
-			_invoke(node, "setConnectionState", parameters);
+			_invoke(node, "setConnectionState", parameters, false);
 		}
 	}
     catch(const std::exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }
 
@@ -785,15 +786,15 @@ void Mqtt::reconnect()
 	}
     catch(const std::exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(BaseLib::Exception& ex)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
     catch(...)
     {
-        Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
 }
 
@@ -859,14 +860,14 @@ void Mqtt::connect()
 			if(response.size() != 4)
 			{
 				if(response.size() == 0) {}
-				else if(response.size() != 4) Flows::Output::printError("Error: CONNACK packet has wrong size.");
-				else if(response[0] != 0x20 || response[1] != 0x02 || response[2] != 0) Flows::Output::printError("Error: CONNACK has wrong content.");
+				else if(response.size() != 4) _out->printError("Error: CONNACK packet has wrong size.");
+				else if(response[0] != 0x20 || response[1] != 0x02 || response[2] != 0) _out->printError("Error: CONNACK has wrong content.");
 				else if(response[3] != 1) printConnectionError(response[3]);
 				retry = true;
 			}
 			else
 			{
-				Flows::Output::printInfo("Info: Successfully connected to MQTT server using protocol version 4.");
+				_out->printInfo("Info: Successfully connected to MQTT server using protocol version 4.");
 				_connected = true;
 				_connectMutex.unlock();
 				_reconnecting = false;
@@ -919,14 +920,14 @@ void Mqtt::connect()
 				getResponseByType(connectPacket, response, 0x20, false);
 				if(response.size() != 4)
 				{
-					if(response.size() == 0) Flows::Output::printError("Error: Connection to MQTT server with protocol version 3 failed.");
-					else if(response.size() != 4) Flows::Output::printError("Error: CONNACK packet has wrong size.");
-					else if(response[0] != 0x20 || response[1] != 0x02 || response[2] != 0) Flows::Output::printError("Error: CONNACK has wrong content.");
+					if(response.size() == 0) _out->printError("Error: Connection to MQTT server with protocol version 3 failed.");
+					else if(response.size() != 4) _out->printError("Error: CONNACK packet has wrong size.");
+					else if(response[0] != 0x20 || response[1] != 0x02 || response[2] != 0) _out->printError("Error: CONNACK has wrong content.");
 					else printConnectionError(response[3]);
 				}
 				else
 				{
-					Flows::Output::printInfo("Info: Successfully connected to MQTT server using protocol version 3.");
+					_out->printInfo("Info: Successfully connected to MQTT server using protocol version 3.");
 					_connected = true;
 					_connectMutex.unlock();
 					_reconnecting = false;
@@ -937,15 +938,15 @@ void Mqtt::connect()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 	}
@@ -964,15 +965,15 @@ void Mqtt::disconnect()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1003,18 +1004,22 @@ void Mqtt::registerNode(std::string& node)
 	{
 		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 		_nodes.emplace(node);
+
+        Flows::PArray parameters = std::make_shared<Flows::Array>();
+        parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
+        _invoke(node, "setConnectionState", parameters, false);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1035,15 +1040,15 @@ void Mqtt::registerTopic(std::string& node, std::string& topic)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1064,15 +1069,15 @@ void Mqtt::unregisterTopic(std::string& node, std::string& topic)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1086,19 +1091,19 @@ void Mqtt::queueMessage(std::string& topic, std::string& payload, bool retain)
 		message->message.insert(message->message.end(), payload.begin(), payload.end());
 		message->retain = retain;
 		std::shared_ptr<BaseLib::IQueueEntry> entry = std::make_shared<QueueEntrySend>(message);
-		if(!enqueue(0, entry)) Flows::Output::printError("Error: Too many packets are queued to be processed. Your packet processing is too slow. Dropping packet.");
+		if(!enqueue(0, entry)) _out->printError("Error: Too many packets are queued to be processed. Your packet processing is too slow. Dropping packet.");
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1125,7 +1130,7 @@ void Mqtt::publish(const std::string& topic, const std::vector<char>& data, bool
 		packet.insert(packet.end(), payload.begin(), payload.end());
 		int32_t j = 0;
 		std::vector<char> response(7);
-		Flows::Output::printInfo("Info: Publishing topic " + topic);
+		_out->printInfo("Info: Publishing topic " + topic);
 		for(int32_t i = 0; i < 25; i++)
 		{
 			if(_reconnecting)
@@ -1142,7 +1147,7 @@ void Mqtt::publish(const std::string& topic, const std::vector<char>& data, bool
 			{
 				//_socket->close();
 				//reconnect();
-				if(i >= 5) Flows::Output::printWarning("Warning: No PUBACK received.");
+				if(i >= 5) _out->printWarning("Warning: No PUBACK received.");
 			}
 			else return;
 
@@ -1165,15 +1170,15 @@ void Mqtt::publish(const std::string& topic, const std::vector<char>& data, bool
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -1198,14 +1203,14 @@ void Mqtt::processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(const BaseLib::Exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }

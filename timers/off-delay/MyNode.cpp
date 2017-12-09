@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
+	_stopped = true;
 	_threadRunning = false;
 }
 
@@ -56,11 +57,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -69,11 +70,12 @@ bool MyNode::start()
 {
 	try
 	{
+		_stopped = false;
 		int64_t delayTo = getNodeData("delayTo")->integerValue64;
 		if (delayTo > 0)
 		{
 			std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-			_stopThread = true;
+            _stopThread = true;
 			if (_timerThread.joinable())_timerThread.join();
 			_stopThread = false;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
@@ -85,11 +87,11 @@ bool MyNode::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -98,16 +100,17 @@ void MyNode::stop()
 {
 	try
 	{
+		_stopped = true;
 		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 		_stopThread = true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -121,11 +124,11 @@ void MyNode::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -174,53 +177,76 @@ void MyNode::timer(int64_t delayTo)
 	catch(const std::exception& ex)
 	{
 		_threadRunning = false;
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
 		_threadRunning = false;
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
-		std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-		if (*input)
+		if(index == 0)
 		{
-			if(!_lastOutputState || _firstInput)
+			if (*input)
 			{
-				_stopThread = true;
-				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-				output(0, outputMessage); //true
+				if (!_lastOutputState || _firstInput)
+				{
+					{
+						std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+						_stopThread = true;
+					}
+					Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+					outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+					output(0, outputMessage); //true
+				}
+				_lastOutputState = true;
+				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(true));
 			}
-			_lastOutputState = true;
-			setNodeData("lastOutputState", std::make_shared<Flows::Variable>(true));
+			else if (!_threadRunning && (_lastOutputState || _firstInput))
+			{
+				_lastOutputState = false;
+				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(false));
+				int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
+				setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
+				std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+				_stopThread = true;
+				if (_timerThread.joinable()) _timerThread.join();
+				if (_stopped) return;
+				_stopThread = false;
+				_threadRunning = true;
+				_timerThread = std::thread(&MyNode::timer, this, delayTo);
+			}
+			if (_firstInput) _firstInput = false;
 		}
-		else if(!_threadRunning && (_lastOutputState || _firstInput))
+		else
 		{
-			_lastOutputState = false;
-			setNodeData("lastOutputState", std::make_shared<Flows::Variable>(false));
-			int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
-			setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
-			if (_timerThread.joinable()) _timerThread.join();
-			_stopThread = false;
-			_threadRunning = true;
-			_timerThread = std::thread(&MyNode::timer, this, delayTo);
+            if(*input && !_lastOutputState)
+            {
+                int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
+                setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
+                std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+                _stopThread = true;
+                if (_timerThread.joinable())_timerThread.join();
+                if (_stopped) return;
+                _stopThread = false;
+                _threadRunning = true;
+                _timerThread = std::thread(&MyNode::timer, this, delayTo);
+            }
 		}
-		if(_firstInput) _firstInput = false;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

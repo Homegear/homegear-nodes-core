@@ -58,11 +58,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -73,25 +73,25 @@ void MyNode::configNodesStarted()
 	{
 		if(_broker.empty())
 		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
+			_out->printError("Error: This node has no broker assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
+		if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
@@ -105,7 +105,8 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
 		else retain = _retain;
 
-		Flows::PVariable payload = message->structValue->at("payload");
+		Flows::PVariable payload = std::make_shared<Flows::Variable>();
+		*payload = *message->structValue->at("payload");
 		if(payload->type == Flows::VariableType::tArray || payload->type == Flows::VariableType::tStruct) payload->stringValue = _jsonEncoder.getString(payload);
 		else if(payload->type != Flows::VariableType::tString) payload->stringValue = payload->toString();
 		payload->setType(Flows::VariableType::tString);
@@ -116,16 +117,16 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		parameters->push_back(payload);
 		parameters->push_back(std::make_shared<Flows::Variable>(retain));
 
-		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
+		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters, true);
+		if(result->errorStruct) _out->printError("Error publishing topic: " + topic);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -156,11 +157,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

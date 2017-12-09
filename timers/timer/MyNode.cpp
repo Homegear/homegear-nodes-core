@@ -35,6 +35,7 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
+	_stopped = true;
 	_enabled = true;
 }
 
@@ -94,6 +95,24 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("sat");
 		if(settingsIterator != info->info->structValue->end()) _days.at(6) = settingsIterator->second->booleanValue;
 
+        bool reactivate = true;
+        for(auto day : _days)
+        {
+            if(day)
+            {
+                reactivate = false;
+                break;
+            }
+        }
+        if(reactivate)
+        {
+            _out->printWarning("Warning: No day selected.");
+            for(auto day : _days)
+            {
+                day = true;
+            }
+        }
+
 		settingsIterator = info->info->structValue->find("jan");
 		if(settingsIterator != info->info->structValue->end()) _months.at(0) = settingsIterator->second->booleanValue;
 		settingsIterator = info->info->structValue->find("feb");
@@ -119,6 +138,24 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("dec");
 		if(settingsIterator != info->info->structValue->end()) _months.at(11) = settingsIterator->second->booleanValue;
 
+        reactivate = true;
+        for(auto month : _months)
+        {
+            if(month)
+            {
+                reactivate = false;
+                break;
+            }
+        }
+        if(reactivate)
+        {
+            _out->printWarning("Warning: No month selected.");
+            for(auto month : _months)
+            {
+                month = true;
+            }
+        }
+
 		auto enabled = getNodeData("enabled");
 		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 		_lastOnTime = getNodeData("lastOnTime")->integerValue64;
@@ -128,11 +165,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -141,15 +178,16 @@ bool MyNode::start()
 {
 	try
 	{
+		_stopped = false;
 		return true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -166,11 +204,11 @@ void MyNode::startUpComplete()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -178,15 +216,16 @@ void MyNode::stop()
 {
 	try
 	{
+		_stopped = true;
 		_stopThread = true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -200,11 +239,11 @@ void MyNode::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -243,11 +282,11 @@ int64_t MyNode::getSunTime(int64_t timeStamp, std::string time)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return -1;
 }
@@ -282,17 +321,25 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
 				}
 			}
-			while(time < currentTime) time += 86400000;
+            std::tm timeStruct;
+            _sunTime.getTimeStruct(timeStruct);
+            int64_t utcTime = _sunTime.getUtcTime(time);
+			while(time < currentTime || !_days.at(timeStruct.tm_wday) || !_months.at(timeStruct.tm_mon))
+            {
+                time += 86400000;
+                utcTime = _sunTime.getUtcTime(time);
+                _sunTime.getTimeStruct(timeStruct, utcTime);
+            }
 			return time;
 		}
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return 0;
 }
@@ -333,11 +380,11 @@ std::pair<int64_t, bool> MyNode::getNext(int64_t currentTime, int64_t onTime, in
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return std::make_pair(-1, false);
 }
@@ -399,11 +446,11 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -412,6 +459,7 @@ void MyNode::timer()
 	bool event = false;
 	bool update = false;
 	int64_t currentTime = _sunTime.getLocalTime();
+    int64_t lastTime = currentTime;
 	int64_t onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
 	int64_t offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 	int32_t day = 0;
@@ -445,6 +493,19 @@ void MyNode::timer()
 			if(_stopThread) break;
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			currentTime = _sunTime.getLocalTime();
+            if(currentTime % 86400 < lastTime % 86400) //New day?
+            {
+                onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
+                offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
+                {
+                    std::tm tm;
+                    _sunTime.getTimeStruct(tm);
+                    day = tm.tm_wday;
+                    month = tm.tm_mon;
+                }
+                printNext(currentTime, onTime, offTime);
+            }
+            lastTime = currentTime;
 			if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
 			{
 				if(onTime > offTime) _lastOffTime = offTime;
@@ -494,16 +555,16 @@ void MyNode::timer()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 	}
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
@@ -516,6 +577,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			{
 				_stopThread = true;
 				if(_timerThread.joinable()) _timerThread.join();
+				if(_stopped) return;
 				_stopThread = false;
 				_timerThread = std::thread(&MyNode::timer, this);
 			}
@@ -528,11 +590,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

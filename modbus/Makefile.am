@@ -8,7 +8,7 @@ libdir = $(localstatedir)/lib/homegear/flows/nodes/modbus
 
 lib_LTLIBRARIES = modbus-host.la modbus-in.la modbus-out.la
 
-modbus_host_la_SOURCES = modbus-host/Factory.cpp modbus-host/Mqtt.cpp modbus-host/MyNode.cpp
+modbus_host_la_SOURCES = modbus-host/Factory.cpp modbus-host/Modbus.cpp modbus-host/MyNode.cpp
 modbus_host_la_LDFLAGS =-module -avoid-version -shared
 
 modbus_in_la_SOURCES = modbus-in/Factory.cpp modbus-in/MyNode.cpp

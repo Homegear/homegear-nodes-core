@@ -1,0 +1,43 @@
+<script type="text/x-homegear">
+{
+    "name": "risingedge",
+    "readableName": "RisingEdge",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="risingedge">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="risingedge.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]risingedge.label.name">
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('risingedge',{
+        category: 'logic',
+        namespace: 'basic-logic',
+        color: "#e2d96e",
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+        	{
+        		label: "in",
+        		types: ["bool"]
+        	}
+        ],
+        outputs:1,
+        outputInfo: [
+        	{
+        		types: ["bool"]
+        	}
+        ],
+        icon: "function.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "risingedge";
+        },
+        paletteLabel: "risingedge"
+    });
+</script>

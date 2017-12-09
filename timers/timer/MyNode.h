@@ -68,6 +68,7 @@ private:
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
+	std::atomic_bool _stopped;
 	std::thread _timerThread;
 
 	std::vector<std::string> splitAll(std::string string, char delimiter);
@@ -75,7 +76,7 @@ private:
 	std::string getDateString(int64_t time);
 	int64_t getSunTime(int64_t timeStamp, std::string time);
 	int64_t getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset);
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 	std::pair<int64_t, bool> getNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 	void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 };

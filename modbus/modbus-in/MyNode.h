@@ -30,7 +30,9 @@
 #ifndef MYNODE_H_
 #define MYNODE_H_
 
+#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -44,11 +46,40 @@ public:
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
 private:
-	std::string _broker;
-	std::string _topic;
+	enum class ModbusType
+	{
+		tRegister = 0,
+		tCoil = 1
+	};
+
+    enum class RegisterType
+    {
+        tBin,
+        tBool,
+        tInt,
+        tFloat,
+        tString
+    };
+
+    struct RegisterInfo
+    {
+        ModbusType modbusType = ModbusType::tRegister;
+        uint32_t outputIndex = 0;
+        uint32_t index = 0;
+        uint32_t count = 0;
+        RegisterType type = RegisterType::tBin;
+        bool invertBytes = false;
+        bool invertRegisters = false;
+        std::vector<uint8_t> lastValue;
+    };
+
+    std::string _server;
+    uint32_t _outputs = 0;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
+    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
 
 	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray parameters);
+	Flows::PVariable packetReceived(Flows::PArray parameters);
 	Flows::PVariable setConnectionState(Flows::PArray parameters);
 	//}}}
 };

@@ -191,6 +191,8 @@
                     if(!currentVariable) return;
                     if($("#node-input-variable").val()) {
                         var html = "<table>";
+                        if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
+                        if(currentVariable.description) html += "<tr><td><b>Description</b></td><td>" + currentVariable.description + "</td></tr>";
                         html += "<tr><td><b>Type</b></td><td>" + currentVariable.type + "</td></tr>";
                         if(currentVariable.min || currentVariable.min === 0) html += "<tr><td><b>Min</b></td><td>" + currentVariable.min + "</td></tr>";
                         if(currentVariable.max || currentVariable.min === 0) html += "<tr><td><b>Max</b></td><td>" + currentVariable.max + "</td></tr>";
@@ -240,6 +242,8 @@
                                 if(this.TYPE != "BOOL" && this.TYPE != "ACTION") variables[this.ID].max = this.MAX;
                                 if(this.SPECIAL) variables[this.ID].special = this.SPECIAL;
                                 if(this.VALUE_LIST) variables[this.ID].valueList = this.VALUE_LIST;
+                                if(this.LABEL) variables[this.ID].label = this.LABEL;
+                                if(this.DESCRIPTION) variables[this.ID].label = this.DESCRIPTION;
                                 variableSelect.append($("<option />").val(this.ID).text(this.ID));
                             });
                             variableSelect.val(that.variable);
@@ -299,6 +303,9 @@
 
             //{{{ Peers
                 function fillPeerIdOptions() {
+                    $("#node-input-peerid").empty();
+                    $("#node-input-channel").empty();
+                    $("#node-input-variable").empty();
                     var currentFamily = $("#node-input-family").val();
                     var peerSelect = $("#node-input-peerid");
                     $.each(devices, function() {
@@ -309,28 +316,6 @@
                     updateChannelOptions();
                 }
 
-                function updatePeerIdOptions() {
-                    var currentFamily = $("#node-input-family").val();
-                    $("#node-input-peerid").empty();
-                    $("#node-input-channel").empty();
-                    $("#node-input-variable").empty();
-                    var deviceCount = 0;
-                    $.each(devices, function() {
-                        if(this.family == currentFamily && !this.name) deviceCount++;
-                    });
-                    if(deviceCount > 0) {
-                        $.each(devices, function() {
-                            if(this.family == currentFamily && !this.name) {
-                                RED.comms.homegear().invoke("getName", function(message) {
-                                    devices[this.id].name = message.result;
-                                    deviceCount--;
-                                    if(!deviceCount) fillPeerIdOptions();
-                                }.bind(this), this.id);
-                            }
-                        });
-                    } else fillPeerIdOptions();
-                }
-
                 RED.comms.homegear().invoke("listDevices", function(message) {
                     var familySelect = $("#node-input-family");
                     $.each(message.result, function() {
@@ -338,12 +323,13 @@
                         devices[this.ID].id = this.ID;
                         devices[this.ID].family = this.FAMILY;
                         devices[this.ID].type = this.TYPE;
+                        devices[this.ID].name = this.NAME;
                     });
-                    updatePeerIdOptions();
-                }, false, ["ID", "FAMILY", "TYPE"]);
+                    fillPeerIdOptions();
+                }, false, ["ID", "FAMILY", "TYPE", "NAME"]);
 
                 $("#node-input-family").on("change",function() {
-                    updatePeerIdOptions();
+                    fillPeerIdOptions();
                 });
             //}}}
 

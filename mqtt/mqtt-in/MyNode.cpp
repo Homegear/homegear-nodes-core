@@ -52,15 +52,21 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("topic");
 		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
 
+		settingsIterator = info->info->structValue->find("loopprevention");
+		if(settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
+
+		settingsIterator = info->info->structValue->find("looppreventiongroup");
+		if(settingsIterator != info->info->structValue->end()) _loopPreventionGroup = settingsIterator->second->stringValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -71,25 +77,25 @@ void MyNode::configNodesStarted()
 	{
 		if(_broker.empty())
 		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
+			_out->printError("Error: This node has no broker assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
+		if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		result = invokeNodeMethod(_broker, "registerTopic", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
+		result = invokeNodeMethod(_broker, "registerTopic", parameters, true);
+		if(result->errorStruct) _out->printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -103,6 +109,15 @@ void MyNode::configNodesStarted()
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 			if(parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
 
+			if(_loopPrevention && !_loopPreventionGroup.empty())
+			{
+				Flows::PArray parameters = std::make_shared<Flows::Array>();
+				parameters->push_back(std::make_shared<Flows::Variable>(_id));
+				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
+				if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+				if(!result->booleanValue) return std::make_shared<Flows::Variable>();;
+			}
+
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			message->structValue->emplace("topic", std::make_shared<Flows::Variable>(parameters->at(0)->stringValue));
 			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(1)->stringValue));
@@ -114,11 +129,11 @@ void MyNode::configNodesStarted()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
@@ -149,11 +164,11 @@ void MyNode::configNodesStarted()
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

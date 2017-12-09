@@ -53,12 +53,13 @@ private:
 	bool _firstInput = true;
 	bool _lastOutputState = false;
 	std::atomic_bool _threadRunning;
+	std::atomic_bool _stopped;
 	std::atomic_bool _stopThread;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 
 	void timer(int64_t inputTime);
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

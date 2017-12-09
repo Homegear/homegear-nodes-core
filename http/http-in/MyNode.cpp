@@ -61,11 +61,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -76,7 +76,7 @@ void MyNode::configNodesStarted()
 	{
 		if(_server.empty())
 		{
-			Flows::Output::printError("Error: This node has no server assigned.");
+			_out->printError("Error: This node has no server assigned.");
 			return;
 		}
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
@@ -84,16 +84,16 @@ void MyNode::configNodesStarted()
 		parameters->push_back(std::make_shared<Flows::Variable>(_id));
 		parameters->push_back(std::make_shared<Flows::Variable>(_method));
 		parameters->push_back(std::make_shared<Flows::Variable>(_path));
-		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+		Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
+		if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -218,11 +218,11 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

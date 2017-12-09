@@ -53,7 +53,7 @@ private:
 	bool _createDirectory = false;
 	std::string _operation;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

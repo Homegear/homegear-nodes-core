@@ -1,0 +1,47 @@
+<script type="text/x-homegear">
+{
+    "name": "synchronous",
+    "readableName": "Synchronous",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="synchronous">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="synchronous.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]synchronous.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="synchronous.label.outputs"></span></label>
+        <input id="node-input-outputs" style="width: 60px;" value="1">
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('synchronous',{
+        category: 'function',
+        namespace: 'synchronous',
+        color: "#ffb7b6",
+        defaults: {
+            name: {value:""},
+            outputs: {value:1}
+        },
+        inputs:1,
+        inputInfo: [
+        	{
+        		types: ["any"]
+        	}
+        ],
+        outputs:1,
+        icon: "switch.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "synchronous";
+        },
+        oneditprepare: function() {
+            $( "#node-input-outputs" ).spinner({
+                min:1
+            });
+        },
+        paletteLabel: "synchronous"
+    });
+</script>

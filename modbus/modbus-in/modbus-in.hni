@@ -20,35 +20,35 @@
 -->
 <script type="text/x-red" data-template-name="modbus-in">
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-in.label.server"></span></label>
-        <input type="text" id="node-input-server">
-    </div>
-    <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="common.label.topic"></span></label>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
-    </div>
-    <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+    <div class="form-row">
+        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-in.label.server"></span></label>
+        <input type="text" id="node-input-server">
+    </div>
+    <div class="form-row node-input-registers-container-row">
+        <input type="hidden" id="node-input-outputs"/>
+        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-in.label.registers"></span></label>
+        <ol id="node-input-registers-container"></ol>
+    </div>
 </script>
 <script type="text/javascript">
+(function() {
+    var types = ["bin", "bool", "int", "float", "string"];
+
     RED.nodes.registerType('modbus-in',{
         category: 'input',
         namespace: 'modbus',
         defaults: {
             name: {value:""},
-            topic: {value:"",required:true,validate: RED.validators.regex(/^(#$|(\+|[^+#]*)(\/(\+|[^+#]*))*(\/(\+|#|[^+#]*))?$)/)},
-            server: {type:"modbus-host", required:true}
+            server: {type:"modbus-host", required:true},
+            registers: {value:[{mt:"0", r:"1", c:"1", t:"bin", ir:false, ib:false}]},
+            outputs: {value:1}
         },
         color:"#FFF0F0",
         inputs:0,
         outputs:1,
-        outputInfo: [
-        	{
-        		types: ["string"]
-        	}
-        ],
         icon: "bridge.png",
         label: function() {
             return this.name||this.topic||"modbus";
@@ -57,6 +57,157 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
+            var indexLabelText = this._("modbus-in.label.index");
+            var countLabelText = this._("modbus-in.label.count");
+            var typeLabelText = this._("modbus-in.label.type");
+            var invertBytesLabelText = this._("modbus-in.label.invertbytes");
+            var invertRegistersLabelText = this._("modbus-in.label.invertregisters");
+
+            var outputCount = $("#node-input-outputs").val("{}");
+
+            $("#node-input-registers-container").css('min-height','150px').css('min-width','600px').editableList({
+                addItem: function(container,i,opt) {
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var register = opt.r;
+                    if (!register.hasOwnProperty('mt')) {
+                        register.mt = '0';
+                    }
+                    if (!register.hasOwnProperty('r')) {
+                        register.r = '';
+                    }
+                    if (!register.hasOwnProperty('c')) {
+                        register.c = '';
+                    }
+                    if (!register.hasOwnProperty('t')) {
+                        register.t = 'bin';
+                    }
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
+                    modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
+                    var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
+                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
+                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var typeLabel = $('<span/>',{class:"node-input-register-type-label"}).text(" "+typeLabelText+" ").appendTo(row);
+                    var selectField = $('<select/>',{class:"node-input-register-type", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    for (var d in types) {
+                        selectField.append($("<option></option>").val(types[d]).text(types[d]));
+                    }
+                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertBytesLabel = $('<span/>',{class:"node-input-register-invertbytes-label"}).text(" "+invertBytesLabelText+" ").appendTo(row);
+                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertRegistersLabel = $('<span/>',{class:"node-input-register-invertregisters-label"}).text(" "+invertRegistersLabelText+" ").appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
+
+                    modbusTypeField.val(register.mt == 1 ? 'Coil' : 'Reg.');
+                    indexField.val(register.r);
+                    countField.val(register.c);
+                    selectField.val(register.t);
+                    invertBytesField.prop('checked', register.ib);
+                    invertRegistersField.prop('checked', register.ir);
+
+                    var currentOutputs = JSON.parse(outputCount.val()||"{}");
+                    currentOutputs[opt.hasOwnProperty('i')?opt.i:opt._i] = i;
+                    outputCount.val(JSON.stringify(currentOutputs));
+
+                    function updateVisibility(type) {
+                        if(type == 'Reg.') {
+                            countLabel.show();
+                            countField.show();
+                            typeLabel.show();
+                            selectField.show();
+                            invertBytesLabel.show();
+                            invertBytesField.show();
+                            invertRegistersLabel.show();
+                            invertRegistersField.show();
+                        } else {
+                            countLabel.hide();
+                            countField.hide();
+                            typeLabel.hide();
+                            selectField.hide();
+                            invertBytesLabel.hide();
+                            invertBytesField.hide();
+                            invertRegistersLabel.hide();
+                            invertRegistersField.hide();
+                        }
+                    }
+
+                    function updateVisibilityEvent(e) {
+                        if(!e) return;
+                        updateVisibility($(e.target).val());
+                    }
+                    
+                    updateVisibility(modbusTypeField.val());
+                    modbusTypeField.on('click', updateVisibilityEvent);                
+                },
+                removeItem: function(opt) {
+                    var currentOutputs = JSON.parse(outputCount.val()||"{}");
+                    if (opt.hasOwnProperty('i')) {
+                        currentOutputs[opt.i] = -1;
+                    } else {
+                        delete currentOutputs[opt._i];
+                    }
+                    var rules = $("#node-input-registers-container").editableList('items');
+                    rules.each(function(i) {
+                        $(this).find(".node-input-index").html(i);
+                        var data = $(this).data('data');
+                        currentOutputs[data.hasOwnProperty('i')?data.i:data._i] = i;
+                    });
+                    outputCount.val(JSON.stringify(currentOutputs));
+                },
+                sortItems: function(registers) {
+                    var currentOutputs = JSON.parse(outputCount.val()||"{}");
+                    var registers = $("#node-input-registers-container").editableList('items');
+                    registers.each(function(i) {
+                        $(this).find(".node-input-index").html(i);
+                        var data = $(this).data('data');
+                        currentOutputs[data.hasOwnProperty('i')?data.i:data._i] = i;
+                    });
+                    outputCount.val(JSON.stringify(currentOutputs));
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.registers.length;i++) {
+                var register = this.registers[i];
+                $("#node-input-registers-container").editableList('addItem',{r:register,i:i});
+            }
+        },
+        oneditsave: function() {
+            var node = this;
+
+            var registers = $("#node-input-registers-container").editableList('items');
+            node.registers = [];
+            registers.each(function(i) {
+                var registerData = $(this).data('data');
+                var register = $(this);
+                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : '1';
+                var index = register.find(".node-input-register-index").val();
+                var count = register.find(".node-input-register-count").val();
+                var type = register.find(".node-input-register-type").val();
+                var invertBytes = register.find(".node-input-register-invertbytes").prop('checked');
+                var invertRegisters = register.find(".node-input-register-invertregisters").prop('checked');
+                node.registers.push({mt:modbusType,r:index,c:count,t:type,ib:invertBytes,ir:invertRegisters});
+            });
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-input-registers-container-row)");
+            var height = size.height;
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-input-registers-container-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $("#node-input-registers-container").editableList('height',height);
         }
     });
+})();
 </script>

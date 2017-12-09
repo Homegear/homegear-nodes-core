@@ -83,15 +83,18 @@ bool MyNode::init(Flows::PNodeInfo info)
 			_value = jsonDecoder.decode(payload);
 		}
 
+        settingsIterator = info->info->structValue->find("outputonstartup");
+        if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -100,18 +103,21 @@ void MyNode::startUpComplete()
 {
 	try
 	{
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("payload", _value);
+        if(_outputOnStartup)
+        {
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("payload", _value);
 
-		output(0, message);
+            output(0, message);
+        }
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

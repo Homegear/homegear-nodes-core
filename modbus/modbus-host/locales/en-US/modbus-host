@@ -1,10 +1,20 @@
 {
   "modbus/modbus-host.hni": {
     "modbus-host": {
-    	"help": "<p>A Modbus connection requires only a Modbus server address to be added to the default configuration.</p>",
+    	"help": "<p>A Modbus connection requires a Modbus server address to be added to the default configuration and at least one register range to read. You can add as many ranges as possible. \"Invert bytes\" changes the order of the two bytes of each register. Set \"Min. delay\" to the amount of time to wait between reads or writes if the device can't be read or written immediately again after being read or written. The node tries to poll all specified registers every interval. \"ROC\" (read on connect) makes the node read the registers once after the connection to the Modbus host has been established.</p>",
     	"label": {
 	      "server": "Server",
-	      "port": "Port"
+	      "port": "Port",
+	      "interval": "Interval",
+        "delay": "Min. delay",
+        "read-registers": "Registers to read",
+        "write-registers": "Registers to write",
+        "read-coils": "Coils to read",
+        "write-coils": "Coils to write",
+        "first": "First",
+        "last": "Last",
+        "invert": "Invert bytes",
+        "readonconnect": "ROC"
 	    }
     }
   }

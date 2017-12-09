@@ -31,7 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonEncoder.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -43,15 +43,27 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
 private:
-	Flows::JsonEncoder _jsonEncoder;
+	enum class ModbusType
+	{
+		tRegister = 0,
+		tCoil = 1
+	};
 
-	std::string _broker;
-	std::string _topic;
-	bool _retain = false;
+	struct RegisterInfo
+	{
+		ModbusType modbusType = ModbusType::tRegister;
+		uint32_t inputIndex = 0;
+		uint32_t index = 0;
+		uint32_t count = 0;
+		bool invertBytes = false;
+		bool invertRegisters = false;
+	};
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	std::string _server;
+	std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
+
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 
 	//{{{ RPC methods
 	Flows::PVariable setConnectionState(Flows::PArray parameters);

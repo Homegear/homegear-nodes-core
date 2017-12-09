@@ -45,87 +45,216 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("broker");
-		if(settingsIterator != info->info->structValue->end()) _broker = settingsIterator->second->stringValue;
+        int32_t inputIndex = -1;
 
-		settingsIterator = info->info->structValue->find("topic");
-		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
+        auto settingsIterator = info->info->structValue->find("server");
+        if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("retain");
-		if(settingsIterator != info->info->structValue->end()) _retain = settingsIterator->second->booleanValue;
+        settingsIterator = info->info->structValue->find("registers");
+        if(settingsIterator != info->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                inputIndex++;
 
-		return true;
+                auto modbustypeIterator = element->structValue->find("mt");
+                if(modbustypeIterator == element->structValue->end()) continue;
+
+                auto indexIterator = element->structValue->find("r");
+                if(indexIterator == element->structValue->end()) continue;
+
+                auto countIterator = element->structValue->find("c");
+                if(countIterator == element->structValue->end()) continue;
+
+                auto ibIterator = element->structValue->find("ib");
+                if(ibIterator == element->structValue->end()) continue;
+
+                auto irIterator = element->structValue->find("ir");
+                if(irIterator == element->structValue->end()) continue;
+
+                int32_t index = Flows::Math::getNumber(indexIterator->second->stringValue);
+                int32_t count = Flows::Math::getNumber(countIterator->second->stringValue);
+
+                if(index < 0) continue;
+                if(count < 1) count = 1;
+
+                auto registerInfo = std::make_shared<RegisterInfo>();
+                registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
+                registerInfo->inputIndex = (uint32_t)inputIndex;
+                registerInfo->index = (uint32_t)index;
+                registerInfo->count = registerInfo->modbusType == ModbusType::tRegister ? (uint32_t)count : 1;
+                registerInfo->invertBytes = ibIterator->second->booleanValue;
+                registerInfo->invertRegisters = irIterator->second->booleanValue;
+                _registers.emplace(inputIndex, registerInfo);
+            }
+        }
+
+        return true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
 
-void MyNode::configNodesStarted()
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
-		if(_broker.empty())
-		{
-			Flows::Output::printError("Error: This node has no broker assigned.");
-			return;
-		}
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+        auto registersIterator = _registers.find(index);
+        if(registersIterator == _registers.end()) return;
+
+		Flows::PVariable payload = std::make_shared<Flows::Variable>();
+        *payload = *(message->structValue->at("payload"));
+        if(registersIterator->second->modbusType == ModbusType::tRegister)
+        {
+            if (payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
+            else if (payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back(1);
+            else if (payload->type == Flows::VariableType::tInteger)
+            {
+                if (registersIterator->second->count == 1)
+                {
+                    payload->binaryValue.reserve(2);
+                    payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue & 0xFF);
+                }
+                else if (registersIterator->second->count == 2)
+                {
+                    payload->binaryValue.reserve(4);
+                    payload->binaryValue.push_back(payload->integerValue >> 24);
+                    payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue & 0xFF);
+                }
+                else if (registersIterator->second->count == 3)
+                {
+                    payload->binaryValue.reserve(6);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(payload->integerValue >> 24);
+                    payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue & 0xFF);
+                }
+                else if (registersIterator->second->count == 4)
+                {
+                    payload->binaryValue.reserve(8);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(0);
+                    payload->binaryValue.push_back(payload->integerValue >> 24);
+                    payload->binaryValue.push_back((payload->integerValue >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue & 0xFF);
+                }
+            }
+            else if (payload->type == Flows::VariableType::tInteger64)
+            {
+                if (registersIterator->second->count == 1)
+                {
+                    payload->binaryValue.reserve(2);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+                }
+                else if (registersIterator->second->count == 2)
+                {
+                    payload->binaryValue.reserve(4);
+                    payload->binaryValue.push_back(payload->integerValue64 >> 24);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+                }
+                else if (registersIterator->second->count == 3)
+                {
+                    payload->binaryValue.reserve(6);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 40) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 32) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 24) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+                }
+                else if (registersIterator->second->count == 4)
+                {
+                    payload->binaryValue.reserve(8);
+                    payload->binaryValue.push_back(payload->integerValue64 >> 56);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 48) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 40) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 32) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 24) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 16) & 0xFF);
+                    payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+                    payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+                }
+            }
+            else if (payload->type == Flows::VariableType::tFloat)
+            {
+                if (registersIterator->second->count == 2)
+                {
+                    uint32_t floatValue = Flows::Math::getIeee754Binary32(payload->floatValue);
+                    payload->binaryValue.reserve(4);
+                    payload->binaryValue.push_back(floatValue >> 24);
+                    payload->binaryValue.push_back((floatValue >> 16) & 0xFF);
+                    payload->binaryValue.push_back((floatValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(floatValue & 0xFF);
+                }
+                else if (registersIterator->second->count == 4)
+                {
+                    uint64_t doubleValue = Flows::Math::getIeee754Binary64(payload->floatValue);
+                    payload->binaryValue.push_back(doubleValue >> 56);
+                    payload->binaryValue.push_back((doubleValue >> 48) & 0xFF);
+                    payload->binaryValue.push_back((doubleValue >> 40) & 0xFF);
+                    payload->binaryValue.push_back((doubleValue >> 32) & 0xFF);
+                    payload->binaryValue.push_back((doubleValue >> 24) & 0xFF);
+                    payload->binaryValue.push_back((doubleValue >> 16) & 0xFF);
+                    payload->binaryValue.push_back((doubleValue >> 8) & 0xFF);
+                    payload->binaryValue.push_back(doubleValue & 0xFF);
+                }
+            }
+            payload->setType(Flows::VariableType::tBinary);
+            if (payload->binaryValue.empty()) return;
+
+            Flows::PArray parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(5);
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertBytes));
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertRegisters));
+            parameters->push_back(payload);
+
+            invokeNodeMethod(_server, "writeRegisters", parameters, false);
+        }
+        else
+        {
+            if(payload->type != Flows::VariableType::tBinary)
+            {
+                payload->binaryValue.push_back((bool)(*payload));
+                payload->setType(Flows::VariableType::tBinary);
+            }
+            else if(payload->binaryValue.size() != 1) payload->binaryValue.resize(1);
+
+            Flows::PArray parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(3);
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
+            parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
+            parameters->push_back(payload);
+
+            invokeNodeMethod(_server, "writeRegisters", parameters, false);
+        }
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
-{
-	try
-	{
-		std::string topic;
-		auto messageIterator = message->structValue->find("topic");
-		if(messageIterator != message->structValue->end()) topic = messageIterator->second->stringValue;
-		else topic = _topic;
-
-		bool retain;
-		messageIterator = message->structValue->find("retain");
-		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
-		else retain = _retain;
-
-		Flows::PVariable payload = message->structValue->at("payload");
-		if(payload->type == Flows::VariableType::tArray || payload->type == Flows::VariableType::tStruct) payload->stringValue = _jsonEncoder.getString(payload);
-		else if(payload->type != Flows::VariableType::tString) payload->stringValue = payload->toString();
-		payload->setType(Flows::VariableType::tString);
-
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(3);
-		parameters->push_back(std::make_shared<Flows::Variable>(topic));
-		parameters->push_back(payload);
-		parameters->push_back(std::make_shared<Flows::Variable>(retain));
-
-		Flows::PVariable result = invokeNodeMethod(_broker, "publish", parameters);
-		if(result->errorStruct) Flows::Output::printError("Error publishing topic: " + topic);
-	}
-	catch(const std::exception& ex)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -156,11 +285,11 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}

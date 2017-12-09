@@ -46,17 +46,17 @@ bool MyNode::init(Flows::PNodeInfo info)
 	try
 	{
 		auto settingsIterator = info->info->structValue->find("measurement");
-		if(settingsIterator != info->info->structValue->end()) _measurement = settingsIterator->second->stringValue;
+		if(settingsIterator != info->info->structValue->end()) _measurement = stripNonAlphaNumeric(settingsIterator->second->stringValue);
 
 		return true;
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -66,13 +66,25 @@ bool MyNode::start()
 	return true;
 }
 
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
+std::string MyNode::stripNonAlphaNumeric(const std::string& s)
+{
+    std::string strippedString;
+    strippedString.reserve(s.size());
+    for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
+    {
+        if(*i == ' ') strippedString.push_back('_');
+        else if(isalpha(*i) || isdigit(*i) || (*i == '_') || (*i == '-') || (*i == '.') || (*i == ';')) strippedString.push_back(*i);
+    }
+    return strippedString;
+}
+
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
 		auto measurementIterator = message->structValue->find("measurement");
 		std::string measurement = _measurement;
-		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = measurementIterator->second->stringValue;
+		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = stripNonAlphaNumeric(measurementIterator->second->stringValue);
 		if(measurement.empty()) return;
 
 		Flows::PVariable& input = message->structValue->at("payload");
@@ -83,7 +95,7 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			input = encodedValue;
 		}
 
-		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "");
+		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "") + (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64 ? "i" : "");
 		Flows::PArray parameters = std::make_shared<Flows::Array>();
 		parameters->reserve(2);
 		parameters->push_back(std::make_shared<Flows::Variable>(false));
@@ -95,23 +107,23 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		{
 			parameters->at(0)->booleanValue = true;
 			result = invoke("influxdbWrite", parameters);
-			if(result && result->errorStruct) Flows::Output::printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
+			if(result && result->errorStruct) _out->printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
 		}
 		else if(_first)
 		{
-			_first = false;
 			parameters = std::make_shared<Flows::Array>();
 			parameters->push_back(std::make_shared<Flows::Variable>(measurement));
 			result = invoke("influxdbCreateContinuousQuery", parameters);
+			if(!result->errorStruct) _first = false;
 		}
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

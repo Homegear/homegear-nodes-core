@@ -82,6 +82,20 @@ int64_t SunTime::getLocalTime(int64_t utcTime)
 	else return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count() + millisecondOffset;
 }
 
+int64_t SunTime::getUtcTime(int64_t localTime)
+{
+	if(localTime == 0)
+	{
+		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+	}
+    const auto timePoint = std::chrono::system_clock::now();
+    std::time_t t = std::chrono::system_clock::to_time_t(timePoint);
+	std::tm localTimeStruct;
+	localtime_r(&t, &localTimeStruct);
+	int64_t millisecondOffset = localTimeStruct.tm_gmtoff * 1000;
+	return localTime - millisecondOffset;
+}
+
 void SunTime::getTimeStruct(std::tm& timeStruct, int64_t utcTime)
 {
 	std::time_t t;

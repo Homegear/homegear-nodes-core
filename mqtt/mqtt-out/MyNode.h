@@ -51,7 +51,7 @@ private:
 	std::string _topic;
 	bool _retain = false;
 
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 
 	//{{{ RPC methods
 	Flows::PVariable setConnectionState(Flows::PArray parameters);

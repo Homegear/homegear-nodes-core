@@ -1,0 +1,13 @@
+{
+  "basic-logic/risingedge.hni": {
+    "risingedge": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "The output is set to <code>true</code> when the input is set to <code>true</code>. An input of <code>false</code> is ignored.",
+      "help": "<p>The output is set to <code>true</code> when the input is set to <code>true</code>.</p><p>An input of <code>false</code> is ignored.</p>",
+      "input1Description": "The boolean value.",
+      "output1Description": "<code>true</code> on input of <code>true</code>."
+    }
+  }
+}

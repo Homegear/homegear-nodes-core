@@ -69,11 +69,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -86,11 +86,11 @@ bool MyNode::start()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
 }
@@ -106,11 +106,11 @@ void MyNode::startUpComplete()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -122,11 +122,11 @@ void MyNode::stop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -140,37 +140,37 @@ void MyNode::waitForStop()
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
-void MyNode::outputMessage(int64_t time)
+void MyNode::outputMessage(int64_t localTime, int64_t utcTime)
 {
 	try
 	{
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		std::tm tm;
-		getTimeStruct(tm, time);
+		getTimeStruct(tm, utcTime);
 
 		int32_t weekNum = 0;
 		{
 			int32_t julian = tm.tm_yday;
 			int32_t dow = tm.tm_wday;
-			int64_t time2 = time - (julian * 86400000);
+			int64_t time2 = localTime - (julian * 86400000);
 			std::tm tm2;
 			getTimeStruct(tm2, time2);
 			weekNum = ((julian + 6) / 7);
 			if(dow < tm2.tm_wday) weekNum++;
 		}
 
-		message->structValue->emplace("timestamp", std::make_shared<Flows::Variable>(time / 1000));
-		message->structValue->emplace("seconds", std::make_shared<Flows::Variable>((time / 1000) % 60));
-		message->structValue->emplace("minutes", std::make_shared<Flows::Variable>((time / 60000) % 60));
-		message->structValue->emplace("hours", std::make_shared<Flows::Variable>((time / 3600000) % 24));
+		message->structValue->emplace("timestamp", std::make_shared<Flows::Variable>(localTime / 1000));
+		message->structValue->emplace("seconds", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
+		message->structValue->emplace("minutes", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
+		message->structValue->emplace("hours", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
 		message->structValue->emplace("dom", std::make_shared<Flows::Variable>(tm.tm_mday));
 		message->structValue->emplace("dow", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
 		message->structValue->emplace("doy", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
@@ -181,22 +181,22 @@ void MyNode::outputMessage(int64_t time)
 		if(_unit == Units::ms)
 		{
 			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time % 1000));
+			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime % 1000));
 		}
 		else if(_unit == Units::s)
 		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((time / 1000) % 60));
+			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
 		}
 		else if(_unit == Units::m)
 		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((time / 60000) % 60));
+			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
 		}
 		else if(_unit == Units::h)
 		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((time / 3600000) % 24));
+			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
 		}
 		else if(_unit == Units::dom)
 		{
@@ -240,11 +240,11 @@ void MyNode::outputMessage(int64_t time)
 	}
 	catch(const std::exception& ex)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
 	catch(...)
 	{
-		Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -303,7 +303,7 @@ void MyNode::timer()
 		currentLocalTime = (currentLocalTime / 1000) * 1000;
 		currentUtcTime = (currentUtcTime / 1000) * 1000;
 	}
-	outputMessage(currentLocalTime);
+	outputMessage(currentLocalTime, currentUtcTime);
 	if(_unit == Units::ms)
 	{
 		currentLocalTime += 100;
@@ -331,7 +331,7 @@ void MyNode::timer()
 					currentLocalTime = (currentTimes.first / 1000) * 1000 + 1000;
 					currentUtcTime = (currentTimes.second / 1000) * 1000 + 1000;
 				}
-				outputMessage(currentLocalTime);
+				outputMessage(currentLocalTime, currentUtcTime);
 			}
 			std::tm timeStruct;
 			getTimeStruct(timeStruct);
@@ -367,15 +367,15 @@ void MyNode::timer()
 				if(currentLocalTime % 86400000 != 0) continue;
 				break;
 			}
-			outputMessage(currentLocalTime);
+			outputMessage(currentLocalTime, currentUtcTime);
 		}
 		catch(const std::exception& ex)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 		}
 		catch(...)
 		{
-			Flows::Output::printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 		}
 	}
 }
