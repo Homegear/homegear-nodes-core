@@ -57,6 +57,7 @@ private:
 
     std::string _tlsNode;
     bool _useTls = false;
+	bool _useBasicAuth = false;
 	std::string _url;
     std::string _method;
     std::string _basicAuth;

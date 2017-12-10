@@ -66,6 +66,9 @@ bool MyNode::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("usetls");
         if(settingsIterator != info->info->structValue->end()) _useTls = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("basicauth");
+        if(settingsIterator != info->info->structValue->end()) _useBasicAuth = settingsIterator->second->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -92,7 +95,7 @@ void MyNode::configNodesStarted()
         std::string username = getNodeData("username")->stringValue;
         std::string password = getNodeData("password")->stringValue;
 
-        if(!username.empty())
+        if(_useBasicAuth && !username.empty())
         {
             std::string raw = username + ":" + password;
             BaseLib::Base64::encode(raw, _basicAuth);

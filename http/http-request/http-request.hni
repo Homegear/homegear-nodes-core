@@ -47,9 +47,9 @@
     </div>
 
     <div class="form-row">
-        <input type="checkbox" id="node-input-useAuth" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-useAuth" style="width: 70%;"><span data-i18n="http-request.basicauth"></span></label>
-        <div style="margin-left: 20px" class="node-input-useAuth-row hide">
+        <input type="checkbox" id="node-input-basicauth" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-basicauth" style="width: 70%;"><span data-i18n="http-request.basicauth"></span></label>
+        <div style="margin-left: 20px" class="node-input-basicauth-row hide">
             <div class="form-row">
                 <label for="node-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
                 <input type="text" id="node-input-user">
@@ -83,6 +83,7 @@
             ret: {value:"txt"},
             url:{value:"",validate:function(v) { return (v.trim().length === 0) || (v.indexOf("://") === -1) || (v.trim().indexOf("http") === 0)} },
             usetls: {value: false},
+            basicauth: {value: false},
             tls: {type:"tls-config",required: false}
         },
         inputs:1,
@@ -105,11 +106,11 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
-            $("#node-input-useAuth").change(function() {
+            $("#node-input-basicauth").change(function() {
                 if ($(this).is(":checked")) {
-                    $(".node-input-useAuth-row").show();
+                    $(".node-input-basicauth-row").show();
                 } else {
-                    $(".node-input-useAuth-row").hide();
+                    $(".node-input-basicauth-row").hide();
                     $('#node-input-user').val('');
                     $('#node-input-password').val('');
                 }
