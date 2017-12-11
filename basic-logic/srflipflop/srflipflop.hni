@@ -1,0 +1,53 @@
+<script type="text/x-homegear">
+{
+    "name": "srflipflop",
+    "readableName": "Set-Reset-Flip-Flop",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="srflipflop">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="srflipflop.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]srflipflop.label.name">
+    </div>
+	<div class="form-row" id="changes-only">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-changes-only" style="width: 70%;" data-i18n="srflipflop.label.changes-only"></label>
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('srflipflop',{
+        category: 'logic',
+        namespace: 'basic-logic',
+        color: "#e2d96e",
+        defaults: {
+            name: {value:""},
+        	"changes-only": {value:false}
+        },
+        inputs:2,
+        inputInfo: [
+        	{
+        		label: "S",
+        		types: ["bool"]
+        	},
+        	{
+        		label: "R",
+        		types: ["bool"]
+        	}
+        ],
+        outputs:1,
+        outputInfo: [
+        	{
+        		types: ["bool"]
+        	}
+        ],
+        icon: "function.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "srflipflop";
+        },
+        paletteLabel: "srflipflop"
+    });
+</script>
