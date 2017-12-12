@@ -70,7 +70,7 @@ bool MyNode::start()
 		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->server = settingsIterator->second->stringValue;
 
 		settingsIterator = _nodeInfo->info->structValue->find("port");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->port = settingsIterator->second->stringValue;
+		if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->port = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
 		settingsIterator = _nodeInfo->info->structValue->find("interval");
 		if(settingsIterator != _nodeInfo->info->structValue->end())

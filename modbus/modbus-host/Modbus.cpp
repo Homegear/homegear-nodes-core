@@ -194,10 +194,13 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
 {
     try
     {
-        int result = modbus_read_registers(_modbus, info->start, info->buffer1.size(), info->buffer1.data());
-        if (result == -1)
+        try
         {
-            _out->printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
+            _modbus->readHoldingRegisters(info->start, info->buffer1, info->count);
+        }
+        catch(BaseLib::Exception& ex)
+        {
+            _out->printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + ex.what());
         }
 
         if(_settings->delay > 0)
@@ -236,10 +239,13 @@ void Modbus::readWriteCoil(std::shared_ptr<CoilInfo>& info)
 {
     try
     {
-        int result = modbus_read_bits(_modbus, info->start, info->buffer1.size(), info->buffer1.data());
-        if (result == -1)
+        try
         {
-            _out->printError("Error reading from Modbus coils " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + std::string(modbus_strerror(errno)));
+            _modbus->readCoils(info->start, info->buffer1, info->count);
+        }
+        catch(BaseLib::Exception& ex)
+        {
+            _out->printError("Error reading from Modbus coils " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + ex.what());
         }
 
         if(_settings->delay > 0)
@@ -304,11 +310,14 @@ void Modbus::listen()
             {
                 if(!registerElement->newData) continue;
                 registerElement->newData = false;
-                result = modbus_write_registers(_modbus, registerElement->start, registerElement->buffer1.size(), registerElement->buffer1.data());
 
-                if (result == -1)
+                try
                 {
-                    _out->printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _modbus->writeMultipleRegisters(registerElement->start, registerElement->buffer1, registerElement->count);
+                }
+                catch(BaseLib::Exception& ex)
+                {
+                    _out->printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
                     break;
                 }
@@ -340,11 +349,13 @@ void Modbus::listen()
 
             for(auto& registerElement : registers)
             {
-                result = modbus_read_registers(_modbus, registerElement->start, registerElement->buffer2.size(), registerElement->buffer2.data());
-
-                if (result == -1)
+                try
                 {
-                    _out->printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _modbus->readHoldingRegisters(registerElement->start, registerElement->buffer2, registerElement->count);
+                }
+                catch(BaseLib::Exception& ex)
+                {
+                    _out->printError("Error reading from Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
                     break;
                 }
@@ -479,11 +490,14 @@ void Modbus::listen()
             {
                 if(!coilElement->newData) continue;
                 coilElement->newData = false;
-                result = modbus_write_bits(_modbus, coilElement->start, coilElement->buffer1.size(), coilElement->buffer1.data());
 
-                if (result == -1)
+                try
                 {
-                    _out->printError("Error writing to Modbus registers " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _modbus->writeMultipleCoils(coilElement->start, coilElement->buffer1, coilElement->count);
+                }
+                catch(BaseLib::Exception& ex)
+                {
+                    _out->printError("Error writing Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
                     break;
                 }
@@ -515,11 +529,13 @@ void Modbus::listen()
 
             for(auto& coilElement : coils)
             {
-                result = modbus_read_input_bits(_modbus, coilElement->start, coilElement->buffer2.size(), coilElement->buffer2.data());
-
-                if (result == -1)
+                try
                 {
-                    _out->printError("Error reading from Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + std::string(modbus_strerror(errno)) + " Disconnecting...");
+                    _modbus->readCoils(coilElement->start, coilElement->buffer2, coilElement->count);
+                }
+                catch(BaseLib::Exception& ex)
+                {
+                    _out->printError("Error reading from Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
                     break;
                 }
@@ -658,35 +674,11 @@ void Modbus::connect()
     std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
 	try
     {
-		if(_modbus)
-		{
-			modbus_close(_modbus);
-			modbus_free(_modbus);
-			_modbus = nullptr;
-		}
-		if(_settings->server.empty())
-		{
-			_out->printError("Error: Could not connect to Modbus device: Please set a host name.");
-            setConnectionState(false);
-			return;
-		}
-		_modbus = modbus_new_tcp_pi(_settings->server.c_str(), _settings->port.c_str());
-		if(!_modbus)
-		{
-			_out->printError("Error: Could not connect to Modbus device: Could not create modbus handle. Are hostname and port set correctly?");
-            setConnectionState(false);
-			return;
-		}
+        BaseLib::Modbus::ModbusInfo modbusInfo;
+        modbusInfo.hostname = _settings->server;
+        modbusInfo.port = _settings->port;
 
-		int result = modbus_connect(_modbus);
-		if(result == -1)
-        {
-            _out->printError("Error: Could not connect to Modbus device: " + std::string(modbus_strerror(errno)));
-            modbus_free(_modbus);
-            _modbus = nullptr;
-            setConnectionState(false);
-            return;
-        }
+		_modbus.reset(_bl.get(), modbusInfo);
 
         std::list<std::shared_ptr<RegisterInfo>> registers;
         {
@@ -747,11 +739,8 @@ void Modbus::connect()
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
-    if(_modbus)
-    {
-        modbus_free(_modbus);
-        _modbus = nullptr;
-    }
+    setConnectionState(false);
+    _modbus.reset();
 }
 
 void Modbus::disconnect()
@@ -760,12 +749,7 @@ void Modbus::disconnect()
 	{
 		std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
         _connected = false;
-		if(_modbus)
-		{
-			modbus_close(_modbus);
-			modbus_free(_modbus);
-			_modbus = nullptr;
-		}
+		_modbus.reset();
 	}
 	catch(const std::exception& ex)
 	{

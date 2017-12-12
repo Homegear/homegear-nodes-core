@@ -35,7 +35,6 @@
 #include <homegear-node/Output.h>
 #include <homegear-node/HelperFunctions.h>
 #include <homegear-base/BaseLib.h>
-#include <modbus/modbus.h>
 
 class Modbus
 {
@@ -43,7 +42,7 @@ public:
 	struct ModbusSettings
 	{
 		std::string server;
-		std::string port;
+		int32_t port = 502;
 		uint32_t interval = 100;
         uint32_t delay = 0;
 		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
@@ -121,8 +120,8 @@ private:
 	std::shared_ptr<ModbusSettings> _settings;
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 
-	std::mutex _modbusMutex;
-	std::atomic<modbus_t*> _modbus;
+    std::mutex _modbusMutex;
+	std::shared_ptr<BaseLib::Modbus> _modbus;
     std::atomic_bool _connected;
 
 	std::thread _listenThread;
