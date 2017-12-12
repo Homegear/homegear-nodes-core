@@ -58,15 +58,10 @@ bool MyNode::init(Flows::PNodeInfo info)
 		{
 			settingsIterator = info->info->structValue->find("channel");
 			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-			settingsIterator = info->info->structValue->find("variable");
-			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 		}
-		else
-		{
-			settingsIterator = info->info->structValue->find("variabletext");
-			if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
-		}
+		
+		settingsIterator = info->info->structValue->find("variable");
+		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 
 		settingsIterator = info->info->structValue->find("refractoryperiod");
 		if(settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);

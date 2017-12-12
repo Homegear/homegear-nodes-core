@@ -92,10 +92,6 @@
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
         </div>
     </div>
-    <div id="node-input-variabletext-container" class="form-row hide">
-        <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variabletext"><i class="fa fa-tag"></i> <span data-i18n="light.label.variable"></span></label>
-        <input style="width: 65%;" type="text" id="node-input-variabletext" placeholder="Variable">
-    </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('light',{
@@ -107,8 +103,7 @@
             family: {},
             peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
-            variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
-            variabletext: {value:"",validate: function(v) { if(this.variabletype == "device") return true; else return v != ""; }},
+            variable: {value:"",validate: function(v) { return v != ""; }},
             
             lighttype: {value:"switch"},
             offvalue: {value:"0",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmer") return true; else return $.isNumeric(v); }},
@@ -135,8 +130,8 @@
         label: function() {
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
-            else if(this.variabletype == "metadata" && this.variabletext) return this.peerid + ", " + this.variabletext;
-            else if(this.variabletype == "system" && this.variabletext) return this.variabletext;
+            else if(this.variabletype == "metadata" && this.variable) return this.peerid + ", " + this.variable;
+            else if(this.variabletype == "system" && this.variable) return this.variable;
             return "light";
         },
         oneditprepare: function() {
@@ -144,6 +139,95 @@
             var devices = {};
             var currentDevice = {};
             var variables = {};
+
+            function getVariableType(variable)
+            {
+                var type = jQuery.type(variable);
+                if(type == "boolean") return "BOOL";
+                else if(type == "number") {
+                    if(variable % 1 === 0) return "INTEGER";
+                    else return "FLOAT";
+                } else if(type == "string") return "STRING";
+                else if(type == "array") return "ARRAY";
+                else return "STRUCT";
+            }
+
+            function updateVariableInfo() {
+                var currentVariable = variables[$("#node-input-variable").val()];
+                if(!currentVariable) return;
+                if($("#node-input-variable").val()) {
+                    var html = "<table>";
+                    if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
+                    if(currentVariable.description) html += "<tr><td><b>Description</b></td><td>" + currentVariable.description + "</td></tr>";
+                    html += "<tr><td><b>Type</b></td><td>" + currentVariable.type + "</td></tr>";
+                    if(currentVariable.min || currentVariable.min === 0) html += "<tr><td><b>Min</b></td><td>" + currentVariable.min + "</td></tr>";
+                    if(currentVariable.max || currentVariable.min === 0) html += "<tr><td><b>Max</b></td><td>" + currentVariable.max + "</td></tr>";
+                    if(currentVariable.unit) html += "<tr><td><b>Unit</b></td><td>" + currentVariable.unit + "</td></tr>";
+                    if(currentVariable.special) {
+                        html += "<tr><td><b>Special</b></td><td>";
+                        var firstElement = true;
+                        $.each(currentVariable.special, function() {
+                            if(!this.ID || (!this.VALUE && this.VALUE !== 0)) return;
+                            html += (firstElement ? "" : ", ") + this.ID + ": " + this.VALUE;
+                            firstElement = false;
+                        });
+                        html += "</td></tr>";
+                    }
+                    if(currentVariable.valueList) {
+                        html += "<tr><td><b>Values</b></td><td>";
+                        var firstElement = true;
+                        $.each(currentVariable.valueList, function(index, value) {
+                            if(!value && value !== 0) return;
+                            html += (firstElement ? "" : ", ") + index + ": " + value;
+                            firstElement = false;
+                        });
+                        html += "</td></tr>";
+                    }
+                    html += "</table>";
+                    $("#node-input-variableinfo").html(html);
+                }
+            }
+
+            //{{{ System variables
+                function updateSystemVariableOptions() {
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getAllSystemVariables", function(message) {
+                        if(!message.result) return;
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    });
+                }
+            //}}}
+
+            //{{{ Metadata
+                function updateMetadataVariableOptions() {
+                    var currentPeerId = parseInt($("#node-input-peerid").val());
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getAllMetadata", function(message) {
+                        if(!message.result) return;
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    }, currentPeerId);
+                }
+            //}}}
 
             //{{{ Variable type
                 function updateVariableTypeOptions() {
@@ -153,19 +237,19 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").show();
                         $("#node-input-variable-container").show();
-                        $("#node-input-variabletext-container").hide();
+                        updateChannelOptions();
                     } else if(variableType == "metadata") {
                         $("#node-input-family-container").show();
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").hide();
-                        $("#node-input-variable-container").hide();
-                        $("#node-input-variabletext-container").show();
+                        $("#node-input-variable-container").show();
+                        updateMetadataVariableOptions();
                     } else if(variableType == "system") {
                         $("#node-input-family-container").hide();
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
-                        $("#node-input-variable-container").hide();
-                        $("#node-input-variabletext-container").show();
+                        $("#node-input-variable-container").show();
+                        updateSystemVariableOptions();
                     }
                 }
 
@@ -186,42 +270,6 @@
             //}}}
 
             //{{{ Variables
-                function updateVariableInfo() {
-                    var currentVariable = variables[$("#node-input-variable").val()];
-                    if(!currentVariable) return;
-                    if($("#node-input-variable").val()) {
-                        var html = "<table>";
-                        if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
-                        if(currentVariable.description) html += "<tr><td><b>Description</b></td><td>" + currentVariable.description + "</td></tr>";
-                        html += "<tr><td><b>Type</b></td><td>" + currentVariable.type + "</td></tr>";
-                        if(currentVariable.min || currentVariable.min === 0) html += "<tr><td><b>Min</b></td><td>" + currentVariable.min + "</td></tr>";
-                        if(currentVariable.max || currentVariable.min === 0) html += "<tr><td><b>Max</b></td><td>" + currentVariable.max + "</td></tr>";
-                        if(currentVariable.unit) html += "<tr><td><b>Unit</b></td><td>" + currentVariable.unit + "</td></tr>";
-                        if(currentVariable.special) {
-                            html += "<tr><td><b>Special</b></td><td>";
-                            var firstElement = true;
-                            $.each(currentVariable.special, function() {
-                                if(!this.ID || (!this.VALUE && this.VALUE !== 0)) return;
-                                html += (firstElement ? "" : ", ") + this.ID + ": " + this.VALUE;
-                                firstElement = false;
-                            });
-                            html += "</td></tr>";
-                        }
-                        if(currentVariable.valueList) {
-                            html += "<tr><td><b>Values</b></td><td>";
-                            var firstElement = true;
-                            $.each(currentVariable.valueList, function(index, value) {
-                                if(!value && value !== 0) return;
-                                html += (firstElement ? "" : ", ") + index + ": " + value;
-                                firstElement = false;
-                            });
-                            html += "</td></tr>";
-                        }
-                        html += "</table>";
-                        $("#node-input-variableinfo").html(html);
-                    }
-                }
-
                 function updateVariableOptions() {
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var currentChannel = parseInt($("#node-input-channel").val());
@@ -297,7 +345,12 @@
                 }
 
                 $("#node-input-peerid").on("change",function() {
-                    updateChannelOptions();
+                    var variableType = $("#node-input-variabletype").val();
+                    if (variableType == "device") {
+                        updateChannelOptions();
+                    } else if(variableType == "metadata") {
+                        updateMetadataVariableOptions();
+                    }
                 });
             //}}}
 
@@ -306,6 +359,7 @@
                     $("#node-input-peerid").empty();
                     $("#node-input-channel").empty();
                     $("#node-input-variable").empty();
+                    var variableType = $("#node-input-variabletype").val();
                     var currentFamily = $("#node-input-family").val();
                     var peerSelect = $("#node-input-peerid");
                     $.each(devices, function() {
@@ -313,7 +367,11 @@
                     });
                     peerSelect.val(that.peerid);
                     if(peerSelect.val()) peerSelect.removeClass("input-error");
-                    updateChannelOptions();
+                    if (variableType == "device") {
+                        updateChannelOptions();
+                    } else if(variableType == "metadata") {
+                        updateMetadataVariableOptions();
+                    }
                 }
 
                 RED.comms.homegear().invoke("listDevices", function(message) {
@@ -358,7 +416,6 @@
         oneditsave: function() {
             if($("#node-input-lighttype").val() == "dimmer") this.inputs = 3;
             else this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
-            $("#node-input-variabletext").val($("#node-input-variabletext").val().trim());
         }
     });
 </script>
