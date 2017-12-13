@@ -47,7 +47,8 @@ private:
 	enum class ModbusType
 	{
 		tRegister = 0,
-		tCoil = 1
+		tCoil = 1,
+		tDiscreteInput = 2
 	};
 
 	struct RegisterInfo

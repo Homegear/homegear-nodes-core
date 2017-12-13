@@ -90,6 +90,7 @@
                     var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
+                    modbusTypeField.append($("<option></option>").val("DiscI").text("DiscI"));
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
                     var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
@@ -106,7 +107,7 @@
                     var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
-                    modbusTypeField.val(register.mt == 1 ? 'Coil' : 'Reg.');
+                    modbusTypeField.val(register.mt == 2 ? 'DiscI' : (register.mt == 1 ? 'Coil' : 'Reg.'));
                     indexField.val(register.r);
                     countField.val(register.c);
                     selectField.val(register.t);
@@ -189,7 +190,7 @@
             registers.each(function(i) {
                 var registerData = $(this).data('data');
                 var register = $(this);
-                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : '1';
+                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : (register.find(".node-input-register-modbustype").val() == 'Coil' ? '1' : '2');
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
                 var type = register.find(".node-input-register-type").val();

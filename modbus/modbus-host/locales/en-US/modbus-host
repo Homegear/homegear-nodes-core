@@ -11,6 +11,7 @@
         "write-registers": "Registers to write",
         "read-coils": "Coils to read",
         "write-coils": "Coils to write",
+        "read-discrete-inputs": "Discrete inputs to read",
         "first": "First",
         "last": "Last",
         "invert": "Invert bytes",

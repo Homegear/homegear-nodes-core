@@ -6,7 +6,7 @@
       "output1Description": "The payload received from the Modbus server.",
       "label": {
 	      "server": "Server",
-	      "registers": "Registers and coils",
+	      "registers": "Registers, coils and discrete inputs",
         "index": "Index",
         "count": "Count",
         "type": "Type",
