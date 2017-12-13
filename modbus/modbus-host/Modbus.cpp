@@ -568,7 +568,7 @@ void Modbus::listen()
 
                     for (auto& node : coilElement->nodes)
                     {
-                        destinationData = BaseLib::BitReaderWriter::getPosition(coilElement->buffer1, node.startRegister - coilElement->start, (node.startRegister - coilElement->start) + node.count);
+                        destinationData = BaseLib::BitReaderWriter::getPosition(coilElement->buffer1, node.startRegister - coilElement->start, node.count);
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
@@ -638,7 +638,7 @@ void Modbus::listen()
 
                     for (auto& node : discreteInputElement->nodes)
                     {
-                        destinationData = BaseLib::BitReaderWriter::getPosition(discreteInputElement->buffer1, node.startRegister - discreteInputElement->start, (node.startRegister - discreteInputElement->start) + node.count);
+                        destinationData = BaseLib::BitReaderWriter::getPosition(discreteInputElement->buffer1, node.startRegister - discreteInputElement->start, node.count);
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
