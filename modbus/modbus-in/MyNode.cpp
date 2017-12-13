@@ -102,6 +102,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                 registerInfo->invertRegisters = irIterator->second->booleanValue;
                 if(registerInfo->modbusType == ModbusType::tRegister) _registers[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 else if(registerInfo->modbusType == ModbusType::tCoil) _coils[registerInfo->index].emplace(registerInfo->count, registerInfo);
+                else if(registerInfo->modbusType == ModbusType::tDiscreteInput) _discreteInputs[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 _outputs++;
             }
         }
@@ -141,7 +142,8 @@ void MyNode::configNodesStarted()
             for(auto& count : index.second)
             {
                 Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                element->arrayValue->reserve(4);
+                element->arrayValue->reserve(5);
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tRegister));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
@@ -155,7 +157,21 @@ void MyNode::configNodesStarted()
             for(auto& count : index.second)
             {
                 Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                element->arrayValue->reserve(2);
+                element->arrayValue->reserve(3);
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+                registers->arrayValue->push_back(element);
+            }
+        }
+
+        for(auto& index : _discreteInputs)
+        {
+            for(auto& count : index.second)
+            {
+                Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                element->arrayValue->reserve(3);
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tDiscreteInput));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
                 registers->arrayValue->push_back(element);
@@ -261,7 +277,7 @@ void MyNode::configNodesStarted()
 
                     output(countIterator->second->outputIndex, message);
                 }
-                else
+                else if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tCoil)
                 {
                     auto indexIterator = _coils.find(packet->arrayValue->at(1)->integerValue);
                     if (indexIterator == _coils.end()) continue;
@@ -274,6 +290,23 @@ void MyNode::configNodesStarted()
 
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                     message->structValue->emplace("coil", std::make_shared<Flows::Variable>(indexIterator->first));
+                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>((bool)packet->arrayValue->at(3)->binaryValue.back()));
+
+                    output(countIterator->second->outputIndex, message);
+                }
+                else
+                {
+                    auto indexIterator = _discreteInputs.find(packet->arrayValue->at(1)->integerValue);
+                    if (indexIterator == _discreteInputs.end()) continue;
+
+                    auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
+                    if (countIterator == indexIterator->second.end()) continue;
+
+                    if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+                    countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
+
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    message->structValue->emplace("discreteInput", std::make_shared<Flows::Variable>(indexIterator->first));
                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>((bool)packet->arrayValue->at(3)->binaryValue.back()));
 
                     output(countIterator->second->outputIndex, message);

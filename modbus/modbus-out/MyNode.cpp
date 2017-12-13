@@ -221,7 +221,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
             if (payload->binaryValue.empty()) return;
 
             Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(5);
+            parameters->reserve(6);
+            parameters->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tRegister));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertBytes));
@@ -240,7 +241,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
             else if(payload->binaryValue.size() != 1) payload->binaryValue.resize(1);
 
             Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(3);
+            parameters->reserve(4);
+            parameters->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
             parameters->push_back(payload);
