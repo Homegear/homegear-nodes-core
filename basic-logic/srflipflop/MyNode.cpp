@@ -104,10 +104,15 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		//_out->printInfo("Index: " + std::to_string(index));
 		bool newOutput = false;
-		if((index == 0) && *input) //Set-Input
-			newOutput = true;
-		else if((index == 1) && *input) //Reset-Input
-			newOutput = false;
+        if(index == 0)  //Set-Input
+        {
+            if(*input) newOutput = true;
+            else return;
+        }
+		else if(index == 1)
+        {
+            if(!*input) return;
+        }
 
 		bool doOutput = (((_lastOutput != newOutput) && _outputChangesOnly) || !_outputChangesOnly);
 		if(doOutput)
