@@ -41,9 +41,10 @@ class Modbus
 public:
     enum class ModbusType
     {
-        tRegister = 0,
+        tHoldingRegister = 0,
         tCoil = 1,
-        tDiscreteInput = 2
+        tDiscreteInput = 2,
+        tInputRegister = 3
     };
 
 	struct ModbusSettings
@@ -53,6 +54,7 @@ public:
 		uint32_t interval = 100;
         uint32_t delay = 0;
 		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
+		std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;
         std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
         std::vector<std::tuple<int32_t, int32_t>> readCoils;
         std::vector<std::tuple<int32_t, int32_t, bool>> writeCoils;
@@ -75,7 +77,7 @@ public:
 private:
 	struct NodeInfo
     {
-        ModbusType type = ModbusType::tRegister;
+        ModbusType type = ModbusType::tHoldingRegister;
         std::string id;
         uint32_t startRegister = 0;
         uint32_t count = 0;
@@ -146,6 +148,8 @@ private:
     std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
     std::mutex _registerWriteBufferMutex;
     std::list<std::shared_ptr<WriteInfo>> _registerWriteBuffer;
+    std::mutex _readInputRegistersMutex;
+    std::list<std::shared_ptr<RegisterInfo>> _readInputRegisters;
     std::mutex _readCoilsMutex;
     std::list<std::shared_ptr<CoilInfo>> _readCoils;
     std::mutex _writeCoilsMutex;

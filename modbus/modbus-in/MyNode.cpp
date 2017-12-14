@@ -89,7 +89,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                 registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
                 registerInfo->outputIndex = (uint32_t)outputIndex;
                 registerInfo->index = (uint32_t)index;
-                registerInfo->count = registerInfo->modbusType == ModbusType::tRegister ? (uint32_t)count : 1;
+                registerInfo->count = registerInfo->modbusType == ModbusType::tHoldingRegister || registerInfo->modbusType == ModbusType::tInputRegister ? (uint32_t)count : 1;
 
                 auto& type = typeIterator->second->stringValue;
                 if(type == "bool") registerInfo->type = RegisterType::tBool;
@@ -100,7 +100,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 
                 registerInfo->invertBytes = ibIterator->second->booleanValue;
                 registerInfo->invertRegisters = irIterator->second->booleanValue;
-                if(registerInfo->modbusType == ModbusType::tRegister) _registers[registerInfo->index].emplace(registerInfo->count, registerInfo);
+                if(registerInfo->modbusType == ModbusType::tHoldingRegister) _registers[registerInfo->index].emplace(registerInfo->count, registerInfo);
+                else if(registerInfo->modbusType == ModbusType::tInputRegister) _inputRegisters[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 else if(registerInfo->modbusType == ModbusType::tCoil) _coils[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 else if(registerInfo->modbusType == ModbusType::tDiscreteInput) _discreteInputs[registerInfo->index].emplace(registerInfo->count, registerInfo);
                 _outputs++;
@@ -143,7 +144,22 @@ void MyNode::configNodesStarted()
             {
                 Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                 element->arrayValue->reserve(5);
-                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tRegister));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tHoldingRegister));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
+                registers->arrayValue->push_back(element);
+            }
+        }
+
+        for(auto& index : _inputRegisters)
+        {
+            for(auto& count : index.second)
+            {
+                Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                element->arrayValue->reserve(5);
+                element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tInputRegister));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
                 element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
@@ -206,7 +222,7 @@ void MyNode::configNodesStarted()
             {
                 if(packet->arrayValue->size() != 4 || packet->arrayValue->at(3)->binaryValue.empty()) continue;
 
-                if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tRegister)
+                if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tHoldingRegister || (ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tInputRegister)
                 {
                     auto indexIterator = _registers.find(packet->arrayValue->at(1)->integerValue);
                     if (indexIterator == _registers.end()) continue;
@@ -218,7 +234,7 @@ void MyNode::configNodesStarted()
                     countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    message->structValue->emplace("register", std::make_shared<Flows::Variable>(indexIterator->first));
+                    message->structValue->emplace((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tHoldingRegister ? "holdingRegister" : "inputRegister", std::make_shared<Flows::Variable>(indexIterator->first));
                     message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
 
                     switch (countIterator->second->type)

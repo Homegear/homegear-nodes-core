@@ -194,7 +194,11 @@
             registers.each(function(i) {
                 var registerData = $(this).data('data');
                 var register = $(this);
-                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : (register.find(".node-input-register-modbustype").val() == 'Coil' ? '1' : '2');
+                var modbusTypeString = register.find(".node-input-register-modbustype").val();
+                var modbusType = 0;
+                if(modbusTypeString == 'Coil') modbusType = 1;
+                else if(modbusTypeString == 'DiscI') modbusType = 2;
+                else if(modbusTypeString == 'IReg') modbusType = 3;
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
                 var type = register.find(".node-input-register-type").val();

@@ -82,7 +82,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                 registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
                 registerInfo->inputIndex = (uint32_t)inputIndex;
                 registerInfo->index = (uint32_t)index;
-                registerInfo->count = registerInfo->modbusType == ModbusType::tRegister ? (uint32_t)count : 1;
+                registerInfo->count = registerInfo->modbusType == ModbusType::tHoldingRegister ? (uint32_t)count : 1;
                 registerInfo->invertBytes = ibIterator->second->booleanValue;
                 registerInfo->invertRegisters = irIterator->second->booleanValue;
                 _registers.emplace(inputIndex, registerInfo);
@@ -111,7 +111,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		Flows::PVariable payload = std::make_shared<Flows::Variable>();
         *payload = *(message->structValue->at("payload"));
-        if(registersIterator->second->modbusType == ModbusType::tRegister)
+        if(registersIterator->second->modbusType == ModbusType::tHoldingRegister)
         {
             if (payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
             else if (payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back(1);
@@ -222,7 +222,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
             Flows::PArray parameters = std::make_shared<Flows::Array>();
             parameters->reserve(6);
-            parameters->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tRegister));
+            parameters->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tHoldingRegister));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
             parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertBytes));

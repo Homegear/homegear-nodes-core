@@ -85,6 +85,13 @@
             var invertLabelText = this._("modbus-host.label.invert");
             var readOnConnectLabelText = this._("modbus-host.label.readonconnect");
 
+            if(!this.readregisters) this.readregisters = [];
+            if(!this.writeregisters) this.writeregisters = [];
+            if(!this.readinputregisters) this.readinputregisters = [];
+            if(!this.readcoils) this.readcoils = [];
+            if(!this.writecoils) this.writecoils = [];
+            if(!this.readdiscreteinputs) this.readdiscreteinputs = [];
+
             $("#node-config-read-registers-container").css('min-height','150px').css('min-width','450px').editableList({
                 addItem: function(container,i,opt) {
                     if (!opt.hasOwnProperty('r')) {

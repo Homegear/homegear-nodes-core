@@ -134,6 +134,29 @@ bool MyNode::start()
             }
         }
 
+        settingsIterator = _nodeInfo->info->structValue->find("readinputregisters");
+        if(settingsIterator != _nodeInfo->info->structValue->end())
+        {
+            for(auto& element : *settingsIterator->second->arrayValue)
+            {
+                auto startIterator = element->structValue->find("s");
+                if(startIterator == element->structValue->end()) continue;
+
+                auto endIterator = element->structValue->find("e");
+                if(endIterator == element->structValue->end()) continue;
+
+                auto invIterator = element->structValue->find("inv");
+                if(invIterator == element->structValue->end()) continue;
+
+                int32_t start = Flows::Math::getNumber(startIterator->second->stringValue);
+                int32_t end = Flows::Math::getNumber(endIterator->second->stringValue);
+
+                if(start < 0 || end < 0 || end < start) continue;
+
+                modbusSettings->readInputRegisters.push_back(std::make_tuple(start, end, invIterator->second->booleanValue));
+            }
+        }
+
         settingsIterator = _nodeInfo->info->structValue->find("readcoils");
         if(settingsIterator != _nodeInfo->info->structValue->end())
         {
