@@ -88,7 +88,8 @@
                     }
                     var row = $('<div/>').appendTo(container);
                     var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
-                    modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
+                    modbusTypeField.append($("<option></option>").val("HReg").text("HReg"));
+                    modbusTypeField.append($("<option></option>").val("IReg").text("IReg"));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     modbusTypeField.append($("<option></option>").val("DiscI").text("DiscI"));
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
@@ -107,7 +108,10 @@
                     var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
-                    modbusTypeField.val(register.mt == 2 ? 'DiscI' : (register.mt == 1 ? 'Coil' : 'Reg.'));
+                    if(register.mt == 0) modbusTypeField.val('HReg');
+                    else if(register.mt == 1) modbusTypeField.val('Coil');
+                    else if(register.mt == 2) modbusTypeField.val('DiscI');
+                    else if(register.mt == 3) modbusTypeField.val('IReg');
                     indexField.val(register.r);
                     countField.val(register.c);
                     selectField.val(register.t);
@@ -119,7 +123,7 @@
                     outputCount.val(JSON.stringify(currentOutputs));
 
                     function updateVisibility(type) {
-                        if(type == 'Reg.') {
+                        if(type == 'HReg' || type == 'IReg') {
                             countLabel.show();
                             countField.show();
                             typeLabel.show();
