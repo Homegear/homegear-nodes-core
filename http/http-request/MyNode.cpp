@@ -187,23 +187,23 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         }
         else if(_method == "DELETE")
         {
-            std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "\r\n\r\n";
+            std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
             _httpClient->sendRequest(deleteRequest, result);
         }
         else if(_method == "PUT")
         {
-            std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             putRequest.insert(putRequest.end(), content.begin(), content.end());
             _httpClient->sendRequest(putRequest, result);
         }
         else if(_method == "POST")
         {
-            std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             postRequest.insert(postRequest.end(), content.begin(), content.end());
         }
         else if(_method == "PATCH")
         {
-            std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             patchRequest.insert(patchRequest.end(), content.begin(), content.end());
         }
         _httpClient->get(_path, result);
