@@ -102,17 +102,6 @@ void MyNode::configNodesStarted()
             _basicAuth = "Authorization: Basic " + _basicAuth + "\r\n";
         }
 
-        if(_useTls)
-        {
-            _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
-            _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
-            _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
-            _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
-            _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
-            _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
-            _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
-        }
-
         if(_url.compare(0, 7, "http://") == 0)
         {
             _url = _url.substr(7);
@@ -127,6 +116,17 @@ void MyNode::configNodesStarted()
         {
             _out->printError("Error: URL does not start with http:// or https://.");
             return;
+        }
+
+        if(_useTls)
+        {
+            _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
+            _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
+            _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
+            _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
+            _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
+            _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
+            _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
         }
 
         auto pathPair = BaseLib::HelperFunctions::splitFirst(_url, '/');
