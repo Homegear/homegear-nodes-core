@@ -46,13 +46,15 @@ public:
 private:
 	enum class ModbusType
 	{
-		tRegister = 0,
-		tCoil = 1
+		tHoldingRegister = 0,
+		tCoil = 1,
+		tDiscreteInput = 2,
+		tInputRegister = 3
 	};
 
 	struct RegisterInfo
 	{
-		ModbusType modbusType = ModbusType::tRegister;
+		ModbusType modbusType = ModbusType::tHoldingRegister;
 		uint32_t inputIndex = 0;
 		uint32_t index = 0;
 		uint32_t count = 0;

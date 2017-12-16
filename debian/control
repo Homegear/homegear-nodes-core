@@ -3,7 +3,7 @@ Maintainer: Sathya Laufer <sathya@laufers.net>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.6
-Build-Depends: debhelper (>= 8), libmodbus-dev, libhomegear-node
+Build-Depends: debhelper (>= 8), libhomegear-node
 Homepage: https://homegear.eu
 
 Package: homegear-nodes-core

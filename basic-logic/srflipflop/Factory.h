@@ -27,58 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H
+#define FACTORY_H
 
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
-#include <homegear-base/BaseLib.h>
+#include <homegear-node/NodeFactory.h>
+#include "MyNode.h"
 
-namespace MyNode
-{
-
-class MyNode: public Flows::INode
+class MyFactory : Flows::NodeFactory
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-    enum class ReturnType
-    {
-        txt,
-        bin,
-        obj
-    };
-
-    std::unique_ptr<BaseLib::SharedObjects> _bl;
-
-    std::string _tlsNode;
-    bool _useTls = false;
-	bool _useBasicAuth = false;
-	std::string _url;
-    std::string _method;
-    std::string _basicAuth;
-    std::string _caPath;
-    std::string _caData;
-    std::string _certPath;
-    std::string _certData;
-    std::string _keyPath;
-    std::string _keyData;
-    bool _verifyCertificate = true;
-    ReturnType _returnType;
-
-    std::string _hostname;
-    std::string _path;
-    int32_t _port = 80;
-    std::unique_ptr<Flows::JsonDecoder> _jsonDecoder;
-    std::unique_ptr<BaseLib::HttpClient> _httpClient;
-
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	virtual Flows::INode* createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif

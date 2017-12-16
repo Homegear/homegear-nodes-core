@@ -41,6 +41,10 @@
         <label for="node-config-write-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.write-registers"></span></label>
         <ol id="node-config-write-registers-container"></ol>
     </div>
+    <div class="form-row node-config-read-input-registers-container-row">
+        <label for="node-config-read-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-input-registers"></span></label>
+        <ol id="node-config-read-input-registers-container"></ol>
+    </div>
     <div class="form-row node-config-read-coils-container-row">
         <label for="node-config-read-coils-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-coils"></span></label>
         <ol id="node-config-read-coils-container"></ol>
@@ -48,6 +52,10 @@
     <div class="form-row node-config-write-coils-container-row">
         <label for="node-config-write-coils-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.write-coils"></span></label>
         <ol id="node-config-write-coils-container"></ol>
+    </div>
+    <div class="form-row node-config-read-discrete-inputs-container-row">
+        <label for="node-config-read-discrete-inputs-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-discrete-inputs"></span></label>
+        <ol id="node-config-read-discrete-inputs-container"></ol>
     </div>
 </script>
 <script type="text/javascript">
@@ -59,10 +67,12 @@
             port: {value:"502",required:true,validate:RED.validators.number()},
             interval: {value:"100",required:true,validate:RED.validators.number()},
             delay: {value:"10",required:true,validate:RED.validators.number()},
-            readregisters: {value:[{s:"0", e:"100", inv:false}]},
+            readregisters: {value:[]},
             writeregisters: {value:[]},
+            readinputregisters: {value:[]},
             readcoils: {value:[]},
-            writecoils: {value:[]}
+            writecoils: {value:[]},
+            readdiscreteinputs: {value:[]}
         },
         label: function() {
             var b = this.server;
@@ -74,6 +84,13 @@
             var endLabelText = this._("modbus-host.label.last");
             var invertLabelText = this._("modbus-host.label.invert");
             var readOnConnectLabelText = this._("modbus-host.label.readonconnect");
+
+            if(!this.readregisters) this.readregisters = [];
+            if(!this.writeregisters) this.writeregisters = [];
+            if(!this.readinputregisters) this.readinputregisters = [];
+            if(!this.readcoils) this.readcoils = [];
+            if(!this.writecoils) this.writecoils = [];
+            if(!this.readdiscreteinputs) this.readdiscreteinputs = [];
 
             $("#node-config-read-registers-container").css('min-height','150px').css('min-width','450px').editableList({
                 addItem: function(container,i,opt) {
@@ -154,6 +171,44 @@
                 $("#node-config-write-registers-container").editableList('addItem',{r:register,i:i});
             }
 
+            $("#node-config-read-input-registers-container").css('min-height','150px').css('min-width','450px').editableList({
+                addItem: function(container,i,opt) {
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var register = opt.r;
+                    if (!register.hasOwnProperty('s')) {
+                        register.s = '0';
+                    }
+                    if (!register.hasOwnProperty('e')) {
+                        register.e = '0';
+                    }
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    var startLabel = $('<span/>',{class:"node-config-register-start-label"}).text(" "+startLabelText+" ").appendTo(row);
+                    var startField = $('<input/>',{class:"node-config-register-start",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var endLabel = $('<span/>',{class:"node-config-register-end-label"}).text(" "+endLabelText+" ").appendTo(row);
+                    var endField = $('<input/>',{class:"node-config-register-end",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var invertField = $('<input/>',{class:"node-config-register-invert",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertLabel = $('<span/>',{class:"node-config-register-invert-label"}).text(" "+invertLabelText+" ").appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-config-register-index">'+i+'</span> ');
+
+                    startField.val(register.s);
+                    endField.val(register.e);
+                    invertField.prop('checked', register.inv);
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.readinputregisters.length;i++) {
+                var register = this.readinputregisters[i];
+                $("#node-config-read-input-registers-container").editableList('addItem',{r:register,i:i});
+            }
+
             $("#node-config-read-coils-container").css('min-height','150px').css('min-width','450px').editableList({
                 addItem: function(container,i,opt) {
                     if (!opt.hasOwnProperty('r')) {
@@ -226,6 +281,41 @@
                 var register = this.writecoils[i];
                 $("#node-config-write-coils-container").editableList('addItem',{r:register,i:i});
             }
+
+            $("#node-config-read-discrete-inputs-container").css('min-height','150px').css('min-width','450px').editableList({
+                addItem: function(container,i,opt) {
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var register = opt.r;
+                    if (!register.hasOwnProperty('s')) {
+                        register.s = '0';
+                    }
+                    if (!register.hasOwnProperty('e')) {
+                        register.e = '0';
+                    }
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    var startLabel = $('<span/>',{class:"node-config-register-start-label"}).text(" "+startLabelText+" ").appendTo(row);
+                    var startField = $('<input/>',{class:"node-config-register-start",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var endLabel = $('<span/>',{class:"node-config-register-end-label"}).text(" "+endLabelText+" ").appendTo(row);
+                    var endField = $('<input/>',{class:"node-config-register-end",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-config-register-index">'+i+'</span> ');
+
+                    startField.val(register.s);
+                    endField.val(register.e);
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.readdiscreteinputs.length;i++) {
+                var register = this.readdiscreteinputs[i];
+                $("#node-config-read-discrete-inputs-container").editableList('addItem',{r:register,i:i});
+            }
         },
         oneditsave: function() {
             var node = this;
@@ -253,6 +343,17 @@
                 node.writeregisters.push({s:start,e:end,inv:invert,roc:readOnConnect});
             });
 
+            var readinputregisters = $("#node-config-read-input-registers-container").editableList('items');
+            node.readinputregisters = [];
+            readinputregisters.each(function(i) {
+                var registerData = $(this).data('data');
+                var register = $(this);
+                var start = register.find(".node-config-register-start").val();
+                var end = register.find(".node-config-register-end").val();
+                var invert = register.find(".node-config-register-invert").prop('checked');
+                node.readinputregisters.push({s:start,e:end,inv:invert});
+            });
+
             var readcoils = $("#node-config-read-coils-container").editableList('items');
             node.readcoils = [];
             readcoils.each(function(i) {
@@ -274,6 +375,16 @@
                 var readOnConnect = register.find(".node-config-register-readonconnect").prop('checked');
                 node.writecoils.push({s:start,e:end,roc:readOnConnect});
             });
+
+            var readdiscreteinputs = $("#node-config-read-discrete-inputs-container").editableList('items');
+            node.readdiscreteinputs = [];
+            readdiscreteinputs.each(function(i) {
+                var registerData = $(this).data('data');
+                var register = $(this);
+                var start = register.find(".node-config-register-start").val();
+                var end = register.find(".node-config-register-end").val();
+                node.readdiscreteinputs.push({s:start,e:end});
+            });
         },
         oneditresize: function(size) {
             var rows = $("#dialog-form>div:not(.node-config-read-registers-container-row)");
@@ -293,6 +404,15 @@
             height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
             $("#node-config-write-registers-container").editableList('height',height);
 
+            rows = $("#dialog-form>div:not(.node-config-read-input-registers-container-row)");
+            height = size.height;
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            editorRow = $("#dialog-form>div.node-config-read-input-registers-container-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $("#node-config-read-input-registers-container").editableList('height',height);
+
             rows = $("#dialog-form>div:not(.node-config-read-coils-container-row)");
             for (var i=0;i<rows.size();i++) {
                 height -= $(rows[i]).outerHeight(true);
@@ -308,6 +428,14 @@
             editorRow = $("#dialog-form>div.node-config-write-coils-container-row");
             height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
             $("#node-config-write-coils-container").editableList('height',height);
+
+            rows = $("#dialog-form>div:not(.node-config-read-discrete-inputs-container-row)");
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            editorRow = $("#dialog-form>div.node-config-read-discrete-inputs-container-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $("#node-config-read-discrete-inputs-container").editableList('height',height);
         }
     });
 </script>

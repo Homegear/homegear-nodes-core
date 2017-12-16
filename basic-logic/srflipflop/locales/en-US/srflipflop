@@ -1,0 +1,15 @@
+{
+  "basic-logic/srflipflop.hni": {
+    "srflipflop": {
+      "label": {
+        "name": "Name",
+        "changes-only": "Output changes only"
+      },
+      "paletteHelp": "Set reset flip flop",
+      "help": "<p>This node outputs <code>true</code> when the S input is set to <code>true</code>. It also outputs <code>false</code> when the R input is set to <code>true</code>. An input of <code>false</code> is ignored on both inputs.</p>",
+      "input1Description": "The set boolean value.",
+      "input2Description": "The reset boolean value.",
+      "output1Description": "Outputs the result of the SR flip flop."
+    }
+  }
+}

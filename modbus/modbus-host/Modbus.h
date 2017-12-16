@@ -35,21 +35,30 @@
 #include <homegear-node/Output.h>
 #include <homegear-node/HelperFunctions.h>
 #include <homegear-base/BaseLib.h>
-#include <modbus/modbus.h>
 
 class Modbus
 {
 public:
+    enum class ModbusType
+    {
+        tHoldingRegister = 0,
+        tCoil = 1,
+        tDiscreteInput = 2,
+        tInputRegister = 3
+    };
+
 	struct ModbusSettings
 	{
 		std::string server;
-		std::string port;
+		int32_t port = 502;
 		uint32_t interval = 100;
         uint32_t delay = 0;
 		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
+		std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;
         std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
         std::vector<std::tuple<int32_t, int32_t>> readCoils;
         std::vector<std::tuple<int32_t, int32_t, bool>> writeCoils;
+        std::vector<std::tuple<int32_t, int32_t>> readDiscreteInputs;
 	};
 
 	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
@@ -61,20 +70,14 @@ public:
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
-	void registerNode(std::string& node, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
-	void registerNode(std::string& node, uint32_t startCoil, uint32_t count);
+	void registerNode(std::string& node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
+	void registerNode(std::string& node, ModbusType type, uint32_t startCoil, uint32_t count);
 	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value);
-    void writeRegisters(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t>& value);
+    void writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t>& value);
 private:
-    enum class ModbusType
-    {
-        tRegister = 0,
-        tCoil = 1
-    };
-
 	struct NodeInfo
     {
-        ModbusType type = ModbusType::tRegister;
+        ModbusType type = ModbusType::tHoldingRegister;
         std::string id;
         uint32_t startRegister = 0;
         uint32_t count = 0;
@@ -101,7 +104,19 @@ private:
         uint32_t start = 0;
         uint32_t end = 0;
         uint32_t count = 0;
+		uint32_t byteCount = 0;
         bool readOnConnect = false;
+        std::list<NodeInfo> nodes;
+        std::vector<uint8_t> buffer1;
+        std::vector<uint8_t> buffer2;
+    };
+
+    struct DiscreteInputInfo
+    {
+        uint32_t start = 0;
+        uint32_t end = 0;
+        uint32_t count = 0;
+        uint32_t byteCount = 0;
         std::list<NodeInfo> nodes;
         std::vector<uint8_t> buffer1;
         std::vector<uint8_t> buffer2;
@@ -121,8 +136,8 @@ private:
 	std::shared_ptr<ModbusSettings> _settings;
 	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 
-	std::mutex _modbusMutex;
-	std::atomic<modbus_t*> _modbus;
+    std::mutex _modbusMutex;
+	std::shared_ptr<BaseLib::Modbus> _modbus;
     std::atomic_bool _connected;
 
 	std::thread _listenThread;
@@ -133,12 +148,16 @@ private:
     std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
     std::mutex _registerWriteBufferMutex;
     std::list<std::shared_ptr<WriteInfo>> _registerWriteBuffer;
+    std::mutex _readInputRegistersMutex;
+    std::list<std::shared_ptr<RegisterInfo>> _readInputRegisters;
     std::mutex _readCoilsMutex;
     std::list<std::shared_ptr<CoilInfo>> _readCoils;
     std::mutex _writeCoilsMutex;
     std::list<std::shared_ptr<CoilInfo>> _writeCoils;
     std::mutex _coilWriteBufferMutex;
     std::list<std::shared_ptr<WriteInfo>> _coilWriteBuffer;
+    std::mutex _readDiscreteInputsMutex;
+    std::list<std::shared_ptr<DiscreteInputInfo>> _readDiscreteInputs;
 
 	Modbus(const Modbus&);
 	Modbus& operator=(const Modbus&);

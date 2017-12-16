@@ -103,11 +103,6 @@ void MyNode::startUpComplete()
 		if(result->errorStruct)
 		{
 			_out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
-			status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Unknown variable"));
-			nodeEvent("statusBottom/" + _id, status);
 		}
 		else
 		{

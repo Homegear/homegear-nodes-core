@@ -48,8 +48,10 @@ public:
 private:
 	enum class ModbusType
 	{
-		tRegister = 0,
-		tCoil = 1
+		tHoldingRegister = 0,
+		tCoil = 1,
+        tDiscreteInput = 2,
+		tInputRegister = 3
 	};
 
     enum class RegisterType
@@ -63,7 +65,7 @@ private:
 
     struct RegisterInfo
     {
-        ModbusType modbusType = ModbusType::tRegister;
+        ModbusType modbusType = ModbusType::tHoldingRegister;
         uint32_t outputIndex = 0;
         uint32_t index = 0;
         uint32_t count = 0;
@@ -77,6 +79,8 @@ private:
     uint32_t _outputs = 0;
     std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
     std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
+	std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
 
 	//{{{ RPC methods
 	Flows::PVariable packetReceived(Flows::PArray parameters);

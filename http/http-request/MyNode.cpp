@@ -66,6 +66,9 @@ bool MyNode::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("usetls");
         if(settingsIterator != info->info->structValue->end()) _useTls = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("basicauth");
+        if(settingsIterator != info->info->structValue->end()) _useBasicAuth = settingsIterator->second->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -92,22 +95,11 @@ void MyNode::configNodesStarted()
         std::string username = getNodeData("username")->stringValue;
         std::string password = getNodeData("password")->stringValue;
 
-        if(!username.empty())
+        if(_useBasicAuth && !username.empty())
         {
             std::string raw = username + ":" + password;
             BaseLib::Base64::encode(raw, _basicAuth);
             _basicAuth = "Authorization: Basic " + _basicAuth + "\r\n";
-        }
-
-        if(_useTls)
-        {
-            _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
-            _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
-            _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
-            _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
-            _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
-            _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
-            _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
         }
 
         if(_url.compare(0, 7, "http://") == 0)
@@ -124,6 +116,17 @@ void MyNode::configNodesStarted()
         {
             _out->printError("Error: URL does not start with http:// or https://.");
             return;
+        }
+
+        if(_useTls)
+        {
+            _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
+            _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
+            _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
+            _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
+            _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
+            _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
+            _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
         }
 
         auto pathPair = BaseLib::HelperFunctions::splitFirst(_url, '/');
@@ -184,23 +187,23 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         }
         else if(_method == "DELETE")
         {
-            std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "\r\n\r\n";
+            std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
             _httpClient->sendRequest(deleteRequest, result);
         }
         else if(_method == "PUT")
         {
-            std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             putRequest.insert(putRequest.end(), content.begin(), content.end());
             _httpClient->sendRequest(putRequest, result);
         }
         else if(_method == "POST")
         {
-            std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             postRequest.insert(postRequest.end(), content.begin(), content.end());
         }
         else if(_method == "PATCH")
         {
-            std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n\" + _basicAuth + \"Connection: Close" + "Content-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+            std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             patchRequest.insert(patchRequest.end(), content.begin(), content.end());
         }
         _httpClient->get(_path, result);
