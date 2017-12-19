@@ -62,7 +62,7 @@
             format: {value:"handlebars"},
             syntax: {value:"mustache"},
             template: {value:"This is the payload: {{payload}} !"},
-            output: {value:"str"}
+            output: {value:"json"}
         },
         inputs:1,
         outputs:1,
