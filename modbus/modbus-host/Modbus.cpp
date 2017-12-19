@@ -913,6 +913,7 @@ void Modbus::connect()
     std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
 	try
     {
+        _modbus->setSlaveId(_settings->slaveId);
         _modbus->connect();
 
         std::list<std::shared_ptr<RegisterInfo>> registers;

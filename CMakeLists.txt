@@ -112,10 +112,6 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
-		sequence/Factory.cpp
-        sequence/Factory.h
-        sequence/MyNode.cpp
-        sequence/MyNode.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp

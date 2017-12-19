@@ -85,6 +85,9 @@ bool MyNode::start()
         if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->delay = Flows::Math::getNumber(settingsIterator->second->stringValue);
         if(modbusSettings->delay > modbusSettings->interval) modbusSettings->delay = modbusSettings->interval;
 
+        settingsIterator = _nodeInfo->info->structValue->find("slaveid");
+        if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->slaveId = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
         settingsIterator = _nodeInfo->info->structValue->find("readregisters");
         if(settingsIterator != _nodeInfo->info->structValue->end())
         {
