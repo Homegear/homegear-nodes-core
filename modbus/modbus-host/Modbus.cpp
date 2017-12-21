@@ -44,6 +44,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         modbusInfo.port = _settings->port;
 
         _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
+        _modbus->setDebug(settings->debug);
 
         for(auto& element : settings->readRegisters)
         {
@@ -1058,11 +1059,12 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
     try
     {
         NodeInfo info;
-        info.type = ModbusType::tCoil;
+        info.type = type;
         info.id = node;
         info.startRegister = startCoil;
         info.count = count;
 
+        _out->printError("Moin M0");
         if(type == ModbusType::tCoil)
         {
             std::lock_guard<std::mutex> registersGuard(_readCoilsMutex);
@@ -1076,11 +1078,13 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
         }
         else
         {
+            _out->printError("Moin M1");
             std::lock_guard<std::mutex> registersGuard(_readDiscreteInputsMutex);
             for (auto& element : _readDiscreteInputs)
             {
                 if (startCoil >= element->start && (startCoil + count - 1) <= element->end)
                 {
+                    _out->printError("Moin M2");
                     element->nodes.emplace_back(info);
                 }
             }
