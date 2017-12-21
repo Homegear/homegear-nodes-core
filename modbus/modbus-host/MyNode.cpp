@@ -300,7 +300,6 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 {
 	try
 	{
-        _out->printError("Moin R1");
 		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
 		if(parameters->at(1)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 2 is not of type array.");
@@ -308,14 +307,12 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 		if(!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
         for(auto& element : *parameters->at(1)->arrayValue)
         {
-            _out->printError("Moin R2 " + std::to_string(element->arrayValue->size()));
             if(element->arrayValue->size() == 5)
             {
                 _modbus->registerNode(parameters->at(0)->stringValue, (Modbus::ModbusType)element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->integerValue, element->arrayValue->at(3)->booleanValue, element->arrayValue->at(4)->booleanValue);
             }
             else if(element->arrayValue->size() == 3)
             {
-                _out->printError("Moin R3");
                 _modbus->registerNode(parameters->at(0)->stringValue, (Modbus::ModbusType)element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->integerValue);
             }
         }
