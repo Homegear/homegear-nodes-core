@@ -50,15 +50,13 @@ public:
 private:
 	uint32_t _delay = 10000;
 
-	std::atomic_bool _threadRunning;
 	std::atomic_bool _stopThread;
 	std::atomic_bool _stopped;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 
-	bool _firstInput = true;
 	bool _lastInputState = false;
-	void timer(int64_t inputTime);
+	void timer(int64_t inputTime, bool outputTrue);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 

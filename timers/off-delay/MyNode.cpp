@@ -81,7 +81,7 @@ bool MyNode::start()
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
 
-		_lastOutputState = getNodeData("lastOutputState")->booleanValue;
+		_lastInputState = getNodeData("lastOutputState")->booleanValue;
 
 		return true;
 	}
@@ -195,7 +195,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		{
 			if (*input)
 			{
-				if (!_lastOutputState || _firstInput)
+				if (!_lastInputState || _firstInput)
 				{
 					{
 						std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
@@ -205,12 +205,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 					output(0, outputMessage); //true
 				}
-				_lastOutputState = true;
+				_lastInputState = true;
 				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(true));
 			}
-			else if (!_threadRunning && (_lastOutputState || _firstInput))
+			else if (!_threadRunning && (_lastInputState || _firstInput))
 			{
-				_lastOutputState = false;
+				_lastInputState = false;
 				setNodeData("lastOutputState", std::make_shared<Flows::Variable>(false));
 				int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
 				setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
@@ -226,7 +226,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		}
 		else
 		{
-            if(*input && !_lastOutputState)
+            if(*input && !_lastInputState)
             {
                 int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
                 setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));

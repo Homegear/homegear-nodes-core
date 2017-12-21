@@ -51,7 +51,7 @@ private:
 	uint32_t _delay = 10000;
 
 	bool _firstInput = true;
-	bool _lastOutputState = false;
+	bool _lastInputState = false;
 	std::atomic_bool _threadRunning;
 	std::atomic_bool _stopped;
 	std::atomic_bool _stopThread;

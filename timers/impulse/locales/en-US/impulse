@@ -1,0 +1,13 @@
+{
+  "timers/impulse.hni": {
+    "impulse": {
+      "label": {
+        "impulse": "Delay",
+        "impulse2": "Impulse in ms",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Forwards <code>true</code> and after a specified amount of time resets the output to <code>false</code>.</p>",
+      "help": "<p>The impulse node forwards <code>true</code> and resets the output to <code>false</code> after a specified amount of time. An input of a single <code>true</code> or <code>false</code> is ignored while the timer is running. A <code>false</code>, <code>true</code> sequence while the timer is running restarts it.</p>"
+    }
+  }
+}
