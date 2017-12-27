@@ -24,7 +24,7 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
-        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="http-in.label.server"></span></label>
+        <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="http-response.label.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
     <div class="form-row">
