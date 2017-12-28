@@ -44,5 +44,5 @@ notificationdir = $(libdir)
 notification_DATA = xmpp.hni xmpp.php xmpp-server.hni xmpp-server.s.php
 
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/xmpp
+locale_en_us_DATA = locales/en-US/xmpp locales/en-US/xmpp-server
 
