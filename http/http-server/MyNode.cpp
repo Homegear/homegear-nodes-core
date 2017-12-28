@@ -445,7 +445,7 @@ std::string MyNode::constructHeader(uint32_t contentLength, int32_t code, Flows:
 			response.insert(response.end(), header.begin(), header.end());
 			response.insert(response.end(), parameters->at(3)->stringValue.begin(), parameters->at(3)->stringValue.end());
 
-			_server->send(parameters->at(0)->integerValue, response);
+			_server->send(parameters->at(0)->integerValue, response, true);
 
 			return std::make_shared<Flows::Variable>();
 		}
