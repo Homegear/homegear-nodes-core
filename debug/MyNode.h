@@ -42,7 +42,7 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void setNodeVariable(std::string& variable, Flows::PVariable& value);
+	virtual void setNodeVariable(std::string variable, Flows::PVariable value);
 private:
 	bool _active = true;
 	bool _hg = false;
