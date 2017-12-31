@@ -39,11 +39,11 @@ using namespace kainjow;
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+class Template : public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	Template(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~Template();
 
 	virtual bool init(Flows::PNodeInfo info);
 private:

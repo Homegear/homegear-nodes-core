@@ -357,8 +357,11 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-		auto messageIterator = message->structValue->find(_property);
-		if(messageIterator == message->structValue->end()) return;
+		Flows::PVariable myMessage = std::make_shared<Flows::Variable>();
+		*myMessage = *message;
+
+		auto messageIterator = myMessage->structValue->find(_property);
+		if(messageIterator == myMessage->structValue->end()) return;
 
 		if(index == 1) //2nd input
 		{
@@ -389,7 +392,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = messageIterator->second;
 						setNodeData("previousOutputValue" + std::to_string(i), messageIterator->second);
-						output(i, message);
+						output(i, myMessage);
 					}
 				}
 				if(!_checkAll) break;

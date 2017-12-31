@@ -32,15 +32,15 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+Template::Template(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 }
 
-MyNode::~MyNode()
+Template::~Template()
 {
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool Template::init(Flows::PNodeInfo info)
 {
 	try
 	{
@@ -72,7 +72,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::addData(bool global, std::string key)
+void Template::addData(bool global, std::string key)
 {
 	try
 	{
@@ -96,7 +96,7 @@ void MyNode::addData(bool global, std::string key)
 	}
 }
 
-void MyNode::setData(mustache::data& data, std::string key, Flows::PVariable value)
+void Template::setData(mustache::data& data, std::string key, Flows::PVariable value)
 {
 	try
 	{
@@ -138,7 +138,7 @@ void MyNode::setData(mustache::data& data, std::string key, Flows::PVariable val
 	}
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
@@ -152,7 +152,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		_data.set("global", mustache::data(mustache::data::type::object));
 
 		Flows::PVariable result;
-		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(bool, std::string)>(std::bind(&MyNode::addData, this, std::placeholders::_1, std::placeholders::_2))));
+		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(bool, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
 		else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

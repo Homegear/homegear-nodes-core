@@ -36,11 +36,11 @@
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+class HttpResponse : public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	HttpResponse(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~HttpResponse();
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void configNodesStarted();
