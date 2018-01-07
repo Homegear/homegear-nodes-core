@@ -53,6 +53,7 @@ private:
 	int32_t _dutyCycleMin = 0;
 	int32_t _dutyCycleMax = 100;
 	std::atomic<int32_t> _currentDutyCycle;
+	int64_t _lastOutput = 0;
 
 	int32_t _startTimeAll = 0;
 

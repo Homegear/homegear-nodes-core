@@ -11,7 +11,7 @@
       "input1Description": "The duty cycle.",
       "output1Description": "Outputs \"true\" on high and \"false\" on low value.",
       "paletteHelp": "<p>Generates a PWM signal.</p>",
-      "help": "This node generates a slow PWM signal. Input the duty cycle lenght to <code>D</code>. Set <code>Period</code> to the period in seconds. The minimum period is 10 seconds, the duty cycle resolution is 1 second. Set <code>EN</code> to \"false\" to disable the PWM."
+      "help": "This node generates a slow PWM signal. Input the duty cycle lenght to <code>D</code>. Set <code>Period</code> to the period in seconds. The minimum period is 10 seconds, the duty cycle resolution is 1 second. Set <code>EN</code> to <code>false</code> to disable the PWM. When disabled the node outputs <code>false</code>. At least one message it output every dutycycle."
     }
   }
 }

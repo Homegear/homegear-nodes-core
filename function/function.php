@@ -62,6 +62,7 @@ public function executeCode(int $inputIndex, array $message)
 {
 	try
 	{
+	    $nodeInfo = $this->nodeInfo;
 		$code = $this->nodeInfo["info"]["func"];
 		$hg = new \Homegear\Homegear();
 		return eval($code);

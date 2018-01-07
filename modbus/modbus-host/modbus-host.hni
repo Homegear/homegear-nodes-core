@@ -33,6 +33,14 @@
         <label for="node-config-input-delay"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.delay"></span></label>
         <input type="text" id="node-config-input-delay">
     </div>
+    <div class="form-row">
+        <label for="node-config-input-slaveid"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.slaveid"></span></label>
+        <input type="text" id="node-config-input-slaveid">
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-config-input-debug" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-config-input-debug" style="width: 65%;" data-i18n="modbus-host.label.debug"></label>
+    </div>
     <div class="form-row node-config-read-registers-container-row">
         <label for="node-config-read-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-registers"></span></label>
         <ol id="node-config-read-registers-container"></ol>
@@ -67,6 +75,8 @@
             port: {value:"502",required:true,validate:RED.validators.number()},
             interval: {value:"100",required:true,validate:RED.validators.number()},
             delay: {value:"10",required:true,validate:RED.validators.number()},
+            slaveid: {value:"255",required:true,validate:function(v) { return $.isNumeric(v) && v <= 255 && v >= 0; }},
+            debug: {value:false},
             readregisters: {value:[]},
             writeregisters: {value:[]},
             readinputregisters: {value:[]},

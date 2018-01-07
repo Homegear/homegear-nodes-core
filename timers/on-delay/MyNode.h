@@ -57,7 +57,7 @@ private:
 	std::thread _timerThread;
 
 	bool _firstInput = true;
-	bool _lastOutputState = false;
+	bool _lastInputState = false;
 	void timer(int64_t inputTime);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };

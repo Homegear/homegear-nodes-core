@@ -85,6 +85,12 @@ bool MyNode::start()
         if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->delay = Flows::Math::getNumber(settingsIterator->second->stringValue);
         if(modbusSettings->delay > modbusSettings->interval) modbusSettings->delay = modbusSettings->interval;
 
+        settingsIterator = _nodeInfo->info->structValue->find("slaveid");
+        if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->slaveId = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+        settingsIterator = _nodeInfo->info->structValue->find("debug");
+        if(settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->debug = settingsIterator->second->booleanValue;
+
         settingsIterator = _nodeInfo->info->structValue->find("readregisters");
         if(settingsIterator != _nodeInfo->info->structValue->end())
         {
@@ -331,7 +337,7 @@ Flows::PVariable MyNode::writeRegisters(Flows::PArray parameters)
         if(parameters->size() != 4 && parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects four or sic parameters. " + std::to_string(parameters->size()) + " given.");
         if (!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
 
-        if(parameters->at(0)->integerValue == 1 && parameters->size() == 6)
+        if((Modbus::ModbusType)parameters->at(0)->integerValue == Modbus::ModbusType::tHoldingRegister && parameters->size() == 6)
         {
             if(parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
             if(parameters->at(2)->type != Flows::VariableType::tInteger && parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");

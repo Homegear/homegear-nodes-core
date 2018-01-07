@@ -6,16 +6,19 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/flows/nodes/timers
 
-lib_LTLIBRARIES = clock.la interval.la delay.la off-delay.la on-delay.la timer.la slow-pwm.la sun-position.la
+lib_LTLIBRARIES = clock.la delay.la impulse.la interval.la off-delay.la on-delay.la timer.la slow-pwm.la sun-position.la
 
 clock_la_SOURCES = clock/Factory.cpp clock/MyNode.cpp
 clock_la_LDFLAGS =-module -avoid-version -shared
 
-interval_la_SOURCES = interval/Factory.cpp interval/MyNode.cpp
-interval_la_LDFLAGS =-module -avoid-version -shared
-
 delay_la_SOURCES = delay/Factory.cpp delay/MyNode.cpp
 delay_la_LDFLAGS =-module -avoid-version -shared
+
+impulse_la_SOURCES = impulse/Factory.cpp impulse/MyNode.cpp
+impulse_la_LDFLAGS =-module -avoid-version -shared
+
+interval_la_SOURCES = interval/Factory.cpp interval/MyNode.cpp
+interval_la_LDFLAGS =-module -avoid-version -shared
 
 off_delay_la_SOURCES = off-delay/Factory.cpp off-delay/MyNode.cpp
 off_delay_la_LDFLAGS =-module -avoid-version -shared
@@ -33,14 +36,15 @@ sun_position_la_SOURCES = sun-position/Factory.cpp sun-position/MyNode.cpp sun-p
 sun_position_la_LDFLAGS =-module -avoid-version -shared
 
 timers_ladir = $(libdir)
-timers_la_DATA = clock/clock.hni interval/interval.hni delay/delay.hni off-delay/off-delay.hni on-delay/on-delay.hni timer/timer.hni slow-pwm/slow-pwm.hni sun-position/sun-position.hni
+timers_la_DATA = clock/clock.hni delay/delay.hni impulse/impulse.hni interval/interval.hni off-delay/off-delay.hni on-delay/on-delay.hni timer/timer.hni slow-pwm/slow-pwm.hni sun-position/sun-position.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = clock/locales/en-US/clock interval/locales/en-US/interval delay/locales/en-US/delay off-delay/locales/en-US/off-delay on-delay/locales/en-US/on-delay timer/locales/en-US/timer slow-pwm/locales/en-US/slow-pwm sun-position/locales/en-US/sun-position
+locale_en_us_DATA = clock/locales/en-US/clock delay/locales/en-US/delay impulse/locales/en-US/impulse interval/locales/en-US/interval off-delay/locales/en-US/off-delay on-delay/locales/en-US/on-delay timer/locales/en-US/timer slow-pwm/locales/en-US/slow-pwm sun-position/locales/en-US/sun-position
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/clock.la
-	rm -f $(DESTDIR)$(libdir)/interval.la
 	rm -f $(DESTDIR)$(libdir)/delay.la
+	rm -f $(DESTDIR)$(libdir)/impulse.la
+	rm -f $(DESTDIR)$(libdir)/interval.la
 	rm -f $(DESTDIR)$(libdir)/off-delay.la
 	rm -f $(DESTDIR)$(libdir)/on-delay.la
 	rm -f $(DESTDIR)$(libdir)/timer.la

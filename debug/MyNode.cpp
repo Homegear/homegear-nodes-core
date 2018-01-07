@@ -69,7 +69,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::setNodeVariable(std::string& variable, Flows::PVariable& value)
+void MyNode::setNodeVariable(std::string variable, Flows::PVariable value)
 {
 	try
 	{

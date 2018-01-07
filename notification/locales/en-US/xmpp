@@ -1,0 +1,15 @@
+{
+  "notification/xmpp.hni": {
+    "xmpp": {
+      "label": {
+        "name": "Name",
+        "server": "Server",
+        "recipient": "Recipient",
+        "message": "Message"
+      },
+      "tip": "Tip: See the Info tab for help writing functions.",
+      "paletteHelp": "<p>Send a XMPP notification.</p>",
+      "help": "<p>This node sends a notification with XMPP.</p><p>You can enter the recipient and message manually, or use<br><code>$message['xmpp-recipient']</code><br><code>$message['xmpp-message']</code><br>to inject / override it.</p>"
+    }
+  }
+}

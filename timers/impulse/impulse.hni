@@ -1,0 +1,48 @@
+<script type="text/x-homegear">
+{
+    "name": "impulse",
+    "readableName": "Impulse",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="impulse">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-impulse"><i class="fa fa-id-badge"></i> <span data-i18n="impulse.label.impulse"></span></label>
+        <input type="text" id="node-input-impulse" data-i18n="[placeholder]impulse.label.impulse2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('impulse',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            impulse: {value:"10000",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                label: "IN",
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+		        label: "Q",
+                types: ["integer"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "impulse";
+        }
+    });
+</script>

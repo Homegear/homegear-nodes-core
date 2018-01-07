@@ -79,7 +79,8 @@ bool MyNode::init(Flows::PNodeInfo info)
                 if(count < 1) count = 1;
 
                 auto registerInfo = std::make_shared<RegisterInfo>();
-                registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
+                if(modbustypeIterator->second->type == Flows::VariableType ::tInteger || modbustypeIterator->second->type == Flows::VariableType ::tInteger64) registerInfo->modbusType = (ModbusType)modbustypeIterator->second->integerValue;
+                else registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
                 registerInfo->inputIndex = (uint32_t)inputIndex;
                 registerInfo->index = (uint32_t)index;
                 registerInfo->count = registerInfo->modbusType == ModbusType::tHoldingRegister ? (uint32_t)count : 1;
@@ -113,7 +114,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         *payload = *(message->structValue->at("payload"));
         if(registersIterator->second->modbusType == ModbusType::tHoldingRegister)
         {
-            if (payload->type == Flows::VariableType::tString) payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
+            if (payload->type == Flows::VariableType::tString)
+            {
+                payload->binaryValue.reserve(registersIterator->second->count * 2);
+                payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
+                payload->binaryValue.resize(registersIterator->second->count * 2, 0);
+            }
             else if (payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back(1);
             else if (payload->type == Flows::VariableType::tInteger)
             {

@@ -44,6 +44,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         modbusInfo.port = _settings->port;
 
         _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
+        _modbus->setDebug(settings->debug);
 
         for(auto& element : settings->readRegisters)
         {
@@ -913,6 +914,7 @@ void Modbus::connect()
     std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
 	try
     {
+        _modbus->setSlaveId(_settings->slaveId);
         _modbus->connect();
 
         std::list<std::shared_ptr<RegisterInfo>> registers;
@@ -1057,7 +1059,7 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
     try
     {
         NodeInfo info;
-        info.type = ModbusType::tCoil;
+        info.type = type;
         info.id = node;
         info.startRegister = startCoil;
         info.count = count;

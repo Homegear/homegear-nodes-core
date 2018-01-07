@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -176,8 +177,9 @@ void MyNode::timer()
 
 			pwmPosition = (Flows::HelperFunctions::getTimeSeconds() - _startTimeAll) % _period;
 			pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
-			if(pwmState != lastPwmState)
+			if(pwmState != lastPwmState || BaseLib::HelperFunctions::getTimeSeconds() - _lastOutput >= _period)
 			{
+				_lastOutput = BaseLib::HelperFunctions::getTimeSeconds();
 				lastPwmState = pwmState;
 				message->structValue->at("payload")->booleanValue = pwmState;
 				output(0, message);
@@ -223,6 +225,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 				_startTimeAll = Flows::HelperFunctions::getTimeSeconds();
 				_stopThread = false;
 				_timerThread = std::thread(&MyNode::timer, this);
+			}
+			else
+			{
+				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+				output(0, message);
 			}
 		}
 	}

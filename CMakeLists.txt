@@ -112,10 +112,6 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
-		sequence/Factory.cpp
-        sequence/Factory.h
-        sequence/MyNode.cpp
-        sequence/MyNode.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp
@@ -129,10 +125,14 @@ set(SOURCE_FILES
         timers/clock/Factory.h
         timers/clock/MyNode.cpp
         timers/clock/MyNode.h
-        timers/delay/Factory.cpp
-        timers/delay/Factory.h
-        timers/delay/MyNode.cpp
-        timers/delay/MyNode.h
+		timers/delay/Factory.cpp
+		timers/delay/Factory.h
+		timers/delay/MyNode.cpp
+		timers/delay/MyNode.h
+		timers/impulse/Factory.cpp
+		timers/impulse/Factory.h
+		timers/impulse/MyNode.cpp
+		timers/impulse/MyNode.h
         timers/interval/Factory.cpp
         timers/interval/Factory.h
         timers/interval/MyNode.cpp
