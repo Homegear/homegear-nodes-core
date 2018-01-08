@@ -489,29 +489,16 @@ void MyNode::timer()
 	{
 		try
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			if(_stopThread) break;
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			currentTime = _sunTime.getLocalTime();
-            if(currentTime % 86400 < lastTime % 86400) //New day?
+            if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
             {
-                onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
-                offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
-                {
-                    std::tm tm;
-                    _sunTime.getTimeStruct(tm);
-                    day = tm.tm_wday;
-                    month = tm.tm_mon;
-                }
-                printNext(currentTime, onTime, offTime);
+                if(onTime > offTime) _lastOffTime = offTime;
+                else _lastOnTime = onTime;
             }
-            lastTime = currentTime;
-			if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
-			{
-				if(onTime > offTime) _lastOffTime = offTime;
-				else _lastOnTime = onTime;
-			}
-			if(_lastOnTime < onTime && currentTime >= onTime)
+			if(_lastOnTime <= onTime && currentTime >= onTime)
 			{
 				update = true;
 				if(_days.at(day) && _months.at(month))
@@ -523,7 +510,7 @@ void MyNode::timer()
 					if(onTime == offTime) _lastOffTime = offTime;
 				}
 			}
-			if(_lastOffTime < offTime && currentTime >= offTime)
+			if(_lastOffTime <= offTime && currentTime >= offTime)
 			{
 				update = true;
 				if(_days.at(day) && _months.at(month))
@@ -539,7 +526,7 @@ void MyNode::timer()
 				event = false;
 				output(0, message);
 			}
-			if(update)
+			if(update || currentTime % 86400000 < lastTime % 86400000) //New day?
 			{
 				update = false;
 				onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
@@ -552,6 +539,7 @@ void MyNode::timer()
 				}
 				printNext(currentTime, onTime, offTime);
 			}
+            lastTime = currentTime;
 		}
 		catch(const std::exception& ex)
 		{
