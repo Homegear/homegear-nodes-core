@@ -262,7 +262,7 @@ void MyNode::configNodesStarted()
                             {
                                 if (packet->arrayValue->at(3)->binaryValue.size() == 2)
                                 {
-                                    int16_t number = (((int16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(1)->binaryValue.at(3);
+                                    int16_t number = (((int16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(3)->binaryValue.at(1);
                                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
                                 }
                                 else if (packet->arrayValue->at(3)->binaryValue.size() == 4)
@@ -286,7 +286,7 @@ void MyNode::configNodesStarted()
                             {
                                 if (packet->arrayValue->at(3)->binaryValue.size() == 2)
                                 {
-                                    uint16_t number = (((uint16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(1)->binaryValue.at(3);
+                                    uint16_t number = (((uint16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(3)->binaryValue.at(1);
                                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
                                 }
                                 else if (packet->arrayValue->at(3)->binaryValue.size() == 4)
