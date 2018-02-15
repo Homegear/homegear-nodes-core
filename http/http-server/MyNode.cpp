@@ -95,21 +95,17 @@ bool MyNode::start()
 
 			if(!tlsNodeId.empty())
 			{
-				std::string certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-				if(!certData.empty()) serverInfo.certData.push_back(certData);
-				std::string keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
-				if(!keyData.empty()) serverInfo.keyData.push_back(keyData);
+                BaseLib::TcpSocket::PCertificateInfo certificateInfo = std::make_shared<BaseLib::TcpSocket::CertificateInfo>();
+                certificateInfo->caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
+                certificateInfo->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+                certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
+                certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+                certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
+                certificateInfo->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                serverInfo.certificates.emplace("*", certificateInfo);
 				serverInfo.dhParamData = getConfigParameter(tlsNodeId, "dhdata.password")->stringValue;
-				std::string certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
-				if(!certFile.empty()) serverInfo.certFiles.push_back(certFile);
-				std::string keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
-				if(!keyFile.empty()) serverInfo.keyFiles.push_back(keyFile);
 				serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
 				serverInfo.requireClientCert = getConfigParameter(tlsNodeId, "clientauth")->booleanValue;
-				std::string caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
-				if(!caFile.empty()) serverInfo.caFiles.push_back(caFile);
-				std::string caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
-				if(!caData.empty()) serverInfo.caData.push_back(caData);
 			}
 		}
 
