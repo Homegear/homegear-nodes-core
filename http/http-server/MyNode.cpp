@@ -95,15 +95,17 @@ bool MyNode::start()
 
 			if(!tlsNodeId.empty())
 			{
-				serverInfo.certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-				serverInfo.keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                BaseLib::TcpSocket::PCertificateInfo certificateInfo = std::make_shared<BaseLib::TcpSocket::CertificateInfo>();
+                certificateInfo->caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
+                certificateInfo->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+                certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
+                certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+                certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
+                certificateInfo->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                serverInfo.certificates.emplace("*", certificateInfo);
 				serverInfo.dhParamData = getConfigParameter(tlsNodeId, "dhdata.password")->stringValue;
-				serverInfo.certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
-				serverInfo.keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
 				serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
 				serverInfo.requireClientCert = getConfigParameter(tlsNodeId, "clientauth")->booleanValue;
-				serverInfo.caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
-				serverInfo.caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
 			}
 		}
 

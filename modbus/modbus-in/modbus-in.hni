@@ -35,7 +35,7 @@
 </script>
 <script type="text/javascript">
 (function() {
-    var types = ["bin", "bool", "int", "float", "string"];
+    var types = ["bin", "bool", "int", "uint", "float", "string"];
 
     RED.nodes.registerType('modbus-in',{
         category: 'input',

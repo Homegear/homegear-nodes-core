@@ -59,6 +59,7 @@ private:
         tBin,
         tBool,
         tInt,
+		tUInt,
         tFloat,
         tString
     };

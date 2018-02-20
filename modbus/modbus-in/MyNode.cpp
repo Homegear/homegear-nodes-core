@@ -95,6 +95,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                 auto& type = typeIterator->second->stringValue;
                 if(type == "bool") registerInfo->type = RegisterType::tBool;
                 else if(type == "int") registerInfo->type = RegisterType::tInt;
+                else if(type == "uint") registerInfo->type = RegisterType::tUInt;
                 else if(type == "float") registerInfo->type = RegisterType::tFloat;
                 else if(type == "string") registerInfo->type = RegisterType::tString;
                 else registerInfo->type = RegisterType::tBin;
@@ -259,7 +260,12 @@ void MyNode::configNodesStarted()
                             break;
                         case RegisterType::tInt:
                             {
-                                if (packet->arrayValue->at(3)->binaryValue.size() == 4)
+                                if (packet->arrayValue->at(3)->binaryValue.size() == 2)
+                                {
+                                    int16_t number = (((int16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(3)->binaryValue.at(1);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else if (packet->arrayValue->at(3)->binaryValue.size() == 4)
                                 {
                                     int32_t number = (((int32_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 24) | (((int32_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 16) | (((int32_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 8) | packet->arrayValue->at(3)->binaryValue.at(3);
                                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
@@ -268,6 +274,35 @@ void MyNode::configNodesStarted()
                                 {
                                     int64_t number = (((int64_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 56) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 48) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 40) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(3)) << 32) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(4)) << 24) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(5)) << 16) | (((int64_t) packet->arrayValue->at(3)->binaryValue.at(6)) << 8) | packet->arrayValue->at(3)->binaryValue.at(7);
                                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else
+                                {
+                                    message->structValue->emplace("invalid", std::make_shared<Flows::Variable>(true));
+                                    message->structValue->emplace("hex", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(packet->arrayValue->at(3)->binaryValue)));
+                                }
+                            }
+                            break;
+                        case RegisterType::tUInt:
+                            {
+                                if (packet->arrayValue->at(3)->binaryValue.size() == 2)
+                                {
+                                    uint16_t number = (((uint16_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 8) | packet->arrayValue->at(3)->binaryValue.at(1);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else if (packet->arrayValue->at(3)->binaryValue.size() == 4)
+                                {
+                                    uint32_t number = (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 24) | (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 16) | (((uint32_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 8) | packet->arrayValue->at(3)->binaryValue.at(3);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else if (packet->arrayValue->at(3)->binaryValue.size() == 8)
+                                {
+                                    uint64_t number = (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 56) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 48) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 40) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(3)) << 32) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(4)) << 24) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(5)) << 16) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(6)) << 8) | packet->arrayValue->at(3)->binaryValue.at(7);
+                                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else
+                                {
+                                    message->structValue->emplace("invalid", std::make_shared<Flows::Variable>(true));
+                                    message->structValue->emplace("hex", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(packet->arrayValue->at(3)->binaryValue)));
                                 }
                             }
                             break;
@@ -284,6 +319,11 @@ void MyNode::configNodesStarted()
                                     uint64_t intNumber = (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(0)) << 56) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(1)) << 48) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(2)) << 40) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(3)) << 32) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(4)) << 24) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(5)) << 16) | (((uint64_t) packet->arrayValue->at(3)->binaryValue.at(6)) << 8) | packet->arrayValue->at(3)->binaryValue.at(7);
                                     double number = Flows::Math::getDoubleFromIeee754Binary64(intNumber);
                                     message->structValue->emplace("payload", std::make_shared<Flows::Variable>(number));
+                                }
+                                else
+                                {
+                                    message->structValue->emplace("invalid", std::make_shared<Flows::Variable>(true));
+                                    message->structValue->emplace("hex", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(packet->arrayValue->at(3)->binaryValue)));
                                 }
                             }
                             break;

@@ -140,7 +140,7 @@
                         var firstElement = true;
                         $.each(currentVariable.valueList, function(index, value) {
                             if(!value && value !== 0) return;
-                            html += (firstElement ? "" : ", ") + index + ": " + value;
+                            html += (firstElement ? "" : ", ") + (currentVariable.min + index) + ": " + value;
                             firstElement = false;
                         });
                         html += "</td></tr>";
