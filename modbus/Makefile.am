@@ -4,7 +4,7 @@ AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node -lhomegear-base
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/modbus
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/modbus
 
 lib_LTLIBRARIES = modbus-host.la modbus-in.la modbus-out.la
 

@@ -4,7 +4,7 @@ AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/passthrough
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/passthrough
 lib_LTLIBRARIES = passthrough.la
 passthrough_la_SOURCES = Factory.cpp MyNode.cpp
 passthrough_la_LDFLAGS =-module -avoid-version -shared

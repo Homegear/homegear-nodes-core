@@ -4,7 +4,7 @@ AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/timers
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/timers
 
 lib_LTLIBRARIES = clock.la delay.la impulse.la interval.la off-delay.la on-delay.la timer.la slow-pwm.la sun-position.la
 

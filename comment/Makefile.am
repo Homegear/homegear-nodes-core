@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/comment
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/comment
 commentdir = $(libdir)
 comment_DATA = comment.hni
 locale_en_usdir = $(libdir)/locales/en-US
