@@ -86,12 +86,6 @@ void MyNode::configNodesStarted()
 {
 	try
 	{
-		if(_useTls && _tlsNode.empty())
-		{
-			_out->printError("Error: This node has no TLS configuration assigned.");
-			return;
-		}
-
         std::string username = getNodeData("username")->stringValue;
         std::string password = getNodeData("password")->stringValue;
 
@@ -102,15 +96,35 @@ void MyNode::configNodesStarted()
             _basicAuth = "Authorization: Basic " + _basicAuth + "\r\n";
         }
 
-        if(_url.compare(0, 7, "http://") == 0)
+        if(!_url.empty()) setUrl(_url);
+	}
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::setUrl(std::string& url)
+{
+    try
+    {
+        if(url.compare(0, 7, "http://") == 0)
         {
-            _url = _url.substr(7);
+            url = url.substr(7);
         }
-        else if(_url.compare(0, 8, "https://") == 0)
+        else if(url.compare(0, 8, "https://") == 0)
         {
             _useTls = true;
             _verifyCertificate = true;
-            _url = _url.substr(8);
+            url = url.substr(8);
         }
         else
         {
@@ -120,6 +134,11 @@ void MyNode::configNodesStarted()
 
         if(_useTls)
         {
+            if(_tlsNode.empty())
+            {
+                _out->printError("Error: This node has no TLS configuration assigned.");
+                return;
+            }
             _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
             _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
             _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
@@ -129,7 +148,7 @@ void MyNode::configNodesStarted()
             _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
         }
 
-        auto pathPair = BaseLib::HelperFunctions::splitFirst(_url, '/');
+        auto pathPair = BaseLib::HelperFunctions::splitFirst(url, '/');
         _path = '/' + pathPair.second;
 
         auto hostPair = BaseLib::HelperFunctions::splitLast(pathPair.first, ':');
@@ -148,25 +167,28 @@ void MyNode::configNodesStarted()
         if(_port <= 0 || _port > 65535) _port = _useTls ? 443 : 80;
 
         _httpClient = std::unique_ptr<BaseLib::HttpClient>(new BaseLib::HttpClient(_bl.get(), _hostname, _port, false, _useTls, _verifyCertificate, _caPath, _caData, _certPath, _certData, _keyPath, _keyData));
-	}
-    catch(BaseLib::Exception& ex)
+    }
+    catch(const std::exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
+        auto urlIterator = message->structValue->find("url");
+        if(urlIterator != message->structValue->end())
+        {
+            if(urlIterator->second->stringValue.empty()) return;
+            setUrl(urlIterator->second->stringValue);
+        }
+
         if(!_httpClient) return;
 
         std::string content;

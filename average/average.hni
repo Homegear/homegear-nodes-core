@@ -1,0 +1,45 @@
+<script type="text/x-homegear">
+{
+    "name": "average",
+    "readableName": "average",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="average">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.interval"></span></label>
+        <input type="text" id="node-input-interval" data-i18n="[placeholder]average.label.interval">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('average',{
+        color:"#fdd0a2",
+        category: 'function',
+        defaults: {
+            name: {value:""},
+            "interval": {value:"60",required:true,validate:RED.validators.number()}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["int", "float"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["int", "float"]
+            }
+        ],
+        icon: "serial.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "average";
+        }
+    });
+</script>
