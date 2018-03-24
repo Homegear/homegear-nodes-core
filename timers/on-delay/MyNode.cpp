@@ -216,7 +216,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
 					_stopThread = true;
 				}
-				if (_lastInputState || _firstInput)  //Only fire "false" once
+				if (!_threadRunning && (_lastInputState || _firstInput))  //Only fire "false" once
 				{
 					Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 					outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
