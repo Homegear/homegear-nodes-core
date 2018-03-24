@@ -273,7 +273,7 @@
                                     if(message.result && typeof message.result.CHANNEL == "number" && message.result.PARAMSETS && message.result.PARAMSETS.indexOf("VALUES") !== -1) {
                                         currentDevice[message.result.CHANNEL] = {};
                                         currentDevice[message.result.CHANNEL].channel = message.result.CHANNEL;
-                                        currentDevice[message.result.CHANNEL].type = (message.result.TYPE ? message.result.TYPE : "");
+                                        currentDevice[message.result.CHANNEL].type = (message.result.NAME ? message.result.NAME : (message.result.TYPE ? message.result.TYPE : ""));
                                     }
                                     if(!channelCount)
                                     {
