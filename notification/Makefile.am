@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/notification
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/notification
 vendor01dir = $(libdir)/vendor-libs
 vendor02dir = $(libdir)/vendor-libs/composer
 vendor04dir = $(libdir)/vendor-libs/fabiang/xmpp

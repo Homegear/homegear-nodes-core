@@ -4,7 +4,7 @@ AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/basic-logic
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/basic-logic
 
 lib_LTLIBRARIES = and.la fallingedge.la not.la or.la risingedge.la srflipflop.la switch.la
 

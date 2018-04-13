@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/gpio
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/gpio
 
 gpiodir = $(libdir)
 gpio_DATA = gpio-in/gpio-in.hni gpio-in/gpio-in.s.php gpio-out/gpio-out.hni gpio-out/gpio-out.s.php

@@ -224,9 +224,10 @@ void MyNode::configNodesStarted()
             {
                 if(packet->arrayValue->size() != 4 || packet->arrayValue->at(3)->binaryValue.empty()) continue;
 
-                if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tHoldingRegister || (ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tInputRegister)
+                auto modbusType = (ModbusType)packet->arrayValue->at(0)->integerValue;
+                if(modbusType == ModbusType::tHoldingRegister || modbusType == ModbusType::tInputRegister)
                 {
-                    auto indexIterator = _registers.find(packet->arrayValue->at(1)->integerValue);
+                    auto indexIterator = modbusType == ModbusType::tHoldingRegister ? _registers.find(packet->arrayValue->at(1)->integerValue) : _inputRegisters.find(packet->arrayValue->at(1)->integerValue);
                     if (indexIterator == _registers.end()) continue;
 
                     auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
@@ -334,7 +335,7 @@ void MyNode::configNodesStarted()
 
                     output(countIterator->second->outputIndex, message);
                 }
-                else if((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tCoil)
+                else if(modbusType == ModbusType::tCoil)
                 {
                     auto indexIterator = _coils.find(packet->arrayValue->at(1)->integerValue);
                     if (indexIterator == _coils.end()) continue;

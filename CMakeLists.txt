@@ -4,6 +4,10 @@ project(homegear_nodes_core)
 set(CMAKE_CXX_STANDARD 11)
 
 set(SOURCE_FILES
+        average/Factory.cpp
+        average/Factory.h
+        average/MyNode.cpp
+        average/MyNode.h
         basic-logic/and/Factory.cpp
         basic-logic/and/Factory.h
         basic-logic/and/MyNode.cpp
@@ -100,10 +104,18 @@ set(SOURCE_FILES
         parsers/json/Factory.h
         parsers/json/MyNode.cpp
         parsers/json/MyNode.h
+		parsers/xml/Factory.cpp
+		parsers/xml/Factory.h
+		parsers/xml/MyNode.cpp
+		parsers/xml/MyNode.h
         passthrough/Factory.cpp
         passthrough/Factory.h
         passthrough/MyNode.cpp
         passthrough/MyNode.h
+        ping/Factory.cpp
+        ping/Factory.h
+        ping/MyNode.cpp
+        ping/MyNode.h
         press-pattern/Factory.cpp
         press-pattern/Factory.h
         press-pattern/MyNode.cpp

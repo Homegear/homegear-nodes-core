@@ -4,7 +4,7 @@ AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node
 
-libdir = $(localstatedir)/lib/homegear/flows/nodes/press-pattern
+libdir = $(localstatedir)/lib/homegear/node-blue/nodes/press-pattern
 lib_LTLIBRARIES = press-pattern.la
 press_pattern_la_SOURCES = Factory.cpp MyNode.cpp
 press_pattern_la_LDFLAGS =-module -avoid-version -shared

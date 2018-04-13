@@ -1,0 +1,13 @@
+{
+  "parsers/xml.hni": {
+    "xml": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Converts between a XML string and its <code>Struct</code> representation, in either direction.</p>",
+      "help": "If the input is a XML string it tries to parse it to a <code>Struct</code>. If the input is a <code>Struct</code> it creates a JSON string.",
+      "input1Description": "XML string or <code>Struct</code>.",
+      "output1Description": "XML string or <code>Struct</code>."
+    }
+  }
+}
