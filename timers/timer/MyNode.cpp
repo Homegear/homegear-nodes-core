@@ -321,7 +321,7 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
 				}
 			}
-            std::tm timeStruct;
+            std::tm timeStruct {};
             _sunTime.getTimeStruct(timeStruct);
             int64_t utcTime = _sunTime.getUtcTime(time);
 			while(time < currentTime || !_days.at(timeStruct.tm_wday) || !_months.at(timeStruct.tm_mon))
@@ -403,7 +403,7 @@ std::string MyNode::getDateString(int64_t time)
 		t = std::chrono::system_clock::to_time_t(timePoint);
 	}
 	char timeString[50];
-	std::tm localTime;
+	std::tm localTime {};
 	localtime_r(&t, &localTime);
 	strftime(&timeString[0], 50, &timeFormat[0], &localTime);
 	std::ostringstream timeStream;
@@ -466,7 +466,7 @@ void MyNode::timer()
 	int32_t month = 0;
 
 	{
-		std::tm tm;
+		std::tm tm {};
 		_sunTime.getTimeStruct(tm);
 		day = tm.tm_wday;
 		month = tm.tm_mon;
@@ -532,7 +532,7 @@ void MyNode::timer()
 				onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
 				offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
 				{
-					std::tm tm;
+					std::tm tm {};
 					_sunTime.getTimeStruct(tm);
 					day = tm.tm_wday;
 					month = tm.tm_mon;
