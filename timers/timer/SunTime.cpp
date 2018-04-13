@@ -75,7 +75,7 @@ int64_t SunTime::getLocalTime(int64_t utcTime)
 		const auto timePoint = std::chrono::system_clock::now();
 		t = std::chrono::system_clock::to_time_t(timePoint);
 	}
-	std::tm localTime;
+	std::tm localTime {};
 	localtime_r(&t, &localTime);
 	int64_t millisecondOffset = localTime.tm_gmtoff * 1000;
 	if(utcTime > 0) return utcTime + millisecondOffset;
@@ -90,7 +90,7 @@ int64_t SunTime::getUtcTime(int64_t localTime)
 	}
     const auto timePoint = std::chrono::system_clock::now();
     std::time_t t = std::chrono::system_clock::to_time_t(timePoint);
-	std::tm localTimeStruct;
+	std::tm localTimeStruct {};
 	localtime_r(&t, &localTimeStruct);
 	int64_t millisecondOffset = localTimeStruct.tm_gmtoff * 1000;
 	return localTime - millisecondOffset;
