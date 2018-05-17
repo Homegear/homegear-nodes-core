@@ -120,7 +120,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                 payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
                 payload->binaryValue.resize(registersIterator->second->count * 2, 0);
             }
-            else if (payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back(1);
+            else if (payload->type == Flows::VariableType::tBoolean) payload->binaryValue.push_back((uint8_t)payload->booleanValue);
             else if (payload->type == Flows::VariableType::tInteger)
             {
                 if (registersIterator->second->count == 1)
