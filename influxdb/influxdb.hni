@@ -33,6 +33,7 @@
         ],
         outputs:0,
         icon: "db.png",
+        align: "right",
         label: function() {
             if(this.name) return this.name;
             return "influxdb";
