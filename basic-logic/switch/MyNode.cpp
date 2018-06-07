@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -122,7 +123,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
 		settingsIterator = info->info->structValue->find("property");
-		if(settingsIterator != info->info->structValue->end()) _property = settingsIterator->second->stringValue;
+		if(settingsIterator != info->info->structValue->end()) _property = BaseLib::HelperFunctions::splitAll(settingsIterator->second->stringValue, '.');
 
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
@@ -360,19 +361,24 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		Flows::PVariable myMessage = std::make_shared<Flows::Variable>();
 		*myMessage = *message;
 
-		auto messageIterator = myMessage->structValue->find(_property);
-		if(messageIterator == myMessage->structValue->end()) return;
+		Flows::PVariable currentMessage = myMessage;
+		for(auto& element : _property)
+		{
+			auto messageIterator = currentMessage->structValue->find(element);
+			if(messageIterator == currentMessage->structValue->end()) return;
+			currentMessage = messageIterator->second;
+		}
 
 		if(index == 1) //2nd input
 		{
-			_previousInputValue2 = messageIterator->second;
+			_previousInputValue2 = currentMessage;
 			setNodeData("previousInputValue2", _previousInputValue2);
-			messageIterator->second = _previousInputValue; //Set payload to value of first input and continue processing
+            currentMessage = _previousInputValue; //Set payload to value of first input and continue processing
 		}
 
 		for(uint32_t i = 0; i < _rules.size(); i++)
 		{
-			if(match(_rules.at(i), messageIterator->second))
+			if(match(_rules.at(i), currentMessage))
 			{
 				if(_outputTrue)
 				{
@@ -388,10 +394,10 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 				}
 				else
 				{
-					if(!_changesOnly || *(_rules.at(i).previousOutput) != *(messageIterator->second))
+					if(!_changesOnly || *(_rules.at(i).previousOutput) != *(currentMessage))
 					{
-						_rules.at(i).previousOutput = messageIterator->second;
-						setNodeData("previousOutputValue" + std::to_string(i), messageIterator->second);
+						_rules.at(i).previousOutput = currentMessage;
+						setNodeData("previousOutputValue" + std::to_string(i), currentMessage);
 						output(i, myMessage);
 					}
 				}
@@ -418,7 +424,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		if(index == 0)
 		{
-			_previousInputValue = messageIterator->second;
+			_previousInputValue = currentMessage;
 			setNodeData("previousInputValue", _previousInputValue);
 		}
 	}
