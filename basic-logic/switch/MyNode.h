@@ -86,7 +86,7 @@ private:
 
 	typedef std::string Operator;
 
-	std::string _property;
+	std::vector<std::string> _property;
 	Flows::PVariable _previousInputValue;
 	Flows::PVariable _previousInputValue2;
 	std::vector<Rule> _rules;
