@@ -117,7 +117,41 @@ bool MyNode::start()
         settingsIterator = _nodeInfo->info->structValue->find("newline");
         if(settingsIterator != _nodeInfo->info->structValue->end())
         {
-            _newLine = settingsIterator->second->stringValue.empty() ? '\n' : settingsIterator->second->stringValue.front();
+            if(settingsIterator->second->stringValue.empty())
+            {
+                _newLine = '\n';
+            }
+            else
+            {
+                if(settingsIterator->second->stringValue.size() > 1 && Flows::Math::isNumber(settingsIterator->second->stringValue, true))
+                {
+                    _newLine = (char)(uint8_t)Flows::Math::getNumber(settingsIterator->second->stringValue, true);
+                }
+                else if(settingsIterator->second->stringValue.size() == 2)
+                {
+                    switch(settingsIterator->second->stringValue.at(1))
+                    {
+                        case 'b':
+                            _newLine = '\b';
+                            break;
+                        case 'f':
+                            _newLine = '\f';
+                            break;
+                        case 'n':
+                            _newLine = '\n';
+                            break;
+                        case 'r':
+                            _newLine = '\r';
+                            break;
+                        case 't':
+                            _newLine = '\t';
+                            break;
+                        default:
+                            _newLine = settingsIterator->second->stringValue.front();
+                    }
+                }
+                else _newLine = settingsIterator->second->stringValue.front();
+            }
             _timeout = Flows::Math::getNumber(settingsIterator->second->stringValue);
             if(_timeout < 0) _timeout = 1;
             else if(_timeout > 5000) _timeout = 5000;
