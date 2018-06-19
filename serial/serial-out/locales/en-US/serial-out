@@ -1,0 +1,11 @@
+{
+  "serial/serial-out.hni": {
+    "serial-out": {
+      "help": "<p>Provides a connection to an outbound serial port.</p><p>Only the <code>$message['payload']</code> is sent.</p><p>Optionally the new line character used to split the input can be appended to every message sent out to the serial port.</p>",
+      "label": {
+        "serialport": "Serial Port",
+        "serial": "serial"
+      }
+    }
+  }
+}
