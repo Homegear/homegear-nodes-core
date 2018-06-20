@@ -39,6 +39,11 @@
         },
         color:"BurlyWood",
         inputs:1,
+        inputInfo: [
+          {
+            types: ["binary"]
+          }
+        ],
         outputs:0,
         icon: "serial.png",
         align: "right",
