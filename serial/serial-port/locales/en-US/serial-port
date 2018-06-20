@@ -1,7 +1,7 @@
 {
   "serial/serial-port.hni": {
     "serial-port": {
-    	"help": "<p>Provides configuration options for a serial port.</p><p>The search button should return a list of available serial ports to choose from, or you can type in the location if known.</p><p>The input can be split on a fixed character, after a timeout, or after a fixed number of characters.</p><p>If using a character, it can be specified as either the character, the escaped shortcut (e.g. \n), or the hex code (e.g. 0x0d).</p>",
+    	"help": "<p>Provides configuration options for a serial port.</p><p>The input can be split on a fixed character, after a timeout, or after a fixed number of characters.</p><p>If using a character, it can be specified as either the character, the escaped shortcut (e.g. \n), or the hex code (e.g. 0x0d).</p>",
     	"label": {
             "serialport": "Serial Port",
             "settings": "Settings",

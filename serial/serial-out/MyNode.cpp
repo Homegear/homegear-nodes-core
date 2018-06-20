@@ -44,7 +44,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-        auto settingsIterator = info->info->structValue->find("server");
+        auto settingsIterator = info->info->structValue->find("serial");
         if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
         return true;
@@ -69,6 +69,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(payload);
+
         invokeNodeMethod(_server, "write", parameters, false);
 	}
 	catch(const std::exception& ex)

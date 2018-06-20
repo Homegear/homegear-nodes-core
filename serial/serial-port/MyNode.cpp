@@ -294,16 +294,16 @@ void MyNode::listenThread()
             if(_splitType == SplitType::character)
             {
                 std::string data;
-                readBytes = _serial->readLine(data);
+                readBytes = _serial->readLine(data, 500000, _newLine);
 
-                if(readBytes > 0)
+                if(readBytes == 0)
                 {
                     if(_binaryOutput)
                     {
                         std::vector<char> buffer(data.begin(), data.end());
                         packetReceived(std::make_shared<Flows::Variable>(buffer));
                     }
-                    else packetReceived(std::make_shared<Flows::Variable>(std::move(data)));
+                    else packetReceived(std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(data)));
                 }
             }
             else if(_splitType == SplitType::no)
@@ -311,14 +311,14 @@ void MyNode::listenThread()
                 char data;
                 readBytes = _serial->readChar(data);
 
-                if(readBytes > 0)
+                if(readBytes == 0)
                 {
                     if(_binaryOutput)
                     {
                         std::vector<char> buffer{data};
                         packetReceived(std::make_shared<Flows::Variable>(buffer));
                     }
-                    else packetReceived(std::make_shared<Flows::Variable>(std::string{data}));
+                    else packetReceived(std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(std::string{data})));
                 }
             }
             else if(_splitType == SplitType::timeout)
@@ -326,21 +326,21 @@ void MyNode::listenThread()
                 std::vector<char> buffer;
                 buffer.reserve(1024);
                 char data;
-                readBytes = 1;
-                while(readBytes > 0)
+                readBytes = 0;
+                while(readBytes == 0)
                 {
-                    readBytes = _serial->readChar(data, _timeout);
-                    if(readBytes > 0)
+                    readBytes = _serial->readChar(data, _timeout * 1000);
+                    if(readBytes == 0)
                     {
                         if(buffer.size() + 1 > buffer.capacity()) buffer.reserve(buffer.capacity() + 1024);
                         buffer.push_back(data);
                     }
                 }
 
-                if(readBytes > 0)
+                if(!buffer.empty())
                 {
                     if(_binaryOutput) packetReceived(std::make_shared<Flows::Variable>(buffer));
-                    else packetReceived(std::make_shared<Flows::Variable>(std::string(buffer.begin(), buffer.end())));
+                    else packetReceived(std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(buffer)));
                 }
             }
             else if(_splitType == SplitType::fixedLength)
@@ -352,7 +352,7 @@ void MyNode::listenThread()
                 while(readBytes > 0)
                 {
                     readBytes = _serial->readChar(data);
-                    if(readBytes > 0)
+                    if(readBytes == 0)
                     {
                         if(buffer.size() + 1 > buffer.capacity()) buffer.reserve(buffer.capacity() + 1024);
                         buffer.push_back(data);
@@ -360,10 +360,10 @@ void MyNode::listenThread()
                         if(buffer.size() >= (unsigned)_fixedCount)
                         {
                             if(_binaryOutput) packetReceived(std::make_shared<Flows::Variable>(buffer));
-                            else packetReceived(std::make_shared<Flows::Variable>(std::string(buffer.begin(), buffer.end())));
+                            else packetReceived(std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(buffer)));
                         }
                     }
-                    else if(readBytes == 0)
+                    else if(readBytes == 1)
                     {
                         _dataBuffer.clear();
                         _dataBuffer.insert(_dataBuffer.end(), buffer.begin(), buffer.end());

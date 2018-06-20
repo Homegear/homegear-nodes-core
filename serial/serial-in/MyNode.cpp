@@ -46,7 +46,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("server");
+		auto settingsIterator = info->info->structValue->find("serial");
 		if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
 
 		return true;
@@ -98,6 +98,8 @@ void MyNode::configNodesStarted()
 
             Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
             message->structValue->emplace("payload", parameters->at(0));
+
+            output(0, message);
 
 			return std::make_shared<Flows::Variable>();
 		}
