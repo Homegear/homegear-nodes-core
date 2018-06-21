@@ -44,40 +44,40 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		std::string payloadType = "int";
+		_payloadType = "int";
 		auto settingsIterator = info->info->structValue->find("payloadType");
-		if(settingsIterator != info->info->structValue->end()) payloadType = settingsIterator->second->stringValue;
+		if(settingsIterator != info->info->structValue->end()) _payloadType = settingsIterator->second->stringValue;
 
 		std::string payload;
 		settingsIterator = info->info->structValue->find("payload");
 		if(settingsIterator != info->info->structValue->end()) payload = settingsIterator->second->stringValue;
 
 		_value = std::make_shared<Flows::Variable>();
-		if(payloadType == "bool")
+		if(_payloadType == "bool")
 		{
 			_value->setType(Flows::VariableType::tBoolean);
 			_value->booleanValue = payload == "true";
 		}
-		else if(payloadType == "int")
+		else if(_payloadType == "int")
 		{
 			_value->setType(Flows::VariableType::tInteger64);
 			_value->integerValue64 = Flows::Math::getNumber64(payload);
 			_value->integerValue = (int32_t)_value->integerValue64;
 			_value->floatValue = _value->integerValue64;
 		}
-		else if(payloadType == "float")
+		else if(_payloadType == "float")
 		{
 			_value->setType(Flows::VariableType::tFloat);
 			_value->floatValue = Flows::Math::getDouble(payload);
 			_value->integerValue = _value->floatValue;
 			_value->integerValue64 = _value->floatValue;
 		}
-		else if(payloadType == "string")
+		else if(_payloadType == "string")
 		{
 			_value->setType(Flows::VariableType::tString);
 			_value->stringValue = payload;
 		}
-		else if(payloadType == "array" || payloadType == "struct")
+		else if(_payloadType == "array" || _payloadType == "struct")
 		{
 			Flows::JsonDecoder jsonDecoder;
 			_value = jsonDecoder.decode(payload);
@@ -110,6 +110,34 @@ void MyNode::startUpComplete()
 
             output(0, message);
         }
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+void MyNode::setNodeVariable(std::string variable, Flows::PVariable value)
+{
+	try
+	{
+		if(variable == "nodeOutput" && value)
+		{
+			if(_payloadType == "float" && value->type != Flows::VariableType::tFloat)
+            {
+                value->type = Flows::VariableType::tFloat;
+                value->floatValue = value->integerValue64;
+            }
+
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("payload", value);
+
+			output(0, message);
+		}
 	}
 	catch(const std::exception& ex)
 	{

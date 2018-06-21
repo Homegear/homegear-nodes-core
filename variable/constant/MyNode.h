@@ -44,8 +44,10 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void startUpComplete();
+	virtual void setNodeVariable(std::string variable, Flows::PVariable value);
 private:
 	bool _outputOnStartup = true;
+	std::string _payloadType;
 	Flows::PVariable _value;
 };
 
