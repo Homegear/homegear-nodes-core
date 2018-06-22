@@ -31,7 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -43,12 +43,10 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-	virtual void setNodeVariable(std::string variable, Flows::PVariable value);
 private:
-	bool _outputOnStartup = true;
-	std::string _payloadType;
-	Flows::PVariable _value;
+	std::string _server;
+
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

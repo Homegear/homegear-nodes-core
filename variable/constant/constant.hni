@@ -85,7 +85,7 @@
                 else if (this.payloadType == 'float') value = parseFloat(this.payload);
                 else if (this.payloadType == 'array' || this.payloadType == 'struct') value = JSON.parse(this.payload);
                 else value = this.payload;
-                RED.comms.homegear().invoke("nodeOutput", null, this.id, 0, {'payload': value});
+                RED.comms.homegear().invoke('setNodeVariable', null, this.id, "nodeOutput", value);
             }
         }
     });

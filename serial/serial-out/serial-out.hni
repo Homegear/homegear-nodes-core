@@ -1,0 +1,59 @@
+<script type="text/x-homegear">
+{
+    "name": "serial-out",
+    "readableName": "Serial output",
+    "version": "0.0.1",
+    "maxThreadCount": 0
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="serial-out">
+    <div class="form-row node-input-serial">
+        <label for="node-input-serial"><i class="fa fa-random"></i> <span data-i18n="serial-out.label.serialport"></span></label>
+        <input type="text" id="node-input-serial">
+    </div>
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+    </div>
+</script>
+<script type="text/javascript">
+(function() {
+    RED.nodes.registerType('serial-out',{
+        category: 'output',
+        namespace: 'serial',
+        defaults: {
+            name: {name:""},
+            serial: {type:"serial-port",required:true}
+        },
+        color:"BurlyWood",
+        inputs:1,
+        inputInfo: [
+          {
+            types: ["binary"]
+          }
+        ],
+        outputs:0,
+        icon: "serial.png",
+        align: "right",
+        label: function() {
+            var serialNode = RED.nodes.node(this.serial);
+            return this.name||(serialNode?serialNode.label().split(":")[0]:this._("serial-out.label.serial"));
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+})();
+</script>

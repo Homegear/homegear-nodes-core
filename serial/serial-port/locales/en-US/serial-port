@@ -1,0 +1,43 @@
+{
+  "serial/serial-port.hni": {
+    "serial-port": {
+    	"help": "<p>Provides configuration options for a serial port.</p><p>The input can be split on a fixed character, after a timeout, or after a fixed number of characters.</p><p>If using a character, it can be specified as either the character, the escaped shortcut (e.g. \n), or the hex code (e.g. 0x0d).</p>",
+    	"label": {
+            "serialport": "Serial Port",
+            "settings": "Settings",
+            "baudrate": "Baud Rate",
+            "databits": "Data Bits",
+            "parity": "Parity",
+            "stopbits": "Stop Bits",
+            "input": "Input",
+            "split": "Split input",
+            "deliver": "and deliver",
+            "output": "Output",
+            "none": "none"
+        },
+        "placeholder": {
+            "serialport": "for example: /dev/ttyUSB0/"
+        },
+        "parity": {
+            "none": "None",
+            "even": "Even",
+            "odd": "Odd"
+        },
+        "split": {
+            "no": "no",
+            "character": "on the character",
+            "timeout": "after a timeout of",
+            "lengths": "into fixed lengths of"
+        },
+        "output": {
+            "ascii": "ascii strings",
+            "binary": "binary buffers"
+        },
+        "addsplit": "add split character to output messages",
+        "tip": {
+            "split": "Tip: the \"Split on\" character is used to split the input into separate messages. It can also be added to every message sent out to the serial port.",
+            "timeout": "Tip: In timeout mode timeout starts from arrival of first character."
+        }
+    }
+  }
+}

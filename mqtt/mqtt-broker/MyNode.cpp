@@ -201,7 +201,7 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters)
 	try
 	{
 		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter is not of type string.");
+		if(parameters->at(0)->type != Flows::VariableType::tString || parameters->at(0)->stringValue.empty()) return Flows::Variable::createError(-1, "Parameter is not of type string.");
 
 		if(_mqtt) _mqtt->registerNode(parameters->at(0)->stringValue);
 

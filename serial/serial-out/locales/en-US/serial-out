@@ -1,0 +1,12 @@
+{
+  "serial/serial-out.hni": {
+    "serial-out": {
+      "help": "<p>Provides a connection to an outbound serial port.</p><p>Only the <code>$message['payload']</code> is sent.</p><p>Optionally the new line character used to split the input can be appended to every message sent out to the serial port.</p>",
+      "input1Description": "A binary input. The type of the binary data can be <code>string</code> though, too. Note that hexadecimal input is not converted to it's binary equivalent.",
+      "label": {
+        "serialport": "Serial Port",
+        "serial": "serial"
+      }
+    }
+  }
+}

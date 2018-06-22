@@ -30,8 +30,9 @@
 #ifndef MYNODE_H_
 #define MYNODE_H_
 
+#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include <unordered_map>
 
 namespace MyNode
 {
@@ -43,12 +44,13 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-	virtual void setNodeVariable(std::string variable, Flows::PVariable value);
+	virtual void configNodesStarted();
 private:
-	bool _outputOnStartup = true;
-	std::string _payloadType;
-	Flows::PVariable _value;
+    std::string _server;
+
+	//{{{ RPC methods
+	Flows::PVariable packetReceived(Flows::PArray parameters);
+	//}}}
 };
 
 }

@@ -334,7 +334,7 @@ Flows::PVariable MyNode::writeRegisters(Flows::PArray parameters)
 {
     try
     {
-        if(parameters->size() != 4 && parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects four or sic parameters. " + std::to_string(parameters->size()) + " given.");
+        if(parameters->size() != 4 && parameters->size() != 6) return Flows::Variable::createError(-1, "Method expects four or six parameters. " + std::to_string(parameters->size()) + " given.");
         if (!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
 
         if((Modbus::ModbusType)parameters->at(0)->integerValue == Modbus::ModbusType::tHoldingRegister && parameters->size() == 6)

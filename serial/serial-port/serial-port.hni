@@ -1,0 +1,187 @@
+<script type="text/x-homegear">
+{
+    "name": "serial-port",
+    "readableName": "Serial port",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="serial-port">
+    <div class="form-row">
+        <label for="node-config-input-serialport"><i class="fa fa-random"></i> <span data-i18n="serial-port.label.serialport"></span></label>
+        <input type="text" id="node-config-input-serialport" style="width:70%;" data-i18n="[placeholder]serial-port.placeholder.serialport">
+    </div>
+    <div class="form-row">
+        <table width="100%"><tr>
+            <td width="100px"><i class="fa fa-wrench"></i> <span data-i18n="serial-port.label.settings"></span></td>
+            <td width="110px" data-i18n="serial-port.label.baudrate"></td>
+            <td width="70px" data-i18n="serial-port.label.databits"></td>
+            <td width="80px" data-i18n="serial-port.label.parity"></td>
+            <td width="70px" data-i18n="serial-port.label.stopbits"></td>
+        </tr><tr><td>&nbsp;</td>
+        <td>
+            <input type="text" id="node-config-input-serialbaud" style="width:92%">
+        </td><td>
+        <select type="text" id="node-config-input-databits" style="width:90%;">
+            <option value="8">8</option>
+            <option value="7">7</option>
+            <option value="6">6</option>
+            <option value="5">5</option>
+        </select>
+        </td><td>
+        <select type="text" id="node-config-input-parity" style="width:90%;">
+            <option value="none" data-i18n="serial-port.parity.none"></option>
+            <option value="even" data-i18n="serial-port.parity.even"></option>
+            <option value="odd" data-i18n="serial-port.parity.odd"></option>
+        </select>
+        </td><td>
+        <select type="text" id="node-config-input-stopbits" style="width:90%;">
+            <option value="2">2</option>
+            <option value="1">1</option>
+        </select>
+        </td></tr></table>
+    </div>
+    <br/>
+    <div class="form-row">
+        <label><i class="fa fa-sign-in"></i> <span data-i18n="serial-port.label.input"></span></label>
+    </div>
+    <div class="form-row" style="padding-left:10px;">
+        <span data-i18n="serial-port.label.split"></span>
+        <select type="text" id="node-config-input-out" style="margin-left:5px; width:200px;">
+            <option value="no" data-i18n="serial-port.split.no"></option>
+            <option value="char" data-i18n="serial-port.split.character"></option>
+            <option value="time" data-i18n="serial-port.split.timeout"></option>
+            <option value="count" data-i18n="serial-port.split.lengths"></option>
+        </select>
+        <input type="text" id="node-config-input-newline" style="width:50px;">
+        <span id="node-units"></span>
+    </div>
+    <div class="form-row" style="padding-left:10px;">
+        <span data-i18n="serial-port.label.deliver"></span>
+        <select type="text" id="node-config-input-bin" style="margin-left:5px; width:150px;">
+            <option value="false" data-i18n="serial-port.output.ascii"></option>
+            <option value="bin" data-i18n="serial-port.output.binary"></option>
+        </select>
+    </div>
+    <br/>
+    <div id="node-config-addchar">
+        <div class="form-row">
+            <label><i class="fa fa-sign-out"></i> <span data-i18n="serial-port.label.output"></span></label>
+        </div>
+        <div class="form-row">
+            <input style="width:30px; margin-left:10px; vertical-align:top;" type="checkbox" id="node-config-input-addchar"><label style="width:auto;" for="node-config-input-addchar"><span data-i18n="serial-port.addsplit"></span></label>
+        </div>
+    </div>
+    <div class="form-tips" id="tip-split"><span data-i18n="serial-port.tip.split"></span></div>
+    <div class="form-tips" id="tip-bin" hidden><span data-i18n="serial-port.tip.timeout"></span></div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('serial-port',{
+        category: 'config',
+        namespace: 'serial',
+        defaults: {
+            serialport: {value:"",required:true},
+            serialbaud: {value:"57600",required:true,validate:RED.validators.number()},
+            databits: {value:8,required:true},
+            parity: {value:"none",required:true},
+            stopbits: {value:1,required:true},
+            newline: {value:"\\n"},
+            bin: {value:"false"},
+            out: {value:"char"},
+            addchar: {value:false}
+        },
+        label: function() {
+            this.serialbaud = this.serialbaud || 57600;
+            this.databits = this.databits || 8;
+            this.parity = this.parity || this._("serial-port.label.none");
+            this.stopbits = this.stopbits || 1;
+            return this.serialport+":"+this.serialbaud+"-"+this.databits+this.parity.charAt(0).toUpperCase()+this.stopbits;
+        },
+        oneditprepare: function() {
+            var previous = null;
+            var blist = [
+                {value:"115200",label:"115200",hasValue:false},
+                {value:"57600",label:"57600",hasValue:false},
+                {value:"38400",label:"38400",hasValue:false},
+                {value:"19200",label:"19200",hasValue:false},
+                {value:"9600",label:"9600",hasValue:false},
+                {value:"4800",label:"4800",hasValue:false},
+                {value:"2400",label:"2400",hasValue:false},
+                {value:"1200",label:"1200",hasValue:false},
+                {value:"600",label:"600",hasValue:false},
+                {value:"300",label:"300",hasValue:false},
+                {label:"other",value:"other",icon:"red/images/typedInput/09.png",validate:/^[0-9]*$/}
+            ];
+
+            var serialbaudType = "custom";
+            for (var i in blist) {
+                if (this.serialbaud == blist[i].value) {
+                    serialbaudType = this.serialbaud;
+                }
+            }
+
+            $("#node-config-input-serialbaud").typedInput({
+                default: this.serialbaud,
+                types:blist
+            });
+
+            $("#node-config-input-out").on('focus', function () { previous = this.value; }).change(function() {
+                if (previous == null) { previous = $("#node-config-input-out").val(); }
+                if ($("#node-config-input-out").val() == "no") {
+                    if (previous != "no") { $("#node-config-input-newline").val(""); }
+                    $("#node-config-input-newline").hide();
+                    $("#node-units").text("");
+                    $("#node-config-addchar").hide();
+                    $("#node-config-input-addchar").val("false");
+                    $("#tip-split").hide();
+                    $("#tip-bin").hide();
+                }
+                else if ($("#node-config-input-out").val() == "char") {
+                    if (previous != "char") { $("#node-config-input-newline").val("\\n"); }
+                    $("#node-config-input-newline").show();
+                    $("#node-units").text("");
+                    $("#node-config-addchar").show();
+                    $("#tip-split").show();
+                    $("#tip-bin").hide();
+                }
+                else if ($("#node-config-input-out").val() == "time") {
+                    if (previous != "time") { $("#node-config-input-newline").val("0"); }
+                    $("#node-config-input-newline").show();
+                    $("#node-units").text("ms");
+                    $("#node-config-addchar").hide();
+                    $("#node-config-input-addchar").val("false");
+                    $("#tip-split").hide();
+                    $("#tip-bin").show();
+                }
+                else {
+                    if (previous != "count") { $("#node-config-input-newline").val(""); }
+                    $("#node-config-input-newline").show();
+                    $("#node-units").text("chars");
+                    $("#node-config-addchar").hide();
+                    $("#node-config-input-addchar").val("false");
+                    $("#tip-split").hide();
+                    $("#tip-bin").hide();
+                }
+            });
+        },
+        oneditsave: function() {
+            var mytype = $("#node-config-input-serialbaud").typedInput('type');
+            if (mytype !== "other") {
+                $("#node-config-input-serialbaud").typedInput('value',mytype);
+            }
+            this.serialbaud = $("#node-config-input-serialbaud").typedInput('value');
+        }
+    });
+</script>
