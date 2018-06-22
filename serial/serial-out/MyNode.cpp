@@ -27,30 +27,59 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
-
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-	virtual void setNodeVariable(std::string variable, Flows::PVariable value);
-private:
-	bool _outputOnStartup = true;
-	std::string _payloadType;
-	Flows::PVariable _value;
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+bool MyNode::init(Flows::PNodeInfo info)
+{
+	try
+	{
+        auto settingsIterator = info->info->structValue->find("serial");
+        if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+
+        return true;
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+{
+	try
+	{
+        Flows::PVariable payload = std::make_shared<Flows::Variable>();
+        *payload = *(message->structValue->at("payload"));
+
+        Flows::PArray parameters = std::make_shared<Flows::Array>();
+        parameters->push_back(payload);
+
+        invokeNodeMethod(_server, "write", parameters, false);
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+}

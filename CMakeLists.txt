@@ -124,6 +124,18 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
+		serial/serial-port/Factory.cpp
+		serial/serial-port/Factory.h
+		serial/serial-port/MyNode.cpp
+		serial/serial-port/MyNode.h
+		serial/serial-in/Factory.cpp
+		serial/serial-in/Factory.h
+		serial/serial-in/MyNode.cpp
+		serial/serial-in/MyNode.h
+		serial/serial-out/Factory.cpp
+		serial/serial-out/Factory.h
+		serial/serial-out/MyNode.cpp
+		serial/serial-out/MyNode.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp
