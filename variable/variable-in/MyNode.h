@@ -54,7 +54,7 @@ private:
 	std::string _loopPreventionGroup;
 	bool _loopPrevention = false;
 
-	virtual void variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
 };
 
 }
