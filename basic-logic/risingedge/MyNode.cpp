@@ -66,9 +66,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		Flows::PVariable& input = message->structValue->at("payload");
 		if(*input)
 		{
-			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-			output(0, outputMessage);
+			output(0, message);
 		}
 	}
 	catch(const std::exception& ex)
