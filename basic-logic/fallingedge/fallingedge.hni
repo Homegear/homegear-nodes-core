@@ -24,13 +24,13 @@
         inputInfo: [
         	{
         		label: "in",
-        		types: ["bool"]
+        		types: ["any"]
         	}
         ],
         outputs:1,
         outputInfo: [
         	{
-        		types: ["bool"]
+        		types: ["any"]
         	}
         ],
         icon: "function.png",

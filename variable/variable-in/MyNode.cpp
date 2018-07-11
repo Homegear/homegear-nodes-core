@@ -130,7 +130,7 @@ void MyNode::startUpComplete()
 	}
 }
 
-void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
+void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
 {
 	try
 	{
@@ -138,6 +138,7 @@ void MyNode::variableEvent(uint64_t peerId, int32_t channel, std::string variabl
 		_lastInput = Flows::HelperFunctions::getTime();
 
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>(source));
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
 		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
