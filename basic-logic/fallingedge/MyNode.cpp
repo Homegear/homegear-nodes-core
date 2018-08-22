@@ -69,7 +69,6 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 			output(0, message);
 		}
 		_lastInput = *input;
-
 	}
 	catch(const std::exception& ex)
 	{
