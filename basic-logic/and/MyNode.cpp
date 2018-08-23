@@ -82,9 +82,9 @@ bool MyNode::doAnd()
 	try
 	{
 		std::lock_guard<std::mutex> inputGuard(_inputMutex);
-		for(uint32_t i = 0; i < _inputs.size(); i++)
+		for(auto& input : _inputs)
 		{
-			if(!_inputs[i]->booleanValue) return false;
+			if(!input->booleanValue) return false;
 		}
 		return true;
 	}
@@ -104,7 +104,11 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	try
 	{
 		if(index >= _inputs.size()) return;
-		Flows::PVariable& input = message->structValue->at("payload");
+
+		Flows::PVariable myMessage = std::make_shared<Flows::Variable>();
+		*myMessage = *message;
+
+		Flows::PVariable& input = myMessage->structValue->at("payload");
 		if(input->type != Flows::VariableType::tBoolean)
 		{
 			input->booleanValue = (bool)*input;
