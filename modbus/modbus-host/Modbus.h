@@ -36,6 +36,9 @@
 #include <homegear-node/HelperFunctions.h>
 #include <homegear-base/BaseLib.h>
 
+namespace MyNode
+{
+
 class Modbus
 {
 public:
@@ -47,37 +50,44 @@ public:
         tInputRegister = 3
     };
 
-	struct ModbusSettings
-	{
-		std::string server;
-		int32_t port = 502;
-		uint32_t interval = 100;
+    struct ModbusSettings
+    {
+        std::string server;
+        int32_t port = 502;
+        uint32_t interval = 100;
         uint32_t delay = 0;
         uint8_t slaveId = 255;
         bool debug = false;
-		std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
-		std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;
+        std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
+        std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;
         std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
         std::vector<std::tuple<int32_t, int32_t>> readCoils;
         std::vector<std::tuple<int32_t, int32_t, bool>> writeCoils;
         std::vector<std::tuple<int32_t, int32_t>> readDiscreteInputs;
-	};
+    };
 
-	Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
-	virtual ~Modbus();
+    Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
 
-	void start();
-	void stop();
-	void waitForStop();
+    virtual ~Modbus();
 
-	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
+    void start();
 
-	void registerNode(std::string& node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
-	void registerNode(std::string& node, ModbusType type, uint32_t startCoil, uint32_t count);
-	void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value);
+    void stop();
+
+    void waitForStop();
+
+    void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
+
+    void registerNode(std::string& node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters);
+
+    void registerNode(std::string& node, ModbusType type, uint32_t startCoil, uint32_t count);
+
+    void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t>& value);
+
     void writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t>& value);
+
 private:
-	struct NodeInfo
+    struct NodeInfo
     {
         ModbusType type = ModbusType::tHoldingRegister;
         std::string id;
@@ -106,7 +116,7 @@ private:
         uint32_t start = 0;
         uint32_t end = 0;
         uint32_t count = 0;
-		uint32_t byteCount = 0;
+        uint32_t byteCount = 0;
         bool readOnConnect = false;
         std::list<NodeInfo> nodes;
         std::vector<uint8_t> buffer1;
@@ -133,17 +143,17 @@ private:
         std::vector<uint8_t> value;
     };
 
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	std::shared_ptr<Flows::Output> _out;
-	std::shared_ptr<ModbusSettings> _settings;
-	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
+    std::shared_ptr<BaseLib::SharedObjects> _bl;
+    std::shared_ptr<Flows::Output> _out;
+    std::shared_ptr<ModbusSettings> _settings;
+    std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
 
     std::mutex _modbusMutex;
-	std::shared_ptr<BaseLib::Modbus> _modbus;
+    std::shared_ptr<BaseLib::Modbus> _modbus;
     std::atomic_bool _connected;
 
-	std::thread _listenThread;
-	std::atomic_bool _started;
+    std::thread _listenThread;
+    std::atomic_bool _started;
     std::mutex _readRegistersMutex;
     std::list<std::shared_ptr<RegisterInfo>> _readRegisters;
     std::mutex _writeRegistersMutex;
@@ -161,14 +171,23 @@ private:
     std::mutex _readDiscreteInputsMutex;
     std::list<std::shared_ptr<DiscreteInputInfo>> _readDiscreteInputs;
 
-	Modbus(const Modbus&);
-	Modbus& operator=(const Modbus&);
-	void connect();
-	void disconnect();
+    Modbus(const Modbus&);
+
+    Modbus& operator=(const Modbus&);
+
+    void connect();
+
+    void disconnect();
+
     void setConnectionState(bool connected);
-	void listen();
+
+    void listen();
+
     void readWriteRegister(std::shared_ptr<RegisterInfo>& info);
+
     void readWriteCoil(std::shared_ptr<CoilInfo>& info);
 };
+
+}
 
 #endif

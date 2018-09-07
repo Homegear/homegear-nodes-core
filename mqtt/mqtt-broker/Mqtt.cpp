@@ -29,7 +29,11 @@
 
 #include "Mqtt.h"
 
-Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings) : BaseLib::IQueue(bl.get(), 2, 1000)
+namespace MyNode
+{
+
+Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings)
+		: BaseLib::IQueue(bl.get(), 2, 1000)
 {
 	try
 	{
@@ -172,11 +176,11 @@ uint32_t Mqtt::getLength(std::vector<char> packet, uint32_t& lengthBytes)
 		if(pos >= packet.size()) return 0;
 		encodedByte = packet[pos];
 		lengthBytes++;
-		value += ((uint32_t)(encodedByte & 127)) * multiplier;
+		value += ((uint32_t) (encodedByte & 127)) * multiplier;
 		multiplier *= 128;
 		pos++;
 		if(multiplier > 128 * 128 * 128) return 0;
-	} while ((encodedByte & 128) != 0);
+	} while((encodedByte & 128) != 0);
 	return value;
 }
 
@@ -188,7 +192,7 @@ std::vector<char> Mqtt::getLengthBytes(uint32_t length)
 	{
 		char byte = length % 128;
 		length = length / 128;
-		if (length > 0) byte = byte | 128;
+		if(length > 0) byte = byte | 128;
 		result.push_back(byte);
 	} while(length > 0);
 	return result;
@@ -198,26 +202,26 @@ void Mqtt::printConnectionError(char resultCode)
 {
 	switch(resultCode)
 	{
-	case 0: //No error
-		break;
-	case 1:
-		_out->printError("Error: Connection refused. Unacceptable protocol version.");
-		break;
-	case 2:
-		_out->printError("Error: Connection refused. Client identifier rejected. Please change the client identifier in mqtt.conf.");
-		break;
-	case 3:
-		_out->printError("Error: Connection refused. Server unavailable.");
-		break;
-	case 4:
-		_out->printError("Error: Connection refused. Bad username or password.");
-		break;
-	case 5:
-		_out->printError("Error: Connection refused. Unauthorized.");
-		break;
-	default:
-		_out->printError("Error: Connection refused. Unknown error: " + std::to_string(resultCode));
-		break;
+		case 0: //No error
+			break;
+		case 1:
+			_out->printError("Error: Connection refused. Unacceptable protocol version.");
+			break;
+		case 2:
+			_out->printError("Error: Connection refused. Client identifier rejected. Please change the client identifier in mqtt.conf.");
+			break;
+		case 3:
+			_out->printError("Error: Connection refused. Server unavailable.");
+			break;
+		case 4:
+			_out->printError("Error: Connection refused. Bad username or password.");
+			break;
+		case 5:
+			_out->printError("Error: Connection refused. Unauthorized.");
+			break;
+		default:
+			_out->printError("Error: Connection refused. Unknown error: " + std::to_string(resultCode));
+			break;
 	}
 }
 
@@ -329,7 +333,7 @@ void Mqtt::ping()
 {
 	try
 	{
-		std::vector<char> ping { (char)0xC0, 0 };
+		std::vector<char> ping{(char) 0xC0, 0};
 		std::vector<char> pong(5);
 		int32_t i = 0;
 		while(_started)
@@ -420,12 +424,12 @@ void Mqtt::listen()
 						length = getLength(data, lengthBytes);
 						dataLength = length + lengthBytes + 1;
 					}
-					if(bytesReceived == (unsigned)bufferMax)
+					if(bytesReceived == (unsigned) bufferMax)
 					{
 						//Check if packet size is exactly a multiple of bufferMax
 						if(data.size() == dataLength) break;
 					}
-				} while(bytesReceived == (unsigned)bufferMax || dataLength > data.size());
+				} while(bytesReceived == (unsigned) bufferMax || dataLength > data.size());
 			}
 			catch(BaseLib::SocketClosedException& ex)
 			{
@@ -479,10 +483,12 @@ void Mqtt::processData(std::vector<char>& data)
 	{
 		int16_t id = 0;
 		uint8_t type = 0;
-		if(data.size() == 2 && data.at(0) == (char)0xD0 && data.at(1) == 0) type = 0xD0;
+		if(data.size() == 2 && data.at(0) == (char) 0xD0 && data.at(1) == 0) type = 0xD0;
 		else if(data.size() == 4 && data[0] == 0x20 && data[1] == 2 && data[2] == 0 && data[3] == 0) type = 0x20; //CONNACK
-		else if(data.size() == 4 && data[0] == 0x40 && data[1] == 2) id = (((uint16_t)data[2]) << 8) + (uint8_t)data[3]; //PUBACK
-		else if(data.size() == 5 && data[0] == (char)0x90 && data[1] == 3) id = (((uint16_t)data[2]) << 8) + (uint8_t)data[3]; //SUBACK
+		else if(data.size() == 4 && data[0] == 0x40 && data[1] == 2)
+			id = (((uint16_t) data[2]) << 8) + (uint8_t) data[3]; //PUBACK
+		else if(data.size() == 5 && data[0] == (char) 0x90 && data[1] == 3)
+			id = (((uint16_t) data[2]) << 8) + (uint8_t) data[3]; //SUBACK
 		if(type != 0)
 		{
 			_requestsByTypeMutex.lock();
@@ -509,7 +515,7 @@ void Mqtt::processData(std::vector<char>& data)
 			{
 				std::shared_ptr<Request> request = requestIterator->second;
 				_requestsMutex.unlock();
-				if(data[0] == (char)request->getResponseControlByte())
+				if(data[0] == (char) request->getResponseControlByte())
 				{
 					request->response = data;
 					{
@@ -555,7 +561,8 @@ void Mqtt::processPublish(std::vector<char>& data)
 		}
 		uint8_t qos = data[0] & 6;
 		bool retain = data[0] & 1;
-		uint32_t topicLength = 1 + lengthBytes + 2 + (((uint16_t)data[1 + lengthBytes]) << 8) + (uint8_t)data[1 + lengthBytes + 1];
+		uint32_t topicLength = 1 + lengthBytes + 2 + (((uint16_t) data[1 + lengthBytes])
+				<< 8) + (uint8_t) data[1 + lengthBytes + 1];
 		uint32_t payloadPos = (qos > 0) ? topicLength + 2 : topicLength;
 		if(payloadPos >= data.size())
 		{
@@ -568,7 +575,7 @@ void Mqtt::processPublish(std::vector<char>& data)
 		}
 		else if(qos == 2)
 		{
-			std::vector<char> puback { 0x40, 2, data[topicLength], data[topicLength + 1] };
+			std::vector<char> puback{0x40, 2, data[topicLength], data[topicLength + 1]};
 			send(puback);
 		}
 		std::string topic(data.data() + (1 + lengthBytes + 2), topicLength - (1 + lengthBytes + 2));
@@ -759,18 +766,18 @@ void Mqtt::reconnectThread()
 			_invoke(node, "setConnectionState", parameters, false);
 		}
 	}
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void Mqtt::reconnect()
@@ -784,18 +791,18 @@ void Mqtt::reconnect()
 		_bl->threadManager.join(_reconnectThread);
 		_bl->threadManager.start(_reconnectThread, true, &Mqtt::reconnectThread, this);
 	}
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(BaseLib::Exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
 }
 
 void Mqtt::connect()
@@ -959,7 +966,7 @@ void Mqtt::disconnect()
 	try
 	{
 		_connected = false;
-		std::vector<char> disconnect = { (char)0xE0, 0 };
+		std::vector<char> disconnect = {(char) 0xE0, 0};
 		if(_socket->connected()) _socket->proofwrite(disconnect);
 		_socket->close();
 	}
@@ -1005,9 +1012,9 @@ void Mqtt::registerNode(std::string& node)
 		std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 		_nodes.emplace(node);
 
-        Flows::PArray parameters = std::make_shared<Flows::Array>();
-        parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
-        _invoke(node, "setConnectionState", parameters, false);
+		Flows::PArray parameters = std::make_shared<Flows::Array>();
+		parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
+		_invoke(node, "setConnectionState", parameters, false);
 	}
 	catch(const std::exception& ex)
 	{
@@ -1213,4 +1220,6 @@ void Mqtt::processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+}
+
 }
