@@ -222,13 +222,14 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         {
             std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             postRequest.insert(postRequest.end(), content.begin(), content.end());
+            _httpClient->sendRequest(postRequest, result);
         }
         else if(_method == "PATCH")
         {
             std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
             patchRequest.insert(patchRequest.end(), content.begin(), content.end());
+            _httpClient->sendRequest(patchRequest, result);
         }
-        _httpClient->get(_path, result);
 
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

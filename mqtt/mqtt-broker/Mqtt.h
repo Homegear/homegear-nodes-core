@@ -37,6 +37,9 @@
 #include <homegear-base/BaseLib.h>
 #include <regex>
 
+namespace MyNode
+{
+
 class Mqtt : public BaseLib::IQueue
 {
 public:
@@ -74,16 +77,21 @@ public:
 	};
 
 	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings);
+
 	virtual ~Mqtt();
 
 	void start();
+
 	void stop();
+
 	void waitForStop();
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
 	void registerNode(std::string& node);
+
 	void registerTopic(std::string& node, std::string& topic);
+
 	void unregisterTopic(std::string& node, std::string& topic);
 
 	/**
@@ -93,12 +101,15 @@ public:
 	 * @param payload The MQTT payload.
 	 */
 	void queueMessage(std::string& topic, std::string& payload, bool retain);
+
 private:
 	class QueueEntrySend : public BaseLib::IQueueEntry
 	{
 	public:
 		QueueEntrySend() {}
+
 		QueueEntrySend(std::shared_ptr<MqttMessage>& message) { this->message = message; }
+
 		virtual ~QueueEntrySend() {}
 
 		std::shared_ptr<MqttMessage> message;
@@ -108,7 +119,9 @@ private:
 	{
 	public:
 		QueueEntryReceived() {}
+
 		QueueEntryReceived(std::vector<char>& data) { this->data = data; }
+
 		virtual ~QueueEntryReceived() {}
 
 		std::vector<char> data;
@@ -121,9 +134,11 @@ private:
 		std::condition_variable conditionVariable;
 		bool mutexReady = false;
 		std::vector<char> response;
+
 		uint8_t getResponseControlByte() { return _responseControlByte; }
 
 		Request(uint8_t responseControlByte) { _responseControlByte = responseControlByte; };
+
 		virtual ~Request() {};
 	private:
 		uint8_t _responseControlByte;
@@ -138,6 +153,7 @@ private:
 		std::vector<char> response;
 
 		RequestByType() {};
+
 		virtual ~RequestByType() {};
 	};
 
@@ -167,15 +183,25 @@ private:
 	std::map<uint8_t, std::shared_ptr<RequestByType>> _requestsByType;
 
 	Mqtt(const Mqtt&);
+
 	Mqtt& operator=(const Mqtt&);
+
 	void connect();
+
 	void reconnect();
+
 	void reconnectThread();
+
 	void disconnect();
+
 	void processMessages();
+
 	void processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry>& entry);
+
 	std::vector<char> getLengthBytes(uint32_t length);
+
 	uint32_t getLength(std::vector<char> packet, uint32_t& lengthBytes);
+
 	void printConnectionError(char resultCode);
 
 	/**
@@ -185,16 +211,28 @@ private:
 	 * @param data The data to publish.
 	 */
 	void publish(const std::string& topic, const std::vector<char>& data, bool retain);
+
 	void ping();
+
 	void getResponseByType(const std::vector<char>& packet, std::vector<char>& responseBuffer, uint8_t responseType, bool errors = true);
+
 	void getResponse(const std::vector<char>& packet, std::vector<char>& responseBuffer, uint8_t responseType, int16_t packetId, bool errors = true);
+
 	void listen();
+
 	void processData(std::vector<char>& data);
+
 	void processPublish(std::vector<char>& data);
+
 	void subscribe(std::string& topic);
+
 	void unsubscribe(std::string& topic);
+
 	void send(const std::vector<char>& data);
+
 	std::string& escapeTopic(std::string& topic);
 };
+
+}
 
 #endif

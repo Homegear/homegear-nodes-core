@@ -29,14 +29,17 @@
 
 #include "Modbus.h"
 
+namespace MyNode
+{
+
 Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings)
 {
-	try
-	{
-		_bl = bl;
+    try
+    {
+        _bl = bl;
         _out = output;
-		_settings = settings;
-		_started = false;
+        _settings = settings;
+        _started = false;
         _connected = false;
 
         BaseLib::Modbus::ModbusInfo modbusInfo;
@@ -50,8 +53,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         {
             std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
             info->newData = false;
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->invert = std::get<2>(element);
             info->buffer1.resize(info->count, 0);
@@ -63,8 +66,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         {
             std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
             info->newData = false;
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->invert = std::get<2>(element);
             info->readOnConnect = std::get<3>(element);
@@ -76,8 +79,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         {
             std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
             info->newData = false;
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->invert = std::get<2>(element);
             info->buffer1.resize(info->count, 0);
@@ -89,8 +92,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         {
             std::shared_ptr<CoilInfo> info = std::make_shared<CoilInfo>();
             info->newData = false;
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->byteCount = info->count / 8 + (info->count % 8 == 0 ? 0 : 1);
             info->buffer1.resize(info->byteCount, 0);
@@ -102,8 +105,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         {
             std::shared_ptr<CoilInfo> info = std::make_shared<CoilInfo>();
             info->newData = false;
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->byteCount = info->count / 8 + (info->count % 8 == 0 ? 0 : 1);
             info->readOnConnect = std::get<2>(element);
@@ -114,114 +117,114 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         for(auto& element : settings->readDiscreteInputs)
         {
             std::shared_ptr<DiscreteInputInfo> info = std::make_shared<DiscreteInputInfo>();
-            info->start = (uint32_t)std::get<0>(element);
-            info->end = (uint32_t)std::get<1>(element);
+            info->start = (uint32_t) std::get<0>(element);
+            info->end = (uint32_t) std::get<1>(element);
             info->count = info->end - info->start + 1;
             info->byteCount = info->count / 8 + (info->count % 8 == 0 ? 0 : 1);
             info->buffer1.resize(info->byteCount, 0);
             info->buffer2.resize(info->byteCount, 0);
             _readDiscreteInputs.emplace_back(info);
         }
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 Modbus::~Modbus()
 {
-	try
-	{
-		waitForStop();
+    try
+    {
+        waitForStop();
         _modbus.reset();
-		_bl.reset();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+        _bl.reset();
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::start()
 {
-	try
-	{
-		if(_started) return;
-		_started = true;
+    try
+    {
+        if(_started) return;
+        _started = true;
 
-		_bl->threadManager.start(_listenThread, true, &Modbus::listen, this);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+        _bl->threadManager.start(_listenThread, true, &Modbus::listen, this);
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::stop()
 {
-	try
-	{
-		_started = false;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    try
+    {
+        _started = false;
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::waitForStop()
 {
-	try
-	{
-		_started = false;
-		_bl->threadManager.join(_listenThread);
-		disconnect();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    try
+    {
+        _started = false;
+        _bl->threadManager.join(_listenThread);
+        disconnect();
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
@@ -320,18 +323,18 @@ void Modbus::listen()
     int64_t endTime;
     int64_t timeToSleep;
 
-	while(_started)
-	{
-		try
-		{
-			if(!_modbus->isConnected())
-			{
-				if(!_started) return;
-				connect();
-				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-				if(!_started) return;
-				continue;
-			}
+    while(_started)
+    {
+        try
+        {
+            if(!_modbus->isConnected())
+            {
+                if(!_started) return;
+                connect();
+                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+                if(!_started) return;
+                continue;
+            }
 
             std::list<std::shared_ptr<RegisterInfo>> registers;
             {
@@ -393,7 +396,7 @@ void Modbus::listen()
                     break;
                 }
 
-                if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
+                if(!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
                 {
                     registerElement->buffer1 = registerElement->buffer2;
 
@@ -401,19 +404,19 @@ void Modbus::listen()
                     std::vector<uint8_t> destinationData2;
                     std::unordered_map<std::string, Flows::PVariable> data;
 
-                    for (auto& node : registerElement->nodes)
+                    for(auto& node : registerElement->nodes)
                     {
                         destinationData.clear();
                         destinationData.insert(destinationData.end(), registerElement->buffer1.begin() + (node.startRegister - registerElement->start), registerElement->buffer1.begin() + (node.startRegister - registerElement->start) + node.count);
                         destinationData2.resize(destinationData.size() * 2);
 
-                        if (node.invertRegisters)
+                        if(node.invertRegisters)
                         {
-                            for (uint32_t i = 0; i < destinationData.size(); i++)
+                            for(uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                if (registerElement->invert)
+                                if(registerElement->invert)
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
                                         destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
@@ -421,15 +424,17 @@ void Modbus::listen()
                                     else
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] =
+                                                destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                 }
                                 else
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] =
+                                                destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                     else
                                     {
@@ -441,11 +446,11 @@ void Modbus::listen()
                         }
                         else
                         {
-                            for (uint32_t i = 0; i < destinationData.size(); i++)
+                            for(uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                if (registerElement->invert)
+                                if(registerElement->invert)
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[i] >> 8;
                                         destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
@@ -458,7 +463,7 @@ void Modbus::listen()
                                 }
                                 else
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[i] & 0xFF;
                                         destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
@@ -474,40 +479,40 @@ void Modbus::listen()
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
-                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tHoldingRegister));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t) ModbusType::tHoldingRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
                         auto dataIterator = data.find(node.id);
-                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
                         else dataIterator->second->arrayValue->push_back(dataElement);
                     }
 
                     Flows::PArray parameters = std::make_shared<Flows::Array>();
                     parameters->push_back(std::make_shared<Flows::Variable>());
-                    for (auto& element : data)
+                    for(auto& element : data)
                     {
                         parameters->at(0) = element.second;
                         _invoke(element.first, "packetReceived", parameters, false);
                     }
                 }
 
-                if (_settings->delay > 0)
+                if(_settings->delay > 0)
                 {
-                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                     else
                     {
                         int32_t maxIndex = _settings->delay / 1000;
                         int32_t rest = _settings->delay % 1000;
-                        for (int32_t i = 0; i < maxIndex; i++)
+                        for(int32_t i = 0; i < maxIndex; i++)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                            if (!_started) break;
+                            if(!_started) break;
                         }
-                        if (!_started) break;
-                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                     }
-                    if (!_started) break;
+                    if(!_started) break;
                 }
             }
             if(!_modbus->isConnected()) continue;
@@ -531,7 +536,7 @@ void Modbus::listen()
                     break;
                 }
 
-                if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
+                if(!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin()))
                 {
                     registerElement->buffer1 = registerElement->buffer2;
 
@@ -539,19 +544,19 @@ void Modbus::listen()
                     std::vector<uint8_t> destinationData2;
                     std::unordered_map<std::string, Flows::PVariable> data;
 
-                    for (auto& node : registerElement->nodes)
+                    for(auto& node : registerElement->nodes)
                     {
                         destinationData.clear();
                         destinationData.insert(destinationData.end(), registerElement->buffer1.begin() + (node.startRegister - registerElement->start), registerElement->buffer1.begin() + (node.startRegister - registerElement->start) + node.count);
                         destinationData2.resize(destinationData.size() * 2);
 
-                        if (node.invertRegisters)
+                        if(node.invertRegisters)
                         {
-                            for (uint32_t i = 0; i < destinationData.size(); i++)
+                            for(uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                if (registerElement->invert)
+                                if(registerElement->invert)
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] >> 8;
                                         destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] & 0xFF;
@@ -559,15 +564,17 @@ void Modbus::listen()
                                     else
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] =
+                                                destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                 }
                                 else
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[destinationData.size() - i - 1] & 0xFF;
-                                        destinationData2[(i * 2) + 1] = destinationData[destinationData.size() - i - 1] >> 8;
+                                        destinationData2[(i * 2) + 1] =
+                                                destinationData[destinationData.size() - i - 1] >> 8;
                                     }
                                     else
                                     {
@@ -579,11 +586,11 @@ void Modbus::listen()
                         }
                         else
                         {
-                            for (uint32_t i = 0; i < destinationData.size(); i++)
+                            for(uint32_t i = 0; i < destinationData.size(); i++)
                             {
-                                if (registerElement->invert)
+                                if(registerElement->invert)
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[i] >> 8;
                                         destinationData2[(i * 2) + 1] = destinationData[i] & 0xFF;
@@ -596,7 +603,7 @@ void Modbus::listen()
                                 }
                                 else
                                 {
-                                    if (node.invertBytes)
+                                    if(node.invertBytes)
                                     {
                                         destinationData2[i * 2] = destinationData[i] & 0xFF;
                                         destinationData2[(i * 2) + 1] = destinationData[i] >> 8;
@@ -612,40 +619,40 @@ void Modbus::listen()
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
-                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tInputRegister));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t) ModbusType::tInputRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData2));
                         auto dataIterator = data.find(node.id);
-                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
                         else dataIterator->second->arrayValue->push_back(dataElement);
                     }
 
                     Flows::PArray parameters = std::make_shared<Flows::Array>();
                     parameters->push_back(std::make_shared<Flows::Variable>());
-                    for (auto& element : data)
+                    for(auto& element : data)
                     {
                         parameters->at(0) = element.second;
                         _invoke(element.first, "packetReceived", parameters, false);
                     }
                 }
 
-                if (_settings->delay > 0)
+                if(_settings->delay > 0)
                 {
-                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                     else
                     {
                         int32_t maxIndex = _settings->delay / 1000;
                         int32_t rest = _settings->delay % 1000;
-                        for (int32_t i = 0; i < maxIndex; i++)
+                        for(int32_t i = 0; i < maxIndex; i++)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                            if (!_started) break;
+                            if(!_started) break;
                         }
-                        if (!_started) break;
-                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                     }
-                    if (!_started) break;
+                    if(!_started) break;
                 }
             }
             if(!_modbus->isConnected()) continue;
@@ -711,53 +718,53 @@ void Modbus::listen()
                     break;
                 }
 
-                if (!std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin()))
+                if(!std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin()))
                 {
                     coilElement->buffer1 = coilElement->buffer2;
 
                     std::vector<uint8_t> destinationData;
                     std::unordered_map<std::string, Flows::PVariable> data;
 
-                    for (auto& node : coilElement->nodes)
+                    for(auto& node : coilElement->nodes)
                     {
                         destinationData = BaseLib::BitReaderWriter::getPosition(coilElement->buffer1, node.startRegister - coilElement->start, node.count);
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
-                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t) ModbusType::tCoil));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData));
                         auto dataIterator = data.find(node.id);
-                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
                         else dataIterator->second->arrayValue->push_back(dataElement);
                     }
 
                     Flows::PArray parameters = std::make_shared<Flows::Array>();
                     parameters->push_back(std::make_shared<Flows::Variable>());
-                    for (auto& element : data)
+                    for(auto& element : data)
                     {
                         parameters->at(0) = element.second;
                         _invoke(element.first, "packetReceived", parameters, false);
                     }
                 }
 
-                if (_settings->delay > 0)
+                if(_settings->delay > 0)
                 {
-                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                     else
                     {
                         int32_t maxIndex = _settings->delay / 1000;
                         int32_t rest = _settings->delay % 1000;
-                        for (int32_t i = 0; i < maxIndex; i++)
+                        for(int32_t i = 0; i < maxIndex; i++)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                            if (!_started) break;
+                            if(!_started) break;
                         }
-                        if (!_started) break;
-                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                     }
-                    if (!_started) break;
+                    if(!_started) break;
                 }
             }
             if(!_modbus->isConnected()) continue;
@@ -781,53 +788,53 @@ void Modbus::listen()
                     break;
                 }
 
-                if (!std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin()))
+                if(!std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin()))
                 {
                     discreteInputElement->buffer1 = discreteInputElement->buffer2;
 
                     std::vector<uint8_t> destinationData;
                     std::unordered_map<std::string, Flows::PVariable> data;
 
-                    for (auto& node : discreteInputElement->nodes)
+                    for(auto& node : discreteInputElement->nodes)
                     {
                         destinationData = BaseLib::BitReaderWriter::getPosition(discreteInputElement->buffer1, node.startRegister - discreteInputElement->start, node.count);
 
                         Flows::PVariable dataElement = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
                         dataElement->arrayValue->reserve(4);
-                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tDiscreteInput));
+                        dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t) ModbusType::tDiscreteInput));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.startRegister));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(node.count));
                         dataElement->arrayValue->push_back(std::make_shared<Flows::Variable>(destinationData));
                         auto dataIterator = data.find(node.id);
-                        if (dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
+                        if(dataIterator == data.end() || !dataIterator->second) data.emplace(node.id, std::make_shared<Flows::Variable>(Flows::PArray(new Flows::Array({dataElement}))));
                         else dataIterator->second->arrayValue->push_back(dataElement);
                     }
 
                     Flows::PArray parameters = std::make_shared<Flows::Array>();
                     parameters->push_back(std::make_shared<Flows::Variable>());
-                    for (auto& element : data)
+                    for(auto& element : data)
                     {
                         parameters->at(0) = element.second;
                         _invoke(element.first, "packetReceived", parameters, false);
                     }
                 }
 
-                if (_settings->delay > 0)
+                if(_settings->delay > 0)
                 {
-                    if (_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+                    if(_settings->delay < 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
                     else
                     {
                         int32_t maxIndex = _settings->delay / 1000;
                         int32_t rest = _settings->delay % 1000;
-                        for (int32_t i = 0; i < maxIndex; i++)
+                        for(int32_t i = 0; i < maxIndex; i++)
                         {
                             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                            if (!_started) break;
+                            if(!_started) break;
                         }
-                        if (!_started) break;
-                        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+                        if(!_started) break;
+                        if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
                     }
-                    if (!_started) break;
+                    if(!_started) break;
                 }
             }
             if(!_modbus->isConnected()) continue;
@@ -850,20 +857,20 @@ void Modbus::listen()
                 if(rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
             }
             startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(BaseLib::Exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-	}
+        }
+        catch(const std::exception& ex)
+        {
+            _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        }
+        catch(BaseLib::Exception& ex)
+        {
+            _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+        }
+        catch(...)
+        {
+            _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+        }
+    }
 }
 
 void Modbus::setConnectionState(bool connected)
@@ -875,9 +882,9 @@ void Modbus::setConnectionState(bool connected)
 
         {
             std::lock_guard<std::mutex> registersGuard(_readRegistersMutex);
-            for (auto& element : _readRegisters)
+            for(auto& element : _readRegisters)
             {
-                for (auto& node : element->nodes)
+                for(auto& node : element->nodes)
                 {
                     _invoke(node.id, "setConnectionState", parameters, false);
                 }
@@ -886,9 +893,9 @@ void Modbus::setConnectionState(bool connected)
 
         {
             std::lock_guard<std::mutex> registersGuard(_writeRegistersMutex);
-            for (auto& element : _writeRegisters)
+            for(auto& element : _writeRegisters)
             {
-                for (auto& node : element->nodes)
+                for(auto& node : element->nodes)
                 {
                     _invoke(node.id, "setConnectionState", parameters, false);
                 }
@@ -912,7 +919,7 @@ void Modbus::setConnectionState(bool connected)
 void Modbus::connect()
 {
     std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
-	try
+    try
     {
         _modbus->setSlaveId(_settings->slaveId);
         _modbus->connect();
@@ -962,7 +969,7 @@ void Modbus::connect()
         }
 
         setConnectionState(true);
-		return;
+        return;
     }
     catch(const std::exception& ex)
     {
@@ -981,30 +988,30 @@ void Modbus::connect()
 
 void Modbus::disconnect()
 {
-	try
-	{
-		std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
+    try
+    {
+        std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
         _connected = false;
-		_modbus->disconnect();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+        _modbus->disconnect();
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters)
 {
-	try
-	{
+    try
+    {
         NodeInfo info;
         info.type = type;
         info.id = node;
@@ -1016,9 +1023,9 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startRegi
         if(type == ModbusType::tHoldingRegister)
         {
             std::lock_guard<std::mutex> registersGuard(_readRegistersMutex);
-            for (auto& element : _readRegisters)
+            for(auto& element : _readRegisters)
             {
-                if (startRegister >= element->start && (startRegister + count - 1) <= element->end)
+                if(startRegister >= element->start && (startRegister + count - 1) <= element->end)
                 {
                     element->nodes.emplace_back(info);
                 }
@@ -1027,9 +1034,9 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startRegi
         else if(type == ModbusType::tInputRegister)
         {
             std::lock_guard<std::mutex> registersGuard(_readInputRegistersMutex);
-            for (auto& element : _readInputRegisters)
+            for(auto& element : _readInputRegisters)
             {
-                if (startRegister >= element->start && (startRegister + count - 1) <= element->end)
+                if(startRegister >= element->start && (startRegister + count - 1) <= element->end)
                 {
                     element->nodes.emplace_back(info);
                 }
@@ -1039,19 +1046,19 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startRegi
         Flows::PArray parameters = std::make_shared<Flows::Array>();
         parameters->push_back(std::make_shared<Flows::Variable>(_modbus->isConnected()));
         _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(BaseLib::Exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(BaseLib::Exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil, uint32_t count)
@@ -1067,9 +1074,9 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
         if(type == ModbusType::tCoil)
         {
             std::lock_guard<std::mutex> registersGuard(_readCoilsMutex);
-            for (auto& element : _readCoils)
+            for(auto& element : _readCoils)
             {
-                if (startCoil >= element->start && (startCoil + count - 1) <= element->end)
+                if(startCoil >= element->start && (startCoil + count - 1) <= element->end)
                 {
                     element->nodes.emplace_back(info);
                 }
@@ -1078,9 +1085,9 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
         else
         {
             std::lock_guard<std::mutex> registersGuard(_readDiscreteInputsMutex);
-            for (auto& element : _readDiscreteInputs)
+            for(auto& element : _readDiscreteInputs)
             {
-                if (startCoil >= element->start && (startCoil + count - 1) <= element->end)
+                if(startCoil >= element->start && (startCoil + count - 1) <= element->end)
                 {
                     element->nodes.emplace_back(info);
                 }
@@ -1140,19 +1147,27 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
             if(startRegister >= element->start && (startRegister + count - 1) <= element->end)
             {
                 element->newData = true;
-                if (invertRegisters)
+                if(invertRegisters)
                 {
                     for(uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++)
                     {
                         if(element->invert)
                         {
-                            if(invertBytes) element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
-                            else element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                            if(invertBytes)
+                                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t) value[i * 2])
+                                        << 8) | value[i * 2 + 1];
+                            else
+                                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t) value[i * 2 + 1])
+                                        << 8) | value[i * 2];
                         }
                         else
                         {
-                            if(invertBytes) element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
-                            else element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                            if(invertBytes)
+                                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t) value[i * 2 + 1])
+                                        << 8) | value[i * 2];
+                            else
+                                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t) value[i * 2])
+                                        << 8) | value[i * 2 + 1];
                         }
                     }
                 }
@@ -1162,13 +1177,13 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
                     {
                         if(element->invert)
                         {
-                            if(invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
-                            else element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+                            if(invertBytes) element->buffer1[i] = (((uint16_t) value[i * 2]) << 8) | value[i * 2 + 1];
+                            else element->buffer1[i] = (((uint16_t) value[i * 2 + 1]) << 8) | value[i * 2];
                         }
                         else
                         {
-                            if(invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
-                            else element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+                            if(invertBytes) element->buffer1[i] = (((uint16_t) value[i * 2 + 1]) << 8) | value[i * 2];
+                            else element->buffer1[i] = (((uint16_t) value[i * 2]) << 8) | value[i * 2 + 1];
                         }
                     }
                 }
@@ -1232,4 +1247,6 @@ void Modbus::writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vec
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
     }
+}
+
 }
