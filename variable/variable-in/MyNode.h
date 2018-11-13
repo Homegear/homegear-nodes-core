@@ -43,7 +43,16 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void startUpComplete();
-private:
+private:enum class VariableType
+    {
+        device,
+        metadata,
+        system,
+        flow,
+        global
+    };
+
+    VariableType _variableType = VariableType::device;
 	int64_t _lastInput = 0;
 	uint32_t _refractionPeriod = 0;
 	bool _outputOnStartup = false;
@@ -55,6 +64,8 @@ private:
 	bool _loopPrevention = false;
 
 	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
+    virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
+    virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
 };
 
 }

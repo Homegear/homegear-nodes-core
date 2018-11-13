@@ -43,6 +43,16 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
+	enum class VariableType
+	{
+		device,
+		metadata,
+		system,
+		flow,
+		global
+	};
+
+	VariableType _variableType = VariableType::device;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
 	std::string _variable;

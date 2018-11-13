@@ -17,6 +17,8 @@
             <option value="device" data-i18n="variable-in.label.devicevariable"></option>
             <option value="metadata" data-i18n="variable-in.label.metadata"></option>
             <option value="system" data-i18n="variable-in.label.systemvariable"></option>
+            <option value="flow" data-i18n="variable-in.label.flowvariable"></option>
+            <option value="global" data-i18n="variable-in.label.globalvariable"></option>
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
@@ -71,7 +73,7 @@
         defaults: {
             variabletype: {value: "device",required: true},
             family: {},
-            peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { return v != ""; }},
 
@@ -93,7 +95,7 @@
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "metadata" && this.variable) return this.peerid + ", " + this.variable;
-            else if(this.variabletype == "system" && this.variable) return this.variable;
+            else if(this.variable) return this.variable;
             return "variable";
         },
         oneditprepare: function() {
@@ -170,6 +172,48 @@
                 }
             //}}}
 
+            //{{{ Flow variables
+                function updateFlowVariableOptions() {
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getFlowData", function(message) {
+                        if(!message.result) return;
+                        console.log(message.result);
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    }, that.z);
+                }
+            //}}}
+
+            //{{{ Global variables
+                function updateGlobalVariableOptions() {
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getGlobalData", function(message) {
+                        if(!message.result) return;
+                        console.log(message.result);
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    });
+                }
+            //}}}
+
             //{{{ Metadata
                 function updateMetadataVariableOptions() {
                     var currentPeerId = parseInt($("#node-input-peerid").val());
@@ -206,12 +250,14 @@
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
                         updateMetadataVariableOptions();
-                    } else if(variableType == "system") {
+                    } else {
                         $("#node-input-family-container").hide();
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
-                        updateSystemVariableOptions();
+                        if(variableType == "system") updateSystemVariableOptions();
+                        else if(variableType == "flow") updateFlowVariableOptions();
+                        else if(variableType == "global") updateGlobalVariableOptions();
                     }
                 }
 

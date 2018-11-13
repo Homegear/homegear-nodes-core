@@ -6,6 +6,8 @@
         "devicevariable": "Device variable",
         "metadata": "Metadata",
         "systemvariable": "System variable",
+        "flowvariable": "Flow variable",
+        "globalvariable": "Global variable",
         "family": "Family",
         "peerid": "Peer ID",
         "channel": "Channel",
