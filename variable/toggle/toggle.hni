@@ -100,7 +100,10 @@
 
             function updateVariableInfo() {
                 var currentVariable = variables[$("#node-input-variable").val()];
-                if(!currentVariable) return;
+                if(!currentVariable) {
+                    $("#node-input-variableinfo").text("");
+                    return;
+                }
                 if($("#node-input-variable").val()) {
                     var html = "<table>";
                     if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
