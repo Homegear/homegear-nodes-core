@@ -44,6 +44,9 @@
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
         </div>
+        <div class="form-row">
+            <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog">Create new variable</a></div>
+        </div>
     </div>
     <div class="form-row">
         <label style="width: 130px;" for="node-input-refractoryperiod"><i class="fa fa-clock-o"></i> <span data-i18n="variable-in.label.refractoryperiod"></span></label>
@@ -118,7 +121,10 @@
 
             function updateVariableInfo() {
                 var currentVariable = variables[$("#node-input-variable").val()];
-                if(!currentVariable) return;
+                if(!currentVariable) {
+                    $("#node-input-variableinfo").text("");
+                    return;
+                }
                 if($("#node-input-variable").val()) {
                     var html = "<table>";
                     if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
@@ -179,7 +185,6 @@
                     variables = {};
                     RED.comms.homegear().invoke("getFlowData", function(message) {
                         if(!message.result) return;
-                        console.log(message.result);
                         $.each(message.result, function(name, value) {
                             if(!name) return;
                             variables[name] = {};
@@ -200,7 +205,6 @@
                     variables = {};
                     RED.comms.homegear().invoke("getGlobalData", function(message) {
                         if(!message.result) return;
-                        console.log(message.result);
                         $.each(message.result, function(name, value) {
                             if(!name) return;
                             variables[name] = {};
@@ -243,18 +247,21 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").show();
                         $("#node-input-variable-container").show();
+                        $("#node-create-variable").hide();
                         updateChannelOptions();
                     } else if(variableType == "metadata") {
                         $("#node-input-family-container").show();
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
+                        $("#node-create-variable").show();
                         updateMetadataVariableOptions();
                     } else {
                         $("#node-input-family-container").hide();
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
+                        $("#node-create-variable").show();
                         if(variableType == "system") updateSystemVariableOptions();
                         else if(variableType == "flow") updateFlowVariableOptions();
                         else if(variableType == "global") updateGlobalVariableOptions();
@@ -407,6 +414,70 @@
                     } else {
                         $("#node-input-looppreventiongroup-container").hide();
                     }
+                });
+            //}}}
+
+            //{{{ Create variable dialog
+                $("#node-create-variable").on("click", function() {
+                    var variableType = $("#node-input-variabletype").val();
+                    var peerId = parseInt($("#node-input-peerid").val());
+
+                    if(variableType == "metadata" && !peerId) return;
+
+                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/></form></div></div>')
+                        .appendTo("body")
+                        .dialog({
+                            modal: true,
+                            autoOpen: false,
+                            width: 400,
+                            resizable: false,
+                            buttons: [
+                                {
+                                    id: "create-variable-dialog-cancel",
+                                    class: "primary",
+                                    text: RED._("common.label.cancel"),
+                                    click: function() {
+                                        $( this ).dialog( "close" );
+                                    }
+                                },
+                                {
+                                    id: "create-variable-dialog-set",
+                                    class: "primary",
+                                    text: RED._("variable/variable-in.hni:variable-in.label.create"),
+                                    click: function() {
+                                        var variableName = $("#create-variable-name").val().trim();
+                                        var variableValue = $("#create-variable-value").val().trim();
+                                        if(!variableName | !variableValue) return false;
+                                        variableValue = JSON.parse('[' + variableValue + ']')[0];
+                                        if(variableType == "system") RED.comms.homegear().invoke("setSystemVariable", null, variableName, variableValue);
+                                        else if(variableType == "metadata") {
+                                            if(peerId == 0) return false;
+                                            RED.comms.homegear().invoke("setMetadata", null, peerId, variableName, variableValue);
+                                        } else if(variableType == "flow") RED.comms.homegear().invoke("setFlowData", null, that.z, variableName, variableValue);
+                                        else if(variableType == "global") RED.comms.homegear().invoke("setGlobalData", null, variableName, variableValue);
+
+                                        that.variable = variableName;
+
+                                        $( this ).dialog( "close" );
+                                    }
+                                }
+                            ],
+                            open: function(e) {
+                                $(this).parent().find(".ui-dialog-titlebar-close").hide();
+
+                                $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
+                                $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+                            },
+                            close: function(e) {
+                                $(this).remove();
+
+                                if(variableType == "system") updateSystemVariableOptions();
+                                else if(variableType == "metadata") updateMetadataVariableOptions();
+                                else if(variableType == "flow") updateFlowVariableOptions();
+                                else if(variableType == "global") updateGlobalVariableOptions();
+                            }
+                        });
+                    createVariableDialog.dialog("option", "title", RED._("variable/variable-in.hni:variable-in.label.createvariable")).dialog("open");
                 });
             //}}}
         }

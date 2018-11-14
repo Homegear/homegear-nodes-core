@@ -12,7 +12,10 @@
         "peerid": "Peer ID",
         "channel": "Channel",
         "variable": "Variable",
-        "name": "Name"
+        "name": "Name",
+        "createvariable": "Create variable",
+        "typeandvalue": "Type and value",
+        "create": "Create"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Sets a variable.</p>",
