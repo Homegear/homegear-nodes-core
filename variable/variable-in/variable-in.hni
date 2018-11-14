@@ -80,7 +80,7 @@
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { return v != ""; }},
 
-            refractoryperiod: {value: "200",validate:RED.validators.number()},
+            refractoryperiod: {value: "0",validate:RED.validators.number()},
             outputonstartup: {value: false},
             loopprevention: {value: false},
             looppreventiongroup: {type:"variable-loop-prevention-group", required: false},
