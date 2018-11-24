@@ -116,6 +116,10 @@ set(SOURCE_FILES
         ping/Factory.h
         ping/MyNode.cpp
         ping/MyNode.h
+		presence-light/Factory.cpp
+		presence-light/Factory.h
+		presence-light/PresenceLight.cpp
+		presence-light/PresenceLight.h
         press-pattern/Factory.cpp
         press-pattern/Factory.h
         press-pattern/MyNode.cpp
