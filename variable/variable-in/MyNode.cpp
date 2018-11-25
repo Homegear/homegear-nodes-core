@@ -189,6 +189,7 @@ void MyNode::flowVariableEvent(std::string flowId, std::string variable, Flows::
 {
 	try
 	{
+	    if(variable != _variable) return;
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
 
@@ -221,6 +222,7 @@ void MyNode::globalVariableEvent(std::string variable, Flows::PVariable value)
 {
 	try
 	{
+        if(variable != _variable) return;
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
 

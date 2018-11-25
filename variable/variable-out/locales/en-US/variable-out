@@ -14,7 +14,7 @@
         "variable": "Variable",
         "name": "Name",
         "createvariable": "Create variable",
-        "typeandvalue": "Type and value",
+        "typeandvalue": "Value",
         "create": "Create"
       },
       "tip": "Tip: See help tab for usage information.",
