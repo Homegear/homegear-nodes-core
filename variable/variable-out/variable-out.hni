@@ -77,6 +77,8 @@
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "metadata" && this.variable) return this.peerid + ", " + this.variable;
+            else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
+            else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
             return "variable";
         },
@@ -96,6 +98,40 @@
                 } else if(type == "string") return "STRING";
                 else if(type == "array") return "ARRAY";
                 else return "STRUCT";
+            }
+
+            function updateVariableValue() {
+                var variableType = $("#node-input-variabletype").val();
+                var currentVariable = $("#node-input-variable").val();
+                if(!currentVariable) return;
+                if(variableType == "flow") {
+                    RED.comms.homegear().invoke("getFlowData", function(message) {
+                        if(!message.result) return;
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, that.z, currentVariable);
+                } else if(variableType == "global") {
+                    RED.comms.homegear().invoke("getGlobalData", function(message) {
+                        if(!message.result) return;
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, currentVariable);
+                } else {
+                    var currentPeerId = 0;
+                    var currentChannel = -1;
+                    if(variableType == "metadata" || variableType == "device") {
+                        currentPeerId = parseInt($("#node-input-peerid").val());
+                        if(currentPeerId == 0) return;
+                    }
+                    if(variableType == "device") currentChannel = parseInt($("#node-input-channel").val());
+                    RED.comms.homegear().invoke("getValue", function(message) {
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, currentPeerId, currentChannel, currentVariable);
+                }
             }
 
             function updateVariableInfo() {
@@ -132,8 +168,10 @@
                         });
                         html += "</td></tr>";
                     }
+                    html += "<tr><td><b>Value</b></td><td id=\"node-variable-value-cell\"></td></tr>"
                     html += "</table>";
                     $("#node-input-variableinfo").html(html);
+                    updateVariableValue();
                 }
             }
 
@@ -164,7 +202,6 @@
                     variables = {};
                     RED.comms.homegear().invoke("getFlowData", function(message) {
                         if(!message.result) return;
-                        console.log(message.result);
                         $.each(message.result, function(name, value) {
                             if(!name) return;
                             variables[name] = {};
@@ -185,7 +222,6 @@
                     variables = {};
                     RED.comms.homegear().invoke("getGlobalData", function(message) {
                         if(!message.result) return;
-                        console.log(message.result);
                         $.each(message.result, function(name, value) {
                             if(!name) return;
                             variables[name] = {};
