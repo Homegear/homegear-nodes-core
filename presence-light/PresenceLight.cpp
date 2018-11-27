@@ -254,7 +254,7 @@ bool PresenceLight::getLightState()
 {
     auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
     auto alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
-    return (_enabled && (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) || alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() >= alwaysOnTo);
+    return (_enabled.load(std::memory_order_acquire) && (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) || alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() >= alwaysOnTo);
 }
 
 void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
@@ -273,7 +273,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(*input)
             {
-                _alwaysOnTo.store(_alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOnTime);
+                _alwaysOnTo.store(_alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOnTime, std::memory_order_release);
                 _alwaysOffTo.store(-1, std::memory_order_release);
             }
             else
@@ -288,7 +288,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(*input)
             {
-                _alwaysOffTo.store(_alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOffTime);
+                _alwaysOffTo.store(_alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOffTime, std::memory_order_release);
                 _alwaysOnTo.store(-1, std::memory_order_release);
             }
             else
@@ -301,7 +301,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         }
         else if(index == 3 && *input) //Presence
         {
-            _onTo.store(BaseLib::HelperFunctions::getTime() + _onTime);
+            _onTo.store(BaseLib::HelperFunctions::getTime() + _onTime, std::memory_order_release);
 
             setNodeData("onTo", std::make_shared<Flows::Variable>(_alwaysOnTo.load(std::memory_order_acquire)));
         }

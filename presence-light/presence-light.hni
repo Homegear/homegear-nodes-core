@@ -34,9 +34,9 @@
         color: "#A6BBCF",
         defaults: {
             name: {value:""},
-            "on-time": {value: 300},
-            "always-on-time": {value: 21600},
-            "always-off-time": {value: 21600}
+            "on-time": {value: "300",required:true,validate:RED.validators.number()},
+            "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
+            "always-off-time": {value: "21600",required:true,validate:RED.validators.number()}
         },
         inputs:4,
         inputInfo: [
