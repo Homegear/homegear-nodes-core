@@ -189,6 +189,7 @@
                         });
                         html += "</td></tr>";
                     }
+                    html += "<tr><td><b>Value</b></td><td id=\"node-variable-value-cell\"></td></tr>"
                     html += "</table>";
                     $("#node-input-variableinfo").html(html);
                     updateVariableValue();
