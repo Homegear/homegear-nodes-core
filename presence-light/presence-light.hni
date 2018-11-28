@@ -57,7 +57,7 @@
                 types: ["boolean"]
             }
         ],
-        outputs:2,
+        outputs:4,
         outputInfo: [
             {
                 label: "S",
@@ -66,6 +66,14 @@
             {
                 label: "RES",
                 types: ["boolean"]
+            },
+            {
+                label: "ON_T",
+                types: ["integer"]
+            },
+            {
+                label: "OFF_T",
+                types: ["integer"]
             }
         ],
         icon: "switch.png",

@@ -62,6 +62,7 @@ private:
     std::atomic<int64_t> _onTo{-1};
     std::atomic<int64_t> _alwaysOnTo{-1};
     std::atomic<int64_t> _alwaysOffTo{-1};
+    int64_t _lastInput = -1; //Protected by input mutex of Homegear
 
     bool getLightState();
     void timer();
