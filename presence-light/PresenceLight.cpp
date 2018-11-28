@@ -311,7 +311,11 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(inputValue)
             {
-                _alwaysOnTo.store(_alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOnTime, std::memory_order_release);
+                auto alwaysOnTime = _alwaysOnTime;
+                auto payloadIterator = message->structValue->find("alwaysOnTime");
+                if(payloadIterator != message->structValue->end()) alwaysOnTime = payloadIterator->second->integerValue64;
+
+                _alwaysOnTo.store(alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOnTime, std::memory_order_release);
                 _alwaysOffTo.store(-1, std::memory_order_release);
             }
             else
@@ -332,7 +336,11 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(inputValue)
             {
-                _alwaysOffTo.store(_alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + _alwaysOffTime, std::memory_order_release);
+                auto alwaysOffTime = _alwaysOffTime;
+                auto payloadIterator = message->structValue->find("alwaysOffTime");
+                if(payloadIterator != message->structValue->end()) alwaysOffTime = payloadIterator->second->integerValue64;
+
+                _alwaysOffTo.store(alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOffTime, std::memory_order_release);
                 _alwaysOnTo.store(-1, std::memory_order_release);
             }
             else
@@ -353,7 +361,11 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(inputValue)
             {
-                _onTo.store(BaseLib::HelperFunctions::getTime() + _onTime, std::memory_order_release);
+                auto onTime = _onTime;
+                auto payloadIterator = message->structValue->find("onTime");
+                if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
+
+                _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_alwaysOnTo.load(std::memory_order_acquire)));
             }
