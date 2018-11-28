@@ -53,6 +53,7 @@ private:
 	SunTime _sunTime;
 	std::atomic_bool _enabled;
 	bool _outputOnStartUp = false;
+	std::mutex _timeVariableMutex;
 	std::string _onTime;
 	std::string _onTimeType;
 	std::string _offTime;
@@ -69,6 +70,7 @@ private:
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
 	std::atomic_bool _stopped;
+	std::atomic_bool _forceUpdate;
 	std::thread _timerThread;
 
 	std::vector<std::string> splitAll(std::string string, char delimiter);
