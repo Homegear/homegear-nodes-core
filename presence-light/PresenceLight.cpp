@@ -184,18 +184,31 @@ void PresenceLight::timer()
                 alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
                 alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
 
-                if(onTo != -1 && onTo <= time)
+                if(onTo != -1)
                 {
-                    auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
-                    if(alwaysOnTo == -1 || (alwaysOnTo != 0 && (time >= alwaysOnTo)))
+                    if(onTo <= time)
+                    {
+                        auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
+                        if(alwaysOnTo == -1 || (alwaysOnTo != 0 && (time >= alwaysOnTo)))
+                        {
+                            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+                            output(0, outputMessage);
+
+                            Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                            outputMessage2->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
+                            output(2, outputMessage2);
+                        }
+                        onTo = -1;
+                        _onTo.store(-1, std::memory_order_release);
+                        setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
+                    }
+                    else
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-                        output(0, outputMessage);
+                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((onTo - time) / 1000.0)));
+                        output(2, outputMessage);
                     }
-                    onTo = -1;
-                    _onTo.store(-1, std::memory_order_release);
-                    setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
                 }
 
                 if(alwaysOnTo != -1 && alwaysOnTo != 0)
@@ -212,7 +225,7 @@ void PresenceLight::timer()
 
                         Flows::PVariable outputMessage3 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                         outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
-                        output(2, outputMessage3);
+                        output(3, outputMessage3);
 
                         alwaysOnTo = -1;
                         _alwaysOnTo.store(-1, std::memory_order_release);
@@ -222,7 +235,7 @@ void PresenceLight::timer()
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOnTo - time) / 1000.0)));
-                        output(2, outputMessage);
+                        output(3, outputMessage);
                     }
                 }
 
@@ -240,7 +253,7 @@ void PresenceLight::timer()
 
                         Flows::PVariable outputMessage3 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                         outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
-                        output(3, outputMessage3);
+                        output(4, outputMessage3);
 
                         alwaysOffTo = -1;
                         _alwaysOffTo.store(-1, std::memory_order_release);
@@ -250,7 +263,7 @@ void PresenceLight::timer()
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOffTo - time) / 1000.0)));
-                        output(3, outputMessage);
+                        output(4, outputMessage);
                     }
                 }
 
@@ -313,7 +326,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             {
                 auto alwaysOnTime = _alwaysOnTime;
                 auto payloadIterator = message->structValue->find("alwaysOnTime");
-                if(payloadIterator != message->structValue->end()) alwaysOnTime = payloadIterator->second->integerValue64;
+                if(payloadIterator != message->structValue->end()) alwaysOnTime = payloadIterator->second->integerValue64 * 1000;
 
                 _alwaysOnTo.store(alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOnTime, std::memory_order_release);
                 _alwaysOffTo.store(-1, std::memory_order_release);
@@ -338,7 +351,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             {
                 auto alwaysOffTime = _alwaysOffTime;
                 auto payloadIterator = message->structValue->find("alwaysOffTime");
-                if(payloadIterator != message->structValue->end()) alwaysOffTime = payloadIterator->second->integerValue64;
+                if(payloadIterator != message->structValue->end()) alwaysOffTime = payloadIterator->second->integerValue64 * 1000;
 
                 _alwaysOffTo.store(alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOffTime, std::memory_order_release);
                 _alwaysOnTo.store(-1, std::memory_order_release);

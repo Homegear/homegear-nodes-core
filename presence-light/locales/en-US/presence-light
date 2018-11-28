@@ -18,8 +18,9 @@
       "input4Description": "An input of <code>true</code> sets <code>S</code> to <code>true</code> for <code>On time</code> seconds. <code>false</code> is ignored.",
       "output1Description": "Outputs <code>true</code> when the light should switch on and <code>false</code> when it should switch off.",
       "output2Description": "Outputs <code>true</code> when the always on timer or always off timer reaches <code>0</code>.",
-      "output3Description": "Outputs the remaining \"always on time\" (in seconds) every second and <code>-1</code> on reset.",
-      "output4Description": "Outputs the remaining \"always off time\" (in seconds) every second and <code>-1</code> on reset."
+      "output3Description": "Outputs the remaining \"on time\" (in seconds) every second.",
+      "output4Description": "Outputs the remaining \"always on time\" (in seconds) every second and <code>-1</code> on reset.",
+      "output5Description": "Outputs the remaining \"always off time\" (in seconds) every second and <code>-1</code> on reset."
     }
   }
 }

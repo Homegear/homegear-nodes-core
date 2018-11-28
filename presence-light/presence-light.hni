@@ -57,7 +57,7 @@
                 types: ["boolean"]
             }
         ],
-        outputs:4,
+        outputs:5,
         outputInfo: [
             {
                 label: "S",
@@ -66,6 +66,10 @@
             {
                 label: "RES",
                 types: ["boolean"]
+            },
+            {
+                label: "T",
+                types: ["integer"]
             },
             {
                 label: "ON_T",
