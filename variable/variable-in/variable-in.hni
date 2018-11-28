@@ -48,6 +48,16 @@
             <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog">Create new variable</a></div>
         </div>
     </div>
+    <div id="node-input-eventsource-container" class="hide">
+        <div class="form-row">
+            <label style="width: 130px;" for="node-input-eventsource"><i class="fa fa-random"></i> <span data-i18n="variable-in.label.eventsource"></span></label>
+            <select type="text" id="node-input-eventsource" style="display: inline-block; width: 65%;">
+                <option value="all" data-i18n="variable-in.label.all"></option>
+                <option value="device" data-i18n="variable-in.label.device"></option>
+                <option value="homegear" data-i18n="variable-in.label.homegear"></option>
+            </select>
+        </div>
+    </div>
     <div class="form-row">
         <label style="width: 130px;" for="node-input-refractoryperiod"><i class="fa fa-clock-o"></i> <span data-i18n="variable-in.label.refractoryperiod"></span></label>
         <input style="width: 65%;" type="text" id="node-input-refractoryperiod" placeholder="Refractory period in ms">
@@ -78,8 +88,8 @@
             family: {},
             peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
-            variable: {value:"",validate: function(v) { return v != ""; }},
-
+            variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
+            eventsource: {value:"all",validate: function(v) { return v != ""; }},
             refractoryperiod: {value: "0",validate:RED.validators.number()},
             outputonstartup: {value: false},
             loopprevention: {value: false},
@@ -285,6 +295,7 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").show();
                         $("#node-input-variable-container").show();
+                        $("#node-input-eventsource-container").show();
                         $("#node-create-variable").hide();
                         updateChannelOptions();
                     } else if(variableType == "metadata") {
@@ -292,6 +303,7 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
+                        $("#node-input-eventsource-container").hide();
                         $("#node-create-variable").show();
                         updateMetadataVariableOptions();
                     } else {
@@ -299,6 +311,7 @@
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
+                        $("#node-input-eventsource-container").hide();
                         $("#node-create-variable").show();
                         if(variableType == "system") updateSystemVariableOptions();
                         else if(variableType == "flow") updateFlowVariableOptions();

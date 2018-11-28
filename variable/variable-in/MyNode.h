@@ -43,13 +43,22 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 	virtual void startUpComplete();
-private:enum class VariableType
+
+private:
+	enum class VariableType
     {
         device,
         metadata,
         system,
         flow,
         global
+    };
+
+    enum class EventSource
+    {
+        all,
+        device,
+        homegear
     };
 
     VariableType _variableType = VariableType::device;
@@ -59,6 +68,8 @@ private:enum class VariableType
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
 	std::string _variable;
+	EventSource _eventSource = EventSource::all;
+
 	Flows::VariableType _type = Flows::VariableType::tVoid;
 	std::string _loopPreventionGroup;
 	bool _loopPrevention = false;

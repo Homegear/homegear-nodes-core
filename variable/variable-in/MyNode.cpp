@@ -69,6 +69,21 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("variable");
 		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 
+		settingsIterator = info->info->structValue->find("eventsource");
+		if(settingsIterator != info->info->structValue->end())
+		{
+			std::string eventSource = settingsIterator->second->stringValue;
+			if(eventSource == "all") _eventSource = EventSource::all;
+			else if(eventSource == "device") _eventSource = EventSource::device;
+			else if(eventSource == "homegear") _eventSource = EventSource::homegear;
+		}
+
+		if(variableType == "device") _variableType = VariableType::device;
+		else if(variableType == "metadata") _variableType = VariableType::metadata;
+		else if(variableType == "system") _variableType = VariableType::system;
+		else if(variableType == "flow") _variableType = VariableType::flow;
+		else if(variableType == "global") _variableType = VariableType::global;
+
 		settingsIterator = info->info->structValue->find("refractoryperiod");
 		if(settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
@@ -154,6 +169,13 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 {
 	try
 	{
+		if(_eventSource != EventSource::all)
+		{
+			bool device = source.compare(0, 7, "device-") == 0;
+			if(device && _eventSource != EventSource::device) return;
+			if(!device && _eventSource != EventSource::homegear) return;
+		}
+
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
 
