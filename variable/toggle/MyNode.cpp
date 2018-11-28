@@ -48,18 +48,24 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("variabletype");
 		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
-		if(variableType == "device" || variableType == "metadata")
+		if(variableType == "device") _variableType = VariableType::device;
+		else if(variableType == "metadata") _variableType = VariableType::metadata;
+		else if(variableType == "system") _variableType = VariableType::system;
+		else if(variableType == "flow") _variableType = VariableType::flow;
+		else if(variableType == "global") _variableType = VariableType::global;
+
+		if(_variableType == VariableType::device || _variableType == VariableType::metadata)
 		{
 			settingsIterator = info->info->structValue->find("peerid");
 			if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
 		}
 
-		if(variableType == "device")
+		if(_variableType == VariableType::device)
 		{
 			settingsIterator = info->info->structValue->find("channel");
 			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
 		}
-		
+
 		settingsIterator = info->info->structValue->find("variable");
 		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 
@@ -80,32 +86,43 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-		parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-		parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-
-		Flows::PVariable oldValue = invoke("getValue", parameters);
-		if(oldValue->errorStruct)
+		if(_variableType == VariableType::flow)
 		{
-			_out->printError("Error getting variable value (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + oldValue->structValue->at("faultString")->stringValue);
-			return;
+			setFlowData(_variable, std::make_shared<Flows::Variable>(!((bool)(*getFlowData(_variable)))));
 		}
-        oldValue->booleanValue = !oldValue->booleanValue;
+		else if(_variableType == VariableType::global)
+		{
+			setGlobalData(_variable, std::make_shared<Flows::Variable>(!((bool)(*getGlobalData(_variable)))));
+		}
+		else
+		{
+			Flows::PArray parameters = std::make_shared<Flows::Array>();
+			parameters->reserve(4);
+			parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+			parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+			parameters->push_back(std::make_shared<Flows::Variable>(_variable));
 
-		parameters->push_back(oldValue);
+			Flows::PVariable oldValue = invoke("getValue", parameters);
+			if(oldValue->errorStruct)
+			{
+				_out->printError("Error getting variable value (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + oldValue->structValue->at("faultString")->stringValue);
+				return;
+			}
+			oldValue->booleanValue = !oldValue->booleanValue;
 
-        Flows::PVariable result = invoke("setValue", parameters);
-		if(result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+			parameters->push_back(oldValue);
 
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
-		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-		message->structValue->emplace("payload", oldValue);
+			Flows::PVariable result = invoke("setValue", parameters);
+			if(result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
 
-		output(0, message);
+			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+			message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+			message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+			message->structValue->emplace("payload", oldValue);
+
+			output(0, message);
+		}
 	}
 	catch(const std::exception& ex)
 	{
