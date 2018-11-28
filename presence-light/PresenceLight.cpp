@@ -329,7 +329,13 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 if(payloadIterator != message->structValue->end()) alwaysOnTime = payloadIterator->second->integerValue64 * 1000;
 
                 _alwaysOnTo.store(alwaysOnTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOnTime, std::memory_order_release);
-                _alwaysOffTo.store(-1, std::memory_order_release);
+                if(_alwaysOffTo.load(std::memory_order_acquire) != -1)
+                {
+                    _alwaysOffTo.store(-1, std::memory_order_release);
+                    Flows::PVariable resetOutputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    resetOutputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
+                    output(3, resetOutputMessage);
+                }
             }
             else
             {
@@ -354,7 +360,13 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 if(payloadIterator != message->structValue->end()) alwaysOffTime = payloadIterator->second->integerValue64 * 1000;
 
                 _alwaysOffTo.store(alwaysOffTime == 0 ? 0 : BaseLib::HelperFunctions::getTime() + alwaysOffTime, std::memory_order_release);
-                _alwaysOnTo.store(-1, std::memory_order_release);
+                if(_alwaysOnTo.load(std::memory_order_acquire) != -1)
+                {
+                    _alwaysOnTo.store(-1, std::memory_order_release);
+                    Flows::PVariable resetOutputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    resetOutputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
+                    output(4, resetOutputMessage);
+                }
             }
             else
             {
