@@ -221,7 +221,7 @@ void PresenceLight::timer()
                     else
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::lround((alwaysOnTo - time) / 1000.0)));
+                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOnTo - time) / 1000.0)));
                         output(2, outputMessage);
                     }
                 }
@@ -249,7 +249,7 @@ void PresenceLight::timer()
                     else
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::lround((alwaysOffTo - time) / 1000.0)));
+                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOffTo - time) / 1000.0)));
                         output(3, outputMessage);
                     }
                 }
