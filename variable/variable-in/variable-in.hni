@@ -137,14 +137,14 @@
                 if(!currentVariable) return;
                 if(variableType == "flow") {
                     RED.comms.homegear().invoke("getFlowData", function(message) {
-                        if(!message.result) return;
+                        if(!message.hasOwnProperty("result")) return;
                         var text = $('<div/>').text(JSON.stringify(message.result)).html();
                         if(text.length > 40) text = text.substring(0, 40) + "...";
                         $("#node-variable-value-cell").text(text);
                     }, that.z, currentVariable);
                 } else if(variableType == "global") {
                     RED.comms.homegear().invoke("getGlobalData", function(message) {
-                        if(!message.result) return;
+                        if(!message.hasOwnProperty("result")) return;
                         var text = $('<div/>').text(JSON.stringify(message.result)).html();
                         if(text.length > 40) text = text.substring(0, 40) + "...";
                         $("#node-variable-value-cell").text(text);
@@ -158,6 +158,7 @@
                     }
                     if(variableType == "device") currentChannel = parseInt($("#node-input-channel").val());
                     RED.comms.homegear().invoke("getValue", function(message) {
+                        if(!message.hasOwnProperty("result")) return;
                         var text = $('<div/>').text(JSON.stringify(message.result)).html();
                         if(text.length > 40) text = text.substring(0, 40) + "...";
                         $("#node-variable-value-cell").text(text);
