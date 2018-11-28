@@ -392,7 +392,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
 
                 _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
 
-                setNodeData("onTo", std::make_shared<Flows::Variable>(_alwaysOnTo.load(std::memory_order_acquire)));
+                setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
             }
             else return;
         }
