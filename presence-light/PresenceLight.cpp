@@ -291,9 +291,10 @@ void PresenceLight::timer()
 
 bool PresenceLight::getLightState()
 {
+    auto onTo = _onTo.load(std::memory_order_acquire);
     auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
     auto alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
-    return (_enabled.load(std::memory_order_acquire) && (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) || alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() >= alwaysOnTo);
+    return (_enabled.load(std::memory_order_acquire) && onTo != -1 && BaseLib::HelperFunctions::getTime() >= onTo && (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) || alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() >= alwaysOnTo);
 }
 
 void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
