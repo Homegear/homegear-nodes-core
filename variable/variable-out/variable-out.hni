@@ -45,7 +45,7 @@
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
         </div>
         <div class="form-row">
-            <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog">Create new variable</a></div>
+            <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog"><span data-i18n="variable-out.label.createnewvariable"></span></a></div>
         </div>
     </div>
     <div class="form-tips" data-i18n="[html]variable-out.tip"></div>
@@ -455,7 +455,11 @@
                                         var variableName = $("#create-variable-name").val().trim();
                                         var variableValue = $("#create-variable-value").val().trim();
                                         if(!variableName | !variableValue) return false;
-                                        variableValue = JSON.parse('[' + variableValue + ']')[0];
+                                        try {
+                                            variableValue = JSON.parse('[' + variableValue + ']')[0];
+                                        } catch(e) {
+                                            return false;
+                                        }
                                         if(variableType == "system") RED.comms.homegear().invoke("setSystemVariable", null, variableName, variableValue);
                                         else if(variableType == "metadata") {
                                             if(peerId == 0) return false;

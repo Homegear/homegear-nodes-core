@@ -15,7 +15,8 @@
         "name": "Name",
         "createvariable": "Create variable",
         "typeandvalue": "Value",
-        "create": "Create"
+        "create": "Create",
+        "createnewvariable": "Create new variable"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Sets a variable.</p>",

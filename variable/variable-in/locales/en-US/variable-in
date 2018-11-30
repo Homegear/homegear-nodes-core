@@ -23,7 +23,8 @@
         "looppreventiongroup": "Loop group",
         "createvariable": "Create variable",
         "typeandvalue": "Value",
-        "create": "Create"
+        "create": "Create",
+        "createnewvariable": "Create new variable"
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Subscribes to variable events.</p>",

@@ -67,18 +67,7 @@ void RunScript::input(const Flows::PNodeInfo info, uint32_t index, const Flows::
 {
 	try
 	{
-		if(index == 0)
-		{
-			_input1 = message;
-			setNodeData("input1", _input1);
-			if(_input2) output(0, _input1);
-		}
-		else if(index == 1)
-		{
-			_input2 = message->structValue->at("payload")->booleanValue;
-			setNodeData("input2", message->structValue->at("payload"));
-			if(_input2 && _onBoolean) output(0, _input1);
-		}
+
 	}
 	catch(const std::exception& ex)
 	{

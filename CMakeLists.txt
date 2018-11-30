@@ -128,6 +128,10 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
+		runscript/Factory.cpp
+		runscript/Factory.h
+		runscript/RunScript.cpp
+		runscript/RunScript.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp

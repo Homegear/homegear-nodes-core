@@ -27,10 +27,11 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef RUNSCRIPT_H_
+#define RUNSCRIPT_H_
 
 #include <homegear-node/INode.h>
+#include <homegear-base/BaseLib.h>
 #include <mutex>
 
 namespace RunScript

@@ -2,7 +2,8 @@
   "runscript/runscript.hni": {
     "runscript": {
       "label": {
-        "onboolean": "Output stored value of \"v\" when \"EN\" is changed to \"true\"",
+        "filename": "Filename",
+        "browse": "Browse",
         "name": "Name"
       },
       "paletteHelp": "<p>This node passes a value to the output depending on a boolean input.</p>",
