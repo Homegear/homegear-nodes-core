@@ -203,7 +203,7 @@ void PresenceLight::timer()
                         _onTo.store(-1, std::memory_order_release);
                         setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
                     }
-                    else
+                    else if(getLightState())
                     {
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((onTo - time) / 1000.0)));
