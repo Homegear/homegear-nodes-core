@@ -337,7 +337,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                     _alwaysOffTo.store(-1, std::memory_order_release);
                     Flows::PVariable resetOutputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                     resetOutputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
-                    output(3, resetOutputMessage);
+                    output(4, resetOutputMessage);
                 }
             }
             else
@@ -368,7 +368,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                     _alwaysOnTo.store(-1, std::memory_order_release);
                     Flows::PVariable resetOutputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                     resetOutputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(0));
-                    output(4, resetOutputMessage);
+                    output(3, resetOutputMessage);
                 }
             }
             else
@@ -398,6 +398,25 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
             }
             else return;
+        }
+        else if(index == 4) //Light input (IN2)
+        {
+            if(inputValue)
+            {
+                auto onTime = _onTime;
+                auto payloadIterator = message->structValue->find("onTime");
+                if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
+
+                _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
+
+                setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
+            }
+            else
+            {
+                auto onTo = _onTo.load(std::memory_order_acquire);
+                if(onTo == -1) return;
+                _onTo.store(-1, std::memory_order_release);
+            }
         }
 
         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

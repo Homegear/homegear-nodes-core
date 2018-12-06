@@ -38,7 +38,7 @@
             "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
             "always-off-time": {value: "21600",required:true,validate:RED.validators.number()}
         },
-        inputs:4,
+        inputs:5,
         inputInfo: [
         	{
                 label: "EN",
@@ -54,6 +54,10 @@
             },
             {
                 label: "IN",
+                types: ["boolean"]
+            },
+            {
+                label: "IN2",
                 types: ["boolean"]
             }
         ],
