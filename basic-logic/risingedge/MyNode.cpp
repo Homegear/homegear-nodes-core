@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/Variable.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -45,6 +46,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+		_lastInput = getNodeData("lastInput")->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -64,10 +67,14 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	try
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
-		if(*input)
+		bool value = *input;
+		if(value && !_lastInput)
 		{
 			output(0, message);
 		}
+
+		_lastInput = value;
+		setNodeData("lastInput", std::make_shared<Flows::Variable>(_lastInput));
 	}
 	catch(const std::exception& ex)
 	{

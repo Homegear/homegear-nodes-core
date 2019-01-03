@@ -44,6 +44,7 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
+	bool _lastInput = false;
 
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
