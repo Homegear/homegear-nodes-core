@@ -100,12 +100,7 @@ void Template::setData(mustache::data& data, std::string key, Flows::PVariable v
 {
 	try
 	{
-		if(value->type == Flows::VariableType::tBoolean)
-		{
-			mustache::data element = value->booleanValue ? mustache::data::type::bool_true : mustache::data::type::bool_false;
-			if(key.empty()) data.push_back(element); else data.set(key, element);
-		}
-		else if(value->type == Flows::VariableType::tArray)
+		if(value->type == Flows::VariableType::tArray)
 		{
 			mustache::data element = mustache::data::type::list;
 			for(auto arrayElement : *value->arrayValue)
