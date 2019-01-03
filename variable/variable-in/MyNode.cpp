@@ -124,8 +124,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 void MyNode::startUpComplete()
 {
-	try
-	{
+    try
+    {
         if(_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system)
         {
             Flows::PArray parameters = std::make_shared<Flows::Array>();
@@ -161,13 +161,16 @@ void MyNode::startUpComplete()
 
             _type = result->type;
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", result);
-            output(0, message);
+            if(_outputOnStartup)
+            {
+	        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+	        message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+	        message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+	        message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+	        message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+	        message->structValue->emplace("payload", result);
+	        output(0, message);
+	    }
         }
         else if(_variableType == VariableType::global)
         {
@@ -175,23 +178,26 @@ void MyNode::startUpComplete()
 
             _type = result->type;
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", result);
-            output(0, message);
+            if(_outputOnStartup)
+            {
+                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                message->structValue->emplace("payload", result);
+                output(0, message);
+	    }
         }
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
