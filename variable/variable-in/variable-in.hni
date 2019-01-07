@@ -17,6 +17,8 @@
             <option value="device" data-i18n="variable-in.label.devicevariable"></option>
             <option value="metadata" data-i18n="variable-in.label.metadata"></option>
             <option value="system" data-i18n="variable-in.label.systemvariable"></option>
+            <option value="flow" data-i18n="variable-in.label.flowvariable"></option>
+            <option value="global" data-i18n="variable-in.label.globalvariable"></option>
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
@@ -41,6 +43,19 @@
             </select>
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
+        </div>
+        <div class="form-row">
+            <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog"><span data-i18n="variable-in.label.createnewvariable"></span></a></div>
+        </div>
+    </div>
+    <div id="node-input-eventsource-container" class="hide">
+        <div class="form-row">
+            <label style="width: 130px;" for="node-input-eventsource"><i class="fa fa-random"></i> <span data-i18n="variable-in.label.eventsource"></span></label>
+            <select type="text" id="node-input-eventsource" style="display: inline-block; width: 65%;">
+                <option value="all" data-i18n="variable-in.label.all"></option>
+                <option value="device" data-i18n="variable-in.label.device"></option>
+                <option value="homegear" data-i18n="variable-in.label.homegear"></option>
+            </select>
         </div>
     </div>
     <div class="form-row">
@@ -71,11 +86,11 @@
         defaults: {
             variabletype: {value: "device",required: true},
             family: {},
-            peerid: {value:"0",validate: function(v) { if(this.variabletype == "system") return true; else return $.isNumeric(v); }},
+            peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
-            variable: {value:"",validate: function(v) { return v != ""; }},
-
-            refractoryperiod: {value: "200",validate:RED.validators.number()},
+            variable: {value:"",validate: function(v) { if(this.variabletype != "device") return true; else return v != ""; }},
+            eventsource: {value:"all",validate: function(v) { return v != ""; }},
+            refractoryperiod: {value: "0",validate:RED.validators.number()},
             outputonstartup: {value: false},
             loopprevention: {value: false},
             looppreventiongroup: {type:"variable-loop-prevention-group", required: false},
@@ -93,7 +108,9 @@
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "metadata" && this.variable) return this.peerid + ", " + this.variable;
-            else if(this.variabletype == "system" && this.variable) return this.variable;
+            else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
+            else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
+            else if(this.variable) return this.variable;
             return "variable";
         },
         oneditprepare: function() {
@@ -114,9 +131,47 @@
                 else return "STRUCT";
             }
 
+            function updateVariableValue() {
+                var variableType = $("#node-input-variabletype").val();
+                var currentVariable = $("#node-input-variable").val();
+                if(!currentVariable) return;
+                if(variableType == "flow") {
+                    RED.comms.homegear().invoke("getFlowData", function(message) {
+                        if(!message.hasOwnProperty("result")) return;
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, that.z, currentVariable);
+                } else if(variableType == "global") {
+                    RED.comms.homegear().invoke("getGlobalData", function(message) {
+                        if(!message.hasOwnProperty("result")) return;
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, currentVariable);
+                } else {
+                    var currentPeerId = 0;
+                    var currentChannel = -1;
+                    if(variableType == "metadata" || variableType == "device") {
+                        currentPeerId = parseInt($("#node-input-peerid").val());
+                        if(currentPeerId == 0) return;
+                    }
+                    if(variableType == "device") currentChannel = parseInt($("#node-input-channel").val());
+                    RED.comms.homegear().invoke("getValue", function(message) {
+                        if(!message.hasOwnProperty("result")) return;
+                        var text = $('<div/>').text(JSON.stringify(message.result)).html();
+                        if(text.length > 40) text = text.substring(0, 40) + "...";
+                        $("#node-variable-value-cell").text(text);
+                    }, currentPeerId, currentChannel, currentVariable);
+                }
+            }
+
             function updateVariableInfo() {
                 var currentVariable = variables[$("#node-input-variable").val()];
-                if(!currentVariable) return;
+                if(!currentVariable) {
+                    $("#node-input-variableinfo").text("");
+                    return;
+                }
                 if($("#node-input-variable").val()) {
                     var html = "<table>";
                     if(currentVariable.label) html += "<tr><td><b>Label</b></td><td>" + currentVariable.label + "</td></tr>";
@@ -145,8 +200,10 @@
                         });
                         html += "</td></tr>";
                     }
+                    html += "<tr><td><b>Value</b></td><td id=\"node-variable-value-cell\"></td></tr>"
                     html += "</table>";
                     $("#node-input-variableinfo").html(html);
+                    updateVariableValue();
                 }
             }
 
@@ -156,6 +213,46 @@
                     variableSelect.empty();
                     variables = {};
                     RED.comms.homegear().invoke("getAllSystemVariables", function(message) {
+                        if(!message.result) return;
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    });
+                }
+            //}}}
+
+            //{{{ Flow variables
+                function updateFlowVariableOptions() {
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getFlowData", function(message) {
+                        if(!message.result) return;
+                        $.each(message.result, function(name, value) {
+                            if(!name) return;
+                            variables[name] = {};
+                            variables[name].id = name;
+                            variables[name].type = getVariableType(value);
+                            variableSelect.append($("<option />").val(name).text(name));
+                        });
+                        variableSelect.val(that.variable);
+                        updateVariableInfo();
+                    }, that.z);
+                }
+            //}}}
+
+            //{{{ Global variables
+                function updateGlobalVariableOptions() {
+                    var variableSelect = $("#node-input-variable");
+                    variableSelect.empty();
+                    variables = {};
+                    RED.comms.homegear().invoke("getGlobalData", function(message) {
                         if(!message.result) return;
                         $.each(message.result, function(name, value) {
                             if(!name) return;
@@ -199,19 +296,27 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").show();
                         $("#node-input-variable-container").show();
+                        $("#node-input-eventsource-container").show();
+                        $("#node-create-variable").hide();
                         updateChannelOptions();
                     } else if(variableType == "metadata") {
                         $("#node-input-family-container").show();
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
+                        $("#node-input-eventsource-container").hide();
+                        $("#node-create-variable").show();
                         updateMetadataVariableOptions();
-                    } else if(variableType == "system") {
+                    } else {
                         $("#node-input-family-container").hide();
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
-                        updateSystemVariableOptions();
+                        $("#node-input-eventsource-container").hide();
+                        $("#node-create-variable").show();
+                        if(variableType == "system") updateSystemVariableOptions();
+                        else if(variableType == "flow") updateFlowVariableOptions();
+                        else if(variableType == "global") updateGlobalVariableOptions();
                     }
                 }
 
@@ -361,6 +466,74 @@
                     } else {
                         $("#node-input-looppreventiongroup-container").hide();
                     }
+                });
+            //}}}
+
+            //{{{ Create variable dialog
+                $("#node-create-variable").on("click", function() {
+                    var variableType = $("#node-input-variabletype").val();
+                    var peerId = parseInt($("#node-input-peerid").val());
+
+                    if(variableType == "metadata" && !peerId) return;
+
+                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/></form></div></div>')
+                        .appendTo("body")
+                        .dialog({
+                            modal: true,
+                            autoOpen: false,
+                            width: 400,
+                            resizable: false,
+                            buttons: [
+                                {
+                                    id: "create-variable-dialog-cancel",
+                                    class: "primary",
+                                    text: RED._("common.label.cancel"),
+                                    click: function() {
+                                        $( this ).dialog( "close" );
+                                    }
+                                },
+                                {
+                                    id: "create-variable-dialog-set",
+                                    class: "primary",
+                                    text: RED._("variable/variable-in.hni:variable-in.label.create"),
+                                    click: function() {
+                                        var variableName = $("#create-variable-name").val().trim();
+                                        var variableValue = $("#create-variable-value").val().trim();
+                                        if(!variableName | !variableValue) return false;
+                                        try {
+                                            variableValue = JSON.parse('[' + variableValue + ']')[0];
+                                        } catch(e) {
+                                            return false;
+                                        }
+                                        if(variableType == "system") RED.comms.homegear().invoke("setSystemVariable", null, variableName, variableValue);
+                                        else if(variableType == "metadata") {
+                                            if(peerId == 0) return false;
+                                            RED.comms.homegear().invoke("setMetadata", null, peerId, variableName, variableValue);
+                                        } else if(variableType == "flow") RED.comms.homegear().invoke("setFlowData", null, that.z, variableName, variableValue);
+                                        else if(variableType == "global") RED.comms.homegear().invoke("setGlobalData", null, variableName, variableValue);
+
+                                        that.variable = variableName;
+
+                                        $( this ).dialog( "close" );
+                                    }
+                                }
+                            ],
+                            open: function(e) {
+                                $(this).parent().find(".ui-dialog-titlebar-close").hide();
+
+                                $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
+                                $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+                            },
+                            close: function(e) {
+                                $(this).remove();
+
+                                if(variableType == "system") updateSystemVariableOptions();
+                                else if(variableType == "metadata") updateMetadataVariableOptions();
+                                else if(variableType == "flow") updateFlowVariableOptions();
+                                else if(variableType == "global") updateGlobalVariableOptions();
+                            }
+                        });
+                    createVariableDialog.dialog("option", "title", RED._("variable/variable-in.hni:variable-in.label.createvariable")).dialog("open");
                 });
             //}}}
         }

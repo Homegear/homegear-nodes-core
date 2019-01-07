@@ -103,11 +103,19 @@
             nov: {value:true},
             dec: {value:true}
         },
-        inputs:1,
+        inputs:3,
         inputInfo: [
             {
                 label: "EN",
                 types: ["boolean"]
+            },
+            {
+                label: "ON_T",
+                types: ["string"]
+            },
+            {
+                label: "OFF_T",
+                types: ["string"]
             }
         ],
         outputs:1,

@@ -1,0 +1,27 @@
+{
+  "presence-light/presence-light.hni": {
+    "presence-light": {
+      "label": {
+        "name": "Name",
+        "on-time": "On time",
+        "on-time2": "Time in seconds",
+        "always-on-time": "Always on time",
+        "always-on-time2": "Time in seconds",
+        "always-off-time": "Always off time",
+        "always-off-time2": "Time in seconds"
+      },
+      "paletteHelp": "<p>This node automatically switches lights on or off depending on presence.</p>",
+      "help": "<p>This node automatically switches lights on or off depending on presence. A presence signal (<code>true</code>) on <code>IN</code> sets <code>S</code> to <code>true</code>. <code>S</code> is reset to <code>false</code> after <code>On time</code>. An input of <code>true</code> on <code>ON</code> sets <code>S</code> to <code>true</code> regardless of other inputs. <code>ON</code> is automatically reset after <code>Always on time</code>. When this happens, <code>RES</code> is set to true and <code>S</code> is set depending on <code>IN</code> and <code>On time</code>. An input of <code>true</code> on <code>OFF</code> sets <code>S</code> to <code>false</code> regardless of other inputs. <code>OFF</code> is automatically reset after <code>Always off time</code>. When this happens, <code>RES</code> is set to true and <code>S</code> is set depending on <code>IN</code> and <code>On time</code>. Setting <code>Always on time</code> or <code>Always off time</code> to <code>0</code>, disables the timer so the lights will stay on or off until <code>ON</code> or <code>OFF</code> are set to <code>false</code>. Setting <code>EN</code> to <code>false</code> disables processing of <code>IN</code> for example during daytime. <code>IN2</code> also sets <code>S</code> to <code>true</code> but an input of <code>false</code> to <code>IN2</code> immediately sets <code>S</code> to <code>false</code> and resets the <code>On time</code> timer.</p><p>Note: The inputs are rate limited to one input per seconds to avoid too fast outputs.</p><p><code>On time</code>, <code>Always on time</code> and <code>Always off time</code> can also be set dynamically by setting <code>$message['onTime']</code>, <code>$message['alwaysOnTime']</code> or <code>$message['alwaysOffTime']</code></p>",
+      "input1Description": "Enables or disables processing of <code>IN</code>.",
+      "input2Description": "Enables \"always on mode\".",
+      "input3Description": "Enables \"always off mode\".",
+      "input4Description": "An input of <code>true</code> sets <code>S</code> to <code>true</code> for <code>On time</code> seconds. <code>false</code> is ignored.",
+      "input5Description": "An input of <code>true</code> sets <code>S</code> to <code>true</code> for <code>On time</code> seconds. <code>false</code> resets the timer and immediately sets <code>S</code> to <code>false</code>.",
+      "output1Description": "Outputs <code>true</code> when the light should switch on and <code>false</code> when it should switch off.",
+      "output2Description": "Outputs <code>true</code> when the always on timer or always off timer reaches <code>0</code>.",
+      "output3Description": "Outputs the remaining \"on time\" (in seconds) every second.",
+      "output4Description": "Outputs the remaining \"always on time\" (in seconds) every second and <code>-1</code> on reset.",
+      "output5Description": "Outputs the remaining \"always off time\" (in seconds) every second and <code>-1</code> on reset."
+    }
+  }
+}

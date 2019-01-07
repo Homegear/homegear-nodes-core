@@ -116,6 +116,10 @@ set(SOURCE_FILES
         ping/Factory.h
         ping/MyNode.cpp
         ping/MyNode.h
+		presence-light/Factory.cpp
+		presence-light/Factory.h
+		presence-light/PresenceLight.cpp
+		presence-light/PresenceLight.h
         press-pattern/Factory.cpp
         press-pattern/Factory.h
         press-pattern/MyNode.cpp
@@ -124,6 +128,10 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
+		runscript/Factory.cpp
+		runscript/Factory.h
+		runscript/RunScript.cpp
+		runscript/RunScript.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp

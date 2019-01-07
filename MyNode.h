@@ -31,6 +31,7 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <thread>
 #include <mutex>
 
 namespace MyNode
@@ -43,9 +44,21 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
+	virtual void stop();
+	virtual void waitForStop();
 private:
-	bool _lastInput = false;
+	uint32_t _delay = 10000;
 
+	std::atomic_bool _threadRunning;
+	std::atomic_bool _stopThread;
+	std::atomic_bool _stopped;
+	std::mutex _timerThreadMutex;
+	std::thread _timerThread;
+
+	bool _firstInput = true;
+	bool _lastInputState = false;
+	void timer(int64_t inputTime);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 

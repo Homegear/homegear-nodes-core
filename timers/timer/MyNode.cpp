@@ -53,17 +53,20 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("startup");
 		if(settingsIterator != info->info->structValue->end()) _outputOnStartUp = settingsIterator->second->booleanValue;
 
-		settingsIterator = info->info->structValue->find("ontime");
-		if(settingsIterator != info->info->structValue->end()) _onTime = settingsIterator->second->stringValue;
+		{
+			std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);
+			settingsIterator = info->info->structValue->find("ontime");
+			if(settingsIterator != info->info->structValue->end()) _onTime = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("ontimetype");
-		if(settingsIterator != info->info->structValue->end()) _onTimeType = settingsIterator->second->stringValue;
+			settingsIterator = info->info->structValue->find("ontimetype");
+			if(settingsIterator != info->info->structValue->end()) _onTimeType = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("offtime");
-		if(settingsIterator != info->info->structValue->end()) _offTime = settingsIterator->second->stringValue;
+			settingsIterator = info->info->structValue->find("offtime");
+			if(settingsIterator != info->info->structValue->end()) _offTime = settingsIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("offtimetype");
-		if(settingsIterator != info->info->structValue->end()) _offTimeType = settingsIterator->second->stringValue;
+			settingsIterator = info->info->structValue->find("offtimetype");
+			if(settingsIterator != info->info->structValue->end()) _offTimeType = settingsIterator->second->stringValue;
+		}
 
 		settingsIterator = info->info->structValue->find("startoff");
 		if(settingsIterator != info->info->structValue->end()) _onOffset = Flows::Math::getNumber(settingsIterator->second->stringValue) * 60000;
@@ -460,8 +463,22 @@ void MyNode::timer()
 	bool update = false;
 	int64_t currentTime = _sunTime.getLocalTime();
     int64_t lastTime = currentTime;
-	int64_t onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
-	int64_t offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
+
+    std::string onTimeString;
+	std::string onTimeType;
+    std::string offTimeString;
+    std::string offTimeType;
+
+	{
+		std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);
+		onTimeString = _onTime;
+		onTimeType = _onTimeType;
+		offTimeString = _offTime;
+		offTimeType = _offTimeType;
+	}
+
+	int64_t onTime = getTime(currentTime, onTimeString, onTimeType, _onOffset);
+	int64_t offTime = getTime(currentTime, offTimeString, offTimeType, _offOffset);
 	int32_t day = 0;
 	int32_t month = 0;
 
@@ -526,11 +543,20 @@ void MyNode::timer()
 				event = false;
 				output(0, message);
 			}
-			if(update || currentTime % 86400000 < lastTime % 86400000) //New day?
+			if(update || _forceUpdate || currentTime % 86400000 < lastTime % 86400000) //New day?
 			{
 				update = false;
-				onTime = getTime(currentTime, _onTime, _onTimeType, _onOffset);
-				offTime = getTime(currentTime, _offTime, _offTimeType, _offOffset);
+
+				{
+					std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);
+					onTimeString = _onTime;
+					onTimeType = _onTimeType;
+					offTimeString = _offTime;
+					offTimeType = _offTimeType;
+				}
+
+				onTime = getTime(currentTime, onTimeString, onTimeType, _onOffset);
+				offTime = getTime(currentTime, offTimeString, offTimeType, _offOffset);
 				{
 					std::tm tm {};
 					_sunTime.getTimeStruct(tm);
@@ -556,24 +582,47 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-		_enabled = message->structValue->at("payload")->booleanValue;
-		setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		if(_enabled)
+		if(index == 0) //Enabled
 		{
-			if(!_stopThread)
+			_enabled = message->structValue->at("payload")->booleanValue;
+			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+			std::lock_guard<std::mutex> timerGuard(_timerMutex);
+			if(_enabled)
+			{
+				if(!_stopThread)
+				{
+					_stopThread = true;
+					if(_timerThread.joinable()) _timerThread.join();
+					if(_stopped) return;
+					_stopThread = false;
+					_timerThread = std::thread(&MyNode::timer, this);
+				}
+			}
+			else
 			{
 				_stopThread = true;
 				if(_timerThread.joinable()) _timerThread.join();
-				if(_stopped) return;
-				_stopThread = false;
-				_timerThread = std::thread(&MyNode::timer, this);
 			}
 		}
-		else
+		else if(index == 1) // Set on time
 		{
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
+			std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);
+			std::string time = message->structValue->at("payload")->stringValue;
+			if(time.empty()) return;
+			_onTime = time;
+			_onTimeType = "time";
+
+            _forceUpdate = true;
+		}
+		else if(index == 2) // Set off time
+		{
+			std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);
+			std::string time = message->structValue->at("payload")->stringValue;
+			if(time.empty()) return;
+			_offTime = time;
+			_offTimeType = "time";
+
+            _forceUpdate = true;
 		}
 	}
 	catch(const std::exception& ex)

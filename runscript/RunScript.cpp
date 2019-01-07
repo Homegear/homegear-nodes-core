@@ -27,28 +27,56 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "RunScript.h"
 
-#include <homegear-node/INode.h>
-#include <mutex>
-
-namespace MyNode
+namespace RunScript
 {
 
-class MyNode: public Flows::INode
+RunScript::RunScript(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	bool _lastInput = false;
-
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-};
-
 }
 
-#endif
+RunScript::~RunScript()
+{
+}
+
+bool RunScript::init(Flows::PNodeInfo info)
+{
+	try
+	{
+		auto settingsIterator = info->info->structValue->find("onboolean");
+		if(settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
+
+		_input1 = getNodeData("input1");
+		_input2 = getNodeData("input2")->booleanValue;
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+	return false;
+}
+
+void RunScript::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+{
+	try
+	{
+
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	catch(...)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+	}
+}
+
+}
