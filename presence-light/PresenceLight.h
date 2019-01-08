@@ -27,26 +27,49 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef PRESENCELIGHT_H_
+#define PRESENCELIGHT_H_
 
 #include <homegear-node/INode.h>
 #include <mutex>
+#include <thread>
 
-namespace MyNode
+namespace PresenceLight
 {
 
-class MyNode: public Flows::INode
+class PresenceLight: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	PresenceLight(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~PresenceLight();
 
-	virtual bool init(Flows::PNodeInfo info);
+    virtual bool init(Flows::PNodeInfo info);
+    virtual bool start();
+    virtual void startUpComplete();
+    virtual void stop();
+    virtual void waitForStop();
 private:
-	bool _lastInput = false;
+    //{{{ Only used by one thread / protected by input mutex of Homegear
+    uint32_t _onTime = 300000;
+    uint32_t _alwaysOnTime = 21600000;
+    uint32_t _alwaysOffTime = 21600000;
+    int64_t _lastInput = -1;
+    std::atomic<int64_t> _lastLightEvent{-1};
+    //}}}
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+    std::atomic_bool _stopThread{true};
+    std::atomic_bool _stopped{true};
+    std::mutex _timerThreadMutex;
+    std::thread _timerThread;
+
+    std::atomic_bool _enabled{true};
+    std::atomic<int64_t> _onTo{-1};
+    std::atomic<int64_t> _alwaysOnTo{-1};
+    std::atomic<int64_t> _alwaysOffTo{-1};
+
+    bool getLightState();
+    void timer();
+    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

@@ -1,0 +1,97 @@
+<script type="text/x-homegear">
+{
+    "name": "presence-light",
+    "readableName": "Presence light",
+    "version": "0.0.1",
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="presence-light">
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="presence-light.label.name"></span></label>
+        <input style="width: 65%;" type="text" id="node-input-name" data-i18n="[placeholder]presence-light.label.name">
+    </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-on-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.on-time"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-on-time" data-i18n="[placeholder]presence-light.label.on-time2">
+        <label for="node-input-on-time">s</label>
+    </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-on-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.always-on-time"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-always-on-time" data-i18n="[placeholder]presence-light.label.always-on-time2">
+        <label for="node-input-on-time">s</label>
+    </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-on-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.always-off-time"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-always-off-time" data-i18n="[placeholder]presence-light.label.always-off-time2">
+        <label for="node-input-on-time">s</label>
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('presence-light',{
+        category: 'function',
+        namespace: 'presence-light',
+        color: "#A6BBCF",
+        defaults: {
+            name: {value:""},
+            "on-time": {value: "300",required:true,validate:RED.validators.number()},
+            "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
+            "always-off-time": {value: "21600",required:true,validate:RED.validators.number()}
+        },
+        inputs:5,
+        inputInfo: [
+        	{
+                label: "EN",
+                types: ["boolean"]
+            },
+            {
+                label: "ON",
+                types: ["boolean"]
+            },
+            {
+                label: "OFF",
+                types: ["boolean"]
+            },
+            {
+                label: "IN",
+                types: ["boolean"]
+            },
+            {
+                label: "IN2",
+                types: ["boolean"]
+            }
+        ],
+        outputs:5,
+        outputInfo: [
+            {
+                label: "S",
+                types: ["boolean"]
+            },
+            {
+                label: "RES",
+                types: ["boolean"]
+            },
+            {
+                label: "T",
+                types: ["integer"]
+            },
+            {
+                label: "ON_T",
+                types: ["integer"]
+            },
+            {
+                label: "OFF_T",
+                types: ["integer"]
+            }
+        ],
+        icon: "switch.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "presence-light";
+        },
+        oneditprepare: function() {
+            
+        },
+        paletteLabel: "presence-light"
+    });
+</script>

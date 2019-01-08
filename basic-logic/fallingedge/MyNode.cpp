@@ -45,6 +45,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+		_lastInput = getNodeData("lastInput")->booleanValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -64,11 +66,14 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	try
 	{
 		Flows::PVariable& input = message->structValue->at("payload");
-		if(!*input && _lastInput)
+		bool value = *input;
+		if(!value && _lastInput)
 		{
 			output(0, message);
 		}
-		_lastInput = *input;
+
+		_lastInput = value;
+		setNodeData("lastInput", std::make_shared<Flows::Variable>(_lastInput));
 	}
 	catch(const std::exception& ex)
 	{

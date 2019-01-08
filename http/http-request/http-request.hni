@@ -111,8 +111,6 @@
                     $(".node-input-basicauth-row").show();
                 } else {
                     $(".node-input-basicauth-row").hide();
-                    $('#node-input-user').val('');
-                    $('#node-input-password').val('');
                 }
             });
 
