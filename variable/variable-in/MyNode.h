@@ -69,6 +69,7 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 	EventSource _eventSource = EventSource::all;
+	std::string _name;
 
 	Flows::VariableType _type = Flows::VariableType::tVoid;
 	std::string _loopPreventionGroup;
