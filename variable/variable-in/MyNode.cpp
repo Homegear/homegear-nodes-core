@@ -142,6 +142,21 @@ void MyNode::startUpComplete()
             {
                 _type = result->type;
 
+				if(_variableType == VariableType::device || _variableType == VariableType::metadata)
+				{
+					parameters->clear();
+					parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+					parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+					result = invoke("getName", parameters);
+					if(result->stringValue.empty())
+					{
+						parameters->clear();
+						parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+						result = invoke("getName", parameters);
+					}
+					_name = result->stringValue;
+				}
+
                 if(_outputOnStartup)
                 {
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -149,6 +164,7 @@ void MyNode::startUpComplete()
                     message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
                     message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
                     message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                    if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
                     message->structValue->emplace("payload", result);
 
                     output(0, message);
@@ -219,6 +235,7 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
 		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
+		if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
 		message->structValue->emplace("payload", value);
 
 		if(_loopPrevention && !_loopPreventionGroup.empty())
