@@ -346,6 +346,7 @@
 
             //{{{ Channels
                 function updateName() {
+                    that.peername = null;
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var currentChannel = parseInt($("#node-input-channel").val());
                     if(currentPeerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
