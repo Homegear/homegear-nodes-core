@@ -366,8 +366,6 @@
                     }
                 }
 
-                updateName();
-
                 function updateChannelOptions() {
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var channelSelect = $("#node-input-channel");
@@ -395,6 +393,7 @@
                                         channelSelect.val(that.channel);
                                         if(channelSelect.val()) channelSelect.removeClass("input-error");
                                         updateVariableOptions();
+                                        updateName();
                                     }
                                 }, currentPeerId, this);
                             });
