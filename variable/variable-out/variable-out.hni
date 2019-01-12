@@ -361,6 +361,8 @@
                     }
                 }
 
+                updateName();
+
                 function updateChannelOptions() {
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var channelSelect = $("#node-input-channel");
