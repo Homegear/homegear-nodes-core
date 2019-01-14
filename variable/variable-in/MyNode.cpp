@@ -1,4 +1,4 @@
-/* Copyright 2013-2017 Sathya Laufer
+/* Copyright 2013-2019 Homegear GmbH
  *
  * Homegear is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -133,21 +133,21 @@ void MyNode::startUpComplete()
             parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
             parameters->push_back(std::make_shared<Flows::Variable>(_channel));
             parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-            auto result = invoke("getValue", parameters);
-            if(result->errorStruct)
+            auto payload = invoke("getValue", parameters);
+            if(payload->errorStruct)
             {
                 _out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
             }
             else
             {
-                _type = result->type;
+                _type = payload->type;
 
 				if(_variableType == VariableType::device || _variableType == VariableType::metadata)
 				{
 					parameters->clear();
 					parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
 					parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-					result = invoke("getName", parameters);
+					auto result = invoke("getName", parameters);
 					if(result->stringValue.empty())
 					{
 						parameters->clear();
@@ -165,7 +165,7 @@ void MyNode::startUpComplete()
                     message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
                     message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
                     if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
-                    message->structValue->emplace("payload", result);
+                    message->structValue->emplace("payload", payload);
 
                     output(0, message);
                 }
@@ -179,14 +179,14 @@ void MyNode::startUpComplete()
 
             if(_outputOnStartup)
             {
-	        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	        message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-	        message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-	        message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-	        message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-	        message->structValue->emplace("payload", result);
-	        output(0, message);
-	    }
+                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                message->structValue->emplace("payload", result);
+                output(0, message);
+            }
         }
         else if(_variableType == VariableType::global)
         {
@@ -203,7 +203,7 @@ void MyNode::startUpComplete()
                 message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
                 message->structValue->emplace("payload", result);
                 output(0, message);
-	    }
+	        }
         }
     }
     catch(const std::exception& ex)
