@@ -38,7 +38,7 @@
     </div>
     <div id="node-input-variable-container" clsee="hide">
         <div class="form-row">
-            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="toggle.label.variable"></span></label>
+            <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="toggle.label.variabletypeable"></span></label>
             <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
             </select>
         </div>
@@ -58,6 +58,7 @@
         defaults: {
             variabletype: {value: "device",required:true},
             family: {},
+            peername: {value:"", required: false},
             peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { return v != ""; }},
@@ -80,8 +81,8 @@
         align: "right",
         label: function() {
             if(this.name) return this.name;
-            if(this.variabletype == "device" && this.variable) return this.peerid + ", " + this.channel + ", " + this.variable;
-            else if(this.variabletype == "metadata" && this.variable) return this.peerid + ", " + this.variable;
+            if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + ", " + this.channel + ", " + this.variable;
+            else if(this.variabletype == "metadata" && this.variable) return !this.peername ? this.peerid + ", " + this.variable : this.peername + ", " + this.variable;
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
@@ -313,7 +314,7 @@
                     var currentChannel = parseInt($("#node-input-channel").val());
                     var variableSelect = $("#node-input-variable");
                     variableSelect.empty();
-                    if(this.peerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
+                    if(currentPeerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
                         variables = {};
                         RED.comms.homegear().invoke("getParamsetDescription", function(message) {
                             if(!message.result) return;
@@ -340,6 +341,7 @@
 
                 $("#node-input-channel").on("change",function() {
                     updateVariableOptions();
+                    updateName();
                 });
 
                 $("#node-input-variable").on("change",function() {
@@ -348,6 +350,23 @@
             //}}}
 
             //{{{ Channels
+                function updateName() {
+                    that.peername = null;
+                    var currentPeerId = parseInt($("#node-input-peerid").val());
+                    var currentChannel = parseInt($("#node-input-channel").val());
+                    if(currentPeerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
+                        RED.comms.homegear().invoke("getName", function(message) {
+                            if(message.result !== "") {
+                                that.peername = message.result;
+                            } else {
+                                RED.comms.homegear().invoke("getName", function(message) {
+                                    if(message.result !== "") that.peername = message.result;
+                                }, currentPeerId);
+                            }
+                        }, currentPeerId, currentChannel);
+                    }
+                }
+
                 function updateChannelOptions() {
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var channelSelect = $("#node-input-channel");
@@ -375,6 +394,7 @@
                                         channelSelect.val(that.channel);
                                         if(channelSelect.val()) channelSelect.removeClass("input-error");
                                         updateVariableOptions();
+                                        updateName();
                                     }
                                 }, currentPeerId, this);
                             });
