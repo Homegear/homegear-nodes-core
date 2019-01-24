@@ -57,6 +57,9 @@ bool PresenceLight::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("always-off-time");
         if(settingsIterator != info->info->structValue->end()) _alwaysOffTime = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue) * 1000;
 
+        settingsIterator = info->info->structValue->find("process-false");
+        if(settingsIterator != info->info->structValue->end()) _switchOffOnInFalse = settingsIterator->second->booleanValue;
+
         return true;
     }
     catch(const std::exception& ex)
@@ -405,6 +408,12 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
             }
+            else if(_switchOffOnInFalse)
+            {
+                auto onTo = _onTo.load(std::memory_order_acquire);
+                if(onTo == -1) return;
+                _onTo.store(-1, std::memory_order_release);
+            }
             else return;
         }
         else if(index == 4) //Light input (IN2)
@@ -426,7 +435,33 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 auto onTo = _onTo.load(std::memory_order_acquire);
                 if(onTo == -1) return;
                 _onTo.store(-1, std::memory_order_release);
+
+                setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
             }
+        }
+        else if(index == 5) //Toggle
+        {
+            if(inputValue)
+            {
+                auto onTo = _onTo.load(std::memory_order_acquire);
+                if(onTo == -1)
+                {
+                    auto onTime = _onTime;
+                    auto payloadIterator = message->structValue->find("onTime");
+                    if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
+
+                    _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
+
+                    setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
+                }
+                else
+                {
+                    _onTo.store(-1, std::memory_order_release);
+
+                    setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
+                }
+            }
+            else return;
         }
 
         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
