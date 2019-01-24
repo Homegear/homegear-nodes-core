@@ -163,7 +163,7 @@ void MyNode::worker()
 				{
 					average += value;
 				}
-				average /= _values.size();
+				if(!_values.empty()) average /= _values.size();
 				_values.clear();
 			}
 
