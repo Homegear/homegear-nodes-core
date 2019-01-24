@@ -81,8 +81,8 @@
         align: "right",
         label: function() {
             if(this.name) return this.name;
-            if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + ", " + this.channel + ", " + this.variable;
-            else if(this.variabletype == "metadata" && this.variable) return !this.peername ? this.peerid + ", " + this.variable : this.peername + ", " + this.variable;
+            if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;
+            else if(this.variabletype == "metadata" && this.variable) return !this.peername ? this.peerid + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
