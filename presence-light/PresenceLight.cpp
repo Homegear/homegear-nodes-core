@@ -82,6 +82,9 @@ bool PresenceLight::start()
         auto enabled = getNodeData("enabled");
         if(enabled->type == Flows::VariableType::tBoolean) _enabled.store(enabled->booleanValue, std::memory_order_release);
 
+        auto manuallyEnabled = getNodeData("manuallyEnabled");
+        if(manuallyEnabled->type == Flows::VariableType::tBoolean) _manuallyEnabled.store(manuallyEnabled->booleanValue, std::memory_order_release);
+
         auto onTo = getNodeData("onTo");
         if(onTo->type == Flows::VariableType::tInteger64) _onTo.store(onTo->integerValue64, std::memory_order_release);
 
@@ -209,6 +212,9 @@ void PresenceLight::timer()
                         onTo = -1;
                         _onTo.store(-1, std::memory_order_release);
                         setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
+
+                        _manuallyEnabled.store(false, std::memory_order_release);
+                        setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
                     }
                     else if(getLightState())
                     {
@@ -225,7 +231,7 @@ void PresenceLight::timer()
                         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(onTo > time && _enabled.load(std::memory_order_acquire)));
+                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire))));
                         output(0, outputMessage);
 
                         Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -255,7 +261,7 @@ void PresenceLight::timer()
                         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(onTo > time && _enabled.load(std::memory_order_acquire)));
+                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire))));
                         output(0, outputMessage);
 
                         Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -305,7 +311,7 @@ bool PresenceLight::getLightState()
     auto onTo = _onTo.load(std::memory_order_acquire);
     auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
     auto alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
-    return (_enabled.load(std::memory_order_acquire) && onTo != -1 && BaseLib::HelperFunctions::getTime() < onTo &&
+    return ((_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && onTo != -1 && BaseLib::HelperFunctions::getTime() < onTo &&
             (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) ||
             alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() < alwaysOnTo);
 }
@@ -396,7 +402,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             setNodeData("alwaysOnTo", std::make_shared<Flows::Variable>(_alwaysOnTo.load(std::memory_order_acquire)));
             setNodeData("alwaysOffTo", std::make_shared<Flows::Variable>(_alwaysOffTo.load(std::memory_order_acquire)));
         }
-        else if(index == 3) //Presence
+        else if(index == 3) //Presence (IN)
         {
             if(inputValue)
             {
@@ -443,6 +449,9 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             if(inputValue)
             {
+                _manuallyEnabled.store(true, std::memory_order_release);
+                setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(true));
+
                 auto onTo = _onTo.load(std::memory_order_acquire);
                 if(onTo == -1)
                 {
@@ -461,7 +470,12 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                     setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
                 }
             }
-            else return;
+            else
+            {
+                _manuallyEnabled.store(false, std::memory_order_release);
+                setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
+                return;
+            }
         }
 
         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);

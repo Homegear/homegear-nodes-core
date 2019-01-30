@@ -71,6 +71,9 @@ bool MyNode::start()
     try
     {
         _stopped = false;
+
+        _lastInputState = getNodeData("lastInputState")->booleanValue;
+
         int64_t delayTo = getNodeData("delayTo")->integerValue64;
         if(delayTo > 0)
         {
@@ -80,8 +83,6 @@ bool MyNode::start()
             _stopThread = false;
             _timerThread = std::thread(&MyNode::timer, this, delayTo, false);
         }
-
-        _lastInputState = getNodeData("lastInputState")->booleanValue;
 
         return true;
     }

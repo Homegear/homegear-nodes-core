@@ -64,6 +64,7 @@ private:
     std::thread _timerThread;
 
     std::atomic_bool _enabled{true};
+    std::atomic_bool _manuallyEnabled{false};
     std::atomic<int64_t> _onTo{-1};
     std::atomic<int64_t> _alwaysOnTo{-1};
     std::atomic<int64_t> _alwaysOffTo{-1};
