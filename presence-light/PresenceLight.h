@@ -54,9 +54,10 @@ private:
     uint32_t _alwaysOnTime = 21600000;
     uint32_t _alwaysOffTime = 21600000;
     int64_t _lastInput = -1;
-    std::atomic<int64_t> _lastLightEvent{-1};
+    bool _switchOffOnInFalse = false;
     //}}}
 
+	std::atomic<int64_t> _lastLightEvent{-1};
     std::atomic_bool _stopThread{true};
     std::atomic_bool _stopped{true};
     std::mutex _timerThreadMutex;

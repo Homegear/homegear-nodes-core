@@ -26,6 +26,11 @@
         <input style="width: 40%;" type="text" id="node-input-always-off-time" data-i18n="[placeholder]presence-light.label.always-off-time2">
         <label for="node-input-on-time">s</label>
     </div>
+    <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-process-false" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-process-false" style="width: 60%;" data-i18n="presence-light.label.process-false"></label>
+    </div>
 </script>
 <script type="text/javascript">
 	RED.nodes.registerType('presence-light',{
@@ -36,9 +41,10 @@
             name: {value:""},
             "on-time": {value: "300",required:true,validate:RED.validators.number()},
             "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
-            "always-off-time": {value: "21600",required:true,validate:RED.validators.number()}
+            "always-off-time": {value: "21600",required:true,validate:RED.validators.number()},
+            "process-false": {value: false,required:false}
         },
-        inputs:5,
+        inputs:6,
         inputInfo: [
         	{
                 label: "EN",
@@ -58,6 +64,10 @@
             },
             {
                 label: "IN2",
+                types: ["boolean"]
+            },
+            {
+                label: "TG",
                 types: ["boolean"]
             }
         ],
