@@ -4,11 +4,12 @@
       "label": {
         "impulse": "Delay",
         "impulse2": "Impulse in ms",
+        "allow-retrigger": "Allow retrigger",
         "name": "Name"
       },
       "input1Description": "",
       "paletteHelp": "<p>Forwards <code>true</code> and after a specified amount of time resets the output to <code>false</code>.</p>",
-      "help": "<p>The impulse node forwards <code>true</code> and resets the output to <code>false</code> after a specified amount of time. An input of a single <code>true</code> or <code>false</code> is ignored while the timer is running. A <code>false</code>, <code>true</code> sequence while the timer is running restarts it.</p>"
+      "help": "<p>The impulse node forwards <code>true</code> and resets the output to <code>false</code> after a specified amount of time. An input of a single <code>true</code> or <code>false</code> is ignored while the timer is running. A <code>false</code>, <code>true</code> sequence while the timer is running restarts it. This behavior is changed by selecting <code>Allow retrigger</code>. When this option is enabled a <code>true</code> after a <code>true</code> is not ignored.</p>"
     }
   }
 }

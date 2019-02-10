@@ -27,6 +27,7 @@
  * files in the program, then also delete it here.
  */
 
+#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
 namespace MyNode
@@ -53,6 +54,9 @@ bool MyNode::init(Flows::PNodeInfo info)
         auto settingsIterator = info->info->structValue->find("impulse");
         if(settingsIterator != info->info->structValue->end()) _delay = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
+        settingsIterator = info->info->structValue->find("allow-retrigger");
+        if(settingsIterator != info->info->structValue->end()) _allowRetrigger = settingsIterator->second->booleanValue;
+
         return true;
     }
     catch(const std::exception& ex)
@@ -75,13 +79,14 @@ bool MyNode::start()
         _lastInputState = getNodeData("lastInputState")->booleanValue;
 
         int64_t delayTo = getNodeData("delayTo")->integerValue64;
+        _delayTo.store(delayTo, std::memory_order_release);
         if(delayTo > 0)
         {
             std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
             _stopThread = true;
             if(_timerThread.joinable())_timerThread.join();
             _stopThread = false;
-            _timerThread = std::thread(&MyNode::timer, this, delayTo, false);
+            _timerThread = std::thread(&MyNode::timer, this, false);
         }
 
         return true;
@@ -133,10 +138,11 @@ void MyNode::waitForStop()
     }
 }
 
-void MyNode::timer(int64_t delayTo, bool outputTrue)
+void MyNode::timer(bool outputTrue)
 {
     try
     {
+        int64_t delayTo = _delayTo.load(std::memory_order_acquire);
         int64_t restTime = delayTo - Flows::HelperFunctions::getTime();
         int64_t sleepingTime = 10;
         if(_delay >= 1000) sleepingTime = 100;
@@ -152,11 +158,7 @@ void MyNode::timer(int64_t delayTo, bool outputTrue)
         while(restTime > 0)
         {
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-            if(_stopThread)
-            {
-                setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
-                return;
-            }
+            if(_stopThread) return;
 
             restTime = delayTo - Flows::HelperFunctions::getTime();
         }
@@ -186,18 +188,19 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         Flows::PVariable& input = message->structValue->at("payload");
         if(*input)
         {
-            if(!_lastInputState)
+            if(!_lastInputState || (_allowRetrigger && BaseLib::HelperFunctions::getTime() > _delayTo.load(std::memory_order_acquire)))
             {
                 _lastInputState = true;
                 setNodeData("lastInputState", std::make_shared<Flows::Variable>(true));
                 int64_t delayTo = _delay + Flows::HelperFunctions::getTime();
+                _delayTo.store(delayTo, std::memory_order_release);
                 setNodeData("delayTo", std::make_shared<Flows::Variable>(delayTo));
                 std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
                 _stopThread = true;
                 if(_timerThread.joinable())_timerThread.join();
                 if(_stopped) return;
                 _stopThread = false;
-                _timerThread = std::thread(&MyNode::timer, this, delayTo, true);
+                _timerThread = std::thread(&MyNode::timer, this, true);
             }
         }
         else
