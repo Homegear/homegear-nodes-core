@@ -62,6 +62,8 @@ private:
     std::atomic_bool _stopped{true};
     std::mutex _timerThreadMutex;
     std::thread _timerThread;
+    std::atomic_bool _booleanStateValue{true};
+    std::atomic<int64_t> _stateValue{1};
 
     std::atomic_bool _enabled{true};
     std::atomic_bool _manuallyEnabled{false};
@@ -70,6 +72,7 @@ private:
     std::atomic<int64_t> _alwaysOffTo{-1};
 
     bool getLightState();
+	Flows::PVariable getLightStateVariable();
     void timer();
     virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
