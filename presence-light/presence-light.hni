@@ -44,7 +44,7 @@
             "always-off-time": {value: "21600",required:true,validate:RED.validators.number()},
             "process-false": {value: false,required:false}
         },
-        inputs:6,
+        inputs:7,
         inputInfo: [
         	{
                 label: "EN",
@@ -67,15 +67,19 @@
                 types: ["boolean"]
             },
             {
+                label: "SVAL",
+                types: ["boolean", "integer"]
+            },
+            {
                 label: "TG",
-                types: ["boolean"]
+                types: ["boolean", "integer"]
             }
         ],
         outputs:5,
         outputInfo: [
             {
                 label: "S",
-                types: ["boolean"]
+                types: ["boolean", "integer"]
             },
             {
                 label: "RES",

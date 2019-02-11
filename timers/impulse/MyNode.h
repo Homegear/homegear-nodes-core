@@ -49,14 +49,16 @@ public:
 	virtual void waitForStop();
 private:
 	uint32_t _delay = 10000;
+	bool _allowRetrigger = false;
 
 	std::atomic_bool _stopThread;
 	std::atomic_bool _stopped;
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 
-	bool _lastInputState = false;
-	void timer(int64_t inputTime, bool outputTrue);
+	std::atomic_bool _lastInputState{false};
+	std::atomic<int64_t> _delayTo{0};
+	void timer(bool outputTrue);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
