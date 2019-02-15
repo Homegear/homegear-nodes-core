@@ -67,7 +67,9 @@ private:
 
     std::atomic_bool _enabled{true};
     std::atomic_bool _manuallyEnabled{false};
+    std::atomic_bool _manuallyDisabled{false};
     std::atomic<int64_t> _onTo{-1};
+    int64_t _inBlockedUntil = 0;
     std::atomic<int64_t> _alwaysOnTo{-1};
     std::atomic<int64_t> _alwaysOffTo{-1};
 

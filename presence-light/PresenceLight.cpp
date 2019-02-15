@@ -221,6 +221,7 @@ void PresenceLight::timer()
                         setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
 
                         _manuallyEnabled.store(false, std::memory_order_release);
+                        _manuallyDisabled.store(false, std::memory_order_release);
                         setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
                     }
                     else if(getLightState())
@@ -238,7 +239,7 @@ void PresenceLight::timer()
                         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire));
+                        bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && !_manuallyDisabled.load(std::memory_order_acquire);
                         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(_booleanStateValue.load(std::memory_order_acquire) ? lightState : (lightState ? _stateValue.load(std::memory_order_acquire) : 0)));
                         output(0, outputMessage);
 
@@ -269,7 +270,7 @@ void PresenceLight::timer()
                         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
                         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire));
+                        bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && !_manuallyDisabled.load(std::memory_order_acquire);
                         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(_booleanStateValue.load(std::memory_order_acquire) ? lightState : (lightState ? _stateValue.load(std::memory_order_acquire) : 0)));
                         output(0, outputMessage);
 
@@ -320,7 +321,9 @@ bool PresenceLight::getLightState()
     auto onTo = _onTo.load(std::memory_order_acquire);
     auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
     auto alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
-    return ((_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && onTo != -1 && BaseLib::HelperFunctions::getTime() < onTo &&
+    return ((_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) &&
+            !_manuallyDisabled.load(std::memory_order_acquire) &&
+            onTo != -1 && BaseLib::HelperFunctions::getTime() < onTo &&
             (alwaysOffTo == -1 || (alwaysOffTo != 0 && (BaseLib::HelperFunctions::getTime() >= alwaysOffTo)))) ||
             alwaysOnTo == 0 || (alwaysOnTo != -1 && BaseLib::HelperFunctions::getTime() < alwaysOnTo);
 }
@@ -474,7 +477,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _stateValue.store(1, std::memory_order_release);
                 setNodeData("stateValue", input);
             }
-            else if(input->type == Flows::VariableType::tInteger64 && input->integerValue64 > 0)
+            else if(input->type == Flows::VariableType::tInteger64)
             {
                 _booleanStateValue.store(false, std::memory_order_release);
                 _stateValue.store(input->integerValue64, std::memory_order_release);
@@ -513,6 +516,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             }
             else
             {
+                _manuallyDisabled.store(true, std::memory_order_release);
                 _onTo.store(-1, std::memory_order_release);
 
                 setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
