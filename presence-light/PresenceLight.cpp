@@ -480,7 +480,6 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _stateValue.store(input->integerValue64, std::memory_order_release);
                 setNodeData("stateValue", input);
             }
-            return;
         }
         else if(index == 6) //Toggle
         {
@@ -490,6 +489,12 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _stateValue.store(input->integerValue64, std::memory_order_release);
 
                 setNodeData("stateValue", input);
+            }
+
+            if(!_booleanStateValue.load(std::memory_order_release) && input->type == Flows::VariableType::tBoolean)
+            {
+                _out->printWarning(R"(Warning: Got boolean input on "TG", but "SVAL" is set to a light profile (i. e. to an Integer).)");
+                return;
             }
 
             auto onTo = _onTo.load(std::memory_order_acquire);
