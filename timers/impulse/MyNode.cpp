@@ -188,7 +188,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         Flows::PVariable& input = message->structValue->at("payload");
         if(*input)
         {
-            if(!_lastInputState || (_allowRetrigger && BaseLib::HelperFunctions::getTime() > _delayTo.load(std::memory_order_acquire)))
+            if(!_lastInputState || _allowRetrigger)
             {
                 _lastInputState = true;
                 setNodeData("lastInputState", std::make_shared<Flows::Variable>(true));
