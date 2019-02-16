@@ -60,6 +60,9 @@ bool PresenceLight::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("process-false");
         if(settingsIterator != info->info->structValue->end()) _switchOffOnInFalse = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("keep-on");
+        if(settingsIterator != info->info->structValue->end()) _keepOn = settingsIterator->second->booleanValue;
+
         return true;
     }
     catch(const std::exception& ex)
@@ -361,6 +364,10 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             bool enabled = _enabled.load(std::memory_order_acquire);
             if(enabled == inputValue) return;
+            if(!inputValue && _keepOn)
+            {
+                _manuallyEnabled.store(true, std::memory_order_release);
+            }
             _enabled.store(inputValue, std::memory_order_release);
             setNodeData("enabled", std::make_shared<Flows::Variable>(inputValue));
         }

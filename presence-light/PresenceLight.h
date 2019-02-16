@@ -55,6 +55,7 @@ private:
     uint32_t _alwaysOffTime = 21600000;
     int64_t _lastInput = -1;
     bool _switchOffOnInFalse = false;
+    bool _keepOn = false;
     //}}}
 
 	std::atomic<int64_t> _lastLightEvent{-1};
