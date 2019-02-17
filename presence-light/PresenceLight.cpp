@@ -511,6 +511,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             if((!_booleanStateValue.load(std::memory_order_release) && inputValue) || onTo == -1)
             {
                 _manuallyEnabled.store(true, std::memory_order_release);
+                _manuallyDisabled.store(false, std::memory_order_release);
                 setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(true));
 
                 auto onTime = _onTime;
@@ -523,6 +524,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             }
             else
             {
+                _manuallyEnabled.store(false, std::memory_order_release);
                 _manuallyDisabled.store(true, std::memory_order_release);
                 _onTo.store(-1, std::memory_order_release);
 
