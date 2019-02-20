@@ -31,7 +31,7 @@
             name: {value:""},
             payload: {value:"", validate: RED.validators.typedInput("payload")},
             payloadType: {value:"int"},
-            outputonstartup: {value: true}
+            outputonstartup: {value: false}
         },
         inputs:0,
         outputs:1,
