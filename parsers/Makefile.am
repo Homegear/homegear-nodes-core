@@ -6,17 +6,19 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/node-blue/nodes/parsers
 
-lib_LTLIBRARIES = json.la xml.la
+lib_LTLIBRARIES = json.la strip.la xml.la
 
 json_la_SOURCES = json/Factory.cpp json/MyNode.cpp
 json_la_LDFLAGS =-module -avoid-version -shared
+strip_la_SOURCES = strip/Factory.cpp strip/MyNode.cpp
+strip_la_LDFLAGS =-module -avoid-version -shared
 xml_la_SOURCES = xml/Factory.cpp xml/MyNode.cpp
 xml_la_LDFLAGS =-module -avoid-version -shared
 
 parsers_ladir = $(libdir)
-parsers_la_DATA = json/json.hni xml/xml.hni
+parsers_la_DATA = json/json.hni strip/strip.hni xml/xml.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = json/locales/en-US/json xml/locales/en-US/xml
+locale_en_us_DATA = json/locales/en-US/json strip/locales/en-US/strip xml/locales/en-US/xml
 
 install-exec-hook:
-	rm -f $(DESTDIR)$(libdir)/json.la $(DESTDIR)$(libdir)/xml.la
+	rm -f $(DESTDIR)$(libdir)/json.la $(DESTDIR)$(libdir)/strip.la $(DESTDIR)$(libdir)/xml.la
