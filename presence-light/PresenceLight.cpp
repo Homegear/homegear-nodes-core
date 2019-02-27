@@ -215,7 +215,10 @@ void PresenceLight::timer()
                             _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
                             Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(_booleanStateValue.load(std::memory_order_acquire) ? false : 0));
+                            Flows::PVariable state;
+                            if(_booleanStateValue.load(std::memory_order_acquire)) state = std::make_shared<Flows::Variable>(false);
+                            else state = std::make_shared<Flows::Variable>(0);
+                            outputMessage->structValue->emplace("payload", state);
                             output(0, outputMessage);
 
                             Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
