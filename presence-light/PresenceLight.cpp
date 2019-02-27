@@ -487,7 +487,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _stateValue.store(1, std::memory_order_release);
                 setNodeData("stateValue", input);
             }
-            else if(input->type == Flows::VariableType::tInteger64)
+            else if(input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64)
             {
                 _booleanStateValue.store(false, std::memory_order_release);
                 _stateValue.store(input->integerValue64, std::memory_order_release);
@@ -496,7 +496,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         }
         else if(index == 6) //Toggle
         {
-            if(input->type == Flows::VariableType::tInteger64 && input->integerValue64 > 0)
+            if((input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64) && input->integerValue64 > 0)
             {
                 _booleanStateValue.store(false, std::memory_order_release);
                 _stateValue.store(input->integerValue64, std::memory_order_release);
