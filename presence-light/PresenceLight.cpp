@@ -63,6 +63,9 @@ bool PresenceLight::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("keep-on");
         if(settingsIterator != info->info->structValue->end()) _keepOn = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("refraction-time");
+        if(settingsIterator != info->info->structValue->end()) _refractionTime = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
+
         return true;
     }
     catch(const std::exception& ex)
@@ -297,7 +300,7 @@ void PresenceLight::timer()
                     }
                 }
 
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             catch(const std::exception& ex)
             {
@@ -349,9 +352,9 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
     {
         { //Rate limiter
             auto time = BaseLib::HelperFunctions::getTime();
-            if(time - _lastInput < 1000)
+            if(time - _lastInput < _refractionTime)
             {
-                int64_t timeToSleep = 1000 - (time - _lastInput);
+                int64_t timeToSleep = _refractionTime - (time - _lastInput);
                 std::this_thread::sleep_for(std::chrono::milliseconds(timeToSleep));
             }
             _lastInput = BaseLib::HelperFunctions::getTime();

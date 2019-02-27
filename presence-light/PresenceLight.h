@@ -56,6 +56,7 @@ private:
     int64_t _lastInput = -1;
     bool _switchOffOnInFalse = false;
     bool _keepOn = false;
+    uint32_t _refractionTime = 1000;
     //}}}
 
 	std::atomic<int64_t> _lastLightEvent{-1};

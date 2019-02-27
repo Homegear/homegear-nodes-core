@@ -36,6 +36,11 @@
         <input type="checkbox" id="node-input-keep-on" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-keep-on" style="width: 60%;" data-i18n="presence-light.label.keep-on"></label>
     </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-refraction-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.refraction-time"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-refraction-time" data-i18n="[placeholder]presence-light.label.refraction-time2">
+        <label for="node-input-on-time">ms</label>
+    </div>
 </script>
 <script type="text/javascript">
 	RED.nodes.registerType('presence-light',{
@@ -48,7 +53,8 @@
             "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
             "always-off-time": {value: "21600",required:true,validate:RED.validators.number()},
             "process-false": {value: false,required:false},
-            "keep-on": {value: false,required:false}
+            "keep-on": {value: false,required:false},
+            "refraction-time": {value: "1000",required:true,validate:RED.validators.number()}
         },
         inputs:7,
         inputInfo: [
