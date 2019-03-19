@@ -463,6 +463,8 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             auto lastLightEvent = _lastLightEvent.load(std::memory_order_acquire);
             if(BaseLib::HelperFunctions::getTime() - lastLightEvent < 10000) return;
+            _manuallyEnabled.store(false, std::memory_order_release);
+            _manuallyDisabled.store(false, std::memory_order_release);
             if(inputValue)
             {
                 auto onTime = _onTime;
