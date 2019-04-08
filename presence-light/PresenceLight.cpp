@@ -521,7 +521,15 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _manuallyEnabled.store(true, std::memory_order_release);
                 _manuallyDisabled.store(false, std::memory_order_release);
                 setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(true));
+            }
+            else
+            {
+                _manuallyEnabled.store(false, std::memory_order_release);
+                _manuallyDisabled.store(true, std::memory_order_release);
+                setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
+            }
 
+            //{{{ Always start timer, manual off needs to timeout as well
                 auto onTime = _onTime;
                 auto payloadIterator = message->structValue->find("onTime");
                 if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
@@ -529,16 +537,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
-            }
-            else
-            {
-                _manuallyEnabled.store(false, std::memory_order_release);
-                _manuallyDisabled.store(true, std::memory_order_release);
-                _onTo.store(-1, std::memory_order_release);
-
-                setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
-                setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
-            }
+            //}}}
         }
 
         _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
