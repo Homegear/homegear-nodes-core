@@ -120,7 +120,7 @@ bool MyNode::start()
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			_out->printError("Error starting server: " + ex.what());
+			_out->printError("Error starting server: " + std::string(ex.what()));
 			return false;
 		}
 

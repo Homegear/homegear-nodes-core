@@ -130,10 +130,6 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -149,10 +145,6 @@ Modbus::~Modbus()
         _bl.reset();
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -175,10 +167,6 @@ void Modbus::start()
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -192,10 +180,6 @@ void Modbus::stop()
         _started = false;
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -217,10 +201,6 @@ void Modbus::waitForStop()
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -235,7 +215,7 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
         {
             _modbus->readHoldingRegisters(info->start, info->buffer1, info->count);
         }
-        catch(BaseLib::Exception& ex)
+        catch(std::exception& ex)
         {
             _out->printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + ex.what());
         }
@@ -262,10 +242,6 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo>& info)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -280,7 +256,7 @@ void Modbus::readWriteCoil(std::shared_ptr<CoilInfo>& info)
         {
             _modbus->readCoils(info->start, info->buffer1, info->count);
         }
-        catch(BaseLib::Exception& ex)
+        catch(std::exception& ex)
         {
             _out->printError("Error reading from Modbus coils " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + ex.what());
         }
@@ -304,10 +280,6 @@ void Modbus::readWriteCoil(std::shared_ptr<CoilInfo>& info)
         }
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -351,7 +323,7 @@ void Modbus::listen()
                 {
                     _modbus->writeMultipleRegisters(registerElement->start, registerElement->buffer1, registerElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error writing to Modbus registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -389,7 +361,7 @@ void Modbus::listen()
                 {
                     _modbus->readHoldingRegisters(registerElement->start, registerElement->buffer2, registerElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error reading from Modbus holding registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -529,7 +501,7 @@ void Modbus::listen()
                 {
                     _modbus->readInputRegisters(registerElement->start, registerElement->buffer2, registerElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error reading from Modbus input registers " + std::to_string(registerElement->start) + " to " + std::to_string(registerElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -673,7 +645,7 @@ void Modbus::listen()
                 {
                     _modbus->writeMultipleCoils(coilElement->start, coilElement->buffer1, coilElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error writing Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -711,7 +683,7 @@ void Modbus::listen()
                 {
                     _modbus->readCoils(coilElement->start, coilElement->buffer2, coilElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error reading from Modbus coils " + std::to_string(coilElement->start) + " to " + std::to_string(coilElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -781,7 +753,7 @@ void Modbus::listen()
                 {
                     _modbus->readDiscreteInputs(discreteInputElement->start, discreteInputElement->buffer2, discreteInputElement->count);
                 }
-                catch(BaseLib::Exception& ex)
+                catch(std::exception& ex)
                 {
                     _out->printError("Error reading from Modbus discrete inputs " + std::to_string(discreteInputElement->start) + " to " + std::to_string(discreteInputElement->end) + ": " + ex.what() + " - Disconnecting...");
                     disconnect();
@@ -862,10 +834,6 @@ void Modbus::listen()
         {
             _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
         }
-        catch(BaseLib::Exception& ex)
-        {
-            _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-        }
         catch(...)
         {
             _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -903,10 +871,6 @@ void Modbus::setConnectionState(bool connected)
         }
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -975,10 +939,6 @@ void Modbus::connect()
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -995,10 +955,6 @@ void Modbus::disconnect()
         _modbus->disconnect();
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -1051,10 +1007,6 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startRegi
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -1099,10 +1051,6 @@ void Modbus::registerNode(std::string& node, ModbusType type, uint32_t startCoil
         _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
@@ -1194,10 +1142,6 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
     catch(...)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
@@ -1236,10 +1180,6 @@ void Modbus::writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vec
         }
     }
     catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(BaseLib::Exception& ex)
     {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
