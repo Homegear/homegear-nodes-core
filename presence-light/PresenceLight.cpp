@@ -515,8 +515,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 return;
             }
 
-            auto onTo = _onTo.load(std::memory_order_acquire);
-            if((!_booleanStateValue.load(std::memory_order_acquire) && inputValue) || onTo == -1)
+            if(!getLightState())
             {
                 _manuallyEnabled.store(true, std::memory_order_release);
                 _manuallyDisabled.store(false, std::memory_order_release);
@@ -535,8 +534,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
 
                 _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
-
-                setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
+                setNodeData("onTo", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getTime() + onTime));
             //}}}
         }
 
