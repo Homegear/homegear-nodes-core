@@ -290,6 +290,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 			std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 			for(auto& node : _nodes)
 			{
+
 				auto methodIterator = node.second.find(http.getHeader().method);
 				if(methodIterator == node.second.end()) continue;
 				if(std::regex_match(http.getHeader().path, methodIterator->second.pathRegex))
