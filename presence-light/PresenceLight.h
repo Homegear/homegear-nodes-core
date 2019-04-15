@@ -57,6 +57,7 @@ private:
     bool _switchOffOnInFalse = false;
     bool _keepOn = false;
     uint32_t _refractionTime = 1000;
+    bool _outputChangesOnly = false;
     //}}}
 
 	std::atomic<int64_t> _lastLightEvent{-1};
@@ -74,11 +75,14 @@ private:
     int64_t _inBlockedUntil = 0;
     std::atomic<int64_t> _alwaysOnTo{-1};
     std::atomic<int64_t> _alwaysOffTo{-1};
+    std::mutex _stateOutputMutex; //Used in method stateOutput
+    Flows::PVariable _lastOutput = std::make_shared<Flows::Variable>();
 
     bool getLightState();
 	Flows::PVariable getLightStateVariable();
     void timer();
-    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+    void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+    void stateOutput(const Flows::PVariable& value);
 };
 
 }

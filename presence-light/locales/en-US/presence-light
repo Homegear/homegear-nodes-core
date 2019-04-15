@@ -11,6 +11,7 @@
         "always-off-time2": "Duration in seconds",
         "process-false": "Switch light off immediately, when \"IN\" is set to \"false\".",
         "keep-on": "Keep light on when \"EN\" is set to \"false\".",
+        "changes-only": "Output changes only",
         "refraction-time": "Rate limiter delay",
         "refraction-time2": "Duration in milliseconds"
       },
