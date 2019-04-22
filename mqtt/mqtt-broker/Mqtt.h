@@ -34,6 +34,7 @@
 #include <homegear-node/Variable.h>
 #include <homegear-node/Output.h>
 #include <homegear-node/HelperFunctions.h>
+#include <homegear-base/Security/SecureVector.h>
 #include <homegear-base/BaseLib.h>
 #include <regex>
 
@@ -60,7 +61,7 @@ public:
 		std::string certPath;
 		std::string certData;
 		std::string keyPath;
-		std::string keyData;
+        std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> keyData;
 		bool verifyCertificate = true;
 	};
 
