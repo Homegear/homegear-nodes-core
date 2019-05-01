@@ -95,24 +95,24 @@ bool PresenceLight::start()
         if(manuallyEnabled->type == Flows::VariableType::tBoolean) _manuallyEnabled.store(manuallyEnabled->booleanValue, std::memory_order_release);
 
         auto onTo = getNodeData("onTo");
-        if(onTo->type == Flows::VariableType::tInteger64) _onTo.store(onTo->integerValue64, std::memory_order_release);
+        if(onTo->type == Flows::VariableType::tInteger || onTo->type == Flows::VariableType::tInteger64) _onTo.store(onTo->integerValue64, std::memory_order_release);
 
         auto alwaysOnTo = getNodeData("alwaysOnTo");
-        if(alwaysOnTo->type == Flows::VariableType::tInteger64)
+        if(alwaysOnTo->type == Flows::VariableType::tInteger || alwaysOnTo->type == Flows::VariableType::tInteger64)
         {
             if(alwaysOnTo->integerValue64 > 0 && alwaysOnTo->integerValue64 <= BaseLib::HelperFunctions::getTime()) alwaysOnTo->integerValue64 = -1;
             _alwaysOnTo.store(alwaysOnTo->integerValue64, std::memory_order_release);
         }
 
         auto alwaysOffTo = getNodeData("alwaysOffTo");
-        if(alwaysOffTo->type == Flows::VariableType::tInteger64)
+        if(alwaysOffTo->type == Flows::VariableType::tInteger || alwaysOffTo->type == Flows::VariableType::tInteger64)
         {
             if(alwaysOffTo->integerValue64 > 0 && alwaysOffTo->integerValue64 <= BaseLib::HelperFunctions::getTime()) alwaysOffTo->integerValue64 = -1;
             _alwaysOffTo.store(alwaysOffTo->integerValue64, std::memory_order_release);
         }
 
         auto stateValue = getNodeData("stateValue");
-        if(stateValue->type == Flows::VariableType::tInteger64)
+        if(stateValue->type == Flows::VariableType::tInteger || stateValue->type == Flows::VariableType::tInteger64)
         {
             _booleanStateValue.store(false, std::memory_order_release);
             _stateValue.store(stateValue->integerValue64, std::memory_order_release);
