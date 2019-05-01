@@ -28,6 +28,7 @@
  */
 
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
+#include <homegear-base/Variable.h>
 #include "PresenceLight.h"
 
 namespace PresenceLight
@@ -62,6 +63,9 @@ bool PresenceLight::init(Flows::PNodeInfo info)
 
         settingsIterator = info->info->structValue->find("keep-on");
         if(settingsIterator != info->info->structValue->end()) _keepOn = settingsIterator->second->booleanValue;
+
+        settingsIterator = info->info->structValue->find("toggle-profile-0-only");
+        if(settingsIterator != info->info->structValue->end()) _toggleProfile0Only = settingsIterator->second->booleanValue;
 
         settingsIterator = info->info->structValue->find("refraction-time");
         if(settingsIterator != info->info->structValue->end()) _refractionTime = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
@@ -116,6 +120,12 @@ bool PresenceLight::start()
         {
             _booleanStateValue.store(false, std::memory_order_release);
             _stateValue.store(stateValue->integerValue64, std::memory_order_release);
+        }
+
+        auto lastNonNullStateValue = getNodeData("lastNonNullStateValue");
+        if(stateValue->type == Flows::VariableType::tInteger || stateValue->type == Flows::VariableType::tInteger64)
+        {
+            _lastNonNullStateValue.store(lastNonNullStateValue->integerValue64, std::memory_order_release);
         }
 
         _stopThread.store(false, std::memory_order_release);
@@ -490,26 +500,38 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             {
                 _booleanStateValue.store(true, std::memory_order_release);
                 _stateValue.store(1, std::memory_order_release);
+                _lastNonNullStateValue.store(input->integerValue64, std::memory_order_release);
                 setNodeData("stateValue", input);
+                setNodeData("lastNonNullStateValue", input);
             }
             else if(input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64)
             {
                 _booleanStateValue.store(false, std::memory_order_release);
                 _stateValue.store(input->integerValue64, std::memory_order_release);
                 setNodeData("stateValue", input);
+                if(input->integerValue64 > 0)
+                {
+                    _lastNonNullStateValue.store(input->integerValue64, std::memory_order_release);
+                    setNodeData("lastNonNullStateValue", input);
+                }
             }
         }
         else if(index == 6) //Toggle
         {
             bool booleanStateValue = _booleanStateValue.load(std::memory_order_acquire);
             int64_t lastStateValue = -1;
-            if((input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64) && input->integerValue64 > 0)
+            if(input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64)
             {
                 _booleanStateValue.store(false, std::memory_order_release);
                 lastStateValue = _stateValue.load(std::memory_order_acquire);
                 _stateValue.store(input->integerValue64, std::memory_order_release);
-
                 setNodeData("stateValue", input);
+
+                if(input->integerValue64 > 0)
+                {
+                    _lastNonNullStateValue.store(input->integerValue64, std::memory_order_release);
+                    setNodeData("lastNonNullStateValue", input);
+                }
             }
 
             if(!booleanStateValue && input->type == Flows::VariableType::tBoolean)
@@ -518,8 +540,11 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 return;
             }
 
-            if(!getLightState() || (!booleanStateValue && input->integerValue64 > 0 && lastStateValue != -1 && lastStateValue != input->integerValue64))
+            if(!getLightState() || (!booleanStateValue && input->integerValue64 > 0 && ((lastStateValue != -1 && lastStateValue != input->integerValue64) || _toggleProfile0Only)))
             {
+                _stateValue.store(_lastNonNullStateValue.load(std::memory_order_acquire), std::memory_order_release);
+                setNodeData("stateValue", std::make_shared<Flows::Variable>(_stateValue.load(std::memory_order_acquire)));
+
                 _manuallyEnabled.store(true, std::memory_order_release);
                 _manuallyDisabled.store(false, std::memory_order_release);
                 setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(true));
