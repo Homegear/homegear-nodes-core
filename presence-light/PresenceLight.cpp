@@ -112,7 +112,7 @@ bool PresenceLight::start()
         }
 
         auto stateValue = getNodeData("stateValue");
-        if(stateValue->type == Flows::VariableType::tInteger64 && stateValue->integerValue64 > 0)
+        if(stateValue->type == Flows::VariableType::tInteger64)
         {
             _booleanStateValue.store(false, std::memory_order_release);
             _stateValue.store(stateValue->integerValue64, std::memory_order_release);
