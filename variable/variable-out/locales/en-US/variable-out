@@ -20,8 +20,9 @@
       },
       "tip": "Tip: See help tab for usage information.",
       "paletteHelp": "<p>Sets a variable.</p>",
-      "help": "Use this node to set a variable in Homegear.",
-      "input1Description": "The value to set the referenced variable to."
+      "help": "Use this node to set a variable in Homegear. When the variable was successfully set, the node outputs <code>true</code>. On error it outputs <code>false</code>.",
+      "input1Description": "The value to set the referenced variable to.",
+      "output1Description": "Outputs <code>true</code> on success and <code>false</code> on error."
     }
   }
 }

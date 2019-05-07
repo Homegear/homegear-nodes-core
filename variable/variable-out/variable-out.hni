@@ -65,13 +65,18 @@
 
             name: {value:""}
         },
-        inputs:1,
+        inputs: 1,
         inputInfo: [
             {
                 types: ["any"]
             }
         ],
-        outputs:0,
+        outputs: 1,
+        outputInfo: [
+            {
+                types: ["any"]
+            }
+        ],
         icon: "arrow-in.png",
         align: "right",
         label: function() {
