@@ -69,7 +69,9 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 		bool value = *input;
 		if(!value && _lastInput)
 		{
-			output(0, message);
+			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+			output(0, outputMessage);
 		}
 
 		_lastInput = value;
