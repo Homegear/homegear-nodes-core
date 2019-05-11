@@ -136,7 +136,7 @@ void MyNode::startUpComplete()
             auto payload = invoke("getValue", parameters);
             if(payload->errorStruct)
             {
-                _out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+                _out->printError("Error: Could not get value of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
             }
             else
             {
@@ -323,6 +323,70 @@ void MyNode::globalVariableEvent(std::string variable, Flows::PVariable value)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+}
+
+void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+{
+    try
+    {
+        if(_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system)
+        {
+            Flows::PArray parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(3);
+            parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+            parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+            parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+            auto payload = invoke("getValue", parameters);
+            if(payload->errorStruct)
+            {
+                _out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+            }
+            else
+            {
+                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
+                message->structValue->emplace("payload", payload);
+
+                output(0, message);
+            }
+        }
+        else if(_variableType == VariableType::flow)
+        {
+            auto result = getFlowData(_variable);
+
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+            message->structValue->emplace("payload", result);
+            output(0, message);
+        }
+        else if(_variableType == VariableType::global)
+        {
+            auto result = getGlobalData(_variable);
+
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+            message->structValue->emplace("payload", result);
+            output(0, message);
+        }
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
 }
 
 }

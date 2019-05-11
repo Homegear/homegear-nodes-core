@@ -540,6 +540,8 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 return;
             }
 
+            if(booleanStateValue && !inputValue) return;
+
             if(!getLightState() || lastStateValue == 0 || (!booleanStateValue && input->integerValue64 > 0 && ((lastStateValue != -1 && lastStateValue != input->integerValue64) || _toggleProfile0Only)))
             {
                 _stateValue.store(_lastNonNullStateValue.load(std::memory_order_acquire), std::memory_order_release);

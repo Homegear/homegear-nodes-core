@@ -36,6 +36,10 @@ set(SOURCE_FILES
         basic-logic/switch/Factory.h
         basic-logic/switch/MyNode.cpp
         basic-logic/switch/MyNode.h
+		basic-logic/variable-switch/Factory.cpp
+		basic-logic/variable-switch/Factory.h
+		basic-logic/variable-switch/MyNode.cpp
+		basic-logic/variable-switch/MyNode.h
         debug/Factory.cpp
         debug/Factory.h
         debug/MyNode.cpp

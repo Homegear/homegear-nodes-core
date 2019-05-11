@@ -78,6 +78,7 @@ private:
 	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
     virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
     virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
+    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }
