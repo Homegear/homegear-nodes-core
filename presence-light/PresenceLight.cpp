@@ -471,11 +471,12 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 auto payloadIterator = message->structValue->find("onTime");
                 if(payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64;
 
+                auto onTo = _onTo.load(std::memory_order_acquire);
                 _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
 
-                if(getLightState()) return;
+                if(getLightState() && onTo - BaseLib::HelperFunctions::getTime() > 1000) return;
             }
             else
             {
