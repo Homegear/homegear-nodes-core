@@ -181,6 +181,10 @@ set(SOURCE_FILES
         timers/on-delay/Factory.h
         timers/on-delay/MyNode.cpp
         timers/on-delay/MyNode.h
+		timers/rate-limiter/Factory.cpp
+		timers/rate-limiter/Factory.h
+		timers/rate-limiter/MyNode.cpp
+		timers/rate-limiter/MyNode.h
         timers/slow-pwm/Factory.cpp
         timers/slow-pwm/Factory.h
         timers/slow-pwm/MyNode.cpp
