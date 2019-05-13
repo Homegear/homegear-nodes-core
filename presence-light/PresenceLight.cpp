@@ -148,8 +148,6 @@ void PresenceLight::startUpComplete()
 {
     try
     {
-        _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
-
         stateOutput(getLightStateVariable());
     }
     catch(const std::exception& ex)
@@ -224,8 +222,6 @@ void PresenceLight::timer()
                         auto alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
                         if(alwaysOnTo == -1 || (alwaysOnTo != 0 && (time >= alwaysOnTo)))
                         {
-                            _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
-
                             Flows::PVariable state;
                             if(_booleanStateValue.load(std::memory_order_acquire)) state = std::make_shared<Flows::Variable>(false);
                             else state = std::make_shared<Flows::Variable>(0);
@@ -259,8 +255,6 @@ void PresenceLight::timer()
                 {
                     if(alwaysOnTo <= time)
                     {
-                        _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
-
                         bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && !_manuallyDisabled.load(std::memory_order_acquire);
                         stateOutput(std::make_shared<Flows::Variable>(_booleanStateValue.load(std::memory_order_acquire) ? lightState : (lightState ? _stateValue.load(std::memory_order_acquire) : 0)));
 
@@ -288,8 +282,6 @@ void PresenceLight::timer()
                 {
                     if(alwaysOffTo <= time)
                     {
-                        _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
-
                         bool lightState = onTo > time && (_enabled.load(std::memory_order_acquire) || _manuallyEnabled.load(std::memory_order_acquire)) && !_manuallyDisabled.load(std::memory_order_acquire);
                         stateOutput(std::make_shared<Flows::Variable>(_booleanStateValue.load(std::memory_order_acquire) ? lightState : (lightState ? _stateValue.load(std::memory_order_acquire) : 0)));
 
@@ -471,8 +463,6 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         }
         else if(index == 4) //Light input (IN2)
         {
-            auto lastLightEvent = _lastLightEvent.load(std::memory_order_acquire);
-            if(BaseLib::HelperFunctions::getTime() - lastLightEvent < 10000) return;
             _manuallyEnabled.store(false, std::memory_order_release);
             _manuallyDisabled.store(false, std::memory_order_release);
             if(inputValue)
@@ -484,6 +474,8 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _onTo.store(BaseLib::HelperFunctions::getTime() + onTime, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(_onTo.load(std::memory_order_acquire)));
+
+                if(getLightState()) return;
             }
             else
             {
@@ -492,6 +484,8 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _onTo.store(-1, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
+
+                if(!getLightState()) return;
             }
         }
         else if(index == 5) //State value
@@ -567,8 +561,6 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 setNodeData("onTo", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getTime() + onTime));
             //}}}
         }
-
-        _lastLightEvent.store(BaseLib::HelperFunctions::getTime(), std::memory_order_release);
 
         stateOutput(getLightStateVariable());
     }

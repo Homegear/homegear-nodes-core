@@ -60,7 +60,6 @@ private:
     bool _outputChangesOnly = false;
     //}}}
 
-	std::atomic<int64_t> _lastLightEvent{-1};
     std::atomic_bool _stopThread{true};
     std::atomic_bool _stopped{true};
     std::mutex _timerThreadMutex;
