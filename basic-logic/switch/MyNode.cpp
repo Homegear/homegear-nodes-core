@@ -75,7 +75,15 @@ Flows::VariableType MyNode::getValueTypeFromString(std::string& vt)
 
 void MyNode::convertType(Flows::PVariable& value, Flows::VariableType vt)
 {
-	if(vt == Flows::VariableType::tInteger)
+    if(vt == Flows::VariableType::tBoolean)
+    {
+        if(value->type == Flows::VariableType::tString)
+        {
+            value->setType(Flows::VariableType::tBoolean);
+            value->booleanValue = (value->stringValue == "true");
+        }
+    }
+	else if(vt == Flows::VariableType::tInteger)
 	{
 		value->setType(Flows::VariableType::tInteger64);
 		value->integerValue = Flows::Math::getNumber(value->stringValue);
@@ -291,10 +299,10 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 		switch(rule.t)
 		{
 		case RuleType::tEq:
-			if(value->type == rule.vt && *value == *rule.v) return true;
+			if(*value == *rule.v) return true;
 			return false;
 		case RuleType::tNeq:
-			if(value->type == rule.vt && *value == *rule.v) return false;
+			if(*value == *rule.v) return false;
 			return true;
 		case RuleType::tLt:
 			if(value->type == rule.vt && *value < *rule.v) return true;

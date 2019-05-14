@@ -12,6 +12,10 @@ set(SOURCE_FILES
         basic-logic/and/Factory.h
         basic-logic/and/MyNode.cpp
         basic-logic/and/MyNode.h
+		basic-logic/change/Factory.cpp
+		basic-logic/change/Factory.h
+		basic-logic/change/MyNode.cpp
+		basic-logic/change/MyNode.h
         basic-logic/fallingedge/Factory.cpp
         basic-logic/fallingedge/Factory.h
         basic-logic/fallingedge/MyNode.cpp
