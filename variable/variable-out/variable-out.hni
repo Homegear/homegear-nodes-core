@@ -74,6 +74,7 @@
         outputs: 1,
         outputInfo: [
             {
+                label: "RSLT",
                 types: ["any"]
             }
         ],
@@ -86,7 +87,7 @@
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
-            return "variable";
+            return "variable-out";
         },
         oneditprepare: function() {
             var that = this;

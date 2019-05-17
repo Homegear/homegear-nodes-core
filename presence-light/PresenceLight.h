@@ -65,6 +65,7 @@ private:
     std::mutex _timerThreadMutex;
     std::thread _timerThread;
     std::atomic_bool _toggleProfile0Only{false};
+    std::atomic_bool _restoreProfile{false};
     std::atomic_bool _booleanStateValue{true};
     std::atomic<int64_t> _stateValue{1};
     std::atomic<int64_t> _lastNonNullStateValue{1};

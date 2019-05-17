@@ -12,6 +12,7 @@
         "process-false": "Switch light off immediately, when \"IN\" is set to \"false\".",
         "keep-on": "Keep light on when \"EN\" is set to \"false\".",
         "toggle-profile-0-only": "\"TG\" only toggles on an input of \"0\", other inputs set \"SVAL\", but don't switch the light off.",
+        "restore-profile": "When the light is switched off (in profile mode) using \"TG\", restore the last profile after no \"IN\" for \"On time\".",
         "changes-only": "Output changes only",
         "refraction-time": "Rate limiter delay",
         "refraction-time2": "Duration in milliseconds"

@@ -67,6 +67,9 @@ bool PresenceLight::init(Flows::PNodeInfo info)
         settingsIterator = info->info->structValue->find("toggle-profile-0-only");
         if(settingsIterator != info->info->structValue->end()) _toggleProfile0Only = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("restore-profile");
+        if(settingsIterator != info->info->structValue->end()) _restoreProfile = settingsIterator->second->booleanValue;
+
         settingsIterator = info->info->structValue->find("refraction-time");
         if(settingsIterator != info->info->structValue->end()) _refractionTime = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
@@ -235,9 +238,23 @@ void PresenceLight::timer()
                         _onTo.store(-1, std::memory_order_release);
                         setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
 
-                        _manuallyEnabled.store(false, std::memory_order_release);
-                        _manuallyDisabled.store(false, std::memory_order_release);
-                        setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
+                        if(_manuallyEnabled.load(std::memory_order_acquire))
+                        {
+                            _manuallyEnabled.store(false, std::memory_order_release);
+                            setNodeData("manuallyEnabled", std::make_shared<Flows::Variable>(false));
+                        }
+                        if(_manuallyDisabled.load(std::memory_order_acquire))
+                        {
+                            _manuallyDisabled.store(false, std::memory_order_release);
+                            setNodeData("manuallyDisabled", std::make_shared<Flows::Variable>(false));
+
+                            if(_restoreProfile.load(std::memory_order_acquire) && !_booleanStateValue.load(std::memory_order_acquire))
+                            {
+                                auto lastNonNullStateValue = _lastNonNullStateValue.load(std::memory_order_acquire);
+                                _stateValue.store(lastNonNullStateValue, std::memory_order_release);
+                                setNodeData("stateValue", std::make_shared<Flows::Variable>(lastNonNullStateValue));
+                            }
+                        }
                     }
                     else if(getLightState())
                     {
