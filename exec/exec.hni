@@ -65,11 +65,11 @@
         	},
         	{
         	    label: "OUT",
-                types: ["string"]
+                types: ["array[string]"]
             },
             {
                 label: "ERR",
-                types: ["string"]
+                types: ["array[string]"]
             }
         ],
         icon: "function.png",

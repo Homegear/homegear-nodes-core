@@ -242,8 +242,17 @@ void Exec::execThread()
 
                 if(!_collectOutput && !bufferOut.empty())
                 {
+                    auto outputVector = BaseLib::HelperFunctions::splitAll(bufferOut, '\n');
+
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(bufferOut));
+                    Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                    outputArray->arrayValue->reserve(outputVector.size());
+                    for(int32_t i = 0; i < outputVector.size(); i++)
+                    {
+                        if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                        outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                    }
+                    message->structValue->emplace("payload", outputArray);
                     output(1, message);
                 }
             }
@@ -251,8 +260,17 @@ void Exec::execThread()
             if(_collectOutput)
             {
                 std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
+                auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferOut, '\n');
+
                 Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_bufferOut));
+                Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                outputArray->arrayValue->reserve(outputVector.size());
+                for(int32_t i = 0; i < outputVector.size(); i++)
+                {
+                    if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                    outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                }
+                message->structValue->emplace("payload", outputArray);
                 output(1, message);
             }
 
@@ -292,8 +310,17 @@ void Exec::errorThread()
 
             if(!_collectOutput && !bufferErr.empty())
             {
+                auto outputVector = BaseLib::HelperFunctions::splitAll(bufferErr, '\n');
+
                 Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(bufferErr));
+                Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                outputArray->arrayValue->reserve(outputVector.size());
+                for(int32_t i = 0; i < outputVector.size(); i++)
+                {
+                    if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                    outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                }
+                message->structValue->emplace("payload", outputArray);
                 output(2, message);
             }
         }
@@ -303,9 +330,17 @@ void Exec::errorThread()
             std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
             if(!_bufferErr.empty())
             {
+                auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferErr, '\n');
+
                 Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_bufferErr));
-                output(2, message);
+                Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                outputArray->arrayValue->reserve(outputVector.size());
+                for(int32_t i = 0; i < outputVector.size(); i++)
+                {
+                    if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                    outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                }
+                message->structValue->emplace("payload", outputArray);
             }
         }
     }
@@ -335,8 +370,35 @@ void Exec::sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped)
             if(_collectOutput)
             {
                 std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-                message->structValue->emplace("stdout", std::make_shared<Flows::Variable>(_bufferOut));
-                if(!_bufferErr.empty()) message->structValue->emplace("stderr", std::make_shared<Flows::Variable>(_bufferErr));
+
+                {
+                    auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferOut, '\n');
+
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                    outputArray->arrayValue->reserve(outputVector.size());
+                    for(int32_t i = 0; i < outputVector.size(); i++)
+                    {
+                        if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                        outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                    }
+                    message->structValue->emplace("stdout", outputArray);
+                }
+
+                if(!_bufferErr.empty())
+                {
+                    auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferErr, '\n');
+
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                    outputArray->arrayValue->reserve(outputVector.size());
+                    for(int32_t i = 0; i < outputVector.size(); i++)
+                    {
+                        if(i == outputVector.size() - 1 && outputVector[i].empty()) continue;
+                        outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
+                    }
+                    message->structValue->emplace("stderr", outputArray);
+                }
             }
             output(1, message);
         }
