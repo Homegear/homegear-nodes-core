@@ -48,6 +48,10 @@ set(SOURCE_FILES
         debug/Factory.h
         debug/MyNode.cpp
         debug/MyNode.h
+		exec/Factory.cpp
+		exec/Factory.h
+		exec/Exec.cpp
+		exec/Exec.h
         http/http-in/Factory.cpp
         http/http-in/Factory.h
         http/http-in/MyNode.cpp
@@ -136,10 +140,6 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
-		runscript/Factory.cpp
-		runscript/Factory.h
-		runscript/RunScript.cpp
-		runscript/RunScript.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
