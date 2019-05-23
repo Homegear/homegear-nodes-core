@@ -67,6 +67,11 @@
         <input type="checkbox" id="node-input-outputonstartup" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-outputonstartup" style="width: 65%;" data-i18n="variable-in.label.outputonstartup"></label>
     </div>
+    <div class="form-row" id="changes-only">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-changes-only" style="width: 65%;" data-i18n="variable-in.label.changes-only"></label>
+    </div>
     <div class="form-row">
         <label style="width: 130px;">&nbsp;</label>
         <input type="checkbox" id="node-input-loopprevention" style="display: inline-block; width: auto; vertical-align: top;">
@@ -93,6 +98,7 @@
             eventsource: {value:"all",validate: function(v) { return v != ""; }},
             refractoryperiod: {value: "0",validate:RED.validators.number()},
             outputonstartup: {value: false},
+            "changes-only": {value: false, required: false},
             loopprevention: {value: false},
             looppreventiongroup: {type:"variable-loop-prevention-group", required: false},
             name: {value:""}

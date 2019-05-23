@@ -64,6 +64,8 @@ private:
     VariableType _variableType = VariableType::device;
 	int64_t _lastInput = 0;
 	uint32_t _refractionPeriod = 0;
+	Flows::PVariable _lastValue;
+	bool _outputChangesOnly = false;
 	bool _outputOnStartup = false;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;

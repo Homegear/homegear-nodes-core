@@ -18,6 +18,7 @@
         "homegear": "Homegear",
         "refractoryperiod": "Refractory period",
         "outputonstartup": "Output value on startup",
+        "changes-only": "Output changes only",
         "name": "Name",
         "loopprevention": "Enable feedback loop prevention",
         "looppreventiongroup": "Loop group",

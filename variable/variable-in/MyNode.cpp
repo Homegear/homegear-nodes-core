@@ -90,6 +90,9 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("outputonstartup");
 		if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("changes-only");
+        if(settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
+
 		settingsIterator = info->info->structValue->find("loopprevention");
 		if(settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
 
@@ -230,6 +233,9 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
 
+		if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+		_lastValue = value;
+
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>(source));
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
@@ -267,6 +273,9 @@ void MyNode::flowVariableEvent(std::string flowId, std::string variable, Flows::
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
 
+        if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+        _lastValue = value;
+
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
 		message->structValue->emplace("payload", value);
@@ -299,6 +308,9 @@ void MyNode::globalVariableEvent(std::string variable, Flows::PVariable value)
         if(variable != _variable) return;
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
 		_lastInput = Flows::HelperFunctions::getTime();
+
+        if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+        _lastValue = value;
 
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
