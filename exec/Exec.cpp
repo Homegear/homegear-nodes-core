@@ -341,6 +341,7 @@ void Exec::errorThread()
                     outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
                 }
                 message->structValue->emplace("payload", outputArray);
+                output(2, message);
             }
         }
     }
@@ -400,7 +401,7 @@ void Exec::sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped)
                     message->structValue->emplace("stderr", outputArray);
                 }
             }
-            output(1, message);
+            output(0, message);
         }
     }
     catch(const std::exception& ex)
