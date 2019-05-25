@@ -2,7 +2,8 @@
 {
     "name": "tls-server-config",
     "readableName": "TLS server configuration",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>

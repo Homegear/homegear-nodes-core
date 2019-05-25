@@ -2,7 +2,8 @@
 {
     "name": "mqtt-in",
     "readableName": "MQTT input",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
