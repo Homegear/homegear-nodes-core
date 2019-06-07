@@ -157,7 +157,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                     convertType(rule.from, rule.fromt);
                 }
                 else rule.from = std::make_shared<Flows::Variable>();
-                if(valueTypeIterator->second->stringValue == "regex")
+                if(valueTypeIterator != ruleStruct->structValue->end() && valueTypeIterator->second->stringValue == "regex")
                 {
                     rule.fromRegexSet = true;
                     rule.fromRegex = std::regex(rule.from->stringValue, std::regex::ECMAScript);
