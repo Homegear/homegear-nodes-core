@@ -208,6 +208,8 @@ void PresenceLight::timer()
         int64_t alwaysOnTo = 0;
         int64_t alwaysOffTo = 0;
         int64_t lastTimeOutput = 0;
+        int64_t lastAlwaysOnTimeOutput = 0;
+        int64_t lastAlwaysOffTimeOutput = 0;
 
         while(!_stopThread.load(std::memory_order_acquire))
         {
@@ -289,9 +291,13 @@ void PresenceLight::timer()
                     }
                     else
                     {
-                        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOnTo - time) / 1000.0)));
-                        output(3, outputMessage);
+                        if(time - lastAlwaysOnTimeOutput >= 1000)
+                        {
+                            lastAlwaysOnTimeOutput = time;
+                            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t) std::lround((alwaysOnTo - time) / 1000.0)));
+                            output(3, outputMessage);
+                        }
                     }
                 }
 
@@ -316,9 +322,13 @@ void PresenceLight::timer()
                     }
                     else
                     {
-                        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((alwaysOffTo - time) / 1000.0)));
-                        output(4, outputMessage);
+                        if(time - lastAlwaysOffTimeOutput >= 1000)
+                        {
+                            lastAlwaysOffTimeOutput = time;
+                            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t) std::lround((alwaysOffTo - time) / 1000.0)));
+                            output(4, outputMessage);
+                        }
                     }
                 }
 
