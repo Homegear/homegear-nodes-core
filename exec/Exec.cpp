@@ -99,26 +99,33 @@ void Exec::stop()
 
 void Exec::waitForStop()
 {
-    if(_pid != -1) kill(_pid, 15);
-    for(int32_t i = 0; i < 600; i++)
+    try
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if(_pid == -1) break;
+        if(_pid != -1) kill(_pid, 15);
+        for(int32_t i = 0; i < 600; i++)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if(_pid == -1) break;
+        }
+        if(_pid != -1)
+        {
+            _out->printError("Error: Process did not finish within 60 seconds. Killing it.");
+            kill(_pid, 9);
+            close(_stdIn);
+            close(_stdOut);
+            close(_stdErr);
+            _stdIn = -1;
+            _stdOut = -1;
+            _stdErr = -1;
+        }
+        if(_execThread.joinable()) _execThread.join();
+        if(_errorThread.joinable()) _errorThread.join();
+        BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
     }
-    if(_pid != -1)
+    catch(const std::exception& ex)
     {
-        _out->printError("Error: Process did not finish within 60 seconds. Killing it.");
-        kill(_pid, 9);
-        close(_stdIn);
-        close(_stdOut);
-        close(_stdErr);
-        _stdIn = -1;
-        _stdOut = -1;
-        _stdErr = -1;
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    if(_execThread.joinable()) _execThread.join();
-    if(_errorThread.joinable()) _errorThread.join();
-    BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
 }
 
 void Exec::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)

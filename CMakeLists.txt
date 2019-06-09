@@ -140,6 +140,10 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
+		python/Factory.cpp
+		python/Factory.h
+		python/Python.cpp
+		python/Python.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp

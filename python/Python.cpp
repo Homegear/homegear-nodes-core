@@ -30,6 +30,7 @@
 #include "Python.h"
 #include "homegear-base/Managers/ProcessManager.h"
 #include <sys/resource.h>
+#include <sys/stat.h>
 
 namespace Python
 {
@@ -46,17 +47,13 @@ bool Python::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("filename");
-		if(settingsIterator != info->info->structValue->end()) _filename = settingsIterator->second->stringValue;
+		auto settingsIterator = info->info->structValue->find("func");
+		std::string code;
+		if(settingsIterator != info->info->structValue->end()) code = settingsIterator->second->stringValue;
 
-        settingsIterator = info->info->structValue->find("arguments");
-        if(settingsIterator != info->info->structValue->end()) _arguments = settingsIterator->second->stringValue;
-
-        settingsIterator = info->info->structValue->find("autostart");
-        if(settingsIterator != info->info->structValue->end()) _autostart = settingsIterator->second->booleanValue;
-
-        settingsIterator = info->info->structValue->find("collect-output");
-        if(settingsIterator != info->info->structValue->end()) _collectOutput = settingsIterator->second->booleanValue;
+		_codeFile = "/tmp/node-blue-node-" + _id + ".py";
+		BaseLib::Io::writeFile(_codeFile, code);
+        if(chmod(_codeFile.c_str(), S_IRUSR | S_IWUSR) == -1) _out->printError("Error: Could not set permissions on " + _codeFile);
 
 		return true;
 	}
@@ -73,7 +70,7 @@ bool Python::start()
     {
         _callbackHandlerId = BaseLib::ProcessManager::registerCallbackHandler(std::function<void(pid_t pid, int exitCode, int signal, bool coreDumped)>(std::bind(&Python::sigchildHandler, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
-        if(_autostart) startProgram();
+        startProgram();
 
         return true;
     }
@@ -88,7 +85,7 @@ void Python::stop()
 {
     try
     {
-        _autostart = false;
+        _stopThread = true;
         if(_pid != -1) kill(_pid, 15);
     }
     catch(const std::exception& ex)
@@ -99,26 +96,35 @@ void Python::stop()
 
 void Python::waitForStop()
 {
-    if(_pid != -1) kill(_pid, 15);
-    for(int32_t i = 0; i < 600; i++)
+    try
     {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if(_pid == -1) break;
+        if(_pid != -1) kill(_pid, 15);
+        for(int32_t i = 0; i < 600; i++)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            if(_pid == -1) break;
+        }
+        if(_pid != -1)
+        {
+            _out->printError("Error: Process did not finish within 60 seconds. Killing it.");
+            kill(_pid, 9);
+            close(_stdIn);
+            close(_stdOut);
+            close(_stdErr);
+            _stdIn = -1;
+            _stdOut = -1;
+            _stdErr = -1;
+        }
+        if(_execThread.joinable()) _execThread.join();
+        if(_errorThread.joinable()) _errorThread.join();
+        BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
+
+        BaseLib::Io::deleteFile(_codeFile);
     }
-    if(_pid != -1)
+    catch(const std::exception& ex)
     {
-        _out->printError("Error: Process did not finish within 60 seconds. Killing it.");
-        kill(_pid, 9);
-        close(_stdIn);
-        close(_stdOut);
-        close(_stdErr);
-        _stdIn = -1;
-        _stdOut = -1;
-        _stdErr = -1;
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    if(_execThread.joinable()) _execThread.join();
-    if(_errorThread.joinable()) _errorThread.join();
-    BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
 }
 
 void Python::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
@@ -127,13 +133,9 @@ void Python::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	{
 	    if(index == 0)
         {
-	        if(_pid == -1) startProgram();
-        }
-        else if(index == 1)
-        {
             if(_pid != -1) kill(_pid, message->structValue->at("payload")->integerValue64);
         }
-        else if(index == 2)
+        else if(index == 1)
         {
             if(_stdIn != -1)
             {
@@ -154,6 +156,22 @@ void Python::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                 }
             }
         }
+        else
+        {
+            auto nodeInputParameters = std::make_shared<Flows::Array>();
+            nodeInputParameters->reserve(3);
+            nodeInputParameters->emplace_back(info->serialize());
+            nodeInputParameters->emplace_back(std::make_shared<Flows::Variable>(index));
+            nodeInputParameters->emplace_back(message);
+
+            auto parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(3);
+            parameters->emplace_back(std::make_shared<Flows::Variable>(_pid));
+            parameters->emplace_back(std::make_shared<Flows::Variable>("nodeInput"));
+            parameters->emplace_back(std::make_shared<Flows::Variable>(nodeInputParameters));
+            auto result = invoke("invokeIpcProcessMethod", parameters);
+            if(result->errorStruct) _out->printError("Error calling nodeInput: " + result->structValue->at("faultString")->stringValue);
+        }
 	}
 	catch(const std::exception& ex)
 	{
@@ -165,18 +183,6 @@ void Python::startProgram()
 {
     try
     {
-        if(_filename.empty())
-        {
-            _out->printError("Error: filename is not set.");
-            return;
-        }
-
-        {
-            std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-            _bufferOut.clear();
-            _bufferErr.clear();
-        }
-
         if(_execThread.joinable()) _execThread.join();
         if(_errorThread.joinable()) _errorThread.join();
         _execThread = std::thread(&Python::execThread, this);
@@ -210,10 +216,72 @@ void Python::execThread()
             }
             if(_errorThread.joinable()) _errorThread.join();
 
+            std::string pythonExecutablePath;
+
+            { //Get Python path
+                std::string pathEnv = getenv("PATH");
+                auto paths = BaseLib::HelperFunctions::splitAll(pathEnv, ':');
+                for(auto& path : paths)
+                {
+                    if(path.empty()) continue;
+                    if(path.back() != '/') path.push_back('/');
+                    if(BaseLib::Io::fileExists(path + "python3"))
+                    {
+                        pythonExecutablePath = path + "python3";
+                        break;
+                    }
+                }
+
+                if(pythonExecutablePath.empty())
+                {
+                    for(auto& path : paths)
+                    {
+                        if(path.empty()) continue;
+                        if(path.back() != '/') path.push_back('/');
+                        if(BaseLib::Io::fileExists(path + "python"))
+                        {
+                            pythonExecutablePath = path + "python";
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if(pythonExecutablePath.empty())
+            {
+                if(BaseLib::Io::fileExists("/usr/bin/python3")) pythonExecutablePath = "/usr/bin/python3";
+                else if(BaseLib::Io::fileExists("/usr/local/bin/python3")) pythonExecutablePath = "/usr/local/bin/python3";
+                else
+                {
+                    _out->printError("Error: No Python executable found. Please install Python.");
+                    return;
+                }
+            }
+
+            std::string socketPath;
+            {
+                auto socketPathParameters = std::make_shared<Flows::Array>();
+                socketPathParameters->emplace_back(std::make_shared<Flows::Variable>("socketPath"));
+                auto result = invoke("getSystemVariable", socketPathParameters);
+                socketPath = result->stringValue;
+            }
+            if(socketPath.empty())
+            {
+                _out->printError("Error: Could not get socket path.");
+                return;
+            }
+            BaseLib::HelperFunctions::stringReplace(socketPath, "\"", "\\\"");
+            socketPath = "\"" + socketPath + "homegearIPC.sock" + "\"";
+
+            std::vector<std::string> arguments;
+            arguments.emplace_back(_codeFile);
+            arguments.emplace_back(socketPath);
+            arguments.emplace_back(_id);
+
             int stdIn = -1;
             int stdOut = -1;
             int stdErr = -1;
-            _pid = BaseLib::ProcessManager::systemp(_filename, BaseLib::ProcessManager::splitArguments(_arguments), getMaxFd(), stdIn, stdOut, stdErr);
+            _pid = BaseLib::ProcessManager::systemp(pythonExecutablePath, arguments, getMaxFd(), stdIn, stdOut, stdErr);
             _stdIn = stdIn;
             _stdOut = stdOut;
             _stdErr = stdErr;
@@ -224,23 +292,18 @@ void Python::execThread()
             std::string bufferOut;
             while(_stdOut != -1)
             {
-                if(!_collectOutput) bufferOut.clear();
                 auto bytesRead = 0;
+                bufferOut.clear();
                 do
                 {
                     bytesRead = read(_stdOut, buffer.data(), buffer.size());
                     if(bytesRead > 0)
                     {
-                        if(_collectOutput)
-                        {
-                            std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-                            _bufferOut.insert(_bufferOut.end(), buffer.begin(), buffer.begin() + bytesRead);
-                        }
-                        else bufferOut.insert(bufferOut.end(), buffer.begin(), buffer.begin() + bytesRead);
+                        bufferOut.insert(bufferOut.end(), buffer.begin(), buffer.begin() + bytesRead);
                     }
                 } while(bytesRead > 0);
 
-                if(!_collectOutput && !bufferOut.empty())
+                if(!bufferOut.empty())
                 {
                     auto outputVector = BaseLib::HelperFunctions::splitAll(bufferOut, '\n');
 
@@ -257,26 +320,9 @@ void Python::execThread()
                 }
             }
 
-            if(_collectOutput)
-            {
-                std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-                auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferOut, '\n');
-
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                outputArray->arrayValue->reserve(outputVector.size());
-                for(int32_t i = 0; i < (signed)outputVector.size(); i++)
-                {
-                    if(i == (signed)outputVector.size() - 1 && outputVector[i].empty()) continue;
-                    outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
-                }
-                message->structValue->emplace("payload", outputArray);
-                output(1, message);
-            }
-
-            if(_autostart) std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-        while(_autostart);
+        while(!_stopThread);
     }
     catch(const std::exception& ex)
     {
@@ -293,44 +339,19 @@ void Python::errorThread()
         while(_stdErr != -1)
         {
             int32_t bytesRead = 0;
-            if(!_collectOutput) bufferErr.clear();
+            bufferErr.clear();
             do
             {
                 bytesRead = read(_stdErr, buffer.data(), buffer.size());
                 if(bytesRead > 0)
                 {
-                    if(_collectOutput)
-                    {
-                        std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-                        _bufferErr.insert(_bufferErr.end(), buffer.begin(), buffer.begin() + bytesRead);
-                    }
-                    else bufferErr.insert(bufferErr.end(), buffer.begin(), buffer.begin() + bytesRead);
+                    bufferErr.insert(bufferErr.end(), buffer.begin(), buffer.begin() + bytesRead);
                 }
             } while(bytesRead > 0);
 
-            if(!_collectOutput && !bufferErr.empty())
+            if(!bufferErr.empty())
             {
                 auto outputVector = BaseLib::HelperFunctions::splitAll(bufferErr, '\n');
-
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                outputArray->arrayValue->reserve(outputVector.size());
-                for(int32_t i = 0; i < (signed)outputVector.size(); i++)
-                {
-                    if(i == (signed)outputVector.size() - 1 && outputVector[i].empty()) continue;
-                    outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
-                }
-                message->structValue->emplace("payload", outputArray);
-                output(2, message);
-            }
-        }
-
-        if(_collectOutput)
-        {
-            std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-            if(!_bufferErr.empty())
-            {
-                auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferErr, '\n');
 
                 Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
@@ -368,39 +389,6 @@ void Python::sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumpe
             message->structValue->emplace("coreDumped", std::make_shared<Flows::Variable>(coreDumped));
             message->structValue->emplace("signal", std::make_shared<Flows::Variable>(signal));
             message->structValue->emplace("payload", std::make_shared<Flows::Variable>(exitCode));
-            if(_collectOutput)
-            {
-                std::lock_guard<std::mutex> bufferGuard(_bufferMutex);
-
-                {
-                    auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferOut, '\n');
-
-                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                    outputArray->arrayValue->reserve(outputVector.size());
-                    for(int32_t i = 0; i < (signed)outputVector.size(); i++)
-                    {
-                        if(i == (signed)outputVector.size() - 1 && outputVector[i].empty()) continue;
-                        outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
-                    }
-                    message->structValue->emplace("stdout", outputArray);
-                }
-
-                if(!_bufferErr.empty())
-                {
-                    auto outputVector = BaseLib::HelperFunctions::splitAll(_bufferErr, '\n');
-
-                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    Flows::PVariable outputArray = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                    outputArray->arrayValue->reserve(outputVector.size());
-                    for(int32_t i = 0; i < (signed)outputVector.size(); i++)
-                    {
-                        if(i == (signed)outputVector.size() - 1 && outputVector[i].empty()) continue;
-                        outputArray->arrayValue->emplace_back(std::make_shared<Flows::Variable>(std::move(outputVector[i])));
-                    }
-                    message->structValue->emplace("stderr", outputArray);
-                }
-            }
             output(0, message);
         }
     }

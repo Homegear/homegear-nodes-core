@@ -49,15 +49,10 @@ public:
 	virtual void waitForStop();
 private:
     int32_t _callbackHandlerId = -1;
-	std::string _filename;
-    std::string _arguments;
-    std::atomic_bool _autostart{false};
-    bool _collectOutput = false;
+	std::string _codeFile;
+	std::atomic_bool _stopThread{false};
 	std::thread _execThread;
 	std::thread _errorThread;
-	std::mutex _bufferMutex;
-	std::string _bufferOut;
-    std::string _bufferErr;
 	std::atomic_int _pid{-1};
 	std::atomic_int _stdIn{-1};
     std::atomic_int _stdOut{-1};
