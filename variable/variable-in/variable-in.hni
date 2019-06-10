@@ -498,6 +498,8 @@
                         $("#node-input-looppreventiongroup-container").show();
                     } else {
                         $("#node-input-looppreventiongroup-container").hide();
+                        $("#node-input-looppreventiongroup").val("");
+                        that.looppreventiongroup = "";
                     }
                 });
             //}}}
