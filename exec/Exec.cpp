@@ -40,6 +40,11 @@ Exec::Exec(std::string path, std::string nodeNamespace, std::string type, const 
 
 Exec::~Exec()
 {
+    _autostart = false;
+    if(_pid != -1) kill(_pid, 9);
+    if(_execThread.joinable()) _execThread.join();
+    if(_errorThread.joinable()) _errorThread.join();
+    if(_callbackHandlerId != -1) BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
 }
 
 bool Exec::init(Flows::PNodeInfo info)

@@ -41,6 +41,11 @@ Python::Python(std::string path, std::string nodeNamespace, std::string type, co
 
 Python::~Python()
 {
+    _stopThread = true;
+    if(_pid != -1) kill(_pid, 9);
+    if(_execThread.joinable()) _execThread.join();
+    if(_errorThread.joinable()) _errorThread.join();
+    if(_callbackHandlerId != -1) BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
 }
 
 bool Python::init(Flows::PNodeInfo info)
@@ -72,6 +77,17 @@ bool Python::start()
 
         startProgram();
 
+        {
+            while(!_startUpError)
+            {
+                if(_processStartUpComplete) break;
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        }
+
+        if(_startUpError) return false;
+
         return true;
     }
     catch(const std::exception& ex)
@@ -81,10 +97,27 @@ bool Python::start()
     return false;
 }
 
+void Python::startUpComplete()
+{
+    try
+    {
+        if(_pid == -1) return;
+
+        callStartUpComplete();
+
+        _startUpComplete = true;
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+}
+
 void Python::stop()
 {
     try
     {
+        _processStartUpComplete = false;
         _stopThread = true;
         if(_pid != -1) kill(_pid, 15);
     }
@@ -118,6 +151,7 @@ void Python::waitForStop()
         if(_execThread.joinable()) _execThread.join();
         if(_errorThread.joinable()) _errorThread.join();
         BaseLib::ProcessManager::unregisterCallbackHandler(_callbackHandlerId);
+        _callbackHandlerId = -1;
 
         BaseLib::Io::deleteFile(_codeFile);
     }
@@ -216,6 +250,8 @@ void Python::execThread()
             }
             if(_errorThread.joinable()) _errorThread.join();
 
+            _processStartUpComplete = false;
+
             std::string pythonExecutablePath;
 
             { //Get Python path
@@ -253,6 +289,7 @@ void Python::execThread()
                 else if(BaseLib::Io::fileExists("/usr/local/bin/python3")) pythonExecutablePath = "/usr/local/bin/python3";
                 else
                 {
+                    _startUpError = true;
                     _out->printError("Error: No Python executable found. Please install Python.");
                     return;
                 }
@@ -267,6 +304,7 @@ void Python::execThread()
             }
             if(socketPath.empty())
             {
+                _startUpError = true;
                 _out->printError("Error: Could not get socket path.");
                 return;
             }
@@ -287,6 +325,22 @@ void Python::execThread()
             _stdErr = stdErr;
 
             _errorThread = std::thread(&Python::errorThread, this);
+
+            while(_pid != -1) //While process is running
+            {
+                auto parameters = std::make_shared<Flows::Array>();
+                parameters->reserve(3);
+                parameters->emplace_back(std::make_shared<Flows::Variable>(_pid));
+                parameters->emplace_back(std::make_shared<Flows::Variable>("ping"));
+                parameters->emplace_back(std::make_shared<Flows::Variable>(Flows::VariableType::tArray));
+                auto result = invoke("invokeIpcProcessMethod", parameters);
+                if(!result->errorStruct) break; //Process started and responding
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            if(_pid == -1) _startUpError = true;
+            else _processStartUpComplete = true;
+            if(_startUpComplete) callStartUpComplete();
 
             std::array<uint8_t, 4096> buffer{};
             std::string bufferOut;
@@ -351,6 +405,8 @@ void Python::errorThread()
 
             if(!bufferErr.empty())
             {
+                _out->printError("Process error output: " + bufferErr);
+
                 auto outputVector = BaseLib::HelperFunctions::splitAll(bufferErr, '\n');
 
                 Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -451,6 +507,34 @@ int32_t Python::read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize)
     }
     if(bytesRead > bufferSize) bytesRead = bufferSize;
     return bytesRead;
+}
+
+void Python::callStartUpComplete()
+{
+    try
+    {
+        auto innerParameters = std::make_shared<Flows::Array>();
+        innerParameters->reserve(5);
+        innerParameters->emplace_back(std::make_shared<Flows::Variable>("nodeBlue"));
+        innerParameters->emplace_back(std::make_shared<Flows::Variable>(0));
+        innerParameters->emplace_back(std::make_shared<Flows::Variable>(-1));
+        innerParameters->emplace_back(std::make_shared<Flows::Variable>(Flows::VariableType::tArray));
+        innerParameters->emplace_back(std::make_shared<Flows::Variable>(Flows::VariableType::tArray));
+        innerParameters->at(3)->arrayValue->emplace_back(std::make_shared<Flows::Variable>("startUpComplete"));
+        innerParameters->at(4)->arrayValue->emplace_back(std::make_shared<Flows::Variable>(true));
+
+        auto parameters = std::make_shared<Flows::Array>();
+        parameters->reserve(3);
+        parameters->emplace_back(std::make_shared<Flows::Variable>(_pid));
+        parameters->emplace_back(std::make_shared<Flows::Variable>("broadcastEvent"));
+        parameters->emplace_back(std::make_shared<Flows::Variable>(innerParameters));
+        auto result = invoke("invokeIpcProcessMethod", parameters);
+        if(result->errorStruct) _out->printError("Error calling broadcastEvent on process: " + result->structValue->at("faultString")->stringValue);
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
 }
 
 }
