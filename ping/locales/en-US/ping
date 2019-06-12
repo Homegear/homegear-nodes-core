@@ -4,11 +4,11 @@
       "label": {
         "ping": "ping",
         "host": "Host address",
-        "interval": "Interval between pings in s",
+        "interval": "Interval",
         "name": "Name"
       },
       "input1Description": "Enables or disables pinging.",
-      "output1Description": "Outputs <code>true</code> when the target is reachable and <code>false</code> when it is not. Pleaste note, that the node only outputs changes in reachability.",
+      "output1Description": "Outputs <code>true</code> when the target is reachable and <code>false</code> when it is not.",
       "help": "Checks if a host is reachable."
     }
   }
