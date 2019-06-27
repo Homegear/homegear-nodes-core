@@ -53,14 +53,13 @@ private:
 	bool _outputFirst = true;
 
 	std::atomic_bool _firstInterval{true};
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
+	std::atomic_bool _stopThread{true};
 	std::mutex _timerThreadMutex;
 	std::thread _timerThread;
 
 	std::mutex _lastInputMutex;
 	Flows::PVariable _lastInput;
-	std::atomic<int64_t> _lastInputTime;
+	std::atomic<int64_t> _lastInputTime{0};
 	std::atomic<size_t> _inputCount{0};
 	void timer();
 	void checkLastInput();

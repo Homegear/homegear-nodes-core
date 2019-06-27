@@ -36,8 +36,6 @@ namespace MyNode
 MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
         : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-    _stopThread = true;
-    _stopped = true;
 }
 
 MyNode::~MyNode()
@@ -74,8 +72,6 @@ bool MyNode::start()
 {
     try
     {
-        _stopped = false;
-
         std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
         _stopThread = true;
         if(_timerThread.joinable()) _timerThread.join();
@@ -95,7 +91,6 @@ void MyNode::stop()
 {
     try
     {
-        _stopped = true;
         std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
         _stopThread = true;
     }
@@ -180,10 +175,11 @@ void MyNode::timer()
 
             {
                 int64_t lastInputTime = _lastInputTime.load(std::memory_order_acquire);
-                if(lastInputTime > 0)
+                if(lastInputTime != 0)
                 {
                     _lastInputTime.store(0, std::memory_order_release);
                     sleepingTime = _interval - (Flows::HelperFunctions::getTime() - lastInputTime);
+                    if(sleepingTime < 1) sleepingTime = 1;
                     continue;
                 }
             }
@@ -215,14 +211,15 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                 _lastInput.reset();
             }
 
-            _inputCount.fetch_add(1, std::memory_order_acq_rel);
             if((!_outputFirst && !_firstInterval.load(std::memory_order_acquire)) || _outputFirst)
             {
+                _inputCount.fetch_add(1, std::memory_order_acq_rel);
                 output(0, message);
             }
             else
             {
                 std::lock_guard<std::mutex> lastInputGuard(_lastInputMutex);
+                _inputCount.fetch_add(1, std::memory_order_acq_rel);
                 _lastInput = message;
             }
 
