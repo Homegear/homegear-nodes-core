@@ -76,6 +76,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 			if(eventSource == "all") _eventSource = EventSource::all;
 			else if(eventSource == "device") _eventSource = EventSource::device;
 			else if(eventSource == "homegear") _eventSource = EventSource::homegear;
+            else if(eventSource == "scriptengine") _eventSource = EventSource::scriptEngine;
+            else if(eventSource == "nodeblue") _eventSource = EventSource::nodeBlue;
+            else if(eventSource == "rpcClient") _eventSource = EventSource::rpcClient;
+            else if(eventSource == "ipcclient") _eventSource = EventSource::ipcClient;
+            else if(eventSource == "mqtt") _eventSource = EventSource::mqtt;
 		}
 
 		if(variableType == "device") _variableType = VariableType::device;
@@ -223,11 +228,16 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 {
 	try
 	{
+        frontendEventLog(source + " " + std::to_string((int32_t)_eventSource));
 		if(_eventSource != EventSource::all)
 		{
-			bool device = source.compare(0, 7, "device-") == 0;
-			if(device && _eventSource != EventSource::device) return;
-			if(!device && _eventSource != EventSource::homegear) return;
+			if(source.compare(0, 7, "device-") == 0 && _eventSource != EventSource::device) return;
+			else if(source.compare(0, 12, "scriptEngine") == 0 && _eventSource != EventSource::scriptEngine) return;
+			else if(source.compare(0, 8, "nodeBlue") == 0 && _eventSource != EventSource::nodeBlue) return;
+            else if(source.compare(0, 9, "ipcServer") == 0 && _eventSource != EventSource::ipcClient) return;
+            else if(source.compare(0, 8, "homegear") == 0 && _eventSource != EventSource::homegear) return;
+            else if(source.compare(0, 7, "client-") == 0 && _eventSource != EventSource::rpcClient) return;
+            else if(source.compare(0, 4, "mqtt") == 0 && _eventSource != EventSource::mqtt) return;
 		}
 
 		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;

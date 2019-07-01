@@ -58,7 +58,12 @@ private:
     {
         all,
         device,
-        homegear
+        homegear,
+        scriptEngine,
+        nodeBlue,
+        rpcClient,
+        ipcClient,
+        mqtt
     };
 
     VariableType _variableType = VariableType::device;
