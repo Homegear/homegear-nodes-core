@@ -52,7 +52,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
 
 		settingsIterator = info->info->structValue->find("retain");
-		if(settingsIterator != info->info->structValue->end()) _retain = settingsIterator->second->booleanValue;
+		if(settingsIterator != info->info->structValue->end()) _retain = (settingsIterator->second->stringValue == "true");
 
 		return true;
 	}

@@ -141,7 +141,9 @@ void MyNode::setUrl(std::string& url)
             }
             _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
             _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
-            _keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
+            auto keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
+            _keyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
+            _keyData->insert(_keyData->end(), keyData.begin(), keyData.end());
             _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
             _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
             _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;

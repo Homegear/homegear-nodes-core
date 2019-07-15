@@ -2,7 +2,8 @@
 {
     "name": "variable-loop-prevention-group",
     "readableName": "Variable loop prevention group",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>

@@ -28,6 +28,7 @@
  */
 
 #include "MyNode.h"
+#include <homegear-base/Security/SecureVector.h>
 
 namespace MyNode
 {
@@ -101,7 +102,10 @@ bool MyNode::start()
                 certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
                 certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
                 certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
-                certificateInfo->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                auto secureKeyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
+                secureKeyData->insert(secureKeyData->end(), keyData.begin(), keyData.end());
+                certificateInfo->keyData = secureKeyData;
                 serverInfo.certificates.emplace("*", certificateInfo);
 				serverInfo.dhParamData = getConfigParameter(tlsNodeId, "dhdata.password")->stringValue;
 				serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
@@ -120,7 +124,7 @@ bool MyNode::start()
 		}
 		catch(BaseLib::Exception& ex)
 		{
-			_out->printError("Error starting server: " + ex.what());
+			_out->printError("Error starting server: " + std::string(ex.what()));
 			return false;
 		}
 
@@ -290,6 +294,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http)
 			std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
 			for(auto& node : _nodes)
 			{
+
 				auto methodIterator = node.second.find(http.getHeader().method);
 				if(methodIterator == node.second.end()) continue;
 				if(std::regex_match(http.getHeader().path, methodIterator->second.pathRegex))

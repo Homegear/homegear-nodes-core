@@ -27,31 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef RUNSCRIPT_H_
-#define RUNSCRIPT_H_
+#include "Factory.h"
+#include "MyNode.h"
 
-#include <homegear-node/INode.h>
-#include <homegear-base/BaseLib.h>
-#include <mutex>
-
-namespace RunScript
+Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-
-class RunScript: public Flows::INode
-{
-public:
-	RunScript(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~RunScript();
-
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	bool _onBoolean = false;
-	Flows::PVariable _input1;
-	bool _input2 = false;
-
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-};
-
+	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

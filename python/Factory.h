@@ -27,56 +27,17 @@
  * files in the program, then also delete it here.
  */
 
-#include "RunScript.h"
+#ifndef FACTORY_H
+#define FACTORY_H
 
-namespace RunScript
+#include <homegear-node/NodeFactory.h>
+
+class MyFactory : Flows::NodeFactory
 {
+public:
+	virtual Flows::INode* createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+};
 
-RunScript::RunScript(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-}
+extern "C" Flows::NodeFactory* getFactory();
 
-RunScript::~RunScript()
-{
-}
-
-bool RunScript::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("onboolean");
-		if(settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
-
-		_input1 = getNodeData("input1");
-		_input2 = getNodeData("input2")->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-void RunScript::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-}
+#endif

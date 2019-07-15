@@ -5,6 +5,7 @@
         "variabletype": "Variable type",
         "devicevariable": "Device variable",
         "metadata": "Metadata",
+        "novariable": "None",
         "systemvariable": "System variable",
         "flowvariable": "Flow variable",
         "globalvariable": "Global variable",

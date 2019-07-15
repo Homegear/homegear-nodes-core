@@ -48,7 +48,8 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("variabletype");
 		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
-		if(variableType == "device") _variableType = VariableType::device;
+        if(variableType == "self") _variableType = VariableType::self;
+		else if(variableType == "device") _variableType = VariableType::device;
 		else if(variableType == "metadata") _variableType = VariableType::metadata;
 		else if(variableType == "system") _variableType = VariableType::system;
 		else if(variableType == "flow") _variableType = VariableType::flow;
@@ -66,8 +67,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
 		}
 
-		settingsIterator = info->info->structValue->find("variable");
-		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+		if(_variableType != VariableType::self)
+        {
+            settingsIterator = info->info->structValue->find("variable");
+            if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+        }
 
 		return true;
 	}
@@ -86,7 +90,17 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-		if(_variableType == VariableType::flow)
+        if(_variableType == VariableType::self)
+        {
+            bool newValue = !((bool)(*getNodeData("value")));
+            setNodeData("value", std::make_shared<Flows::Variable>(newValue));
+
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+
+            output(0, message);
+        }
+		else if(_variableType == VariableType::flow)
 		{
 		    bool newValue = !((bool)(*getFlowData(_variable)));
 			setFlowData(_variable, std::make_shared<Flows::Variable>(newValue));

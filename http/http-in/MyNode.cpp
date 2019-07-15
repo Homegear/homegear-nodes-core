@@ -124,7 +124,7 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 		try
 		{
 			if(parameters->size() != 8) return Flows::Variable::createError(-1, "Method expects exactly 8 parameters. " + std::to_string(parameters->size()) + " given.");
-			if(parameters->at(0)->type != Flows::VariableType::tInteger) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
+			if(parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
 			if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 			if(parameters->at(2)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 3 is not of type string.");
 			if(parameters->at(3)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter 4 is not of type string.");

@@ -2,7 +2,8 @@
 {
     "name": "variable-in",
     "readableName": "Variable input",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -55,6 +56,11 @@
                 <option value="all" data-i18n="variable-in.label.all"></option>
                 <option value="device" data-i18n="variable-in.label.device"></option>
                 <option value="homegear" data-i18n="variable-in.label.homegear"></option>
+                <option value="nodeblue" data-i18n="variable-in.label.nodeblue"></option>
+                <option value="scriptengine" data-i18n="variable-in.label.scriptengine"></option>
+                <option value="rpcclient" data-i18n="variable-in.label.rpcclient"></option>
+                <option value="ipcclient" data-i18n="variable-in.label.ipcclient"></option>
+                <option value="mqtt" data-i18n="variable-in.label.mqtt"></option>
             </select>
         </div>
     </div>
@@ -66,6 +72,11 @@
         <label style="width: 130px;">&nbsp;</label>
         <input type="checkbox" id="node-input-outputonstartup" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-outputonstartup" style="width: 65%;" data-i18n="variable-in.label.outputonstartup"></label>
+    </div>
+    <div class="form-row" id="changes-only">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-changes-only" style="width: 65%;" data-i18n="variable-in.label.changes-only"></label>
     </div>
     <div class="form-row">
         <label style="width: 130px;">&nbsp;</label>
@@ -93,11 +104,18 @@
             eventsource: {value:"all",validate: function(v) { return v != ""; }},
             refractoryperiod: {value: "0",validate:RED.validators.number()},
             outputonstartup: {value: false},
+            "changes-only": {value: false, required: false},
             loopprevention: {value: false},
             looppreventiongroup: {type:"variable-loop-prevention-group", required: false},
             name: {value:""}
         },
-        inputs:0,
+        inputs:1,
+        inputInfo: [
+            {
+                label: "TRG",
+                types: ["any"]
+            }
+        ],
         outputs:1,
         outputInfo: [
             {
@@ -112,7 +130,7 @@
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
-            return "variable";
+            return "variable-in";
         },
         oneditprepare: function() {
             var that = this;
@@ -305,7 +323,7 @@
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
-                        $("#node-input-eventsource-container").hide();
+                        $("#node-input-eventsource-container").show();
                         $("#node-create-variable").show();
                         updateMetadataVariableOptions();
                     } else {
@@ -313,7 +331,7 @@
                         $("#node-input-peerid-container").hide();
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
-                        $("#node-input-eventsource-container").hide();
+                        $("#node-input-eventsource-container").show();
                         $("#node-create-variable").show();
                         if(variableType == "system") updateSystemVariableOptions();
                         else if(variableType == "flow") updateFlowVariableOptions();
@@ -485,6 +503,8 @@
                         $("#node-input-looppreventiongroup-container").show();
                     } else {
                         $("#node-input-looppreventiongroup-container").hide();
+                        $("#node-input-looppreventiongroup").val("");
+                        that.looppreventiongroup = "";
                     }
                 });
             //}}}

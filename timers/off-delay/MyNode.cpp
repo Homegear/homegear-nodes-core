@@ -141,7 +141,7 @@ void MyNode::timer(int64_t delayTo)
 		if(_delay >= 1000) sleepingTime = 100;
 		else if(_delay >= 30000) sleepingTime = 1000;
 
-		while (restTime > 0)
+		while(restTime > 0)
 		{
 			if ((restTime / sleepingTime) % (1000 / sleepingTime) == 0)
 			{
@@ -152,10 +152,6 @@ void MyNode::timer(int64_t delayTo)
 			std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
 			if(_stopThread)
 			{
-				Flows::PVariable outputMessage3 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				outputMessage3->structValue->emplace("payload", std::make_shared<Flows::Variable>(-1));
-				output(1, outputMessage3); //rest time
-				setNodeData("delayTo", std::make_shared<Flows::Variable>(0));
 				_threadRunning = false;
 				return;
 			}

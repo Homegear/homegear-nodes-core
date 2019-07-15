@@ -102,10 +102,22 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 			parameters->push_back(std::make_shared<Flows::Variable>(_channel));
 			parameters->push_back(std::make_shared<Flows::Variable>(_variable));
 			parameters->push_back(message->structValue->at("payload"));
-			parameters->push_back(std::make_shared<Flows::Variable>(false));
+			parameters->push_back(std::make_shared<Flows::Variable>(true));
 
 			Flows::PVariable result = invoke("setValue", parameters);
-			if(result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			if(result->errorStruct)
+            {
+                _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+            }
+            else
+            {
+                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+            }
+
+            output(0, message);
 		}
 	}
 	catch(const std::exception& ex)

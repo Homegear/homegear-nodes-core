@@ -69,7 +69,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::setNodeVariable(std::string variable, Flows::PVariable value)
+void MyNode::setNodeVariable(const std::string& variable, Flows::PVariable value)
 {
 	try
 	{
@@ -91,7 +91,7 @@ std::string MyNode::stripNonPrintable(const std::string& s)
 	strippedString.reserve(s.size());
 	for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
 	{
-		if(std::isprint(*i)) strippedString.push_back(*i);
+		if(std::isprint(*i, std::locale("en_US.UTF-8"))) strippedString.push_back(*i);
 	}
 	return strippedString;
 }
