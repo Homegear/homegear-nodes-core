@@ -94,7 +94,9 @@ bool MyNode::start()
 			{
 				mqttSettings->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
 				mqttSettings->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-				mqttSettings->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+				mqttSettings->keyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
+                mqttSettings->keyData->insert(mqttSettings->keyData->end(), keyData.begin(), keyData.end());
 				mqttSettings->caPath = getConfigParameter(tlsNodeId, "ca")->stringValue;
 				mqttSettings->certPath = getConfigParameter(tlsNodeId, "cert")->stringValue;
 				mqttSettings->keyPath = getConfigParameter(tlsNodeId, "key")->stringValue;

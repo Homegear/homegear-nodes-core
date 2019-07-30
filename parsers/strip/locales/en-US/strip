@@ -1,0 +1,13 @@
+{
+  "parsers/strip.hni": {
+    "strip": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Creates a copy of the <code>$message</code> object only keeping the <code>payload</code>.</p>",
+      "help": "This node creates a copy of the <code>$message</code> object only keeping the <code>payload</code>.",
+      "input1Description": "Any message object.",
+      "output1Description": "A copy of the input message object only containing <code>payload</code>."
+    }
+  }
+}

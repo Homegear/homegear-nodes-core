@@ -2,7 +2,8 @@
 {
     "name": "modbus-out",
     "readableName": "Modbus output",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>

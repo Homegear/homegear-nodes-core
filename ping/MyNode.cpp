@@ -27,8 +27,9 @@
  * files in the program, then also delete it here.
  */
 
-#include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
+#include <homegear-base/Managers/ProcessManager.h>
+#include <sys/resource.h>
 
 namespace MyNode
 {
@@ -61,10 +62,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
 	return false;
 }
 
@@ -73,7 +70,6 @@ bool MyNode::start()
 	try
 	{
         std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-		//_statusLast = getNodeData("statusLast");
         _stopThread = true;
 		if (_workerThread.joinable())_workerThread.join();
 		_stopThread = false;
@@ -84,10 +80,6 @@ bool MyNode::start()
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
 	return false;
 }
 
@@ -96,16 +88,11 @@ void MyNode::stop()
 	try
 	{
 		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-		//setNodeData("statusLast", _statusLast);
 		_stopThread = true;
 	}
 	catch(const std::exception& ex)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -121,78 +108,44 @@ void MyNode::waitForStop()
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
 	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+}
+
+int32_t MyNode::getMaxFd()
+{
+    struct rlimit limits{};
+    if(getrlimit(RLIMIT_NOFILE, &limits) == -1 || limits.rlim_cur >= INT32_MAX)
+    {
+        return 1024;
+    }
+    return limits.rlim_cur;
 }
 
 void MyNode::worker()
 {
 	try
 	{
-        int64_t cycleEndTime = 0;
-        int64_t cycleTime = 0;
-        int64_t cycleStartTime = Flows::HelperFunctions::getTime();
         int64_t timeToSleep = 1000 * _interval;
-        int64_t sleepingTime = timeToSleep;
+        int64_t sleepTo = Flows::HelperFunctions::getTime() + timeToSleep;
 		while (!_stopThread)
 		{
-			if (sleepingTime >= timeToSleep)
+			if (Flows::HelperFunctions::getTime() >= sleepTo && _enabled)
 			{
-				sleepingTime -= timeToSleep;
-	            bool reachable = false;
-	                
-				std::string pingOutput;
-				std::string command = "ping -c 1 " + _host;
-			    //_out->printInfo("Ping start for host " + _host);
+				sleepTo = Flows::HelperFunctions::getTime() + timeToSleep;
 
-				FILE* pipe = popen(command.c_str(), "r");
-			    if (pipe)
-				{
-				    char buffer[128];
-				    int32_t bytesRead = 0;
-				    pingOutput.reserve(1024);
-				    while(!feof(pipe))
-				    {
-				    	if(fgets(buffer, 128, pipe) != 0)
-				    	{
-				    		if(pingOutput.size() + bytesRead > pingOutput.capacity()) pingOutput.reserve(pingOutput.capacity() + 1024);
-				    		pingOutput.insert(pingOutput.end(), buffer, buffer + strlen(buffer));
-				    	}
-				    }
-				    pclose(pipe);
-				    //_out->printInfo(pingOutput);
-				    std::string findstr = "1 received";
-				    std::size_t found = pingOutput.find(findstr);
-				    reachable =  (found!=std::string::npos);
-	  				//_out->printInfo("reachable: " + std::to_string(reachable));
-				}
-				else
-			    	_out->printInfo("no pipe");
-	            
-			    if (reachable != _statusLast)
-			    {
-		            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(reachable));
-		            output(0, outputMessage);
-					_statusLast = reachable;
-				}
+				std::string pingOutput;
+                auto result = BaseLib::ProcessManager::exec("/bin/ping -c 1 " + _host, getMaxFd(), pingOutput);
+                bool reachable = (result == 0);
+
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(reachable));
+                output(0, outputMessage);
 			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(100)); 
-			cycleEndTime = Flows::HelperFunctions::getTime();
-			cycleTime = cycleEndTime - cycleStartTime;
-			sleepingTime += cycleTime;
-			cycleStartTime = cycleEndTime;
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 		}
 	}
 	catch(const std::exception& ex)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
@@ -206,10 +159,6 @@ void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable messa
 	catch(const std::exception& ex)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 

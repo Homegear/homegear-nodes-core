@@ -1,0 +1,83 @@
+<script type="text/x-homegear">
+{
+    "name": "exec",
+    "readableName": "exec",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 2
+}
+</script>
+<script type="text/x-red" data-template-name="exec">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="exec.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]exec.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-filename"><i class="fa fa-database"></i> <span data-i18n="exec.label.filename"></span></label>
+        <input type="text" id="node-input-filename" data-i18n="[placeholder]exec.label.filename">
+    </div>
+    <div class="form-row">
+        <label for="node-input-arguments"><i class="fa fa-cogs"></i> <span data-i18n="exec.label.arguments"></span></label>
+        <input type="text" id="node-input-arguments" data-i18n="[placeholder]exec.label.arguments">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-autostart" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-autostart" style="width: 65%;" data-i18n="exec.label.autostart"></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-collect-output" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-collect-output" style="width: 65%;" data-i18n="exec.label.collect-output"></label>
+    </div>
+</script>
+<script type="text/javascript">
+	RED.nodes.registerType('exec',{
+        category: 'function',
+        namespace: 'exec',
+        color: "#C0DEED",
+        defaults: {
+            name: {value:""},
+            filename: {value:"",required:true},
+            arguments: {value:"",required:false},
+            autostart: {value:false,required:false},
+            "collect-output": {value:false,required:false}
+        },
+        inputs:3,
+        inputInfo: [
+        	{
+        		label: "EXEC",
+        		types: ["bool"],
+        	},
+        	{
+                label: "SIG",
+                types: ["int"],
+            },
+        	{
+                label: "IN",
+                types: ["string"],
+            }
+        ],
+        outputs:3,
+        outputInfo: [
+        	{
+        	    label: "CODE",
+        		types: ["int"]
+        	},
+        	{
+        	    label: "OUT",
+                types: ["array[string]"]
+            },
+            {
+                label: "ERR",
+                types: ["array[string]"]
+            }
+        ],
+        icon: "function.png",
+        label: function() {
+            if(this.name) return this.name;
+            return "exec";
+        },
+        paletteLabel: "exec"
+    });
+</script>

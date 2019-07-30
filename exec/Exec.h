@@ -27,16 +27,51 @@
  * files in the program, then also delete it here.
  */
 
-#include "Factory.h"
-#include "RunScript.h"
-#include "../config.h"
+#ifndef RUNSCRIPT_H_
+#define RUNSCRIPT_H_
 
-Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
+#include <homegear-node/INode.h>
+#include <homegear-base/BaseLib.h>
+#include <mutex>
+
+namespace Exec
 {
-	return new RunScript::RunScript(path, nodeNamespace, type, frontendConnected);
+
+class Exec : public Flows::INode
+{
+public:
+	Exec(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~Exec();
+
+	virtual bool init(Flows::PNodeInfo info);
+	virtual bool start();
+	virtual void stop();
+	virtual void waitForStop();
+private:
+    int32_t _callbackHandlerId = -1;
+	std::string _filename;
+    std::string _arguments;
+    std::atomic_bool _autostart{false};
+    bool _collectOutput = false;
+	std::thread _execThread;
+	std::thread _errorThread;
+	std::mutex _bufferMutex;
+	std::string _bufferOut;
+    std::string _bufferErr;
+	std::atomic_int _pid{-1};
+	std::atomic_int _stdIn{-1};
+    std::atomic_int _stdOut{-1};
+    std::atomic_int _stdErr{-1};
+
+	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	void startProgram();
+	int32_t getMaxFd();
+    void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
+	void execThread();
+	void errorThread();
+	int32_t read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize);
+};
+
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
-}
+#endif

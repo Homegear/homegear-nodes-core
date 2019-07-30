@@ -2,7 +2,8 @@
 {
     "name": "variable-out",
     "readableName": "Variable output",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -65,13 +66,19 @@
 
             name: {value:""}
         },
-        inputs:1,
+        inputs: 1,
         inputInfo: [
             {
                 types: ["any"]
             }
         ],
-        outputs:0,
+        outputs: 1,
+        outputInfo: [
+            {
+                label: "RSLT",
+                types: ["any"]
+            }
+        ],
         icon: "arrow-in.png",
         align: "right",
         label: function() {
@@ -81,7 +88,7 @@
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
             else if(this.variable) return this.variable;
-            return "variable";
+            return "variable-out";
         },
         oneditprepare: function() {
             var that = this;

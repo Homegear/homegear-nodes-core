@@ -45,6 +45,7 @@ public:
 private:
 	enum class VariableType
 	{
+	    self,
 		device,
 		metadata,
 		system,

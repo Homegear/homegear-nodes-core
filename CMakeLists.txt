@@ -12,6 +12,10 @@ set(SOURCE_FILES
         basic-logic/and/Factory.h
         basic-logic/and/MyNode.cpp
         basic-logic/and/MyNode.h
+		basic-logic/change/Factory.cpp
+		basic-logic/change/Factory.h
+		basic-logic/change/MyNode.cpp
+		basic-logic/change/MyNode.h
         basic-logic/fallingedge/Factory.cpp
         basic-logic/fallingedge/Factory.h
         basic-logic/fallingedge/MyNode.cpp
@@ -36,10 +40,18 @@ set(SOURCE_FILES
         basic-logic/switch/Factory.h
         basic-logic/switch/MyNode.cpp
         basic-logic/switch/MyNode.h
+		basic-logic/variable-switch/Factory.cpp
+		basic-logic/variable-switch/Factory.h
+		basic-logic/variable-switch/MyNode.cpp
+		basic-logic/variable-switch/MyNode.h
         debug/Factory.cpp
         debug/Factory.h
         debug/MyNode.cpp
         debug/MyNode.h
+		exec/Factory.cpp
+		exec/Factory.h
+		exec/Exec.cpp
+		exec/Exec.h
         http/http-in/Factory.cpp
         http/http-in/Factory.h
         http/http-in/MyNode.cpp
@@ -128,10 +140,10 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
-		runscript/Factory.cpp
-		runscript/Factory.h
-		runscript/RunScript.cpp
-		runscript/RunScript.h
+		python/Factory.cpp
+		python/Factory.h
+		python/Python.cpp
+		python/Python.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -177,6 +189,10 @@ set(SOURCE_FILES
         timers/on-delay/Factory.h
         timers/on-delay/MyNode.cpp
         timers/on-delay/MyNode.h
+		timers/rate-limiter/Factory.cpp
+		timers/rate-limiter/Factory.h
+		timers/rate-limiter/MyNode.cpp
+		timers/rate-limiter/MyNode.h
         timers/slow-pwm/Factory.cpp
         timers/slow-pwm/Factory.h
         timers/slow-pwm/MyNode.cpp

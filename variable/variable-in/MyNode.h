@@ -58,12 +58,19 @@ private:
     {
         all,
         device,
-        homegear
+        homegear,
+        scriptEngine,
+        nodeBlue,
+        rpcClient,
+        ipcClient,
+        mqtt
     };
 
     VariableType _variableType = VariableType::device;
 	int64_t _lastInput = 0;
 	uint32_t _refractionPeriod = 0;
+	Flows::PVariable _lastValue;
+	bool _outputChangesOnly = false;
 	bool _outputOnStartup = false;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
@@ -78,6 +85,7 @@ private:
 	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
     virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
     virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
+    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

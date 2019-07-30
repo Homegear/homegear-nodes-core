@@ -45,6 +45,12 @@ function output(int $outputIndex, array $message)
 	return $nodeObject->output($outputIndex, $message);
 }
 
+function eventLog(string $message)
+{
+	global $nodeObject;
+	return $nodeObject->frontendEventLog($message);
+}
+
 class HomegearNode extends HomegearNodeBase
 {
 

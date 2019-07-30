@@ -27,28 +27,22 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef RUNSCRIPT_H_
-#define RUNSCRIPT_H_
+#ifndef MYNODE_H_
+#define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-base/BaseLib.h>
-#include <mutex>
 
-namespace RunScript
+namespace MyNode
 {
 
-class RunScript: public Flows::INode
+class MyNode: public Flows::INode
 {
 public:
-	RunScript(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~RunScript();
+	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
-	bool _onBoolean = false;
-	Flows::PVariable _input1;
-	bool _input2 = false;
-
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 

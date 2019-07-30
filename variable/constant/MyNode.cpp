@@ -121,7 +121,7 @@ void MyNode::startUpComplete()
 	}
 }
 
-void MyNode::setNodeVariable(std::string variable, Flows::PVariable value)
+void MyNode::setNodeVariable(const std::string& variable, Flows::PVariable value)
 {
 	try
 	{
