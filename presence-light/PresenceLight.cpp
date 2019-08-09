@@ -399,9 +399,11 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
         {
             bool enabled = _enabled.load(std::memory_order_acquire);
             if(enabled == inputValue) return;
-            if(!inputValue && _keepOn)
+            if(!inputValue && _keepOn && _onTo.load(std::memory_order_acquire) != -1)
             {
                 _manuallyEnabled.store(true, std::memory_order_release);
+                //To avoid race condition, make sure onTo is still set
+                if(_onTo.load(std::memory_order_acquire) == -1) _manuallyEnabled.store(false, std::memory_order_release);
             }
             _enabled.store(inputValue, std::memory_order_release);
             setNodeData("enabled", std::make_shared<Flows::Variable>(inputValue));
@@ -522,9 +524,12 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
             {
                 _booleanStateValue.store(true, std::memory_order_release);
                 _stateValue.store(1, std::memory_order_release);
-                _lastNonNullStateValue.store(input->integerValue64, std::memory_order_release);
                 setNodeData("stateValue", input);
-                setNodeData("lastNonNullStateValue", input);
+                if(input->booleanValue)
+                {
+                    _lastNonNullStateValue.store(input->booleanValue, std::memory_order_release);
+                    setNodeData("lastNonNullStateValue", input);
+                }
             }
             else if(input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64)
             {
