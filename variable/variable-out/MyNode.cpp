@@ -89,10 +89,16 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		if(_variableType == VariableType::flow)
 		{
 			setFlowData(_variable, message->structValue->at("payload"));
+            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+
+            output(0, message);
 		}
 		else if(_variableType == VariableType::global)
 		{
 			setGlobalData(_variable, message->structValue->at("payload"));
+            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+            
+            output(0, message);
 		}
 		else
 		{
