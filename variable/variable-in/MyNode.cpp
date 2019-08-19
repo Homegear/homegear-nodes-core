@@ -228,7 +228,6 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 {
 	try
 	{
-        frontendEventLog(source + " " + std::to_string((int32_t)_eventSource));
 		if(_eventSource != EventSource::all)
 		{
 			if(source.compare(0, 7, "device-") == 0 && _eventSource != EventSource::device) return;
@@ -237,6 +236,7 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
             else if(source.compare(0, 9, "ipcServer") == 0 && _eventSource != EventSource::ipcClient) return;
             else if(source.compare(0, 8, "homegear") == 0 && _eventSource != EventSource::homegear) return;
             else if(source.compare(0, 7, "client-") == 0 && _eventSource != EventSource::rpcClient) return;
+            else if(source.compare(0, 11, "rpc-client-") == 0 && _eventSource != EventSource::rpcClient) return;
             else if(source.compare(0, 4, "mqtt") == 0 && _eventSource != EventSource::mqtt) return;
 		}
 

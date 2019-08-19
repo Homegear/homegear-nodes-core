@@ -97,7 +97,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		{
 			setGlobalData(_variable, message->structValue->at("payload"));
             message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-            
+
             output(0, message);
 		}
 		else
