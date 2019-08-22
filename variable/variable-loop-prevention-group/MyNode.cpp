@@ -108,7 +108,7 @@ Flows::PVariable MyNode::event(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
         if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 
