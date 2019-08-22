@@ -2,6 +2,7 @@
   "basic-logic/variable-switch.hni": {
     "variable-switch": {
       "label": {
+        "name": "Name",
         "variabletype": "Variable type",
         "devicevariable": "Device variable",
         "metadata": "Metadata",

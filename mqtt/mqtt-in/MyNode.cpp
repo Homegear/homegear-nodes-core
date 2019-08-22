@@ -112,7 +112,9 @@ void MyNode::configNodesStarted()
 			if(_loopPrevention && !_loopPreventionGroup.empty())
 			{
 				Flows::PArray parameters = std::make_shared<Flows::Array>();
+				parameters->reserve(2);
 				parameters->push_back(std::make_shared<Flows::Variable>(_id));
+                parameters->push_back(std::make_shared<Flows::Variable>(std::string()));
 				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
 				if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
 				if(!result->booleanValue) return std::make_shared<Flows::Variable>();;
