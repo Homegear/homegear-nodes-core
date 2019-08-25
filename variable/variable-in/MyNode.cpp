@@ -78,7 +78,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 			else if(eventSource == "homegear") _eventSource = EventSource::homegear;
             else if(eventSource == "scriptengine") _eventSource = EventSource::scriptEngine;
             else if(eventSource == "nodeblue") _eventSource = EventSource::nodeBlue;
-            else if(eventSource == "rpcClient") _eventSource = EventSource::rpcClient;
+            else if(eventSource == "rpcclient") _eventSource = EventSource::rpcClient;
             else if(eventSource == "ipcclient") _eventSource = EventSource::ipcClient;
             else if(eventSource == "mqtt") _eventSource = EventSource::mqtt;
 		}
