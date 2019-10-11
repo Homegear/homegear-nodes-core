@@ -52,7 +52,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) _topic = settingsIterator->second->stringValue;
 
 		settingsIterator = info->info->structValue->find("retain");
-		if(settingsIterator != info->info->structValue->end()) _retain = (settingsIterator->second->stringValue == "true");
+		if(settingsIterator != info->info->structValue->end())
+        {
+            _retain = (settingsIterator->second->stringValue == "true");
+            _retainSet = (settingsIterator->second->stringValue == "true" || settingsIterator->second->stringValue == "false");
+        }
 
 		return true;
 	}
@@ -102,7 +106,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		bool retain;
 		messageIterator = message->structValue->find("retain");
-		if(messageIterator != message->structValue->end()) retain = messageIterator->second->booleanValue;
+		if(messageIterator != message->structValue->end() && !_retainSet) retain = messageIterator->second->booleanValue;
 		else retain = _retain;
 
 		Flows::PVariable payload = std::make_shared<Flows::Variable>();

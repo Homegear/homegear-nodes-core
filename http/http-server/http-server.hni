@@ -41,11 +41,11 @@
         </div>
         <div id="http-server-tab-security" style="display:none">
             <div class="form-row">
-                <label for="node-config-input-user"><i class="fa fa-user"></i> <span data-i18n="common.label.username"></span></label>
+                <label for="node-config-input-user"><i class="fa fa-user"></i> <span data-i18n="http-server.label.username"></span></label>
                 <input type="text" id="node-config-input-user">
             </div>
             <div class="form-row">
-                <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="common.label.password"></span></label>
+                <label for="node-config-input-password"><i class="fa fa-lock"></i> <span data-i18n="http-server.label.password"></span></label>
                 <input type="password" id="node-config-input-password">
             </div>
         </div>

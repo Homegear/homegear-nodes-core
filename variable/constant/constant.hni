@@ -13,7 +13,7 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]constant.label.name"/>
     </div>
     <div class="form-row">
-        <label for="node-input-payload"><i class="fa fa-envelope"></i> <span data-i18n="common.label.payload"></span></label>
+        <label for="node-input-payload"><i class="fa fa-envelope"></i> <span data-i18n="constant.label.payload"></span></label>
         <input type="text" id="node-input-payload" style="width:70%"/>
         <input type="hidden" id="node-input-payloadType"/>
     </div>

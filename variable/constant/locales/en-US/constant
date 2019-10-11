@@ -3,6 +3,7 @@
     "constant": {
       "label": {
         "name": "Name",
+        "payload": "Payload",
         "outputonstartup": "Output value on startup"
       },
       "paletteHelp": "<p>Provides a constant value.</p>",
