@@ -1032,7 +1032,7 @@ void Mqtt::publish(const std::string& topic, const std::vector<char>& data, bool
 {
 	try
 	{
-		if(data.empty() || !_started) return;
+		if(topic.empty() || data.empty() || !_started) return;
 		std::vector<char> packet;
 		std::vector<char> payload;
 		payload.reserve(topic.size() + 2 + 2 + data.size());
