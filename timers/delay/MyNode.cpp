@@ -125,6 +125,7 @@ void MyNode::timer(int64_t inputTime, Flows::PVariable message)
 {
 	int32_t sleepingTime = _delay - (Flows::HelperFunctions::getTime() - inputTime);
 	if(sleepingTime < 1) sleepingTime = 1;
+	else if(sleepingTime > _delay) sleepingTime = _delay;
 
 	try
 	{

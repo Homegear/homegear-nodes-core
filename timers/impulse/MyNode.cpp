@@ -144,6 +144,7 @@ void MyNode::timer(bool outputTrue)
     {
         int64_t delayTo = _delayTo.load(std::memory_order_acquire);
         int64_t restTime = delayTo - Flows::HelperFunctions::getTime();
+        if(restTime > _delay) restTime = _delay;
         int64_t sleepingTime = 10;
         if(_delay >= 1000) sleepingTime = 100;
         else if(_delay >= 30000) sleepingTime = 1000;
@@ -161,6 +162,7 @@ void MyNode::timer(bool outputTrue)
             if(_stopThread) return;
 
             restTime = delayTo - Flows::HelperFunctions::getTime();
+            if(restTime > _delay) restTime = _delay;
         }
 
         Flows::PVariable outputMessage2 = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
