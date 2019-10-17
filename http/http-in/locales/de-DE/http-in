@@ -1,0 +1,42 @@
+{
+  "http/http-in.hni": {
+    "http-in": {
+      "paletteHelp": "<p>Erstellt einen HTTP-Endpunkt zum Erstellen von Webdiensten.</p>",
+      "help": "<p>Erstellt einen HTTP-Endpunkt zum Erstellen von Webdiensten.</p><h3>Ausgaben</h3><dl class=\"message-properties\"><dt>payload</dt><dd>Enthält für eine GET-Anforderung ein Objekt mit beliebigen Abfragezeichenfolge-Parametern. Für Dateiuploads (<code>multipart/form-data</code>) ein Objekt die Formulardaten (Dateiname steht in <code>[&lt;index&gt;]['filename']</code>, Inhalt in <code>[&lt;index&gt;]['file']</code>). Andernfalls enthält er den Body der HTTP-Anfrage.</dd><dt>req<span class=\"property-type\">object</span></dt><dd>Ein HTTP-Anforderungsobjekt. Dieses Objekt enthält mehrere Eigenschaften, die Informationen zur Anforderung bereitstellen.<ul><li><code>method</code> - Die HTTP-Methode der eingehenden Anforderung (z. B. <code>GET</code>).</li><li><code>headers</code> - Ein Objekt, das die HTTP-Anforderungsheader enthält.</li><li><code>query</code> - Ein Objekt, das beliebige Parameter für Abfragezeichenfolgen enthält.</li><li><code>params</code> - Ein Objekt, das Routenparameter enthält.</li><li><code>cookies</code> - Ein Objekt, das die Cookies für die Anfrage enthält.</li></ul></dd></dl><h3>Details</h3><p>Der Knoten überwacht den konfigurierten Pfad auf Anforderungen eines bestimmten Typs. Der Pfad kann vollständig angegeben werden, z. B. <code>/user</code>, oder benannte Parameter enthalten, die einen beliebigen Wert akzeptieren, z. B. <code>/user/:name/:info</code> (einstufiger Platzhalter) oder <code>/user/#name</code> (mehrstufiger Platzhalter). Wenn benannte Parameter verwendet werden, kann auf deren tatsächlichen Wert in einer Anfrage unter `$['message']['req']['params']` zugegriffen werden. Bei mehrstufigen Platzhaltern können alle Ebenen, die auf das <code>#</code> folgen, folgendermaßen benannt werden: <code>/user/#name/nameLevel2/nameLevel3</code>. Wird kein Name angegeben (z. B. <code>/user/:/:</code> oder <code>/user/#</code>), werden die Ebenen nach ihrem Index benannt.</p><p>Für Anforderungen, die einen Body enthalten, z. B. einen POST oder einen PUT, werden die Inhalte der Anforderung als <code>$message['payload']</code> verfügbar gemacht.</p><p>Wenn der Inhaltstyp der Anforderung bestimmt werden kann, wird der Body auf einen geeigneten Typ analysiert. Beispiel: <code>application/json</code> wird in der Darstellung des JavaScript-Objekts analysiert.</p><p><b>Hinweis:</b> Dieser Knoten sendet keine Antwort auf die Anforderung. Der Ablauf muss einen HTTP-Antwortknoten enthalten, um die Anforderung abzuschließen.</p>",
+      "output1Description": "Bei einer GET-Anforderung enthält <code>payload</code> ein Objekt mit beliebigen Abfragezeichenfolgenparametern. Andernfalls enthält er den Body der HTTP-Anfrage.",
+      "label": {
+          "server": "Server",
+          "method": "Methode",
+          "url": "URL",
+          "doc": "Docs",
+          "return": "Rückgabe",
+          "upload": "Akzeptiere Datei-Uploads?",
+          "status": "Status Code",
+          "headers": "Header"
+      },
+      "server": "Server",
+      "setby": "- gesetzt durch $message['method'] -",
+      "basicauth": "Benutze basic authentication",
+      "use-tls": "Sichere Verbindung (SSL/TLS) benutzen",
+      "tls-config":"TLS Konfiguration",
+      "utf8": "eins UTF-8 Zeichenfolge",
+      "binary": "ein binärer Puffer",
+      "json": "ein geparstes JSON-Objekt",
+      "tip": {
+          "in": "Die URL wird relativ zu ",
+          "res": "Die an diesen Knoten gesendeten Nachrichten <b>müssen</b> von einem <i>http-Eingabeknoten</i> stammen",
+          "req": "Tipp: Wenn die JSON-Analyse fehlschlägt, wird die abgerufene Zeichenfolge unverändert zurückgegeben."
+      },
+      "httpreq": "http Anfrage",
+      "errors": {
+          "not-created": "Der http-in-Knoten kann nicht erstellt werden, wenn httpNodeRoot auf false festgelegt ist",
+          "missing-path": "fehlender Pfad",
+          "no-response": "Kein Antwortobjekt",
+          "json-error": "JSON-Analysefehler",
+          "no-url": "Keine URL angegeben",
+          "deprecated-call":"Veralteter Anruf an __method__",
+          "invalid-transport":"Nicht-http-Transport angefordert"
+      }
+    }
+  }
+}

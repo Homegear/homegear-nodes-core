@@ -1,0 +1,13 @@
+{
+  "basic-logic/not.hni": {
+    "not": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "Konvertiert eine Eingabe in ein Boolean und negiert sie.",
+      "help": "<p>Dieser Knoten konvertiert eine Eingabe in ein Boolean und negiert sie.</p>",
+      "input1Description": "Die zu negierende Eingabe.",
+      "output1Description": "Gibt das Ergebnis der Booleschen Operation aus."
+    }
+  }
+}

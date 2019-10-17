@@ -1,0 +1,26 @@
+{
+  "tls-server-config/tls-server-config.hni": {
+    "tls-server-config": {
+    	"help": "Konfigurationsoptionen für TLS-Verbindungen.",
+    	"tls": "TLS Konfiguration",
+        "label": {
+        	"use-local-files": "Schlüssel und Zertifikate aus lokalen Dateien verwenden",
+            "upload": "Hochladen",
+            "cert": "Zertifikat",
+            "key": "Privater Schlüssel",
+            "dh": "DH Parameter",
+            "ca": "CA Zertifikat",
+            "clientauth": "Client-Zertifikat-Authentifizierung aktivieren"
+        },
+        "placeholder": {
+            "cert":"Pfad zum Zertifikat (PEM Format)",
+            "key":"Pfad zum privaten Schlüssel (PEM Format)",
+            "dh":"Pfad zu den Diffie-Hellman Parametern (PEM Format)",
+            "ca":"Pfad zum CA Zertifikat (PEM Format)"
+        },
+        "error": {
+            "missing-file": "Keine Zertifikat-/Schlüsseldatei angegeben"
+        }
+    }
+  }
+}

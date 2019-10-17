@@ -1,0 +1,21 @@
+{
+  "exec/exec.hni": {
+    "exec": {
+      "label": {
+        "filename": "Dateiname",
+        "arguments": "Argumente",
+        "autostart": "Das Programm beim Start ausführen und neu starten, wenn es beendet wird.",
+        "collect-output": "Warten bis der Prozess beendet ist.",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Dieser Knoten führt ein Programm aus.</p>",
+      "help": "<p>Dieser Knoten führt ein Programm aus. <code>EXEC</code> oder die Autostart-Option starten das Programm. Das Programm kann auf unbestimmte Zeit ausgeführt werden. Wenn die Autostart-Option aktiviert ist, wird das Programm 1 Sekunde nach Beendigung neu gestartet. Über <code>IN</code> können Eingaben an das Programm gesendet werde, und die Programmausgabe wird an <code>OUT</code> oder <code>ERR</code> als Array gesendet. Wenn das Programm beendet ist, wird der Beendigungscode auf <code>CODE</code> ausgegeben. Über <code>SIG</code> können auch Signale an das Programm gesendet werden.</p>",
+      "input1Description": "Programm ausführen. Wenn es bereits ausgeführt wird, wird die Eingabe ignoriert.",
+      "input2Description": "Dieses Signal wird an das laufende Programm übergeben.",
+      "input3Description": "Diese Eingabe wird an <code>stdin</code> des Programms gesendet.",
+      "output1Description": "Gibt den Beendigungscode und einige zusätzliche Informationen aus, wenn der Vorgang abgeschlossen ist.",
+      "output2Description": "<code>stdout</code> des Programmes.",
+      "output3Description": "<code>stderr</code> des Programmes."
+    }
+  }
+}

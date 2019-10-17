@@ -1,0 +1,17 @@
+{
+  "timers/on-delay.hni": {
+    "on-delay": {
+      "label": {
+        "on-delay": "Einschaltverzögerung",
+        "on-delay2": "Verzögerung in ms",
+        "name": "Name"
+      },
+      "input1Description": "Eine boolesche Eingabe. Der Timer wird eingestellt, wenn <code>true</code> eingegeben wird, und zurückgesetzt, wenn die Eingabe auf <code>false</code> gesetzt wird.",
+      "input2Description": "Ein boolescher Eingang, der den Timer auf seinen Startwert zurücksetzt. Wenn die letzte Eingabe <code>true</code> war, läuft der Timer weiter.",
+      "output1Description": "Gibt <code>false</code> aus, wenn die Eingabe auf <code>false</code> gesetzt ist. Gibt <code>true</code> aus, wenn der Timer <code>0</code> erreicht.",
+      "output2Description": "Gibt die verbleibende Zeit aus, bevor \"o\" auf <code>true</code> gesetzt wird.",
+      "paletteHelp": "<p>Wenn der Eingang auf <code>true</code> gesetzt ist, bleibt der Ausgang bis zur konfigurierten Verzögerungszeit auf <code>false</code>. Wenn die Verzögerungszeit abgelaufen ist, wird der Ausgang auf <code>true</code> gesetzt. Wenn die Eingabe auf <code>false</code> gesetzt ist, wird die Ausgabe sofort auf <code>false</code> gesetzt.</p>",
+      "help": "Wenn der Eingang auf <code>true</code> gesetzt ist, bleibt der Ausgang bis zur konfigurierten Verzögerungszeit auf <code>false</code>. Wenn die Verzögerungszeit abgelaufen ist, wird der Ausgang auf <code>true</code> gesetzt. Wenn die Eingabe auf <code>false</code> gesetzt ist, wird die Ausgabe sofort auf <code>false</code> gesetzt."
+    }
+  }
+}

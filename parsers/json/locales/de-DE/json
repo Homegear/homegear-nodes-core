@@ -1,0 +1,13 @@
+{
+  "parsers/json.hni": {
+    "json": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Konvertiert zwischen einer JSON-Zeichenfolge und ihrer <code>Struct</code>-Darstellung in beide Richtungen.</p>",
+      "help": "Wenn die Eingabe eine JSON-Zeichenfolge ist, wird versucht, sie in ein <code>struct</code> zu wandeln. Wenn die Eingabe ein <code>struct</code> ist, wird eine JSON-Zeichenfolge erstellt.",
+      "input1Description": "JSON-Zeichenfolge oder <code>struct</code>.",
+      "output1Description": "JSON-Zeichenfolge oder <code>struct</code>."
+    }
+  }
+}

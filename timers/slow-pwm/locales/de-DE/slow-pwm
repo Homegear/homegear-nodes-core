@@ -1,0 +1,17 @@
+{
+  "timers/slow-pwm.hni": {
+    "slow-pwm": {
+      "label": {
+        "period": "Zeitraum",
+        "period2": "Zeitraum in Sekunden",
+        "dutycyclemin": "Minimaler Arbeitszykluswert",
+        "dutycyclemax": "Maximaler Arbeitszykluswert",
+        "name": "Name"
+      },
+      "input1Description": "Der Arbeitszyklus.",
+      "output1Description": "Gibt \"true\" bei einem hohen und \"false\" bei einem niedrigen Wert aus.",
+      "paletteHelp": "<p>Erzeugt ein PWM-Signal.</p>",
+      "help": "Dieser Knoten erzeugt ein langsames PWM-Signal. Geben Sie die Einschaltdauer in <code>D</ code> ein. Stellen Sie <code>Zeitraum</code> auf den Zeitraum in Sekunden ein. Die Mindestdauer beträgt 10 Sekunden, die Auflösung des Arbeitszyklus 1 Sekunde. Setzen Sie <code>EN</code> auf <code>false</code>, um den PWM zu deaktivieren. Wenn deaktiviert, gibt der Knoten <code>false</code> aus. Es wird mindestens eine Meldung pro Arbeitszyklus ausgegeben."
+    }
+  }
+}

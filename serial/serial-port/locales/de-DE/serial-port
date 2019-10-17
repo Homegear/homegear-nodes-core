@@ -1,0 +1,43 @@
+{
+  "serial/serial-port.hni": {
+    "serial-port": {
+    	"help": "<p>Bietet Konfigurationsoptionen für eine serielle Schnittstelle.</p><p>Die Eingabe kann nach einer Zeitüberschreitung, nach einer festgelegten Anzahl von Zeichen oder einem festgeleten Zeichen aufgeteilt werden.</p><p>Bei Verwendung eines Zeichens kann es entweder als Zeichen, als maskierte Verknüpfung (z. B. \n) oder als Hex-Code (z. B. 0x0d) angegeben werden.</p>",
+    	"label": {
+            "serialport": "Serieller Port",
+            "settings": "Einstellung",
+            "baudrate": "Baud Rate",
+            "databits": "Data Bits",
+            "parity": "Parität",
+            "stopbits": "Stop Bits",
+            "input": "Eingabe",
+            "split": "Eingabe aufteilen",
+            "deliver": "und ausgeben",
+            "output": "Ausgabe",
+            "none": "nichts"
+        },
+        "placeholder": {
+            "serialport": "for example: /dev/ttyUSB0/"
+        },
+        "parity": {
+            "none": "None",
+            "even": "Even",
+            "odd": "Odd"
+        },
+        "split": {
+            "no": "nein",
+            "character": "nach einem Buchstaben",
+            "timeout": "nach einer Zeitüberschreitung von",
+            "lengths": "nach einer festen Länge von"
+        },
+        "output": {
+            "ascii": "ascii Zeichenkette",
+            "binary": "binäre Puffer"
+        },
+        "addsplit": "Aufteilungs-Zeichen zu den Ausgabenachrichten hinzufügen",
+        "tip": {
+            "split": "Tipp: Das Zeichen \"Eingabe aufteilen\" wird verwendet, um die Eingabe in separate Nachrichten zu teilen. Es kann auch zu jeder Nachricht hinzugefügt werden, die an die serielle Schnittstelle gesendet wird.",
+            "timeout": "Tipp: Im Timeout-Modus beginnt das Timeout mit dem Eintreffen des ersten Zeichens."
+        }
+    }
+  }
+}
