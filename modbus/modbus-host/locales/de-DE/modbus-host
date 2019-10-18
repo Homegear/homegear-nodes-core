@@ -1,0 +1,25 @@
+{
+  "modbus/modbus-host.hni": {
+    "modbus-host": {
+    	"help": "<p>Für eine Modbus-Verbindung muss der Standardkonfiguration eine Modbus-Serveradresse hinzugefügt und mindestens ein Registerbereich gelesen werden. Es können so viele Bereiche wie möglich hinzufügt werden. \"Bytes invertieren\" ändert die Reihenfolge der zwei Bytes jedes Registers. Stellen Sie \"Min. Verzögerung\" auf die Wartezeit zwischen den Lese- oder Schreibvorgängen ein, wenn das Gerät nach dem Lesen oder Schreiben nicht sofort wieder gelesen oder geschrieben werden kann. Der Knoten versucht in jedem Intervall, alle angegebenen Register abzurufen. \"ROC\" (read on connect) bewirkt, dass der Knoten die Register einmal liest, nachdem die Verbindung zum Modbus-Host hergestellt wurde. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. hat Spule 5 die Adresse 4). \"Slave ID\" sollte normalerweise 255 für Modbus über TCP sein. Einige Geräte erfordern jedoch eine bestimmte ID.</p>",
+    	"label": {
+	      "server": "Server",
+	      "port": "Port",
+	      "interval": "Intervall",
+        "delay": "Min. Verzögerung",
+        "slaveid": "Slave ID",
+        "debug": "Debug-Informationen in das Flows-Protokoll schreiben",
+        "read-registers": "Holding Register zum Lesen (Func. 3)",
+        "write-registers": "Register zum Schreiben (Func. 16)",
+        "read-input-registers": "Eingangsregister zum Lesen (Func. 4)",
+        "read-coils": "Coils zum Lesen (Func. 1)",
+        "write-coils": "Coils zum Schreiben (Func. 15)",
+        "read-discrete-inputs": "Digitaleingänge zum Lesen (Func. 2)",
+        "first": "Erstes",
+        "last": "Letztes",
+        "invert": "Bytes invertieren",
+        "readonconnect": "ROC"
+	    }
+    }
+  }
+}

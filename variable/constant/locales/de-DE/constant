@@ -1,0 +1,14 @@
+{
+  "variable/constant.hni": {
+    "constant": {
+      "label": {
+        "name": "Name",
+        "payload": "Payload",
+        "outputonstartup": "Wert beim Start ausgeben"
+      },
+      "paletteHelp": "<p>Liefert einen konstanten Wert.</p>",
+      "help": "Dieser Knoten liefert einen konstanten Wert, der bei jedem Neuladen einmal übertragen wird.",
+      "output1Description": "Gibt den konfigurierten konstanten Wert aus."
+    }
+  }
+}

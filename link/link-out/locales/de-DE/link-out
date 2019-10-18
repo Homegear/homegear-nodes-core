@@ -1,0 +1,17 @@
+{
+  "link/link-out.hni": {
+    "link-out": {
+      "linkIn": "Eingehender Link",
+      "linkOut": "Ausgehender Link",
+      "label": {
+        "event": "Event Name",
+        "node": "Knoten",
+        "type": "Typ",
+        "sortByLabel": "nach Label sortieren",
+        "sortByFlow": "nach Flow sortieren"
+      },
+      "paletteHelp": "<p>Erstellt virtuelle Verbindungen zwischen Flows.</p>",
+      "help": "<p>Erstellt virtuelle Verbindungen zwischen Flows.</p><h3>Details</h3><p>Der Knoten kann mit einem beliebigen <code>link-in</code>-Knoten verbunden werden, der auf einer beliebigen Registerkarte vorhanden ist.  Sobald sie verbunden sind, verhalten sie sich so, als wären sie miteinander verbunden.</p><p>Die Verbindungen zwischen Verbindungsknoten werden nur angezeigt, wenn ein Verbindungsknoten ausgewählt ist. Wenn Verbindungen zu anderen Registerkarten bestehen, wird ein virtueller Knoten angezeigt, auf den geklickt werden kann, um zur entsprechenden Registerkarte zu springen.</p><p><b>Hinweis:</b> Verknüpfungen können nicht in oder aus einem Subflow erstellt werden.</p>"
+    }
+  }
+}

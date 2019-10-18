@@ -1,0 +1,26 @@
+{
+  "variable/toggle.hni": {
+    "toggle": {
+      "label": {
+        "variabletype": "Variablentyp",
+        "devicevariable": "Gerätevariable",
+        "metadata": "Metadaten",
+        "novariable": "Keine",
+        "systemvariable": "Systemvariable",
+        "flowvariable": "Flowvariable",
+        "globalvariable": "Globale Variable",
+        "family": "Familie",
+        "peerid": "Peer ID",
+        "channel": "Kanal",
+        "variable": "Variable",
+        "name": "Name",
+        "createnewvariable": "Neue Variable erstellen"
+      },
+      "tip": "Tipp: Informationen zur Verwendung finden Sie auf der Registerkarte Hilfe.",
+      "paletteHelp": "<p>Schaltet eine Variable um.</p>",
+      "help": "Verwenden Sie diesen Knoten, um eine Variable in Homegear umzuschalten. Der neue Wert wird ausgegeben.",
+      "input1Description": "Bei jeder Eingabe wird die angegebene Variable umgeschaltet.",
+      "output1Description": "Gibt den neuen Wert der Variablen aus."
+    }
+  }
+}

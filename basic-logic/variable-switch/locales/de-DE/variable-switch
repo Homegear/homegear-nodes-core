@@ -1,0 +1,48 @@
+{
+  "basic-logic/variable-switch.hni": {
+    "variable-switch": {
+      "label": {
+        "name": "Name",
+        "variabletype": "Variablentyp",
+        "devicevariable": "Gerätevariable",
+        "metadata": "Metadaten",
+        "systemvariable": "Systemvariable",
+        "flowvariable": "Flow Variable",
+        "globalvariable": "Globale Variable",
+        "family": "Familie",
+        "peerid": "Peer ID",
+        "channel": "Kanal",
+        "variable": "Variable",
+        "createvariable": "Variable erstellen",
+        "typeandvalue": "Wert",
+        "create": "Erstellen",
+        "createnewvariable": "Neue Variable erstellen",
+        "changes-only": "Nur Änderungen ausgeben",
+        "output-true": "\"true\" ausgeben, anstatt die Nachricht weiterzuleiten",
+        "output-false": "Auch \"false\" ausgeben",
+        "rule": "Regel"
+      },
+      "and": "und",
+      "checkall": "alle Regeln prüfen",
+      "stopfirst": "nach der ersten Übereinstimmung stoppen",
+      "ignorecase": "ignore case",
+      "rules": {
+          "btwn":"ist zwischen",
+          "cont":"beinhaltet",
+          "regex":"passt zum regulärem Ausdruck",
+          "true":"ist true",
+          "false":"ist false",
+          "null":"ist null",
+          "nnull":"ist nicht null",
+          "else":"andernfalls"
+      },
+      "previous": "vorheriger Wert",
+      "input": "Eingang",
+      "flow": "flow.",
+      "global": "global.",
+      "paletteHelp": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p>",
+      "help": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p><h3>Details</h3><p><p>Wenn eine Nachricht eintrifft, wertet der Knoten jede der definierten Regeln aus und leitet die Nachricht an die entsprechenden Ausgaben aller übereinstimmenden Regeln weiter.</p><p>Optional kann der Knoten so eingestellt werden, dass er die Auswertung von Regeln beendet, sobald er eine Übereinstimmung gefunden hat.</p><p>Weiterhin kann der Knoten auch optional <code>true</code> und <code>false</code> ausgeben, anstatt die eingegebenen Nutzdaten weiterzuleiten.</p>",
+      "input1Description": "Der zu vergleichende Eingang."
+    }
+  }
+}

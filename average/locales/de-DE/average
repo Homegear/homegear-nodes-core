@@ -1,0 +1,14 @@
+{
+  "average/average.hni": {
+    "average": {
+      "label": {
+        "average": "Durchschnitt",
+        "interval": "Intervall bis Durchschnitt in Sekunden",
+        "name": "Name"
+      },
+      "input1Description": "Eingabewerte für Durchschnitt.",
+      "output1Description": "Gibt den Durchschnitt über das angegebene Intervall aus. Der Typ wird auf den Eingabetyp gesetzt.",
+      "help": "Mittelwerte über ein bestimmtes Intervall."
+    }
+  }
+}
