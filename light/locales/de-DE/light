@@ -1,0 +1,34 @@
+{
+  "light/light.hni": {
+    "light": {
+      "label": {
+        "variabletype": "Variablentyp",
+        "devicevariable": "Gerätevariable",
+        "metadata": "Metadaten",
+        "systemvariable": "Systemvariable",
+        "family": "Familie",
+        "peerid": "Peer ID",
+        "channel": "Kanal",
+        "variable": "Variable",
+        "name": "Name",
+        "lighttype": "Lichtart",
+        "switch": "Switch",
+        "dimmerstate": "Dimmer Status",
+        "dimmer": "Dimmer",
+        "offvalue": "Wert aus",
+        "onvalue": "Wert on",
+        "minvalue": "Min. Wert",
+        "maxvalue": "Max. Wert",
+        "step": "Min. Schritt",
+        "factor": "Faktor",
+        "interval": "Interval-",
+        "twoinputs": "2-Kanal Eingang"
+      },
+      "paletteHelp": "<p>Schaltet oder dimmt ein Licht. Kann auch dafür verwendet werden, die Lautsärke eines Lautsprechers zu \"dimmen\" oder eine Steckdose zu schalten.</p>",
+      "help": "Dieser Knoten kann zum Schalten oder Dimmen eines Lichts verwendet werden. Man kann damit auch die Lautstärke eines Lautsprechers einstellen oder eine Steckdose schalten. Es kann zwischen \"Dimmer-Status\" (setzt den Pegel auf einen vordefinierten \"Ein\"-Pegel oder \"Aus\"-Pegel), \"Dimmer\" (dimmt ein Licht ab) und \"Schalter\" (setzt den Status) ​​gewählt werden. Wenn standardmäßig \"Schalten\" ausgewählt ist, gibt es einen Eingang. Bei der Einstellung <code>true</code> wird die ausgewählte Ausgabevariable auf <code>true</code> gesetzt. Bei der Einstellung <code>false</code> wird die ausgewählte Variable auf <code>false</code> gesetzt. \"2-Kanal-Eingang\" fügt einen zweiten Eingang hinzu. <code>true</code> am ersten Eingang schaltet das Licht oder die Steckdose ein. <code>true</code> am zweiten Eingang schaltet aus. Bei Auswahl von \"2-Kanal-Eingang\" wird <code>false</code> ignoriert. \"Dimmer\" kann verwendet werden, um unter Verwendung eines Eingangs mit zwei Zuständen zu dimmen. <code>true</code> an Eingang 2 oder 3 startet den Dimmvorgang, <code>false</code> stoppt ihn. Eingang 1 kann verwendet werden, um die ausgewählte Ausgangsvariable auf <code>Wert aus</code> (<code>falsch</ code>) oder <code>max. Wert</code> (<code>true</code>) zu setzen. <code>min. Wert</code> ist der minimal mögliche Dimmwert (bei dem das Licht nicht flackert). <code>min. Schritt</Code> ist der minimale Schritt, in dem der Wert der Ausgabevariablen erhöht oder verringert wird. <code>Intervall</code> ist das Intervall zwischen den Dimmschritten. Je kürzer das Intervall, desto gleichmäßiger der Dimmvorgang. Beachten Sie jedoch, dass nicht alle Geräte kurze Zeitspannen zwischen den Einstellungswerten unterstützen (insbesondere drahtlose Geräte). <code>Faktor</code> kann verwendet werden, um größere Dimmstufen für kleinere Werte und kleinere Dimmstufen für größere Werte zu verwenden. Die Formel lautet: <code>currentValue + =/-= step + (factor * currentValue)</code>. Das Setzen von <code>Faktor</code> auf <code>0</code> bewirkt daher ein lineares Dimmen.",
+      "input1Description": "Wenn dies die einzige Eingabe ist, setzt <code>true</code> den Lichtstatus auf <code>true</code> und <code>false</code> auf <code>false</code>. Wenn \"2-Kanal-Eingang\" aktiviert ist, setzt <code>true</code> den Lichtstatus auf <code>true</code> und <code>false</code> wird ignoriert.",
+      "input2Description": "Für \"Schalter\" und \"Dimmer\": Eine Eingabe von <code>true</code> setzt den Lichtzustand auf <code>false</code>. Eine Eingabe von <code>false</code> wird ignoriert. Für \"Dimmer\" startet eine Eingabe von <code>true</code> das Inkrementieren der ausgewählten Ausgangsvariablen. Bei der Eingabe von <code>false</code> wird die Inkrementierung gestoppt.",
+      "input3Description": "Bei Eingabe von <code>true</code> wird die ausgewählte Ausgabevariable dekrementiert. Bei der Eingabe von <code>false</code> wird die Dekrementierung gestoppt."
+    }
+  }
+}

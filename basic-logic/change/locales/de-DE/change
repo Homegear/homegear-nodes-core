@@ -1,0 +1,35 @@
+{
+  "basic-logic/change.hni": {
+    "change": {
+      "label": {
+          "rules": "Regeln",
+          "rule": "Regel",
+          "set": "setze __property__",
+          "change": "ändere __property__",
+          "delete": "lösche __property__",
+          "move": "verschiebe __property__",
+          "changeCount": "ändere: __count__ Regeln",
+          "regex": "Benutze reguläre Ausdrücke"
+      },
+      "action": {
+          "set": "Setzen",
+          "change": "Ändern",
+          "delete": "Löschen",
+          "move": "Verschieben",
+          "to": "nach",
+          "search": "Suche nach",
+          "replace": "Ändere mit"
+      },
+      "errors": {
+          "invalid-from": "Ungültige 'von' Eigenschaft: __error__",
+          "invalid-json": "Ungültige 'nach' JSON Eigenschaft",
+          "invalid-expr": "Ungültiger JSONata Ausdruck: __error__"
+      },
+      "message": "message.",
+      "flow": "flow.",
+      "global": "global.",
+      "paletteHelp": "<p>Setzen, Ändern, Löschen oder Verschieben von Eigenschaften einer Nachricht, eines Flow-Kontexts oder eines globalen Kontexts.</p>",
+      "help": "<p>Setzen, Ändern, Löschen oder Verschieben von Eigenschaften einer Nachricht, eines Flow-Kontexts oder eines globalen Kontexts.</p><p>Der Knoten kann mehrere Regeln beinhalten, die in der Reihenfolge angewendet werden, in der sie definiert sind.</p><h3>Details</h3><p>Die verfügbaren Operationen sind:</p><dl class=\"message-properties\"><dt>Setzen</dt><dd>eine Eigenschaft festlegen. Der Wert kann eine Vielzahl verschiedener Typen sein oder aus einer vorhandenen Nachricht oder Kontexteigenschaft entnommen werden.</dd><dt>Ändern</dt><dd>Teile der Eigenschaft suchen und ersetzen. Wenn reguläre Ausdrücke aktiviert sind, kann die Eigenschaft \"Ersetzen durch\" Gruppen enthalten, z. B. <code>$1</code>. Ersetzen ändert den Typ nur, wenn eine vollständige Übereinstimmung vorliegt.</dd><dt>Löschen</dt><dd>eine Eigenschaft löschen.</dd><dt>Verschieben</dt><dd>eine Eigenschaft verschieben oder umbenennen.</dd></dl>"
+    }
+  }
+}
