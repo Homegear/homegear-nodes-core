@@ -108,7 +108,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             return this.name||"switch";
         },

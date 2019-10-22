@@ -24,7 +24,7 @@ variable_loop_prevention_group_la_SOURCES = variable-loop-prevention-group/Facto
 variable_loop_prevention_group_la_LDFLAGS =-module -avoid-version -shared
 
 variable_ladir = $(libdir)
-variable_la_DATA = constant/constant.hni toggle/toggle.hni variable-in/variable-in.hni variable-in/variable-in.png variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
+variable_la_DATA = constant/constant.hni toggle/toggle.hni variable-in/variable-in.hni variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = constant/locales/en-US/constant toggle/locales/en-US/toggle variable-in/locales/en-US/variable-in variable-loop-prevention-group/locales/en-US/variable-loop-prevention-group variable-out/locales/en-US/variable-out
 

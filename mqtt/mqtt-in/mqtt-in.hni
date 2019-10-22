@@ -44,7 +44,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('mqtt-in',{
-        category: 'input',
+        category: 'network',
         namespace: 'mqtt',
         defaults: {
             name: {value:""},
@@ -61,7 +61,7 @@
         		types: ["string"]
         	}
         ],
-        icon: "bridge.png",
+        icon: "bridge.svg",
         label: function() {
             return this.name||this.topic||"mqtt";
         },

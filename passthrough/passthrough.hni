@@ -44,7 +44,7 @@
         		types: ["any"]
         	}
         ],
-        icon: "function.png",
+        icon: "function.svg",
         label: function() {
             if(this.name) return this.name;
             return "passthrough";

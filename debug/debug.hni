@@ -327,7 +327,7 @@
 	})();
     var subWindow = null;
     RED.nodes.registerType('debug',{
-        category: 'output',
+        category: 'general',
         defaults: {
             name: {value:""},
             active: {value:true},
@@ -355,7 +355,7 @@
         	}
         ],
         outputs:0,
-        icon: "debug.png",
+        icon: "debug.svg",
         align: "right",
         button: {
             toggle: "active",

@@ -24,7 +24,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('gpio-out',{
         color:"#fdd0a2",
-        category: 'output',
+        category: 'io',
         namespace: 'gpio',
         defaults: {
             name: {value:""},
@@ -39,7 +39,7 @@
         ],
         outputs:0,
         align: "right",
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "gpio-out";

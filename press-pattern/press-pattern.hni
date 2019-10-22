@@ -55,7 +55,7 @@
         		types: ["bool"]
         	}
         ],
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             return "press-pattern";

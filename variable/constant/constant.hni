@@ -25,7 +25,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('constant',{
-        category: 'input',
+        category: 'general',
         namespace: 'variable',
         color:"#87a980",
         defaults: {
@@ -41,7 +41,7 @@
                 types: ["any"]
             }
         ],
-        icon: "arrow-in.png",
+        icon: "arrow-in.svg",
         label: function() {
             if (this.name) {
                 return this.name;

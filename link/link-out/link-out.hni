@@ -16,7 +16,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('link-out',{
-        category: 'output',
+        category: 'general',
         namespace: 'link',
         color:"#ddd",//"#87D8CF",
         defaults: {
@@ -26,7 +26,7 @@
         align:"right",
         inputs:1,
         outputs:0,
-        icon: "link-out.png",
+        icon: "link-out.svg",
         inputLabels: function(i) {
             return this.name||this._("link-out.linkOut");
         },

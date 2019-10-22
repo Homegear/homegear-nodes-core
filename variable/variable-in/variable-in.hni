@@ -91,7 +91,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('variable-in',{
-        category: 'input',
+        category: 'homegear',
         namespace: 'variable',
         color:"#a6bbcf",
         defaults: {
@@ -122,7 +122,7 @@
                 types: ["any"]
             }
         ],
-        icon: "variable-in.png",
+        icon: "bridge.svg",
         label: function() {
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;
@@ -143,7 +143,7 @@
                 var type = jQuery.type(variable);
                 if(type == "boolean") return "BOOL";
                 else if(type == "number") {
-                    if(variable % 1 === 0) return "INTEGER";
+                    if(variable % 1 === 0) return "NUMBER";
                     else return "FLOAT";
                 } else if(type == "string") return "STRING";
                 else if(type == "array") return "ARRAY";
@@ -516,7 +516,7 @@
 
                     if(variableType == "metadata" && !peerId) return;
 
-                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/></form></div></div>')
+                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/><input type="hidden" id="create-variable-valueType"/></form></div></div>')
                         .appendTo("body")
                         .dialog({
                             modal: true,
@@ -538,19 +538,26 @@
                                     text: RED._("variable/variable-in.hni:variable-in.label.create"),
                                     click: function() {
                                         var variableName = $("#create-variable-name").val().trim();
+                                        var variableValueType = $("#create-variable-valueType").val();
                                         var variableValue = $("#create-variable-value").val().trim();
-                                        if(!variableName | !variableValue) return false;
-                                        try {
-                                            variableValue = JSON.parse('[' + variableValue + ']')[0];
-                                        } catch(e) {
-                                            return false;
-                                        }
-                                        if(variableType == "system") RED.comms.homegear().invoke("setSystemVariable", null, variableName, variableValue);
+                                        if(!variableName || variableValue === '' || !variableValueType) return false;
+                                        if (variableValueType == 'bool') variableValue = variableValue == 'true';
+                                        else if (variableValueType == 'int') variableValue = parseInt(variableValue);
+                                        else if (variableValueType == 'float') variableValue = parseFloat(variableValue);
+                                        else if (variableValueType == 'array' || variableValueType == 'struct') variableValue = JSON.parse(variableValue);
+                                        else variableValue = variableValue;
+
+                                        variableValue = JSON.stringify(variableValue);
+                                        if (variableValueType == 'float' && variableValue.indexOf('.') == -1) variableValue += '.0';
+
+                                        var counter = RED.comms.homegear().getCounter();
+
+                                        if(variableType == "system") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setSystemVariable", "id": ' + counter + ', "params": [' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
                                         else if(variableType == "metadata") {
                                             if(peerId == 0) return false;
-                                            RED.comms.homegear().invoke("setMetadata", null, peerId, variableName, variableValue);
-                                        } else if(variableType == "flow") RED.comms.homegear().invoke("setFlowData", null, that.z, variableName, variableValue);
-                                        else if(variableType == "global") RED.comms.homegear().invoke("setGlobalData", null, variableName, variableValue);
+                                            RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setMetadata", "id": ' + counter + ', "params": [' + JSON.stringify(peerId) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
+                                        } else if(variableType == "flow") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setFlowData", "id": ' + counter + ', "params": [' + JSON.stringify(that.z) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
+                                        else if(variableType == "global") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setGlobalData", "id": ' + counter + ', "params": [' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
 
                                         that.variable = variableName;
 
@@ -563,6 +570,14 @@
 
                                 $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
                                 $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+
+                                $("#create-variable-value").typedInput({
+                                    default: 'int',
+                                    typeField: $("#create-variable-valueType"),
+                                    types:['bool','int','float','string','array','struct']
+                                });
+
+                                $("#create-variable-value").typedInput('type', 'int');
                             },
                             close: function(e) {
                                 $(this).remove();

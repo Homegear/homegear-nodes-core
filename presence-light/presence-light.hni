@@ -129,7 +129,7 @@
                 types: ["integer"]
             }
         ],
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             return "presence-light";

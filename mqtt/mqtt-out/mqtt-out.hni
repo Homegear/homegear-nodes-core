@@ -43,7 +43,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('mqtt-out',{
-        category: 'output',
+        category: 'network',
         namespace: 'mqtt',
         defaults: {
             name: {value:""},
@@ -59,7 +59,7 @@
         	}
         ],
         outputs:0,
-        icon: "bridge.png",
+        icon: "bridge.svg",
         align: "right",
         label: function() {
             return this.name||this.topic||"mqtt";

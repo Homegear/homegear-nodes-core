@@ -65,7 +65,7 @@
         color:"BurlyWood",
         inputs:1,
         outputs:0,
-        icon: "file.png",
+        icon: "file.svg",
         align: "right",
         label: function() {
             if (this.overwriteFile === "delete") {

@@ -37,7 +37,7 @@
 <script type="text/javascript">
 (function() {
     RED.nodes.registerType('modbus-out',{
-        category: 'output',
+        category: 'network',
         namespace: 'modbus',
         defaults: {
             name: {value:""},
@@ -48,7 +48,7 @@
         color:"#FFF0F0",
         inputs:1,
         outputs:0,
-        icon: "bridge.png",
+        icon: "bridge.svg",
         align: "right",
         label: function() {
             return this.name||this.topic||"modbus";

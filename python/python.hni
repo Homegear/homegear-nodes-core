@@ -82,7 +82,7 @@
                 types: ["array[string]"]
             }
         ],
-        icon: "function.png",
+        icon: "function.svg",
         label: function() {
             return this.name;
         },

@@ -146,7 +146,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;

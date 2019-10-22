@@ -96,7 +96,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('light',{
-        category: 'output',
+        category: 'homegear',
         namespace: 'light',
         color:"#a6bbcf",
         defaults: {
@@ -133,7 +133,7 @@
             }
         ],
         outputs:0,
-        icon: "light.png",
+        icon: "light.svg",
         align: "right",
         label: function() {
             if(this.name) return this.name;
@@ -153,7 +153,7 @@
                 var type = jQuery.type(variable);
                 if(type == "boolean") return "BOOL";
                 else if(type == "number") {
-                    if(variable % 1 === 0) return "INTEGER";
+                    if(variable % 1 === 0) return "NUMBER";
                     else return "FLOAT";
                 } else if(type == "string") return "STRING";
                 else if(type == "array") return "ARRAY";
