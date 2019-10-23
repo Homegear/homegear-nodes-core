@@ -525,7 +525,7 @@
                                 $("#create-variable-value").typedInput({
                                     default: 'int',
                                     typeField: $("#create-variable-valueType"),
-                                    types:['bool','int','float','string','array','struct']
+                                    types:['bool','int','float','string','arraySimple','structSimple']
                                 });
 
                                 $("#create-variable-value").typedInput('type', 'int');

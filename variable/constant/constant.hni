@@ -67,7 +67,7 @@
             $("#node-input-payload").typedInput({
                 default: 'int',
                 typeField: $("#node-input-payloadType"),
-                types:['bool','int','float','string','array','struct']
+                types:['bool','int','float','string','arraySimple','structSimple']
             });
 
             $("#node-input-payload").typedInput('type',this.payloadType);
