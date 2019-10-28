@@ -126,7 +126,7 @@ bool PresenceLight::start()
         }
 
         auto lastNonNullStateValue = getNodeData("lastNonNullStateValue");
-        if(stateValue->type == Flows::VariableType::tInteger || stateValue->type == Flows::VariableType::tInteger64)
+        if(lastNonNullStateValue->type == Flows::VariableType::tInteger || lastNonNullStateValue->type == Flows::VariableType::tInteger64)
         {
             _lastNonNullStateValue.store(lastNonNullStateValue->integerValue64, std::memory_order_release);
         }

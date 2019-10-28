@@ -406,7 +406,10 @@
                 name: this._("debug.sidebar.name"),
                 content: uiComponents.content,
                 toolbar: uiComponents.footer,
-                enableOnEdit: true
+                enableOnEdit: true,
+                pinned: true,
+                iconClass: "fa fa-bug",
+                action: "core:show-debug-tab"
             });
             RED.actions.add("core:show-debug-tab",function() { RED.sidebar.show('debug')});
 
@@ -428,6 +431,7 @@
                     }
                 }
             }
+            RED.events.on("workspace:change", this.refreshMessageList);
 
             this.handleDebugMessage = function(t,o) {
                 var sourceNode = RED.nodes.node(o.id) || RED.nodes.node(o.z);
@@ -445,8 +449,6 @@
                 }
             };
             RED.comms.subscribe("debug",this.handleDebugMessage);
-
-            RED.events.on("workspace:change", this.refreshMessageList);
 
             $("#debug-tab-open").click(function(e) {
                 e.preventDefault();
