@@ -543,7 +543,7 @@ void MyNode::timer()
 				event = false;
 				output(0, message);
 			}
-			if(update || _forceUpdate || currentTime % 86400000 < lastTime % 86400000) //New day?
+			if(update || _forceUpdate || currentTime % 3600000 < lastTime % 3600000) //New hour? Recalc in case of time changes or summer/winter time
 			{
 				update = false;
 
