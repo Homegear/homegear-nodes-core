@@ -38,6 +38,13 @@
 namespace kainjow {
 namespace mustache {
 
+enum class DataSource
+{
+    flow,
+    global,
+    environment
+};
+
 template <typename string_type>
 string_type trim(const string_type& s) {
     auto it = s.begin();
@@ -342,20 +349,20 @@ public:
     }
 
     template <typename StreamType>
-    StreamType& render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData, StreamType& stream) {
+    StreamType& render(const basic_data<string_type>& data, std::function<void(mustache::DataSource, std::string)> addData, StreamType& stream) {
         render(data, addData, [&stream](const string_type& str) {
             stream << str;
         });
         return stream;
     }
     
-    string_type render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData) {
+    string_type render(const basic_data<string_type>& data, std::function<void(mustache::DataSource, std::string)> addData) {
         std::basic_ostringstream<typename string_type::value_type> ss;
         return render(data, addData, ss).str();
     }
 
     using RenderHandler = std::function<void(const string_type&)>;
-    void render(const basic_data<string_type>& data, std::function<void(bool, std::string)> addData, const RenderHandler& handler) {
+    void render(const basic_data<string_type>& data, std::function<void(mustache::DataSource, std::string)> addData, const RenderHandler& handler) {
         if (!is_valid()) {
             return;
         }
@@ -406,7 +413,7 @@ private:
     
     class Context {
     public:
-        Context(const basic_data<string_type>* data, std::function<void(bool, std::string)> addData) {
+        Context(const basic_data<string_type>* data, std::function<void(mustache::DataSource, std::string)> addData) {
             push(data);
             _addData.swap(addData);
         }
@@ -442,14 +449,20 @@ private:
             if (names.size() == 0) {
                 names.resize(1);
             }
-            if(names.at(0) == "flow" || names.at(0) == "global") {
+            if(names.at(0) == "flow" || names.at(0) == "global" || names.at(0) == "env") {
             	for (const auto& item : items_) {
 					auto var = item;
 					var = var->get(names.at(0));
 					if (!var) {
 						continue;
 					}
-					if(_addData) _addData(names.at(0) == "global", names.at(1));
+
+					DataSource dataSource;
+					if(names.at(0) == "global") dataSource = DataSource::global;
+                    else if(names.at(0) == "flow") dataSource = DataSource::flow;
+                    else dataSource = DataSource::environment;
+
+					if(_addData) _addData(dataSource, names.at(1));
 				}
             }
 			for (const auto& item : items_) {
@@ -484,7 +497,7 @@ private:
 
     private:
         std::vector<const basic_data<string_type>*> items_;
-        std::function<void(bool, std::string)> _addData;
+        std::function<void(mustache::DataSource, std::string)> _addData;
     };
 
     class ContextPusher {

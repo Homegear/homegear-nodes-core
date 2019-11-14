@@ -72,19 +72,45 @@ bool Template::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void Template::addData(bool global, std::string key)
+void Template::addData(mustache::DataSource dataSource, std::string key)
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
-		parameters->push_back(std::make_shared<Flows::Variable>(global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
-		parameters->push_back(std::make_shared<Flows::Variable>(key));
-		Flows::PVariable result = invoke("getNodeData", parameters);
-		if(result->errorStruct) return;
-		auto data = (mustache::data*)(_data.get(global ? "global" : "flow")); //This is dirty, but works as there is no access to _data, when addData is called.
-		if(!data) return;
-		setData(*data, key, result);
+        Flows::PVariable result;
+        if(dataSource == mustache::DataSource::environment)
+        {
+            auto envIterator = _nodeInfo->info->structValue->find("env");
+            if(envIterator == _nodeInfo->info->structValue->end()) return;
+            for(auto& element : *envIterator->second->arrayValue)
+            {
+                auto nameIterator = element->structValue->find("name");
+                if(nameIterator != element->structValue->end() && nameIterator->second->stringValue == key)
+                {
+                    auto valueIterator = element->structValue->find("value");
+                    if(valueIterator != element->structValue->end())
+                    {
+                        result = valueIterator->second;
+                    }
+                }
+            }
+            if(!result) return;
+        }
+	    else
+        {
+            Flows::PArray parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(2);
+            parameters
+                ->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")
+                    ->stringValue));
+            parameters->push_back(std::make_shared<Flows::Variable>(key));
+            Flows::PVariable result = invoke("getNodeData", parameters);
+            if (result->errorStruct) return;
+        }
+
+        auto data = (mustache::data *) (_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
+        if (!data) return;
+        _out->printError("Moin4 " + key);
+        setData(*data, key, result);
 	}
 	catch(const std::exception& ex)
 	{
@@ -145,9 +171,12 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 		}
 		_data.set("flow", mustache::data(mustache::data::type::object));
 		_data.set("global", mustache::data(mustache::data::type::object));
+        _data.set("env", mustache::data(mustache::data::type::object));
+
+        _out->printError("Moin a");
 
 		Flows::PVariable result;
-		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(bool, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
+		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
 		else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

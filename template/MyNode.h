@@ -58,7 +58,7 @@ private:
 	std::mutex _inputMutex;
 	mustache::data _data;
 
-	void addData(bool global, std::string key);
+	void addData(mustache::DataSource dataSource, std::string key);
 	void setData(mustache::data& data, std::string key, Flows::PVariable value);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
