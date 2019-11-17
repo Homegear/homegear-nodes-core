@@ -65,9 +65,9 @@
         color: "#A6BBCF",
         defaults: {
             name: {value:""},
-            "on-time": {value:"300",required:true,validate:RED.validators.number()},
-            "always-on-time": {value:"21600",required:true,validate:RED.validators.number()},
-            "always-off-time": {value:"21600",required:true,validate:RED.validators.number()},
+            "on-time": {value:"300",required:false,validate:RED.validators.number()},
+            "always-on-time": {value:"21600",required:false,validate:RED.validators.number()},
+            "always-off-time": {value:"21600",required:false,validate:RED.validators.number()},
             "process-false": {value:false,required:false},
             "keep-on": {value:false,required:false},
             "toggle-profile-0-only": {value:false,required:false},

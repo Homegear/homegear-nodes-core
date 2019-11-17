@@ -50,7 +50,7 @@ public:
     virtual void waitForStop();
 private:
     //{{{ Only used by one thread / protected by input mutex of Homegear
-    uint32_t _onTime = 300000;
+    uint32_t _onTime = 0;
     uint32_t _alwaysOnTime = 21600000;
     uint32_t _alwaysOffTime = 21600000;
     int64_t _lastInput = -1;
