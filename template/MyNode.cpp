@@ -81,27 +81,15 @@ void Template::addData(mustache::DataSource dataSource, std::string key)
         {
             auto envIterator = _nodeInfo->info->structValue->find("env");
             if(envIterator == _nodeInfo->info->structValue->end()) return;
-            for(auto& element : *envIterator->second->arrayValue)
-            {
-                auto nameIterator = element->structValue->find("name");
-                if(nameIterator != element->structValue->end() && nameIterator->second->stringValue == key)
-                {
-                    auto valueIterator = element->structValue->find("value");
-                    if(valueIterator != element->structValue->end())
-                    {
-                        result = valueIterator->second;
-                    }
-                }
-            }
-            if(!result) return;
+            auto envIterator2 = envIterator->second->structValue->find(key);
+            if(envIterator2 == envIterator->second->structValue->end()) return;
+            result = envIterator2->second;
         }
 	    else
         {
             Flows::PArray parameters = std::make_shared<Flows::Array>();
             parameters->reserve(2);
-            parameters
-                ->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")
-                    ->stringValue));
+            parameters->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
             parameters->push_back(std::make_shared<Flows::Variable>(key));
             Flows::PVariable result = invoke("getNodeData", parameters);
             if (result->errorStruct) return;

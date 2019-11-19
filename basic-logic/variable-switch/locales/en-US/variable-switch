@@ -40,6 +40,7 @@
       "input": "input",
       "flow": "flow.",
       "global": "global.",
+      "env": "env.",
       "paletteHelp": "<p>Route messages based on the value of a variable.</p>",
       "help": "<p>Route messages based on the value of a variable.</p><h3>Details</h3><p>When a message arrives, the node will evaluate each of the defined rules and forward the message to the corresponding outputs of any matching rules.</p><p>Optionally, the node can be set to stop evaluating rules once it finds one that matches.</p><p>Also optionally the node can output <code>true</code> and <code>false</code> instead of forwarding the input payload.</p>",
       "input1Description": "The input triggering the comparison."
