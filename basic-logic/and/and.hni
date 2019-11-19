@@ -93,7 +93,6 @@
             return "and";
         },
         oneditprepare: function() {
-            var that = this;
             $( "#node-input-inputs" ).spinner({
                 min:2,
                 max:10
