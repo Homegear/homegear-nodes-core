@@ -1,0 +1,15 @@
+{
+  "variable/round-robin-shift.hni": {
+    "round-robin-shift": {
+      "label": {
+        "true-only": "Only toggle on \"true\"",
+        "outputs": "Outputs",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Sends <code>true</code> round robin on one output after the other incrementing the output index on every input.</p>",
+      "help": "<p>Sends <code>true</code> round robin on one output after the other incrementing the output index on every input.</p><p><code>RES</code> resets the output index so the next input triggers output <code>0</code>.</p>",
+      "input1Description": "Every input triggers an output of <code>true</code> on the currently selected output and increments the output index by one.",
+      "input2Description": "Resets the output index so the next input triggers output number <code>0</code>."
+    }
+  }
+}

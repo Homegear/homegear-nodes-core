@@ -1,0 +1,15 @@
+{
+  "variable/round-robin-shift.hni": {
+    "round-robin-shift": {
+      "label": {
+        "true-only": "Nur bei \"true\" togglen",
+        "outputs": "Ausgänge",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Sendet <code>true</code> reihum auf einem Ausgang nach dem anderen. Mit jedem Eingang wird der Ausgangsindex dabei um 1 inkrementiert.</p>",
+      "help": "<p>Sendet <code>true</code> reihum auf einem Ausgang nach dem anderen. Mit jedem Eingang wird der Ausgangsindex dabei um 1 inkrementiert.</p><p><code>RES</code> setzt den Ausgangsindex wieder zurück, so dass der nächste Eingang den Ausgang <code>0</code> triggert.</p>",
+      "input1Description": "Jeder Eingang gibt <code>true</code> auf dem aktuell gewählten Ausgang aus und inkrementiert den Ausgangsindex um eins.",
+      "input2Description": "Setzt den Ausgangsindex zurück, sodass der nächste Eingang den Ausgang <code>0</code> triggert."
+    }
+  }
+}

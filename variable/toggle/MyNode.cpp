@@ -93,7 +93,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
-	    if(_trueOnly && !(bool)message->structValue->at("payload")) return;
+	    if(_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
 
         if(_variableType == VariableType::self)
         {
