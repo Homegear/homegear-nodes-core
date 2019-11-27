@@ -97,7 +97,6 @@ void Template::addData(mustache::DataSource dataSource, std::string key)
 
         auto data = (mustache::data *) (_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
         if (!data) return;
-        _out->printError("Moin4 " + key);
         setData(*data, key, result);
 	}
 	catch(const std::exception& ex)
@@ -160,8 +159,6 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 		_data.set("flow", mustache::data(mustache::data::type::object));
 		_data.set("global", mustache::data(mustache::data::type::object));
         _data.set("env", mustache::data(mustache::data::type::object));
-
-        _out->printError("Moin a");
 
 		Flows::PVariable result;
 		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
