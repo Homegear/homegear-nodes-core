@@ -72,9 +72,9 @@ public function executeCode(int $inputIndex, array $message)
 		$code = $this->nodeInfo["info"]["func"];
 		if(array_key_exists('info', $this->nodeInfo) && array_key_exists('env', $this->nodeInfo['info']))
 		{
-			foreach($this->nodeInfo['info']['env'] as $element)
+			foreach($this->nodeInfo['info']['env'] as $name => $value)
 			{
-				putenv($element['name'].'='.$element['value']);
+				putenv($name.'='.$value);
 			}
 		}
 		$hg = new \Homegear\Homegear();
