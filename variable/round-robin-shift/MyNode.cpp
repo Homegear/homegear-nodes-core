@@ -51,7 +51,7 @@ bool MyNode::init(Flows::PNodeInfo info)
         if(settingsIterator != info->info->structValue->end()) _outputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
 
         _currentOutputIndex = getNodeData("currentOutputIndex")->integerValue;
-        
+
 		return true;
 	}
 	catch(const std::exception& ex)

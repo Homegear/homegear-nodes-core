@@ -329,8 +329,9 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		for(auto& rule : _rules)
 		{
             applyRule(info, rule, myMessage);
-			output(0, myMessage);
 		}
+
+        output(0, myMessage);
 	}
 	catch(const std::exception& ex)
 	{
