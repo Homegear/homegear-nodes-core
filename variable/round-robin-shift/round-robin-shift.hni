@@ -33,15 +33,19 @@
 
             name: {value:""}
         },
-        inputs:2,
+        inputs:3,
         inputInfo: [
             {
-                label: "TG",
+                label: "TGF",
+                types: ["any"]
+            },
+            {
+                label: "TGB",
                 types: ["any"]
             },
             {
                 label: "RES",
-                types: ["bool"]
+                types: ["bool", "int"]
             }
         ],
         outputs:2,
