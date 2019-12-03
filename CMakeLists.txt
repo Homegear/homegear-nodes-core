@@ -160,6 +160,18 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		tcp/tcp-in/Factory.cpp
+		tcp/tcp-in/Factory.h
+		tcp/tcp-in/MyNode.cpp
+		tcp/tcp-in/MyNode.h
+		tcp/tcp-out/Factory.cpp
+		tcp/tcp-out/Factory.h
+		tcp/tcp-out/MyNode.cpp
+		tcp/tcp-out/MyNode.h
+		tcp/tcp-socket/Factory.cpp
+		tcp/tcp-socket/Factory.h
+		tcp/tcp-socket/MyNode.cpp
+		tcp/tcp-socket/MyNode.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h

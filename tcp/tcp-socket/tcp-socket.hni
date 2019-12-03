@@ -1,0 +1,148 @@
+<script type="text/x-homegear">
+{
+    "name": "tcp-socket",
+    "readableName": "TCP socket",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 1
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="tcp-socket">
+    <div class="form-row">
+        <label for="node-config-input-sockettype"><i class="fa fa-random"></i> <span data-i18n="tcp-socket.label.type"></span></label>
+        <select type="text" id="node-config-input-sockettype" style="display: inline-block;">
+            <option value="server" data-i18n="tcp-socket.label.server"></option>
+            <option value="client" data-i18n="tcp-socket.label.client"></option>
+        </select>
+    </div>
+    <div id="node-config-input-server-container">
+        <div class="form-row">
+            <label for="node-config-input-listenaddress"><i class="fa fa-globe"></i> <span data-i18n="tcp-socket.label.listenaddress"></span></label>
+            <input class="input-append-left" type="text" id="node-config-input-listenaddress" placeholder="e.g. ::" style="width:40%;" >
+            <label for="node-config-input-listenport" style="margin-left:20px; width:35px; "> <span data-i18n="tcp-socket.label.port"></span></label>
+            <input type="text" id="node-config-input-listenport" data-i18n="[placeholder]tcp-socket.label.port" style="width:55px">
+        </div>
+        <div class="form-row">
+            <input type="checkbox" id="node-config-input-usetlsserver" style="display: inline-block; width: auto; vertical-align: top;">
+            <label for="node-config-input-usetlsserver" style="width: auto" data-i18n="tcp-socket.label.use-tls"></label>
+            <div id="node-config-row-tlsserver" class="hide">
+                <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tlsserver"><span data-i18n="tcp-socket.label.tls-config"></span></label><input style="width: 300px;" type="text" id="node-config-input-tlsserver">
+            </div>
+        </div>
+    </div>
+    <div id="node-config-input-client-container" class="hide">
+        <div class="form-row">
+            <label for="node-config-input-address"><i class="fa fa-globe"></i> <span data-i18n="tcp-socket.label.address"></span></label>
+            <input class="input-append-left" type="text" id="node-config-input-address" placeholder="e.g. localhost" style="width:40%;" >
+            <label for="node-config-input-port" style="margin-left:20px; width:35px; "> <span data-i18n="tcp-socket.label.port"></span></label>
+            <input type="text" id="node-config-input-port" data-i18n="[placeholder]tcp-socket.label.port" style="width:55px">
+        </div>
+        <div class="form-row">
+            <input type="checkbox" id="node-config-input-usetlsclient" style="display: inline-block; width: auto; vertical-align: top;">
+            <label for="node-config-input-usetlsclient" style="width: auto" data-i18n="tcp-socket.label.use-tls"></label>
+            <div id="node-config-row-tlsclient" class="hide">
+                <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-config-input-tlsclient"><span data-i18n="tcp-socket.label.tls-config"></span></label><input style="width: 300px;" type="text" id="node-config-input-tlsclient">
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('tcp-socket',{
+        category: 'config',
+        namespace: 'tcp',
+        defaults: {
+            listenaddress: {value:"::",validate: function(v) { if(this.sockettype == "client") return true; else return v != ""; }},
+            listenport: {value:8080,validate: function(v) { if(this.sockettype == "client") return true; else return $.isNumeric(v); }},
+            address: {value:"localhost",validate: function(v) { if(this.sockettype == "server") return true; else return v != ""; }},
+            port: {value:8080,validate: function(v) { if(this.sockettype == "server") return true; else return $.isNumeric(v); }},
+            tlsserver: {type:"tls-server-config",required: false},
+            usetlsserver: {value: false},
+            tlsclient: {type:"tls-config",required: false},
+            usetlsclient: {value: false},
+            sockettype: {value: "server"}
+            
+        },
+        label: function() {
+            if(this.sockettype == "server") {
+                var b = this.listenaddress;
+                if (b === "") { b = "undefined"; }
+                else if(b.indexOf(":") > -1) { b = "[" + b + "]" }
+                return b+":"+this.listenport;
+            }
+            else {
+                var b = this.address;
+                if (b === "") { b = "undefined"; }
+                else if(b.indexOf(":") > -1) { b = "[" + b + "]" }
+                return b+":"+this.port;
+            }
+        },
+        oneditprepare: function () {
+            $("#node-config-input-sockettype").on("change",function() {
+                var type = $("#node-config-input-sockettype").val();
+                if(type == "client") {
+                    $('#node-config-input-server-container').hide();
+                    $('#node-config-input-client-container').show();
+                }
+                else {
+                    $('#node-config-input-server-container').show();
+                    $('#node-config-input-client-container').hide();
+                }
+            });
+
+            if (typeof this.usetlsserver === 'undefined') {
+                this.usetlsserver = false;
+                $("#node-config-input-usetlsserver").prop("checked",false);
+            }
+
+            function updateTLSOptionsServer() {
+                if ($("#node-config-input-usetlsserver").is(':checked')) {
+                    $("#node-config-row-tlsserver").show();
+                } else {
+                    $("#node-config-row-tlsserver").hide();
+                }
+            }
+            updateTLSOptionsServer();
+            $("#node-config-input-usetlsserver").on("click",function() {
+                updateTLSOptionsServer();
+            });
+
+            if (typeof this.usetlsclient === 'undefined') {
+                this.usetlsclient = false;
+                $("#node-config-input-usetlsclient").prop("checked",false);
+            }
+
+            function updateTLSOptionsClient() {
+                if ($("#node-config-input-usetlsclient").is(':checked')) {
+                    $("#node-config-row-tlsclient").show();
+                } else {
+                    $("#node-config-row-tlsclient").hide();
+                }
+            }
+            updateTLSOptionsClient();
+            $("#node-config-input-usetlsclient").on("click",function() {
+                updateTLSOptionsClient();
+            });
+        },
+        oneditsave: function() {
+            if (!$("#node-config-input-usetlsserver").is(':checked')) {
+                $("#node-config-input-tlsserver").val("");
+            }
+
+            if (!$("#node-config-input-usetlsclient").is(':checked')) {
+                $("#node-config-input-tlsclient").val("");
+            }
+        }
+    });
+</script>
