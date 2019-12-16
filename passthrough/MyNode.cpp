@@ -47,8 +47,12 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("onboolean");
 		if(settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
 
+		bool resetOnStartup = false;
+        settingsIterator = info->info->structValue->find("resetonstartup");
+        if(settingsIterator != info->info->structValue->end()) resetOnStartup = settingsIterator->second->booleanValue;
+
 		_input1 = getNodeData("input1");
-		_input2 = getNodeData("input2")->booleanValue;
+		if(!resetOnStartup) _input2 = getNodeData("input2")->booleanValue;
 
 		return true;
 	}

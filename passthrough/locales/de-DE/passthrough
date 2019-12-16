@@ -3,6 +3,7 @@
     "passthrough": {
       "label": {
         "onboolean": "Den gespeicherten Wert von \"v\" ausgeben, wenn \"EN\" auf \"true\" geändert wird",
+        "resetonstartup": "Setze \"EN\" beim Start auf \"false\"",
         "name": "Name"
       },
       "paletteHelp": "<p>Dieser Knoten übergibt abhängig von einer booleschen Eingabe einen Wert an die Ausgabe.</p>",
