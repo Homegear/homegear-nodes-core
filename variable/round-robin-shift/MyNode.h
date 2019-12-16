@@ -43,9 +43,10 @@ public:
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
+    bool _forward = true;
 	bool _trueOnly = true;
-    uint32_t _outputs = 2;
-    uint32_t _currentOutputIndex = 0;
+    int32_t _outputs = 2;
+    int32_t _currentOutputIndex = 0;
 
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
