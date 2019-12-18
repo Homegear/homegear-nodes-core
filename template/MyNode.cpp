@@ -151,7 +151,7 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 	try
 	{
 		std::lock_guard<std::mutex> inputGuard(_inputMutex);
-		_data = mustache::data();
+        _data = mustache::data();
 		for(auto& element : *message->structValue)
 		{
 			setData(_data, element.first, element.second);
@@ -170,12 +170,7 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 			Flows::PVariable json;
 			result->stringValue = Flows::HelperFunctions::trim(result->stringValue);
 			if(result->stringValue.empty()) json = std::make_shared<Flows::Variable>();
-			else if(result->stringValue.front() != '[' && result->stringValue.front() != '{')
-			{
-				result->stringValue = '[' + result->stringValue + ']';
-				json = _jsonDecoder.decode(result->stringValue)->arrayValue->at(0);
-			}
-			else json = _jsonDecoder.decode(result->stringValue);
+			json = Flows::JsonDecoder::decode(result->stringValue);
 			if(_field.empty() && json->type == Flows::VariableType::tStruct)
 			{
 				outputMessage = json;

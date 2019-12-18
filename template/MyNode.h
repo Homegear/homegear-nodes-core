@@ -50,7 +50,6 @@ private:
 	Flows::PNodeInfo _nodeInfo;
 
 	std::string _plainTemplate;
-	Flows::JsonDecoder _jsonDecoder;
 	std::unique_ptr<mustache::mustache> _template;
 	std::string _field;
 	bool _mustache = true;
