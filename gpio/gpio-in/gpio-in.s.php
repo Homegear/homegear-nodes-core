@@ -1,64 +1,76 @@
 <?php
 declare(strict_types=1);
 
-use Homegear\HomegearGpio as HomegearGpio;
+use Homegear\HomegearGpio;
+use parallel\{Channel,Runtime,Events,Events\Event};
 
-class SharedData extends Threaded
+class SharedData
 {
 	public $scriptId = 0;
 	public $nodeId = "";
     public $gpioIndex = 0;
     public $trueOnly = false;
     public $stop = false;
-
-    public function run() {}
 }
 
-class GpioThread extends Thread
+$gpioThread = function(object $sharedData, Channel $homegearChannel)
 {
-    private $sharedData;
-
-	public function __construct($sharedData)
+	$hg = new \Homegear\Homegear();
+	if($hg->registerThread($sharedData->scriptId) === false)
 	{
-		$this->sharedData = $sharedData;
+		$hg->log(2, "Could not register thread.");
+		return;
 	}
 
-	public function run()
-	{
-		$hg = new \Homegear\Homegear();
-		if($hg->registerThread($this->sharedData->scriptId) === false)
-		{
-			$hg->log(2, "Could not register thread.");
-			return;
-		}
-		$gpio = new HomegearGpio();
-		$gpio->export($this->sharedData->gpioIndex);
-		$gpio->open($this->sharedData->gpioIndex);
-		$gpio->setDirection($this->sharedData->gpioIndex, HomegearGpio::DIRECTION_IN);
-		$gpio->setEdge($this->sharedData->gpioIndex, HomegearGpio::EDGE_BOTH);
-		$result = $gpio->poll($this->sharedData->gpioIndex, 1);
-		while(!$this->sharedData->stop)
-		{
-			$result = $gpio->poll($this->sharedData->gpioIndex, 1000, true);
-			if($result == -1)
-			{
-				$hg->log(2, "Error reading GPIO.");
-				$gpio->close($this->sharedData->gpioIndex);
-				$this->synchronized(function($thread){ $thread->wait(1000000); }, $this);
-				$gpio->open($this->sharedData->gpioIndex);
-				$gpio->setDirection($this->sharedData->gpioIndex, HomegearGpio::DIRECTION_IN);
-				$gpio->setEdge($this->sharedData->gpioIndex, HomegearGpio::EDGE_BOTH);
-			}
-			else if($result == -2)
-			{
-				continue;
-			}
+	$events = new Events();
+	$events->addChannel($homegearChannel);
+	$events->setBlocking(false);
 
-			if($result || $this->sharedData->trueOnly) $hg->nodeOutput($this->sharedData->nodeId, 0, array('payload' => (bool)$result));
+	$gpio = new HomegearGpio();
+	$gpio->export($sharedData->gpioIndex);
+	$gpio->open($sharedData->gpioIndex);
+	$gpio->setDirection($sharedData->gpioIndex, HomegearGpio::DIRECTION_IN);
+	$gpio->setEdge($sharedData->gpioIndex, HomegearGpio::EDGE_BOTH);
+	$result = $gpio->poll($sharedData->gpioIndex, 1);
+	while(true)
+	{
+		$result = $gpio->poll($this->sharedData->gpioIndex, 1000, true);
+		if($result == -1)
+		{
+			$hg->log(2, "Error reading GPIO.");
+			$gpio->close($sharedData->gpioIndex);
+			sleep(1);
+			$gpio->open($sharedData->gpioIndex);
+			$gpio->setDirection($sharedData->gpioIndex, HomegearGpio::DIRECTION_IN);
+			$gpio->setEdge($sharedData->gpioIndex, HomegearGpio::EDGE_BOTH);
 		}
-		$gpio->close($this->sharedData->gpioIndex);
+		else if($result == -2)
+		{
+			//Timeout
+		}
+		else if($result || (!$result && !$sharedData->trueOnly)) $hg->nodeOutput($this->sharedData->nodeId, 0, array('payload' => (bool)$result));
+
+		$event = NULL;
+		do
+		{
+			$event = $events->poll();
+			if($event && $event->source == 'gpioHomegearChannel')
+			{
+				$events->addChannel($homegearChannel);
+				if($event->type == Event\Type::Read)
+				{
+					if(is_array($event->value) && count($event->value) > 0)
+					{
+						if($event->value['name'] == 'stop') return true; //Stop
+					}
+				}
+				else if($event->type == Event\Type::Close) return true; //Stop
+			}
+		}
+		while($event);
 	}
-}
+	$gpio->close($this->sharedData->gpioIndex);
+};
 
 class HomegearNode extends HomegearNodeBase
 {
@@ -66,7 +78,9 @@ class HomegearNode extends HomegearNodeBase
 private $hg = NULL;
 private $nodeInfo = NULL;
 private $sharedData = NULL;
-private $thread = NULL;
+private $gpioRuntime = NULL;
+private $gpioFuture = NULL;
+private $gpioHomegearChannel = NULL; //Channel to pass Homegear events to gpio thread
 
 function __construct()
 {
@@ -91,20 +105,40 @@ public function start() : bool
 	$this->sharedData->gpioIndex = (int)$this->nodeInfo['info']['index'];
 	$this->sharedData->nodeId = $this->nodeInfo['id'];
 	$this->sharedData->trueOnly = (bool)$this->nodeInfo['info']['trueonly'];
-	$this->thread = new GpioThread($this->sharedData);
-	$this->thread->start();
+	
+	$this->gpioRuntime = new Runtime();
+	$this->gpioHomegearChannel = Channel::make('gpioHomegearChannel', Channel::Infinite);
+
+	global $gpioThread;
+	$this->gpioFuture = $this->gpioRuntime->run($gpioThread, [$this->sharedData, $this->gpioHomegearChannel]);
+
 	return true;
 }
 
 public function stop()
 {
-	if($this->thread) $this->sharedData->stop = true;
+	if($this->gpioHomegearChannel) $this->gpioHomegearChannel->send(['name' => 'stop', 'value' => true]);
 }
 
 public function waitForStop()
 {
-	if($this->thread) $this->thread->join();
-	$this->thread = NULL;
+	if($this->gpioFuture)
+	{
+		$this->gpioFuture->value();
+		$this->gpioFuture = NULL;
+	}
+
+	if($this->gpioHomegearChannel)
+	{
+		$this->gpioHomegearChannel->close();
+		$this->gpioHomegearChannel = NULL;
+	}
+
+	if($this->gpioRuntime)
+	{
+		$this->gpioRuntime->close();
+		$this->gpioRuntime = NULL;
+	}
 }
 
 }
