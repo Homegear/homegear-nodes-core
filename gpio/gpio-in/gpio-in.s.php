@@ -54,7 +54,7 @@ $gpioThread = function(object $sharedData, Channel $homegearChannel)
 		do
 		{
 			$event = $events->poll();
-			if($event && $event->source == 'gpioHomegearChannel')
+			if($event && $event->source == 'gpioHomegearChannelNode'.$sharedData->nodeId)
 			{
 				$events->addChannel($homegearChannel);
 				if($event->type == Event\Type::Read)
@@ -107,7 +107,7 @@ public function start() : bool
 	$this->sharedData->trueOnly = (bool)$this->nodeInfo['info']['trueonly'];
 	
 	$this->gpioRuntime = new Runtime();
-	$this->gpioHomegearChannel = Channel::make('gpioHomegearChannel', Channel::Infinite);
+	$this->gpioHomegearChannel = Channel::make('gpioHomegearChannelNode'$this->sharedData->nodeId., Channel::Infinite);
 
 	global $gpioThread;
 	$this->gpioFuture = $this->gpioRuntime->run($gpioThread, [$this->sharedData, $this->gpioHomegearChannel]);
