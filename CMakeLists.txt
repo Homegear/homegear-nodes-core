@@ -221,6 +221,12 @@ set(SOURCE_FILES
         timers/timer/MyNode.h
         timers/timer/SunTime.cpp
         timers/timer/SunTime.h
+		timers/weekly-program/Factory.cpp
+		timers/weekly-program/Factory.h
+		timers/weekly-program/MyNode.cpp
+		timers/weekly-program/MyNode.h
+		timers/weekly-program/SunTime.cpp
+		timers/weekly-program/SunTime.h
         tls-config/Factory.cpp
         tls-config/Factory.h
         tls-config/MyNode.cpp

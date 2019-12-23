@@ -28,6 +28,8 @@
  */
 
 #include "MyNode.h"
+#include "../../timers/weekly-program/MyNode.h"
+
 #include <homegear-base/Security/SecureVector.h>
 
 namespace MyNode
@@ -116,7 +118,7 @@ bool MyNode::start()
                 }
             }
 
-            //_socket = std::make_shared<BaseLib::TcpSocket>(_bl, serverInfo);
+            _socket = std::make_shared<BaseLib::TcpSocket>(_bl.get(), serverInfo);
 
             try
             {
@@ -162,12 +164,12 @@ bool MyNode::start()
                     secureKeyData->insert(secureKeyData->end(), keyData.begin(), keyData.end());
                     certificateInfo->keyData = secureKeyData;
 
-                    //_socket = std::make_shared<BaseLib::TcpSocket>(_bl, address, port, useTls, true, certificateInfo->caFile, certificateInfo->caData, certificateInfo->certFile, certificateInfo->certData, certificateInfo->keyFile, certificateInfo->keyData);
+                    _socket = std::make_shared<BaseLib::TcpSocket>(_bl.get(), address, port, useTls, true, certificateInfo->caFile, certificateInfo->caData, certificateInfo->certFile, certificateInfo->certData, certificateInfo->keyFile, certificateInfo->keyData);
                 }
             }
             else
             {
-                //_socket = std::make_shared<BaseLib::TcpSocket>(_bl, address, port, false);
+                _socket = std::make_shared<BaseLib::TcpSocket>(_bl.get(), address, port);
             }
 
             if(_socket)
