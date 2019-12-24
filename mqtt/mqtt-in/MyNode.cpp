@@ -71,32 +71,36 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::configNodesStarted()
+bool MyNode::start()
 {
-	try
-	{
-		if(_broker.empty())
-		{
-			_out->printError("Error: This node has no broker assigned.");
-			return;
-		}
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
-		parameters->push_back(std::make_shared<Flows::Variable>(_id));
-		Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
-		if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
-		parameters->push_back(std::make_shared<Flows::Variable>(_topic));
-		result = invokeNodeMethod(_broker, "registerTopic", parameters, true);
-		if(result->errorStruct) _out->printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    try
+    {
+        if(_broker.empty())
+        {
+            _out->printError("Error: This node has no broker assigned.");
+            return false;
+        }
+        Flows::PArray parameters = std::make_shared<Flows::Array>();
+        parameters->reserve(2);
+        parameters->push_back(std::make_shared<Flows::Variable>(_id));
+        Flows::PVariable result = invokeNodeMethod(_broker, "registerNode", parameters, true);
+        if(result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+        parameters->push_back(std::make_shared<Flows::Variable>(_topic));
+        result = invokeNodeMethod(_broker, "registerTopic", parameters, true);
+        if(result->errorStruct) _out->printError("Error: Could not register topic: " + result->structValue->at("faultString")->stringValue);
+
+        return true;
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+
+    return false;
 }
 
 //{{{ RPC methods
