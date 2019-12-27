@@ -132,13 +132,8 @@ void MyNode::setUrl(std::string& url)
             return;
         }
 
-        if(_useTls)
+        if(_useTls && !_tlsNode.empty())
         {
-            if(_tlsNode.empty())
-            {
-                _out->printError("Error: This node has no TLS configuration assigned.");
-                return;
-            }
             _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
             _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
             auto keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;

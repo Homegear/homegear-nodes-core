@@ -53,6 +53,7 @@ private:
 
 	std::mutex _lastEventMutex;
 	std::string _lastEventNode;
+	std::string _lastEventSource;
 	std::atomic<int64_t> _lastEvent;
 
 	//{{{ RPC methods

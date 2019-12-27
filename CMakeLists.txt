@@ -160,6 +160,18 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		tcp/tcp-in/Factory.cpp
+		tcp/tcp-in/Factory.h
+		tcp/tcp-in/MyNode.cpp
+		tcp/tcp-in/MyNode.h
+		tcp/tcp-out/Factory.cpp
+		tcp/tcp-out/Factory.h
+		tcp/tcp-out/MyNode.cpp
+		tcp/tcp-out/MyNode.h
+		tcp/tcp-socket/Factory.cpp
+		tcp/tcp-socket/Factory.h
+		tcp/tcp-socket/MyNode.cpp
+		tcp/tcp-socket/MyNode.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h
@@ -209,6 +221,12 @@ set(SOURCE_FILES
         timers/timer/MyNode.h
         timers/timer/SunTime.cpp
         timers/timer/SunTime.h
+		timers/weekly-program/Factory.cpp
+		timers/weekly-program/Factory.h
+		timers/weekly-program/MyNode.cpp
+		timers/weekly-program/MyNode.h
+		timers/weekly-program/SunTime.cpp
+		timers/weekly-program/SunTime.h
         tls-config/Factory.cpp
         tls-config/Factory.h
         tls-config/MyNode.cpp
@@ -221,6 +239,10 @@ set(SOURCE_FILES
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
         variable/constant/MyNode.h
+		variable/round-robin-shift/Factory.cpp
+		variable/round-robin-shift/Factory.h
+		variable/round-robin-shift/MyNode.cpp
+		variable/round-robin-shift/MyNode.h
         variable/toggle/Factory.cpp
         variable/toggle/Factory.h
         variable/toggle/MyNode.cpp

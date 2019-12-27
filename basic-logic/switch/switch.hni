@@ -86,7 +86,7 @@
     function getValueLabel(t,v) {
         if (t === 'str') {
             return '"'+clipValueLength(v)+'"';
-        } else if (t === 'msg' || t==='flow' || t==='global') {
+        } else if (t === 'msg' || t==='flow' || t==='global' || t==='env') {
             return t+"."+clipValueLength(v);
         }
         return clipValueLength(v);
@@ -108,7 +108,7 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             return this.name||"switch";
         },
@@ -118,6 +118,7 @@
             var secondInputValueType = {value:"second",label:this._("switch.input2"),hasValue:false};
             var flowValueType = {value:"flow",label:this._("switch.flow"),hasValue:true};
             var globalValueType = {value:"global",label:this._("switch.global"),hasValue:true};
+            var envValueType = {value:"env",label:this._("switch.env"),hasValue:true};
 
             var outputCount = $("#node-input-outputs").val("{}");
 
@@ -177,10 +178,10 @@
                     for (var d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(/^switch/.test(operators[d].t)?node._(operators[d].t):operators[d].t));
                     }
-                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,secondInputValueType,flowValueType,globalValueType]});
-                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType]});
+                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
+                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
                     var btwnAndLabel = $('<span/>',{class:"node-input-rule-btwn-label"}).text(" "+andLabel+" ").appendTo(row3);
-                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType]});
+                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
                     var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index">'+i+'</span> ');
                     var caseSensitive = $('<input/>',{id:"node-input-rule-case-"+i,class:"node-input-rule-case",type:"checkbox",style:"width:auto;vertical-align:top"}).appendTo(row2);

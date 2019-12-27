@@ -50,12 +50,12 @@ public:
 private:
 	std::atomic_bool _enabled;
 	uint32_t _period = 1800;
-	int32_t _dutyCycleMin = 0;
-	int32_t _dutyCycleMax = 100;
-	std::atomic<int32_t> _currentDutyCycle;
+	uint32_t _dutyCycleMin = 0;
+	uint32_t _dutyCycleMax = 100;
+	std::atomic<uint32_t> _currentDutyCycle;
 	int64_t _lastOutput = 0;
 
-	int32_t _startTimeAll = 0;
+	int64_t _startTimeAll = 0;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopped;

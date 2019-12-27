@@ -1,0 +1,14 @@
+{
+  "pulsecounter/pulsecounter.hni": {
+    "pulsecounter": {
+      "label": {
+        "pulsecounter": "Impulszähler",
+        "maxgap": "Maximaler Abstand in ms",
+        "name": "Name"
+      },
+      "input1Description": "Eine boolesche Eingabe. Wenn die Eingabe auf <code>true</code> gesetzt ist, wird die Berechnung gestartet.",
+      "output1Description": "Gibt die Anzahl pro Minute aus. Ist der Abstand zwischen zwei Eingaben größer als <code>Maximaler Abstand</code>, wird der Ausgang auf <code>0</code> gesetzt.",
+      "help": "Gibt die Anzahl pro Minute aus. Ist der Abstand zwischen zwei Eingaben größer als <code>Maximaler Abstand</code>, wird der Ausgang auf <code>0</code> gesetzt."
+    }
+  }
+}

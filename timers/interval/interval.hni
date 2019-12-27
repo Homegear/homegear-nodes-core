@@ -53,7 +53,7 @@
                 types: ["boolean"]
             }
         ],
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "interval";

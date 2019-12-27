@@ -1,0 +1,68 @@
+<script type="text/x-homegear">
+{
+    "name": "tcp-in",
+    "readableName": "TCP input",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 0
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="tcp-in">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-socket"><i class="fa fa-globe"></i> <span data-i18n="tcp-in.label.socket"></span></label>
+        <input type="text" id="node-input-socket">
+    </div>
+    <div id="node-input-tip" class="form-tips"><span data-i18n="tcp-in.tip.in"></span><code><span id="node-input-path"></span></code>.</div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('tcp-in',{
+        category: 'network',
+        namespace: 'tcp',
+        color:"#c0c0c0",
+        defaults: {
+            name: {value:""},
+            socket: {type:"tcp-socket", required:true}
+        },
+        inputs:0,
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["string"]
+            }
+        ],
+        icon: "bridge-dash.svg",
+        label: function() {
+            if (this.name) {
+                return this.name;
+            } else {
+                return "tcp";
+            }
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            
+        }
+
+    });
+</script>

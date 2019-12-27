@@ -1,0 +1,98 @@
+<script type="text/x-homegear">
+{
+    "name": "round-robin-shift",
+    "readableName": "Round robin shift",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 0
+}
+</script>
+<script type="text/x-red" data-template-name="round-robin-shift">
+    <div class="form-row">
+        <label style="width: 110px;" for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="round-robin-shift.label.name"></span></label>
+        <input style="width: 65%;" type="text" id="node-input-name" data-i18n="[placeholder]round-robin-shift.label.name">
+    </div>
+    <div class="form-row" id="true-only">
+        <label style="width: 110px">&nbsp;</label>
+        <input type="checkbox" id="node-input-true-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-true-only" style="width: 65%;" data-i18n="round-robin-shift.label.true-only"></label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="round-robin-shift.label.outputs"></span></label>
+        <input id="node-input-outputs" style="width: 60px;" value="2">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('round-robin-shift',{
+        category: 'homegear',
+        namespace: 'variable',
+        color:"#a6bbcf",
+        defaults: {
+            "true-only": {value: true},
+            outputs: {value: 2},
+
+            name: {value:""}
+        },
+        inputs:3,
+        inputInfo: [
+            {
+                label: "TGF",
+                types: ["any"]
+            },
+            {
+                label: "TGB",
+                types: ["any"]
+            },
+            {
+                label: "RES",
+                types: ["bool", "int"]
+            }
+        ],
+        outputs:2,
+        outputInfo: [
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            },
+            {
+                types: ["bool"]
+            }
+        ],
+        icon: "arrow-in.svg",
+        align: "right",
+        label: function() {
+            return "round-robin-shift";
+        },
+        oneditprepare: function() {
+            $( "#node-input-outputs" ).spinner({
+                min:2,
+                max:30
+            });
+        },
+        oneditsave: function() {
+        }
+    });
+</script>

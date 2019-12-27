@@ -1,0 +1,43 @@
+{
+  "storage/file.hni": {
+    "file": {
+      "label": {
+        "name": "Name"
+      },
+      "label": {
+          "filename": "Dateiname",
+          "action": "Aktion",
+          "addnewline": "Einen Zeilenumbruch (\\n) jedem Payload hinzufügen?",
+          "createdir": "Verzeichniss erstellen wenn es nicht existiert?",
+          "outputas": "Ausgabe als",
+          "filelabel": "Datei",
+          "deletelabel": "Lösche __file__"
+      },
+      "action": {
+          "append": "an Datei anhängen",
+          "overwrite": "Datei überschreiben",
+          "delete": "Datei löschen"
+      },
+      "output": {
+          "utf8": "eine utf8 Zeichenkette",
+          "buffer": "ein Puffer"
+      },
+      "status": {
+          "wrotefile": "In Datei geschrieben: __file__",
+          "deletedfile": "Datei gelöscht: __file__",
+          "appendedfile": "An Datei angehangen: __file__"
+      },
+      "errors": {
+          "nofilename": "Kein Dateiname angegeben",
+          "invaliddelete": "Warnung: Ungültiges Löschen. Bitte verwenden Sie die spezifische Löschoption im Konfigurationsdialog.",
+          "deletefail": "Löschen von Datei fehlgeschlagen: __error__",
+          "writefail": "Schreiben von Datei fehlgeschlagen: __error__",
+          "appendfail": "Anhängen an Datei fehlgeschlagen: __error__",
+          "createfail": "Erstellen von Datei fehlgeschlagen: __error__"
+      },
+      "tip": "Tipp: Der Dateiname sollte ein absoluter Pfad sein, ansonsten ist er relativ zum Arbeitsverzeichnis des Node-BLUE-Prozesses.",
+      "paletteHelp": "<p>Schreibt <code>$message['payload']</code> in eine Datei.</p>",
+      "help": "<p>Schreibt <code>$message['payload']</code> in eine Datei. Dabei wird der Inhalt entweder an das Ende angehangen, oder der bisherige Inhalt der Datei überschrieben. Alternativ kann die Datei gelöscht werden.</p><h3>Eingaben</h3><dl class=\"message-properties\"><dt class=\"optional\">Dateiname <span class=\"property-type\">Zeichenkette</span></dt><dd>Wenn im Knoten nicht konfiguriert, legt diese optionale Eigenschaft den Namen der zu aktualisierenden Datei fest.</dd></dl><h3>Details</h3><p>Jeder Nachrichten-payload wird am Ende der Datei hinzugefügt, wobei optional kann ein Zeilenvorschub (\n) zwischen den einzelnen Zeichen eingefügt werden.</p><p>Es kann so konfiguriert werden, dass die gesamte Datei überschrieben und nicht angehängt wird. Wenn Sie beispielsweise Binärdaten in eine Datei schreiben, z. B. ein Bild, sollte diese Option verwendet und das Anhängen einer neuen Zeile deaktiviert werden.</p><p>Alternativ kann dieser Knoten so konfiguriert werden, dass die Datei gelöscht wird.</p>"
+    }
+  }
+}

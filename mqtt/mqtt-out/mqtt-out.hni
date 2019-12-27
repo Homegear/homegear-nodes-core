@@ -25,8 +25,8 @@
         <input type="text" id="node-input-broker">
     </div>
     <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="common.label.topic"></span></label>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="mqtt-out.label.topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]mqtt-out.label.topic">
     </div>
     <div class="form-row">
         <i class="fa fa-history"></i>&nbsp;<span data-i18n="mqtt-out.retain"></span> &nbsp;<select id="node-input-retain" style="width:125px !important">
@@ -43,7 +43,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('mqtt-out',{
-        category: 'output',
+        category: 'network',
         namespace: 'mqtt',
         defaults: {
             name: {value:""},
@@ -59,7 +59,7 @@
         	}
         ],
         outputs:0,
-        icon: "bridge.png",
+        icon: "bridge.svg",
         align: "right",
         label: function() {
             return this.name||this.topic||"mqtt";

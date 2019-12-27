@@ -75,7 +75,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('http-request',{
-        category: 'input',
+        category: 'network',
         namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
@@ -99,7 +99,7 @@
                 types: ["string","struct","binary"]
             }
         ],
-        icon: "white-globe.png",
+        icon: "white-globe.svg",
         label: function() {
             return this.name||"http request";
         },

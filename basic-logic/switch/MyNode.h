@@ -74,6 +74,7 @@ private:
 		bool secondInput = false;
 		std::string flowVariable;
 		std::string globalVariable;
+		std::string envVariable;
 		bool ignoreCase = false;
 		Flows::PVariable v2;
 		Flows::VariableType v2t;
@@ -81,6 +82,7 @@ private:
 		bool secondInput2 = false;
 		std::string flowVariable2;
 		std::string globalVariable2;
+		std::string envVariable2;
 		std::regex regex;
 	};
 
@@ -99,7 +101,7 @@ private:
 	Flows::VariableType getValueTypeFromString(std::string& vt);
 	void convertType(Flows::PVariable& value, Flows::VariableType vt);
 	bool isTrue(Flows::PVariable& value);
-	bool match(Rule& rule, Flows::PVariable& value);
+	bool match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 

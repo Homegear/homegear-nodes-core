@@ -173,6 +173,7 @@ bool MyNode::init(Flows::PNodeInfo info)
                     if(valueTypeIterator->second->stringValue == "message") rule.messagePropertyTo = rule.to->stringValue;
                     else if(valueTypeIterator->second->stringValue == "flow") rule.flowVariableTo = rule.to->stringValue;
                     else if(valueTypeIterator->second->stringValue == "global") rule.globalVariableTo = rule.to->stringValue;
+                    else if(valueTypeIterator->second->stringValue == "env") rule.envVariableTo = rule.to->stringValue;
 					convertType(rule.to, rule.tot);
 				}
 				else rule.to = std::make_shared<Flows::Variable>();
@@ -191,7 +192,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::applyRule(Rule& rule, Flows::PVariable& value)
+void MyNode::applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value)
 {
     try
     {
@@ -207,6 +208,14 @@ void MyNode::applyRule(Rule& rule, Flows::PVariable& value)
             {
                 if(!rule.flowVariableTo.empty()) rule.to = getFlowData(rule.flowVariableTo);
                 else if(!rule.globalVariableTo.empty()) rule.to = getGlobalData(rule.globalVariableTo);
+                else if(!rule.envVariableTo.empty())
+                {
+                    auto envIterator = nodeInfo->info->structValue->find("env");
+                    if(envIterator == nodeInfo->info->structValue->end()) return;
+                    auto envIterator2 = envIterator->second->structValue->find(rule.envVariableTo);
+                    if(envIterator2 == envIterator->second->structValue->end()) return;
+                    rule.to = envIterator2->second;
+                }
                 else if(!rule.messagePropertyTo.empty())
                 {
                     auto propertyIterator = value->structValue->find(rule.messagePropertyTo);
@@ -319,9 +328,10 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		for(auto& rule : _rules)
 		{
-            applyRule(rule, myMessage);
-			output(0, myMessage);
+            applyRule(info, rule, myMessage);
 		}
+
+        output(0, myMessage);
 	}
 	catch(const std::exception& ex)
 	{

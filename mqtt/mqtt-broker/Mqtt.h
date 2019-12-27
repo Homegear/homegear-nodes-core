@@ -166,8 +166,6 @@ private:
 	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
 	std::mutex _nodesMutex;
 	std::set<std::string> _nodes;
-	std::unique_ptr<BaseLib::Rpc::JsonEncoder> _jsonEncoder;
-	std::unique_ptr<BaseLib::Rpc::JsonDecoder> _jsonDecoder;
 	std::unique_ptr<BaseLib::TcpSocket> _socket;
 	std::thread _pingThread;
 	std::thread _listenThread;

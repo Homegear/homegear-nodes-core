@@ -25,7 +25,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('ping',{
         color:"#C0DEED",
-        category: 'communication',
+        category: 'network',
         defaults: {
             "host": {value:"",required:true},
             name: {value:""},
@@ -44,7 +44,7 @@
                 types: ["boolean"]
             }
         ],
-        icon: "bridge.png",
+        icon: "bridge.svg",
         label: function() {
             if(this.name) return this.name;
             return "ping";

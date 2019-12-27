@@ -459,7 +459,6 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 
 void MyNode::timer()
 {
-	bool event = false;
 	bool update = false;
 	int64_t currentTime = _sunTime.getLocalTime();
     int64_t lastTime = currentTime;
@@ -508,7 +507,6 @@ void MyNode::timer()
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(500));
 			if(_stopThread) break;
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 			currentTime = _sunTime.getLocalTime();
             if(_lastOnTime < onTime && currentTime >= onTime && _lastOffTime < offTime && currentTime >= offTime)
             {
@@ -520,10 +518,11 @@ void MyNode::timer()
 				update = true;
 				if(_days.at(day) && _months.at(month))
 				{
-					event = true;
 					_lastOnTime = onTime;
 					setNodeData("lastOnTime", std::make_shared<Flows::Variable>(_lastOnTime));
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 					message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+                    output(0, message);
 					if(onTime == offTime) _lastOffTime = offTime;
 				}
 			}
@@ -532,20 +531,17 @@ void MyNode::timer()
 				update = true;
 				if(_days.at(day) && _months.at(month))
 				{
-					event = true;
 					_lastOffTime = offTime;
 					setNodeData("lastOffTime", std::make_shared<Flows::Variable>(_lastOffTime));
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 					message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+                    output(0, message);
 				}
 			}
-			if(event)
-			{
-				event = false;
-				output(0, message);
-			}
-			if(update || _forceUpdate || currentTime % 86400000 < lastTime % 86400000) //New day?
+			if(update || _forceUpdate || currentTime % 3600000 < lastTime % 3600000) //New hour? Recalc in case of time changes or summer/winter time
 			{
 				update = false;
+                _forceUpdate = false;
 
 				{
 					std::lock_guard<std::mutex> timeVariableGuard(_timeVariableMutex);

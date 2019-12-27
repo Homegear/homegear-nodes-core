@@ -1,0 +1,13 @@
+{
+  "synchronous/synchronous.hni": {
+    "synchronous": {
+      "label": {
+        "name": "Name",
+        "outputs": "Ausgaben"
+      },
+      "paletteHelp": "<p>Dieser Knoten leitet die Eingaben in exakter Reihenfolge an die Ausgaben weiter.</p>",
+      "help": "<p>TDieser Knoten leitet die Eingaben in exakter Reihenfolge an die Ausgaben weiter und ermöglicht die synchrone Ausgabe für alle folgenden Knoten. Er wartet darauf, dass jeder folgende Knotenpfad beendet ist, bevor die nächste Ausgabe ausgeführt wird, und veranlasst, dass alle Ausgaben der folgenden Knoten der Reihe nach ausgeführt werden. Bitte beachten Sie, dass die synchrone Sequenz von PHP-Knoten unterbrochen wird. Es funktioniert für den PHP-Knoten selbst, aber nicht für die darauf folgenden Knoten.</p>",
+      "input1Description": "Der weiterzuleitende Wert."
+    }
+  }
+}

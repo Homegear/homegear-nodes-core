@@ -24,7 +24,7 @@
 <script type="text/javascript">
     RED.nodes.registerType('gpio-in',{
         color:"#fdd0a2",
-        category: 'input',
+        category: 'io',
         namespace: 'gpio',
         defaults: {
             name: {value:""},
@@ -38,7 +38,7 @@
                 types: ["boolean"]
             }
         ],
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "gpio-in";

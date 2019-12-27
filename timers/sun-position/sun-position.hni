@@ -37,7 +37,7 @@
                 types: ["struct"]
             }
         ],
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "sun-position";

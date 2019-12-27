@@ -107,7 +107,6 @@ bool MyNode::start()
 		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
 		_mqtt.reset(new Mqtt(bl, _out, mqttSettings));
 		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-		_mqtt->start();
 
 		return true;
 	}
@@ -120,6 +119,11 @@ bool MyNode::start()
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
+}
+
+void MyNode::configNodesStarted()
+{
+    _mqtt->start();
 }
 
 void MyNode::stop()

@@ -16,6 +16,10 @@
         <label for="node-input-timeout"><i class="fa fa-id-badge"></i> <span data-i18n="press-pattern.label.timeout"></span></label>
         <input type="text" id="node-input-timeout" data-i18n="[placeholder]press-pattern.label.timeout">
     </div>
+    <div class="form-row">
+        <label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="press-pattern.label.outputs"></span></label>
+        <input id="node-input-outputs" style="width: 60px;" value="2">
+    </div>
 </script>
 <script type="text/javascript">
 	RED.nodes.registerType('press-pattern',{
@@ -24,7 +28,8 @@
         color: "#FDF0C2",
         defaults: {
             name: {value:""},
-            timeout: {value: "300"}
+            timeout: {value: "300"},
+            outputs: {value: 2}
         },
         inputs:1,
         inputInfo: [
@@ -32,8 +37,12 @@
         		types: ["bool"]
         	}
         ],
-        outputs:5,
+        outputs: 2,
         outputInfo: [
+            {
+                label: "l",
+                types: ["bool"]
+            },
         	{
         		label: "1",
         		types: ["bool"]
@@ -47,18 +56,44 @@
         		types: ["bool"]
         	},
         	{
-        		label: "n",
-        		types: ["int"]
-        	},
-        	{
-        		label: "l",
+        		label: "4",
         		types: ["bool"]
-        	}
+        	},
+            {
+                label: "5",
+                types: ["bool"]
+            },
+            {
+                label: "6",
+                types: ["bool"]
+            },
+            {
+                label: "7",
+                types: ["bool"]
+            },
+            {
+                label: "8",
+                types: ["bool"]
+            },
+            {
+                label: "9",
+                types: ["bool"]
+            },
+            {
+                label: "10",
+                types: ["bool"]
+            }
         ],
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             return "press-pattern";
+        },
+        oneditprepare: function() {
+            $( "#node-input-outputs" ).spinner({
+                min:2,
+                max:11
+            });
         },
         paletteLabel: "press-pattern"
     });

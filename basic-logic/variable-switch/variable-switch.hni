@@ -119,7 +119,7 @@
     function getValueLabel(t,v) {
         if (t === 'str') {
             return '"'+clipValueLength(v)+'"';
-        } else if (t === 'msg' || t==='flow' || t==='global') {
+        } else if (t === 'msg' || t==='flow' || t==='global' || t==='env') {
             return t+"."+clipValueLength(v);
         }
         return clipValueLength(v);
@@ -146,13 +146,14 @@
         },
         inputs: 1,
         outputs: 1,
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             if(this.variabletype == "device" && this.variable) return !this.peername ? this.peerid + ", " + this.channel + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "metadata" && this.variable) return !this.peername ? this.peerid + ", " + this.variable : this.peername + " | " + this.peerid + ", " + this.channel + ", " + this.variable;
             else if(this.variabletype == "flow" && this.variable) return "flow." + this.variable;
             else if(this.variabletype == "global" && this.variable) return "global." + this.variable;
+            else if(this.variabletype == "env" && this.variable) return "env." + this.variable;
             else if(this.variable) return this.variable;
             return "variable-switch";
         },
@@ -165,6 +166,7 @@
             var inputValueType = {value:"input",label:this._("variable-switch.input"),hasValue:false};
             var flowValueType = {value:"flow",label:this._("variable-switch.flow"),hasValue:true};
             var globalValueType = {value:"global",label:this._("variable-switch.global"),hasValue:true};
+            var envValueType = {value:"env",label:this._("variable-switch.env"),hasValue:true};
 
             var outputCount = $("#node-input-outputs").val("{}");
 
@@ -224,10 +226,10 @@
                     for (var d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(/^variable-switch/.test(operators[d].t)?node._(operators[d].t):operators[d].t));
                     }
-                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,inputValueType,flowValueType,globalValueType]});
-                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,inputValueType,flowValueType,globalValueType]});
+                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,inputValueType,flowValueType,globalValueType,envValueType]});
+                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,inputValueType,flowValueType,globalValueType,envValueType]});
                     var btwnAndLabel = $('<span/>',{class:"node-input-rule-btwn-label"}).text(" "+andLabel+" ").appendTo(row3);
-                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,inputValueType,flowValueType,globalValueType]});
+                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,inputValueType,flowValueType,globalValueType,envValueType]});
                     var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index">'+i+'</span> ');
                     var caseSensitive = $('<input/>',{id:"node-input-rule-case-"+i,class:"node-input-rule-case",type:"checkbox",style:"width:auto;vertical-align:top"}).appendTo(row2);
@@ -343,6 +345,8 @@
                         if(text.length > 40) text = text.substring(0, 40) + "...";
                         $("#node-variable-value-cell").text(text);
                     }, currentVariable);
+                } else if(variableType == "env") {
+                    $("#node-variable-value-cell").text('');
                 } else {
                     var currentPeerId = 0;
                     var currentChannel = -1;

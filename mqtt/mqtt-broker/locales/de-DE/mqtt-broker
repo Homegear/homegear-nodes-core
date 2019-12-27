@@ -1,0 +1,30 @@
+{
+  "mqtt/mqtt-broker.hni": {
+    "mqtt-broker": {
+    	"help": "<p>Für eine minimale MQTT-Broker-Verbindung muss nur eine Broker-Server-Adresse zur Standardkonfiguration hinzugefügt werden.</p><p>Um die Verbindung mit SSL/TLS zu sichern, muss auch eine TLS-Konfiguration konfiguriert und ausgewählt werden.</p><p>Wenn Sie eine Client-ID erstellen, muss diese für den Broker, zu dem Sie eine Verbindung herstellen, eindeutig sein.</p><p>Weitere Informationen zu MQTT finden Sie auf der <a href=\"http://www.eclipse.org/paho/\" \"target=_blank\">Eclipse-Paho Seite</a>.</p>",
+    	"label": {
+	      "broker": "Server",
+	      "qos": "QoS",
+	      "clientid": "Client ID",
+	      "port": "Port",
+	      "use-tls": "Sichere (SSL/TLS) Verbindung aktivieren",
+	      "tls-config": "TLS Konfiguration",
+	      "verify-server-cert": "Serverzertifikat überprüfen"
+	    },
+	    "tabs-label": {
+	      "connection": "Verbindung",
+	      "security": "Sicherheit"
+	    },
+	    "placeholder": {
+	      "clientid": "Leer lassen für automatische Generierung"
+	    },
+	    "state": {
+	      "connected": "Verbunden zum Broker: __broker__",
+	      "disconnected": "Getrennt vom Broker: __broker__",
+	      "connect-failed": "Verbindung fehlgeschlagen zum Broker: __broker__"
+	    },
+	    "true": "wahr",
+	    "false": "falsch"
+    }
+  }
+}
