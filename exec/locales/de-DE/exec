@@ -2,7 +2,7 @@
   "exec/exec.hni": {
     "exec": {
       "label": {
-        "filename": "Dateiname",
+        "program": "Programm",
         "arguments": "Argumente",
         "autostart": "Das Programm beim Start ausführen und neu starten, wenn es beendet wird.",
         "collect-output": "Warten bis der Prozess beendet ist.",
