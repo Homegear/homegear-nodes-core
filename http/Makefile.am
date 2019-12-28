@@ -24,6 +24,8 @@ http_ladir = $(libdir)
 http_la_DATA = http-server/http-server.hni http-in/http-in.hni http-response/http-response.hni http-request/http-request.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = http-server/locales/en-US/http-server http-in/locales/en-US/http-in http-response/locales/en-US/http-response http-request/locales/en-US/http-request
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = http-server/locales/de-DE/http-server http-in/locales/de-DE/http-in http-response/locales/de-DE/http-response http-request/locales/de-DE/http-request
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/http-server.la

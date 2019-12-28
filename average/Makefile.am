@@ -12,5 +12,7 @@ average_ladir = $(libdir)
 average_la_DATA = average.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/average
+locale_de_dedir = $(libdir)/locales/en-US
+locale_de_de_DATA = locales/de-DE/average
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/average.la

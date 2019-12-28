@@ -18,6 +18,8 @@ link_ladir = $(libdir)
 link_la_DATA = link-in/link-in.hni link-out/link-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = link-in/locales/en-US/link-in link-out/locales/en-US/link-out
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = link-in/locales/de-DE/link-in link-out/locales/de-DE/link-out
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/link-in.la

@@ -4,7 +4,7 @@
     "readableName": "XMPP Server",
     "version": "1.0.0",
     "coreNode": true,
-    "maxThreadCount": 6
+    "maxThreadCount": 0
 }
 </script>
 <script type="text/x-red" data-template-name="xmpp-server">

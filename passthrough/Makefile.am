@@ -12,5 +12,7 @@ passthrough_ladir = $(libdir)
 passthrough_la_DATA = passthrough.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/passthrough
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = locales/de-DE/passthrough
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/passthrough.la

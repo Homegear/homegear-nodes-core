@@ -12,5 +12,7 @@ tls_server_config_ladir = $(libdir)
 tls_server_config_la_DATA = tls-server-config.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/tls-server-config
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = locales/de-DE/tls-server-config
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/tls-server-config.la

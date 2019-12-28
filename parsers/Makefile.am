@@ -19,6 +19,8 @@ parsers_ladir = $(libdir)
 parsers_la_DATA = json/json.hni strip/strip.hni xml/xml.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = json/locales/en-US/json strip/locales/en-US/strip xml/locales/en-US/xml
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = json/locales/de-DE/json strip/locales/de-DE/strip xml/locales/de-DE/xml
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/json.la $(DESTDIR)$(libdir)/strip.la $(DESTDIR)$(libdir)/xml.la
