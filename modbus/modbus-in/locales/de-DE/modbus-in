@@ -1,0 +1,18 @@
+{
+  "modbus/modbus-in.hni": {
+    "modbus-in": {
+      "paletteHelp": "<p>Stellt eine Verbindung zu einem Modbus-Server her und abonniert die angegebenen Register.</p>",
+      "help": "<p>Stellt eine Verbindung zu einem Modbus-Server her und abonniert die angegebenen Register.</p><p>Gibt eine Nachricht mit den folgenden Eigenschaften aus:</p><ul><li><code>$message['holdingRegister'] (nur für holding register)</code></li><li><code>$message['inputRegister'] (nur für Eingaberegister)</code></li><li><code>$message ['coil'] (nur für Coils)</code></li><li><code>$message['discreteInput'] (nur für Digitaleingänge)</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> kann entweder die reine Binärdatei ausgeben oder in <code>boolean</code>, <code>integer</code>, <code>float</code> oder <code>string</code> konvertiert werden. \"IB\" kehrt die Reihenfolge der zwei Bytes in jedem Register um. \"IR\" kehrt die Reihenfolge der zurückgegebenen Register um. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. Spule 5 hat die Adresse 4).</p>",
+      "output1Description": "Der vom Modbus-Server empfangene payload.",
+      "label": {
+	      "server": "Server",
+	      "registers": "Input/holding Register, Coils und Digitaleingänge",
+        "index": "Index",
+        "count": "Anzahl",
+        "type": "Typ",
+        "invertbytes": "IB",
+        "invertregisters": "IR"
+	    }
+    }
+  }
+}

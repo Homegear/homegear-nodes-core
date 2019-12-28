@@ -87,13 +87,12 @@
         		types: ["bool"]
         	}
         ],
-        icon: "function.png",
+        icon: "function.svg",
         label: function() {
             if(this.name) return this.name;
             return "and";
         },
         oneditprepare: function() {
-            var that = this;
             $( "#node-input-inputs" ).spinner({
                 min:2,
                 max:10

@@ -53,6 +53,9 @@ bool MyNode::init(Flows::PNodeInfo info)
 		auto settingsIterator = info->info->structValue->find("timeout");
 		if(settingsIterator != info->info->structValue->end()) _timeout = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
+        settingsIterator = info->info->structValue->find("outputs");
+        if(settingsIterator != info->info->structValue->end()) _outputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -141,17 +144,15 @@ void MyNode::timer()
 		}
 
 		int32_t outputIndex = _counter;
-		if(outputIndex > 3) outputIndex = 3;
+		if(outputIndex >= (signed)_outputs) outputIndex = _outputs - 1;
 		if(_state)
 		{
 			_longPress = true;
-			outputIndex = 4;
+			outputIndex = 0;
 		}
 
 		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		Flows::PVariable value;
-		if(outputIndex == 3) value = std::make_shared<Flows::Variable>((int32_t)_counter + 1);
-		else value = std::make_shared<Flows::Variable>(true);
+		Flows::PVariable value = std::make_shared<Flows::Variable>(true);;
 		outputMessage->structValue->emplace("payload", value);
 		output(outputIndex, outputMessage);
 	}
@@ -183,7 +184,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 				_stopThread = true;
 				if (_timerThread.joinable()) _timerThread.join();
 				_stopThread = false;
-				_counter = 0;
+				_counter = 1;
 				_timerThread = std::thread(&MyNode::timer, this);
 			}
 			else _counter++;
@@ -196,7 +197,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 				_longPress = false;
 				Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 				outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-				output(4, outputMessage);
+				output(0, outputMessage);
 			}
 		}
 	}

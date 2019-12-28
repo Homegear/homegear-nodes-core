@@ -45,7 +45,7 @@
         },
         inputs:0,
         outputs:1,
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "clock";

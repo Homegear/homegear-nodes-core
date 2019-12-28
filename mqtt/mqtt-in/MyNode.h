@@ -42,7 +42,7 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
+	virtual bool start();
 private:
 	std::string _broker;
 	std::string _topic;

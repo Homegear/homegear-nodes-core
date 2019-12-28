@@ -1,0 +1,11 @@
+{
+  "serial/serial-in.hni": {
+    "serial-in": {
+      "help": "<p>Liest Daten von einer lokalen seriellen Schnittstelle.</p><p>Kann entweder <ul><li>auf ein \"Aufteilungs\"-Zeichen warten (Standardeinstellung \n). Akzeptiert auch Hex-Notation (0x0d).</li><li>Wartet auf eine Zeitüberschreitung in Millisekunden ab dem ersten empfangenen Zeichen.</li><li>Wartet bis ein Puffer mit fester Größe gefüllt ist.</li></ul></p><p>Anschließend wird <code>$message['payload']</code> entweder als UTF8-ASCII-Zeichenfolge oder als binäres Pufferobjekt ausgegeben.</p><p><code>msg.port</code> wird auf den Namen des ausgewählten Ports gesetzt.</p><p>Wenn kein Aufteilungs-Zeichen, keine Zeitüberschreitung oder eine Puffergröße von 0 angegeben ist, wird ein Strom von Einzelzeichen gesendet - wiederum entweder als ASCII-Zeichen oder als binärer Puffer der Größe 1.</p>",
+      "label": {
+        "serialport": "Serieller Port",
+        "serial": "seriell"
+      }
+    }
+  }
+}

@@ -2,6 +2,7 @@
   "variable/toggle.hni": {
     "toggle": {
       "label": {
+        "true-only": "Only toggle on \"true\"",
         "variabletype": "Variable type",
         "devicevariable": "Device variable",
         "metadata": "Metadata",

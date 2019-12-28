@@ -72,6 +72,7 @@ private:
         std::string messagePropertyTo;
 		std::string flowVariableTo;
 		std::string globalVariableTo;
+        std::string envVariableTo;
 	};
 
 	typedef std::string Operator;
@@ -82,7 +83,7 @@ private:
 	RuleType getRuleTypeFromString(std::string& t);
 	Flows::VariableType getValueTypeFromString(std::string& vt);
 	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-    void applyRule(Rule& rule, Flows::PVariable& value);
+    void applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 

@@ -33,7 +33,7 @@
                 types: ["any"]
             }
         ],
-        icon: "join.png",
+        icon: "join.svg",
         label: function() {
             return this.name||"strip";
         },

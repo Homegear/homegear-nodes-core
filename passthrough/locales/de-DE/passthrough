@@ -1,0 +1,16 @@
+{
+  "passthrough/passthrough.hni": {
+    "passthrough": {
+      "label": {
+        "onboolean": "Den gespeicherten Wert von \"v\" ausgeben, wenn \"EN\" auf \"true\" geändert wird",
+        "resetonstartup": "Setze \"EN\" beim Start auf \"false\"",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Dieser Knoten übergibt abhängig von einer booleschen Eingabe einen Wert an die Ausgabe.</p>",
+      "help": "<p>TDieser Knoten prüft den Booleschen Status von Eingabe <code>EN</code>. Wenn der Status <code>true</ code> ist, wird der Wert am Eingang <code>v</code> an den Ausgang übergeben.</p>",
+      "input1Description": "Der durchzuleitende Wert.",
+      "input2Description": "<code>true</code> einstellen, um den Wert am Eingang <code>v</ code> durchzuleiten.",
+      "output1Description": "Gibt den Wert am Eingang <code>v</ code> unverändert aus."
+    }
+  }
+}

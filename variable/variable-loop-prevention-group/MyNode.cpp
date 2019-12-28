@@ -108,16 +108,18 @@ Flows::PVariable MyNode::event(Flows::PArray parameters)
 {
 	try
 	{
-		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
 		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+        if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 
 		std::lock_guard<std::mutex> lastEventGuard(_lastEventMutex);
-		if(Flows::HelperFunctions::getTime() - _lastEvent <= _refractoryPeriod && parameters->at(0)->stringValue != _lastEventNode)
+		if(Flows::HelperFunctions::getTime() - _lastEvent <= _refractoryPeriod && (parameters->at(0)->stringValue != _lastEventNode || parameters->at(1)->stringValue != _lastEventSource))
 		{
 			return std::make_shared<Flows::Variable>(false);
 		}
 		_lastEvent = Flows::HelperFunctions::getTime();
 		_lastEventNode = parameters->at(0)->stringValue;
+		_lastEventSource = parameters->at(1)->stringValue;
 		return std::make_shared<Flows::Variable>(true);
 	}
 	catch(const std::exception& ex)

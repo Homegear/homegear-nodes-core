@@ -49,6 +49,7 @@ public:
 	virtual void waitForStop();
 private:
 	uint32_t _timeout = 300;
+	uint32_t _outputs = 2;
 	std::atomic<int64_t> _inputTime;
 	std::atomic_bool _firstPress;
 	std::atomic_int _counter;

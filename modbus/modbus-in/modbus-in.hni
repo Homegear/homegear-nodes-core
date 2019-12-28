@@ -39,7 +39,7 @@
     var types = ["bin", "bool", "int", "uint", "float", "string"];
 
     RED.nodes.registerType('modbus-in',{
-        category: 'input',
+        category: 'network',
         namespace: 'modbus',
         defaults: {
             name: {value:""},
@@ -50,7 +50,7 @@
         color:"#FFF0F0",
         inputs:0,
         outputs:1,
-        icon: "bridge.png",
+        icon: "bridge.svg",
         label: function() {
             return this.name||this.topic||"modbus";
         },

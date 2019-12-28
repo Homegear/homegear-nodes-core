@@ -42,7 +42,7 @@
         inputs:1,
         outputs:0,
         align: "right",
-        icon: "white-globe.png",
+        icon: "white-globe.svg",
         label: function() {
             if(this.name) return this.name;
             return "xmpp";

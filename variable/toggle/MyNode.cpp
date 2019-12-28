@@ -44,8 +44,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 {
 	try
 	{
+        auto settingsIterator = info->info->structValue->find("true-only");
+        if(settingsIterator != info->info->structValue->end()) _trueOnly = settingsIterator->second->booleanValue;
+
 		std::string variableType = "device";
-		auto settingsIterator = info->info->structValue->find("variabletype");
+		settingsIterator = info->info->structValue->find("variabletype");
 		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
         if(variableType == "self") _variableType = VariableType::self;
@@ -90,6 +93,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 {
 	try
 	{
+	    if(_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
+
         if(_variableType == VariableType::self)
         {
             bool newValue = !((bool)(*getNodeData("value")));

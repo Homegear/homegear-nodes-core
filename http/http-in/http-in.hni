@@ -58,7 +58,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('http-in',{
-        category: 'input',
+        category: 'network',
         namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
@@ -76,7 +76,7 @@
                 types: ["string"]
             }
         ],
-        icon: "white-globe.png",
+        icon: "white-globe.svg",
         label: function() {
             if (this.name) {
                 return this.name;

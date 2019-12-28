@@ -180,6 +180,7 @@ void MyNode::timer()
                     _lastInputTime.store(0, std::memory_order_release);
                     sleepingTime = _interval - (Flows::HelperFunctions::getTime() - lastInputTime);
                     if(sleepingTime < 1) sleepingTime = 1;
+                    else if(sleepingTime > _interval) sleepingTime = _interval;
                     continue;
                 }
             }

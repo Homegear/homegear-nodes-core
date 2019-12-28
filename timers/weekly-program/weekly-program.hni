@@ -1,0 +1,163 @@
+<script type="text/x-homegear">
+{
+    "name": "weekly-program",
+    "readableName": "Weekly program",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="weekly-program">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-startup" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-startup" style="width: 65%;" data-i18n="weekly-program.label.startup"></label>
+    </div>
+    <div class="form-row node-weekly-program-1-container-row">
+        <label for="node-weekly-program-1-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.monday"></span></label>
+        <ol id="node-weekly-program-1-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-2-container-row">
+        <label for="node-weekly-program-2-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.tuesday"></span></label>
+        <ol id="node-weekly-program-2-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-3-container-row">
+        <label for="node-weekly-program-3-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.wednesday"></span></label>
+        <ol id="node-weekly-program-3-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-4-container-row">
+        <label for="node-weekly-program-4-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.thursday"></span></label>
+        <ol id="node-weekly-program-4-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-5-container-row">
+        <label for="node-weekly-program-5-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.friday"></span></label>
+        <ol id="node-weekly-program-5-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-6-container-row">
+        <label for="node-weekly-program-6-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.saturday"></span></label>
+        <ol id="node-weekly-program-6-container"></ol>
+    </div>
+    <div class="form-row node-weekly-program-0-container-row">
+        <label for="node-weekly-program-0-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="weekly-program.label.sunday"></span></label>
+        <ol id="node-weekly-program-0-container"></ol>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('weekly-program',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            name: {value:""},
+            startup: {value: false},
+            program: {value:[]}
+        },
+        inputs: 1,
+        inputInfo: [
+            {
+                label: "EN",
+                types: ["boolean"]
+            }
+        ],
+        outputs:1,
+        icon: "font-awesome/fa-calendar",
+        label: function() {
+            if(this.name) return this.name;
+            return "weekly-program";
+        },
+        oneditprepare: function() {
+            if(!this.program || this.program.length != 7) {
+                this.program = [
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}],
+                    [{"time": "08:00", "type": "float", "value": "21.0"}, {"time": "22:00", "type": "float", "value": "19.0"}]
+                ];
+            }
+
+            var timeLabelText = this._("weekly-program.label.time");
+            var valueLabelText = this._("weekly-program.label.value");
+
+            for(var weekday = 0; weekday < 7; weekday++) {
+                $("#node-weekly-program-" + weekday + "-container").css('min-height','150px').css('min-width','420px').editableList({
+                    addItem: function(container,i,opt) {
+                        if (!opt.hasOwnProperty('e')) {
+                            opt.e = {};
+                        }
+                        var entry = opt.e;
+                        if (!entry.hasOwnProperty('time')) {
+                            entry.time = '00:00:00';
+                        }
+                        if (!entry.hasOwnProperty('type')) {
+                            entry.type = 'bool';
+                        }
+                        if (!entry.hasOwnProperty('value')) {
+                            entry.value = true;
+                        }
+                        if (!opt.hasOwnProperty('i')) {
+                            opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                        }
+                        var row = $('<div/>').appendTo(container);
+                        var timeLabel = $('<span/>',{class:""}).text(" "+timeLabelText+" ").appendTo(row);
+                        var timeField = $('<input/>',{class:"node-weekly-program-time",type:"text",style:"margin-left: 5px; width: 100px;"}).appendTo(row);
+                        var timeFieldType = $('<input/>',{class:"node-weekly-program-time-type",type:"hidden",style:"margin-left: 5px;"}).appendTo(row);
+                        var valueLabel = $('<span/>',{style:"margin-left: 5px;"}).text(" "+valueLabelText+" ").appendTo(row);
+                        var valueField = $('<input/>',{class:"node-weekly-program-value",type:"text",style:"margin-left: 5px; width: 140px"}).appendTo(row);
+                        var valueFieldType = $('<input/>',{class:"node-weekly-program-value-type",type:"hidden",style:"margin-left: 5px;"}).appendTo(row);
+                        var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
+                        finalspan.append(' &#8594; <span class="node-weekly-program-index">'+i+'</span> ');
+
+                        timeField.typedInput({
+                            default: 'time',
+                            typeField: timeFieldType,
+                            types:['time']
+                        });
+
+                        timeField.typedInput('type','time');
+                        timeField.typedInput('value', entry.time);
+
+                        valueField.typedInput({
+                            default: 'int',
+                            typeField: valueFieldType,
+                            types:['bool','int','float','string','arraySimple','structSimple']
+                        });
+
+                        valueField.typedInput('type', entry.type);
+                        valueField.typedInput('value', entry.value);
+                    },
+                    sortable: true,
+                    removable: true
+                });
+
+                for(var i = 0; i < this.program[weekday].length; i++) {
+                    var entry = this.program[weekday][i];
+                    $("#node-weekly-program-" + weekday + "-container").editableList('addItem',{e:entry,i:i});
+                }
+            }
+        },
+        oneditsave: function() {
+            var node = this;
+
+            node.program = [[], [], [], [], [], [], []];
+            for(var weekday = 0; weekday < 7; weekday++) {
+                var entries = $("#node-weekly-program-" + weekday + "-container").editableList('items');
+                entries.each(function(i) {
+                    var data = $(this).data('data');
+                    var entry = $(this);
+                    var time = entry.find(".node-weekly-program-time").val();
+                    var type = entry.find(".node-weekly-program-value-type").val();
+                    var value = entry.find(".node-weekly-program-value").val();
+                    node.program[weekday].push({"time":time,"type":type,"value":value});
+                });
+            }
+            console.log(node.program);
+        }
+    });
+</script>

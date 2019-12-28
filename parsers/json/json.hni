@@ -48,7 +48,7 @@
                 types: ["string", "struct"]
             }
         ],
-        icon: "parser-json.png",
+        icon: "parser-json.svg",
         label: function() {
             return this.name||"json";
         },

@@ -182,6 +182,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 					else if(valueTypeIterator->second->stringValue == "input") rule.input = true;
 					else if(valueTypeIterator->second->stringValue == "flow") rule.flowVariable = rule.v->stringValue;
 					else if(valueTypeIterator->second->stringValue == "global") rule.globalVariable = rule.v->stringValue;
+                    else if(valueTypeIterator->second->stringValue == "env") rule.envVariable = rule.v->stringValue;
 					convertType(rule.v, rule.vt);
 				}
 				else rule.v = std::make_shared<Flows::Variable>();
@@ -197,6 +198,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 					else if(valueTypeIterator->second->stringValue == "input") rule.input2 = true;
 					else if(valueTypeIterator->second->stringValue == "flow") rule.flowVariable2 = rule.v2->stringValue;
 					else if(valueTypeIterator->second->stringValue == "global") rule.globalVariable2 = rule.v2->stringValue;
+                    else if(valueTypeIterator->second->stringValue == "env") rule.envVariable2 = rule.v2->stringValue;
 					convertType(rule.v2, rule.v2t);
 				}
 				else rule.v2 = std::make_shared<Flows::Variable>();
@@ -263,7 +265,7 @@ bool MyNode::isTrue(Flows::PVariable& value)
 	return value->booleanValue;
 }
 
-bool MyNode::match(Rule& rule, Flows::PVariable& value)
+bool MyNode::match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value)
 {
 	try
 	{
@@ -314,6 +316,24 @@ bool MyNode::match(Rule& rule, Flows::PVariable& value)
 			rule.v2 = getGlobalData(rule.globalVariable2);
 			rule.v2t = rule.v2->type;
 		}
+        if(!rule.envVariable.empty())
+        {
+            auto envIterator = nodeInfo->info->structValue->find("env");
+            if(envIterator == nodeInfo->info->structValue->end()) return false;
+            auto envIterator2 = envIterator->second->structValue->find(rule.envVariable);
+            if(envIterator2 == envIterator->second->structValue->end()) return false;
+            rule.v = envIterator2->second;
+            rule.vt = rule.v->type;
+        }
+        if(!rule.envVariable2.empty())
+        {
+            auto envIterator = nodeInfo->info->structValue->find("env");
+            if(envIterator == nodeInfo->info->structValue->end()) return false;
+            auto envIterator2 = envIterator->second->structValue->find(rule.envVariable);
+            if(envIterator2 == envIterator->second->structValue->end()) return false;
+            rule.v2 = envIterator2->second;
+            rule.v2t = rule.v2->type;
+        }
 
 		switch(rule.t)
 		{
@@ -435,7 +455,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
 		for(uint32_t i = 0; i < _rules.size(); i++)
 		{
-			if(match(_rules.at(i), currentValue))
+			if(match(info, _rules.at(i), currentValue))
 			{
 				if(_outputTrue)
 				{
