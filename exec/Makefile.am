@@ -12,5 +12,7 @@ exec_ladir = $(libdir)
 exec_la_DATA = exec.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/exec
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = locales/de-DE/exec
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/exec.la

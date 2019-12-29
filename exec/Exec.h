@@ -49,7 +49,7 @@ public:
 	virtual void waitForStop();
 private:
     int32_t _callbackHandlerId = -1;
-	std::string _filename;
+	std::string _program;
     std::string _arguments;
     std::atomic_bool _autostart{false};
     bool _collectOutput = false;

@@ -3,7 +3,7 @@
     "ping": {
       "label": {
         "ping": "ping",
-        "host": "Host Adresse",
+        "host": "Hostname",
         "interval": "Intervall",
         "name": "Name"
       },

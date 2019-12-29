@@ -12,5 +12,7 @@ template_ladir = $(libdir)
 template_la_DATA = template.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/template
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = locales/de-DE/template
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/template.la

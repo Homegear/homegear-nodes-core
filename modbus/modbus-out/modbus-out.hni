@@ -30,7 +30,7 @@
     </div>
     <div class="form-row node-input-registers-container-row">
         <input type="hidden" id="node-input-inputs"/>
-        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-out.label.registers"></span></label>
+        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-out.label.registers"></span></label>
         <ol id="node-input-registers-container"></ol>
     </div>
 </script>

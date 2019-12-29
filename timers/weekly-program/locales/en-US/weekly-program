@@ -12,7 +12,8 @@
         "saturday": "Saturday",
         "sunday": "Sunday",
         "time": "Time",
-        "value": "Value"
+        "value": "Value",
+        "asprevious": "Copy from previous day"
       },
       "input1Description": "Set to <code>false</code> to disable the node and to <code>true</code> to enable it again. By default the node is enabled.",
       "paletteHelp": "<p>Generates events at specific time points.</p>",

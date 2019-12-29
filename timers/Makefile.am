@@ -45,6 +45,8 @@ timers_ladir = $(libdir)
 timers_la_DATA = clock/clock.hni delay/delay.hni impulse/impulse.hni interval/interval.hni off-delay/off-delay.hni on-delay/on-delay.hni rate-limiter/rate-limiter.hni timer/timer.hni slow-pwm/slow-pwm.hni sun-position/sun-position.hni weekly-program/weekly-program.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = clock/locales/en-US/clock delay/locales/en-US/delay impulse/locales/en-US/impulse interval/locales/en-US/interval off-delay/locales/en-US/off-delay on-delay/locales/en-US/on-delay rate-limiter/locales/en-US/rate-limiter timer/locales/en-US/timer slow-pwm/locales/en-US/slow-pwm sun-position/locales/en-US/sun-position weekly-program/locales/en-US/weekly-program
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = clock/locales/de-DE/clock delay/locales/de-DE/delay impulse/locales/de-DE/impulse interval/locales/de-DE/interval off-delay/locales/de-DE/off-delay on-delay/locales/de-DE/on-delay rate-limiter/locales/de-DE/rate-limiter timer/locales/de-DE/timer slow-pwm/locales/de-DE/slow-pwm sun-position/locales/de-DE/sun-position weekly-program/locales/de-DE/weekly-program
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/clock.la
