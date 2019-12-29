@@ -15,6 +15,8 @@ file_ladir = $(libdir)
 file_la_DATA = file/file.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = file/locales/en-US/file
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = file/locales/de-DE/file
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/file.la

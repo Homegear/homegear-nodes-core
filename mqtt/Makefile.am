@@ -21,6 +21,8 @@ mqtt_ladir = $(libdir)
 mqtt_la_DATA = mqtt-broker/mqtt-broker.hni mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = mqtt-broker/locales/en-US/mqtt-broker mqtt-in/locales/en-US/mqtt-in mqtt-out/locales/en-US/mqtt-out
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = mqtt-broker/locales/de-DE/mqtt-broker mqtt-in/locales/de-DE/mqtt-in mqtt-out/locales/de-DE/mqtt-out
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/mqtt-broker.la

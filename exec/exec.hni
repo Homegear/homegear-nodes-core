@@ -13,8 +13,8 @@
         <input type="text" id="node-input-name" data-i18n="[placeholder]exec.label.name">
     </div>
     <div class="form-row">
-        <label for="node-input-filename"><i class="fa fa-database"></i> <span data-i18n="exec.label.filename"></span></label>
-        <input type="text" id="node-input-filename" data-i18n="[placeholder]exec.label.filename">
+        <label for="node-input-program"><i class="fa fa-database"></i> <span data-i18n="exec.label.program"></span></label>
+        <input type="text" id="node-input-program" data-i18n="[placeholder]exec.label.program">
     </div>
     <div class="form-row">
         <label for="node-input-arguments"><i class="fa fa-cogs"></i> <span data-i18n="exec.label.arguments"></span></label>
@@ -38,7 +38,7 @@
         color: "#C0DEED",
         defaults: {
             name: {value:""},
-            filename: {value:"",required:true},
+            program: {value:"",required:true},
             arguments: {value:"",required:false},
             autostart: {value:false,required:false},
             "collect-output": {value:false,required:false}

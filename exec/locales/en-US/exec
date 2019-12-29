@@ -2,7 +2,7 @@
   "exec/exec.hni": {
     "exec": {
       "label": {
-        "filename": "Filename",
+        "program": "Programm",
         "arguments": "Arguments",
         "autostart": "Start program on startup and restart it if it exits.",
         "collect-output": "Wait to send output until process exits.",

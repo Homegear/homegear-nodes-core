@@ -39,6 +39,8 @@ logic_ladir = $(libdir)
 logic_la_DATA = and/and.hni change/change.hni fallingedge/fallingedge.hni not/not.hni or/or.hni risingedge/risingedge.hni srflipflop/srflipflop.hni switch/switch.hni variable-switch/variable-switch.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = and/locales/en-US/and change/locales/en-US/change fallingedge/locales/en-US/fallingedge not/locales/en-US/not or/locales/en-US/or risingedge/locales/en-US/risingedge srflipflop/locales/en-US/srflipflop switch/locales/en-US/switch variable-switch/locales/en-US/variable-switch
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = and/locales/de-DE/and change/locales/de-DE/change fallingedge/locales/de-DE/fallingedge not/locales/de-DE/not or/locales/de-DE/or risingedge/locales/de-DE/risingedge srflipflop/locales/de-DE/srflipflop switch/locales/de-DE/switch variable-switch/locales/de-DE/variable-switch
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/and.la

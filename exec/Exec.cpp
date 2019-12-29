@@ -51,8 +51,14 @@ bool Exec::init(Flows::PNodeInfo info)
 {
 	try
 	{
-		auto settingsIterator = info->info->structValue->find("filename");
-		if(settingsIterator != info->info->structValue->end()) _filename = settingsIterator->second->stringValue;
+		auto settingsIterator = info->info->structValue->find("program");
+		if(settingsIterator != info->info->structValue->end()) _program = settingsIterator->second->stringValue;
+        if(_program.empty())
+        {
+            //Backwards compatability
+            settingsIterator = info->info->structValue->find("filename");
+            if(settingsIterator != info->info->structValue->end()) _program = settingsIterator->second->stringValue;
+        }
 
         settingsIterator = info->info->structValue->find("arguments");
         if(settingsIterator != info->info->structValue->end()) _arguments = settingsIterator->second->stringValue;
@@ -177,7 +183,7 @@ void Exec::startProgram()
 {
     try
     {
-        if(_filename.empty())
+        if(_program.empty())
         {
             _out->printError("Error: filename is not set.");
             return;
@@ -225,7 +231,7 @@ void Exec::execThread()
             int stdIn = -1;
             int stdOut = -1;
             int stdErr = -1;
-            _pid = BaseLib::ProcessManager::systemp(_filename, BaseLib::ProcessManager::splitArguments(_arguments), getMaxFd(), stdIn, stdOut, stdErr);
+            _pid = BaseLib::ProcessManager::systemp(_program, BaseLib::ProcessManager::splitArguments(_arguments), getMaxFd(), stdIn, stdOut, stdErr);
             _stdIn = stdIn;
             _stdOut = stdOut;
             _stdErr = stdErr;
