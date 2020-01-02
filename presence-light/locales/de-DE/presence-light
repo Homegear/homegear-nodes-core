@@ -11,8 +11,8 @@
         "always-off-time2": "Dauer in Sekunden",
         "process-false": "Licht sofort ausschalten, wenn \"IN\" auf \"false\" gesetzt ist.",
         "keep-on": "Licht an lassen, wenn \"EN\" auf \"false\" gesetzt ist.",
-        "toggle-profile-0-only": "\"TG\" schaltet nur auf einen Eingang von \"0\" um, andere Eingänge setzen "SVAL", aber schalten das Licht nicht aus.",
-        "restore-profile": "Wenn das Licht mit \"TG\" (im Profilmodus) ausgeschaltet wird, wird das letzte Profil wieder hergestellt, nachdem für \"On time\" kein "IN" angegeben wurde.",
+        "toggle-profile-0-only": "\"TG\" schaltet nur auf einen Eingang von \"0\" um, andere Eingänge setzen \"SVAL\", aber schalten das Licht nicht aus.",
+        "restore-profile": "Wenn das Licht mit \"TG\" (im Profilmodus) ausgeschaltet wird, wird das letzte Profil wieder hergestellt, nachdem für \"On time\" kein \"IN\" angegeben wurde.",
         "changes-only": "Nur Änderungen ausgeben",
         "refraction-time": "Ratenbegrenzer Verzögerung",
         "refraction-time2": "Dauer in Millisekunden"
@@ -27,7 +27,7 @@
       "input6Description": "<code>SVAL</code> (= Status Wert) ändert den Wert, <code>S</code> sollte ausgegeben werden, um das Licht zu schalten. Die Änderung wird sofort übernommen, aber im Gegensatz zu <code>TG</code> wird das Licht nicht ein- oder ausgeschaltet. Dies kann entweder <code>true</code> oder eine Profilnummer größer oder gleich <code>0</code> sein. <code>0</code> ist das deaktivierte Profil.",
       "input7Description": "Eine Eingabe von <code>true</code> setzt <code>S</code> für <code>An Zeit</code> Sekunden auf <code>SVAL</code>, wenn sie <code>false</code> ist. Wenn <code>S</code> <code>SVAL</code> ist, wird es sofort auf <code>false</code> oder <code>0</code> gesetzt und der Timer wird zurückgesetzt. Dieser Eingang funktioniert auch mit Profilnummern (Szenen). <code>0</code> wird als das Ein/Aus-Profil erkannt, bei dem die zuletzt eingegebene Szenennummer größer als 0 umgeschaltet wird. Jede andere Nummer wechselt zu diesem Profil und legt auch <code>SVAL</code> fest.",
       "output1Description": "Gibt <code>true</code> aus, wenn das Licht eingeschaltet werden soll, und <code>false</code>, wenn es ausgeschaltet werden soll.",
-      "output2Description": "Gibt <code>true</code> aus, wenn der \"Immer-An\"- oder \"Immer-Aus"\-Timer <code>0</code> erreicht.",
+      "output2Description": "Gibt <code>true</code> aus, wenn der \"Immer-An\"- oder \"Immer-Aus\"-Timer <code>0</code> erreicht.",
       "output3Description": "Gibt die verbleibende Einschaltzeit (in Sekunden) jede Sekunde aus.",
       "output4Description": "Gibt die verbleibende \"Immer-An-Zeit\" (in Sekunden) jede Sekunde und <code>-1</code> beim Zurücksetzen aus.",
       "output5Description": "Gibt die verbleibende \"Immer-Aus-Zeit\" (in Sekunden) jede Sekunde und <code>-1</code> beim Zurücksetzen aus."

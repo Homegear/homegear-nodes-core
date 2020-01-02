@@ -21,7 +21,7 @@
         "rpcclient": "RPC client",
         "ipcclient": "IPC client",
         "mqtt": "MQTT",
-        "refractoryperiod": "Refraktärperiode",
+        "refractoryperiod": "Refraktärzeit",
         "outputonstartup": "Wert beim Start ausgeben",
         "changes-only": "Nur Änderungen ausgeben",
         "name": "Name",

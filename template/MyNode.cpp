@@ -91,7 +91,7 @@ void Template::addData(mustache::DataSource dataSource, std::string key)
             parameters->reserve(2);
             parameters->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
             parameters->push_back(std::make_shared<Flows::Variable>(key));
-            Flows::PVariable result = invoke("getNodeData", parameters);
+            result = invoke("getNodeData", parameters);
             if (result->errorStruct) return;
         }
 
