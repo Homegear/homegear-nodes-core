@@ -31,9 +31,6 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
-#include <homegear-node/JsonEncoder.h>
-#include <mutex>
 
 namespace MyNode
 {
@@ -42,17 +39,11 @@ class MyNode: public Flows::INode
 {
 public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-
+	bool init(Flows::PNodeInfo info) override;
     void homegearEvent(const std::string& type, const Flows::PArray& data) override;
-
 private:
-	Flows::JsonDecoder _jsonDecoder;
-	Flows::JsonEncoder _jsonEncoder;
-
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }

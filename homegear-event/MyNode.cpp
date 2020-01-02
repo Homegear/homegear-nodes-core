@@ -27,34 +27,51 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
-
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
-#include <homegear-node/JsonEncoder.h>
-#include <mutex>
+#include "MyNode.h"
 
 namespace MyNode
 {
 
-class MyNode: public Flows::INode
+MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-
-    void homegearEvent(const std::string& type, const Flows::PArray& data) override;
-
-private:
-	Flows::JsonDecoder _jsonDecoder;
-	Flows::JsonEncoder _jsonEncoder;
-
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-};
-
 }
 
-#endif
+MyNode::~MyNode()
+{
+}
+
+bool MyNode::init(Flows::PNodeInfo info)
+{
+	try
+	{
+		subscribeHomegearEvents();
+
+		return true;
+	}
+	catch(const std::exception& ex)
+	{
+		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+	}
+	return false;
+}
+
+void MyNode::homegearEvent(const std::string& type, const Flows::PArray& data)
+{
+    try
+    {
+        auto payload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        payload->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
+        payload->structValue->emplace("data", std::make_shared<Flows::Variable>(data));
+
+        auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        message->structValue->emplace("payload", payload);
+
+        output(0, message);
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+}
+
+}

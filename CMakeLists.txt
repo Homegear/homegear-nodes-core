@@ -52,6 +52,10 @@ set(SOURCE_FILES
 		exec/Factory.h
 		exec/Exec.cpp
 		exec/Exec.h
+		homegear-event/Factory.cpp
+		homegear-event/Factory.h
+		homegear-event/MyNode.cpp
+		homegear-event/MyNode.h
         http/http-in/Factory.cpp
         http/http-in/Factory.h
         http/http-in/MyNode.cpp
