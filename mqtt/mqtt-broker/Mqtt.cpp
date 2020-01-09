@@ -32,8 +32,7 @@
 namespace MyNode
 {
 
-Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings)
-		: BaseLib::IQueue(bl.get(), 2, 1000)
+Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output) : BaseLib::IQueue(bl.get(), 2, 1000)
 {
 	try
 	{
@@ -41,7 +40,6 @@ Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Ou
 
 		_bl = bl;
 		_out = output;
-		_settings = settings;
 		_started = false;
 		_reconnecting = false;
 		_connected = false;
@@ -139,6 +137,12 @@ void Mqtt::waitForStop()
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+}
+
+void Mqtt::setSettings(const std::shared_ptr<MqttSettings>& settings)
+{
+    if(!_settings) _settings = settings;
+    else _out->printWarning("Warning: Tried to set MQTT settings even though there were already set.");
 }
 
 uint32_t Mqtt::getLength(std::vector<char> packet, uint32_t& lengthBytes)

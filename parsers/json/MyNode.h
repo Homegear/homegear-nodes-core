@@ -45,9 +45,6 @@ public:
 	virtual ~MyNode();
 
 	virtual bool init(Flows::PNodeInfo info);
-
-    void homegearEvent(const std::string& type, const Flows::PArray& data) override;
-
 private:
 	Flows::JsonDecoder _jsonDecoder;
 	Flows::JsonEncoder _jsonEncoder;
