@@ -72,7 +72,9 @@ bool MyNode::start()
 	{
 		_stopped = false;
 		int64_t delayTo = getNodeData("delayTo")->integerValue64;
-		if (delayTo > 0)
+        _lastInputState = getNodeData("lastOutputState")->booleanValue;
+
+		if (delayTo > 0 && !_lastInputState)
 		{
 			std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
             _stopThread = true;
@@ -80,8 +82,6 @@ bool MyNode::start()
 			_stopThread = false;
 			_timerThread = std::thread(&MyNode::timer, this, delayTo);
 		}
-
-		_lastInputState = getNodeData("lastOutputState")->booleanValue;
 
 		return true;
 	}

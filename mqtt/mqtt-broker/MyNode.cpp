@@ -49,6 +49,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	try
 	{
 		_nodeInfo = info;
+
+        std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
+        _mqtt.reset(new Mqtt(bl, _out));
+        _mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -104,9 +109,7 @@ bool MyNode::start()
 			}
 		}
 
-		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
-		_mqtt.reset(new Mqtt(bl, _out, mqttSettings));
-		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+		_mqtt->setSettings(mqttSettings);
 
 		return true;
 	}
