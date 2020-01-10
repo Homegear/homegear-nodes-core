@@ -77,7 +77,7 @@ public:
 		bool retain = true;
 	};
 
-	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings);
+	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output);
 
 	virtual ~Mqtt();
 
@@ -86,6 +86,8 @@ public:
 	void stop();
 
 	void waitForStop();
+
+	void setSettings(const std::shared_ptr<MqttSettings>& settings);
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
