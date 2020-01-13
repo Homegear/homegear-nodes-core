@@ -164,7 +164,8 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
 		else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
-		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		auto outputMessage = std::make_shared<Flows::Variable>();
+		*outputMessage = *message;
 		if(_parseJson)
 		{
 			Flows::PVariable json;
@@ -178,14 +179,14 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 			else
 			{
 				if(_field.empty()) _field = "payload";
-				outputMessage->structValue->emplace(_field, json);
+				outputMessage->structValue->operator[](_field) = json;
 			}
 			output(0, outputMessage);
 		}
 		else
 		{
 			if(_field.empty()) _field = "payload";
-			outputMessage->structValue->emplace(_field, result);
+            outputMessage->structValue->operator[](_field) = result;
 			output(0, outputMessage);
 		}
 	}

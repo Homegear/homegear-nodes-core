@@ -93,7 +93,7 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 	$result = $this->executeCode($inputIndex, $message);
 	if($result)
 	{
-		if(array_key_exists('payload', $result))
+		if(gettype(array_key_first($result)) === 'string')
 		{
 			$this->output(0, $result);
 		}
@@ -103,7 +103,7 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 			foreach($result as $index => $value)
 			{
 				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
-				if(array_key_exists('payload', $value))
+				if(gettype(array_key_first($result)) === 'string')
 				{
 					$this->output($index, $value);
 				}
