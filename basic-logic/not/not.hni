@@ -19,7 +19,8 @@
         namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
-            name: {value:""}
+            name: {value:""},
+            l: {value: false}
         },
         inputs:1,
         inputInfo: [
@@ -34,7 +35,6 @@
         	}
         ],
         icon: "font-awesome/fa-exclamation",
-        l: false,
         label: function() {
             if(this.name) return this.name;
             return "not";
