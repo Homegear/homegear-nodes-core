@@ -33,7 +33,8 @@
         		types: ["bool"]
         	}
         ],
-        icon: "function.svg",
+        icon: "font-awesome/fa-exclamation",
+        l: false,
         label: function() {
             if(this.name) return this.name;
             return "not";
