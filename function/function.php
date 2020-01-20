@@ -103,7 +103,7 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 			foreach($result as $index => $value)
 			{
 				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
-				if(gettype(array_key_first($result)) === 'string')
+				if(gettype(array_key_first($value)) === 'string')
 				{
 					$this->output($index, $value);
 				}
