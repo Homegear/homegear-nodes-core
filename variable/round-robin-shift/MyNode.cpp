@@ -86,6 +86,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     }
                     setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
                 }
+                message->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
                 output(_currentOutputIndex, message);
                 _currentOutputIndex++;
                 if(_currentOutputIndex >= _outputs) _currentOutputIndex = 0;
@@ -102,6 +103,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     }
                     setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
                 }
+                message->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
                 output(_currentOutputIndex, message);
                 _currentOutputIndex--;
                 if(_currentOutputIndex < 0) _currentOutputIndex = _outputs - 1;
