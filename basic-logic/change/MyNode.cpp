@@ -196,7 +196,7 @@ void MyNode::applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVar
 {
     try
     {
-        if(!rule.messageProperty.empty())
+        if(!rule.messageProperty.empty() || !rule.flowVariable.empty() || !rule.globalVariable.empty())
         {
             if(rule.t == RuleType::tDelete)
             {
@@ -224,7 +224,7 @@ void MyNode::applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVar
                 }
 
                 if(!rule.flowVariable.empty()) setFlowData(rule.flowVariable, rule.to);
-                else if(!rule.globalVariable.empty()) setFlowData(rule.globalVariable, rule.to);
+                else if(!rule.globalVariable.empty()) setGlobalData(rule.globalVariable, rule.to);
                 else if(!rule.messageProperty.empty()) (*value->structValue)[rule.messageProperty] = rule.to;
             }
             else if(rule.t == RuleType::tMove)

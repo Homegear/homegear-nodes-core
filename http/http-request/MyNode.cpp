@@ -229,11 +229,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
         }
 
 
-        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("statusCode", std::make_shared<Flows::Variable>(result.getHeader().responseCode));
+        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>();
+        *outputMessage = *message;
+        (*outputMessage->structValue)["statusCode"] = std::make_shared<Flows::Variable>(result.getHeader().responseCode);
 
         Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("headers", headers);
+        (*outputMessage->structValue)["headers"] = headers;
         auto& header = result.getHeader().fields;
         for(auto& field : header)
         {
@@ -242,22 +243,22 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
         if(_returnType == ReturnType::bin)
         {
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(result.getContent()));
+            (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(result.getContent());
         }
         else if(_returnType == ReturnType::obj)
         {
             try
             {
-                message->structValue->emplace("payload", _jsonDecoder->decode(result.getContent()));
+                (*outputMessage->structValue)["payload"] = _jsonDecoder->decode(result.getContent());
             }
             catch(Flows::JsonDecoderException& ex)
             {
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size())));
+                (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
             }
         }
-        else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size())));
+        else (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
 
-        output(0, message);
+        output(0, outputMessage);
 	}
     catch(BaseLib::Exception& ex)
     {
