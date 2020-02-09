@@ -53,12 +53,6 @@ bool Exec::init(Flows::PNodeInfo info)
 	{
 		auto settingsIterator = info->info->structValue->find("program");
 		if(settingsIterator != info->info->structValue->end()) _program = settingsIterator->second->stringValue;
-        if(_program.empty())
-        {
-            //Backwards compatability
-            settingsIterator = info->info->structValue->find("filename");
-            if(settingsIterator != info->info->structValue->end()) _program = settingsIterator->second->stringValue;
-        }
 
         settingsIterator = info->info->structValue->find("arguments");
         if(settingsIterator != info->info->structValue->end()) _arguments = settingsIterator->second->stringValue;
@@ -84,7 +78,7 @@ bool Exec::start()
     {
         _callbackHandlerId = BaseLib::ProcessManager::registerCallbackHandler(std::function<void(pid_t pid, int exitCode, int signal, bool coreDumped)>(std::bind(&Exec::sigchildHandler, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
 
-        if(_autostart) startProgram();
+        if(_autostart) startProgram(_program, _arguments);
 
         return true;
     }
@@ -145,7 +139,20 @@ void Exec::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVari
 	{
 	    if(index == 0)
         {
-	        if(_pid == -1) startProgram();
+	        if(_pid == -1)
+            {
+	            std::string program;
+                auto messageIterator = message->structValue->find("program");
+                if(_program.empty() && messageIterator != message->structValue->end()) program = messageIterator->second->stringValue;
+                else program = _program;
+
+                std::string arguments;
+                messageIterator = message->structValue->find("arguments");
+                if(_arguments.empty() && messageIterator != message->structValue->end()) arguments = messageIterator->second->stringValue;
+                else arguments = _arguments;
+
+                startProgram(program, arguments);
+            }
         }
         else if(index == 1)
         {
@@ -179,13 +186,13 @@ void Exec::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVari
 	}
 }
 
-void Exec::startProgram()
+void Exec::startProgram(const std::string& program, const std::string& arguments)
 {
     try
     {
-        if(_program.empty())
+        if(program.empty())
         {
-            _out->printError("Error: filename is not set.");
+            _out->printError("Error: program is not set.");
             return;
         }
 
@@ -197,7 +204,7 @@ void Exec::startProgram()
 
         if(_execThread.joinable()) _execThread.join();
         if(_errorThread.joinable()) _errorThread.join();
-        _execThread = std::thread(&Exec::execThread, this);
+        _execThread = std::thread(&Exec::execThread, this, program, arguments);
     }
     catch(const std::exception& ex)
     {
@@ -215,7 +222,7 @@ int32_t Exec::getMaxFd()
     return limits.rlim_cur;
 }
 
-void Exec::execThread()
+void Exec::execThread(std::string program, std::string arguments)
 {
     try
     {
@@ -231,7 +238,7 @@ void Exec::execThread()
             int stdIn = -1;
             int stdOut = -1;
             int stdErr = -1;
-            _pid = BaseLib::ProcessManager::systemp(_program, BaseLib::ProcessManager::splitArguments(_arguments), getMaxFd(), stdIn, stdOut, stdErr);
+            _pid = BaseLib::ProcessManager::systemp(program, BaseLib::ProcessManager::splitArguments(arguments), getMaxFd(), stdIn, stdOut, stdErr);
             _stdIn = stdIn;
             _stdOut = stdOut;
             _stdErr = stdErr;

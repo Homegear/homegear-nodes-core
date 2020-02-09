@@ -64,10 +64,10 @@ private:
     std::atomic_int _stdErr{-1};
 
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-	void startProgram();
+	void startProgram(const std::string& program, const std::string& arguments);
 	int32_t getMaxFd();
     void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
-	void execThread();
+	void execThread(std::string program, std::string arguments);
 	void errorThread();
 	int32_t read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize);
 };
