@@ -63,7 +63,7 @@
         namespace: 'variable',
         color:"#a6bbcf",
         defaults: {
-            "true-only": {value: true},
+            "true-only": {value: false},
             variabletype: {value: "self",required:true},
             family: {},
             peername: {value:"", required: false},

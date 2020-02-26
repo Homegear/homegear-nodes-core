@@ -262,8 +262,7 @@ set(SOURCE_FILES
         variable/variable-out/Factory.cpp
         variable/variable-out/Factory.h
         variable/variable-out/MyNode.cpp
-        variable/variable-out/MyNode.h
-        config.h)
+        variable/variable-out/MyNode.h)
 
 add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
 

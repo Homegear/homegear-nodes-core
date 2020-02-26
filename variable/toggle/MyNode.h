@@ -53,7 +53,7 @@ private:
 		global
 	};
 
-	bool _trueOnly = true;
+	bool _trueOnly = false;
     VariableType _variableType = VariableType::device;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
