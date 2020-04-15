@@ -153,7 +153,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("changes-only");
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
-<<<<<<< HEAD
 		settingsIterator = info->info->structValue->find("static-only");
 		if(settingsIterator != info->info->structValue->end()) _staticOnly = settingsIterator->second->booleanValue;
 
@@ -167,8 +166,6 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 		_value = std::make_shared<Flows::Variable>(_payloadType, staticValue);
 
-=======
->>>>>>> upstream/dev
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
 		if(settingsIterator != info->info->structValue->end()) rules = settingsIterator->second->arrayValue;
