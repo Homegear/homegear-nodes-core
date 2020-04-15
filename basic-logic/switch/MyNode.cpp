@@ -430,13 +430,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 						trueMessage->structValue->emplace("payload", trueValue);
 						_rules.at(i).previousOutput = trueValue;
 						setNodeData("previousOutputValue" + std::to_string(i), trueValue);
-
-				        if(_staticOnly){
-				        	myMessage->structValue->emplace("payload", _value);
-				        	output(i, myMessage);
-				        }else{
-				        	output(i, trueMessage);
-				        }}
+						output(i, trueMessage);
+					}
 				}
 				else
 				{
@@ -444,12 +439,14 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = currentMessage;
 						setNodeData("previousOutputValue" + std::to_string(i), currentMessage);
-				        if(_staticOnly){
-				        	myMessage->structValue->emplace("payload", _value);
-				        	output(i, myMessage);
-				        }else{
-				        	output(i, myMessage);
-				        }
+				        
+						if(_staticOnly)
+						{
+							Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				        	message->structValue->emplace("payload", _value);	
+							output(i, message);
+						}
+				        else output(i, myMessage);
 					}
 				}
 				if(!_checkAll) break;
