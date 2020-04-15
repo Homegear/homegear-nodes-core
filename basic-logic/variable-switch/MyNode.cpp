@@ -500,16 +500,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = inputValue;
 						setNodeData("previousOutputValue" + std::to_string(i), inputValue);
-<<<<<<< HEAD
 					    if(_staticOnly){
 					    	message->structValue->emplace("payload", _value);
 						   	output(i, message);
 					    }else{
 					    	output(i, message);
 					    }
-=======
-						output(i, message);
->>>>>>> upstream/dev
 					}
 				}
 				if(!_checkAll) break;
