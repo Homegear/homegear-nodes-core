@@ -12,6 +12,10 @@ set(SOURCE_FILES
         basic-logic/and/Factory.h
         basic-logic/and/MyNode.cpp
         basic-logic/and/MyNode.h
+		basic-logic/change/Factory.cpp
+		basic-logic/change/Factory.h
+		basic-logic/change/MyNode.cpp
+		basic-logic/change/MyNode.h
         basic-logic/fallingedge/Factory.cpp
         basic-logic/fallingedge/Factory.h
         basic-logic/fallingedge/MyNode.cpp
@@ -36,10 +40,22 @@ set(SOURCE_FILES
         basic-logic/switch/Factory.h
         basic-logic/switch/MyNode.cpp
         basic-logic/switch/MyNode.h
+		basic-logic/variable-switch/Factory.cpp
+		basic-logic/variable-switch/Factory.h
+		basic-logic/variable-switch/MyNode.cpp
+		basic-logic/variable-switch/MyNode.h
         debug/Factory.cpp
         debug/Factory.h
         debug/MyNode.cpp
         debug/MyNode.h
+		exec/Factory.cpp
+		exec/Factory.h
+		exec/Exec.cpp
+		exec/Exec.h
+		homegear-event/Factory.cpp
+		homegear-event/Factory.h
+		homegear-event/MyNode.cpp
+		homegear-event/MyNode.h
         http/http-in/Factory.cpp
         http/http-in/Factory.h
         http/http-in/MyNode.cpp
@@ -128,10 +144,10 @@ set(SOURCE_FILES
         pulsecounter/Factory.h
         pulsecounter/MyNode.cpp
         pulsecounter/MyNode.h
-		runscript/Factory.cpp
-		runscript/Factory.h
-		runscript/RunScript.cpp
-		runscript/RunScript.h
+		python/Factory.cpp
+		python/Factory.h
+		python/Python.cpp
+		python/Python.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -148,6 +164,18 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		tcp/tcp-in/Factory.cpp
+		tcp/tcp-in/Factory.h
+		tcp/tcp-in/MyNode.cpp
+		tcp/tcp-in/MyNode.h
+		tcp/tcp-out/Factory.cpp
+		tcp/tcp-out/Factory.h
+		tcp/tcp-out/MyNode.cpp
+		tcp/tcp-out/MyNode.h
+		tcp/tcp-socket/Factory.cpp
+		tcp/tcp-socket/Factory.h
+		tcp/tcp-socket/MyNode.cpp
+		tcp/tcp-socket/MyNode.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h
@@ -177,6 +205,10 @@ set(SOURCE_FILES
         timers/on-delay/Factory.h
         timers/on-delay/MyNode.cpp
         timers/on-delay/MyNode.h
+		timers/rate-limiter/Factory.cpp
+		timers/rate-limiter/Factory.h
+		timers/rate-limiter/MyNode.cpp
+		timers/rate-limiter/MyNode.h
         timers/slow-pwm/Factory.cpp
         timers/slow-pwm/Factory.h
         timers/slow-pwm/MyNode.cpp
@@ -193,6 +225,12 @@ set(SOURCE_FILES
         timers/timer/MyNode.h
         timers/timer/SunTime.cpp
         timers/timer/SunTime.h
+		timers/weekly-program/Factory.cpp
+		timers/weekly-program/Factory.h
+		timers/weekly-program/MyNode.cpp
+		timers/weekly-program/MyNode.h
+		timers/weekly-program/SunTime.cpp
+		timers/weekly-program/SunTime.h
         tls-config/Factory.cpp
         tls-config/Factory.h
         tls-config/MyNode.cpp
@@ -205,6 +243,10 @@ set(SOURCE_FILES
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
         variable/constant/MyNode.h
+		variable/round-robin-shift/Factory.cpp
+		variable/round-robin-shift/Factory.h
+		variable/round-robin-shift/MyNode.cpp
+		variable/round-robin-shift/MyNode.h
         variable/toggle/Factory.cpp
         variable/toggle/Factory.h
         variable/toggle/MyNode.cpp
@@ -220,8 +262,7 @@ set(SOURCE_FILES
         variable/variable-out/Factory.cpp
         variable/variable-out/Factory.h
         variable/variable-out/MyNode.cpp
-        variable/variable-out/MyNode.h
-        config.h)
+        variable/variable-out/MyNode.h)
 
 add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
 

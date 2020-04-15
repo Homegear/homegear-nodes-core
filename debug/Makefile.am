@@ -12,5 +12,7 @@ debug_ladir = $(libdir)
 debug_la_DATA = debug.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/debug
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = locales/de-DE/debug
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/debug.la

@@ -2,7 +2,8 @@
 {
     "name": "sun-position",
     "readableName": "Sun Position",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -36,7 +37,7 @@
                 types: ["struct"]
             }
         ],
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "sun-position";

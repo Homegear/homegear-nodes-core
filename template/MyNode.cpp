@@ -72,19 +72,32 @@ bool Template::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void Template::addData(bool global, std::string key)
+void Template::addData(mustache::DataSource dataSource, std::string key)
 {
 	try
 	{
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
-		parameters->push_back(std::make_shared<Flows::Variable>(global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
-		parameters->push_back(std::make_shared<Flows::Variable>(key));
-		Flows::PVariable result = invoke("getNodeData", parameters);
-		if(result->errorStruct) return;
-		auto data = (mustache::data*)(_data.get(global ? "global" : "flow")); //This is dirty, but works as there is no access to _data, when addData is called.
-		if(!data) return;
-		setData(*data, key, result);
+        Flows::PVariable result;
+        if(dataSource == mustache::DataSource::environment)
+        {
+            auto envIterator = _nodeInfo->info->structValue->find("env");
+            if(envIterator == _nodeInfo->info->structValue->end()) return;
+            auto envIterator2 = envIterator->second->structValue->find(key);
+            if(envIterator2 == envIterator->second->structValue->end()) return;
+            result = envIterator2->second;
+        }
+	    else
+        {
+            Flows::PArray parameters = std::make_shared<Flows::Array>();
+            parameters->reserve(2);
+            parameters->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
+            parameters->push_back(std::make_shared<Flows::Variable>(key));
+            result = invoke("getNodeData", parameters);
+            if (result->errorStruct) return;
+        }
+
+        auto data = (mustache::data *) (_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
+        if (!data) return;
+        setData(*data, key, result);
 	}
 	catch(const std::exception& ex)
 	{
@@ -138,30 +151,27 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 	try
 	{
 		std::lock_guard<std::mutex> inputGuard(_inputMutex);
-		_data = mustache::data();
+        _data = mustache::data();
 		for(auto& element : *message->structValue)
 		{
 			setData(_data, element.first, element.second);
 		}
 		_data.set("flow", mustache::data(mustache::data::type::object));
 		_data.set("global", mustache::data(mustache::data::type::object));
+        _data.set("env", mustache::data(mustache::data::type::object));
 
 		Flows::PVariable result;
-		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(bool, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
+		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
 		else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
-		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+		auto outputMessage = std::make_shared<Flows::Variable>();
+		*outputMessage = *message;
 		if(_parseJson)
 		{
 			Flows::PVariable json;
 			result->stringValue = Flows::HelperFunctions::trim(result->stringValue);
 			if(result->stringValue.empty()) json = std::make_shared<Flows::Variable>();
-			else if(result->stringValue.front() != '[' && result->stringValue.front() != '{')
-			{
-				result->stringValue = '[' + result->stringValue + ']';
-				json = _jsonDecoder.decode(result->stringValue)->arrayValue->at(0);
-			}
-			else json = _jsonDecoder.decode(result->stringValue);
+			json = Flows::JsonDecoder::decode(result->stringValue);
 			if(_field.empty() && json->type == Flows::VariableType::tStruct)
 			{
 				outputMessage = json;
@@ -169,14 +179,14 @@ void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::P
 			else
 			{
 				if(_field.empty()) _field = "payload";
-				outputMessage->structValue->emplace(_field, json);
+				outputMessage->structValue->operator[](_field) = json;
 			}
 			output(0, outputMessage);
 		}
 		else
 		{
 			if(_field.empty()) _field = "payload";
-			outputMessage->structValue->emplace(_field, result);
+            outputMessage->structValue->operator[](_field) = result;
 			output(0, outputMessage);
 		}
 	}

@@ -2,7 +2,8 @@
 {
     "name": "serial-out",
     "readableName": "Serial output",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -31,7 +32,7 @@
 <script type="text/javascript">
 (function() {
     RED.nodes.registerType('serial-out',{
-        category: 'output',
+        category: 'io',
         namespace: 'serial',
         defaults: {
             name: {name:""},
@@ -45,7 +46,7 @@
           }
         ],
         outputs:0,
-        icon: "serial.png",
+        icon: "serial.svg",
         align: "right",
         label: function() {
             var serialNode = RED.nodes.node(this.serial);

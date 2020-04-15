@@ -6,7 +6,9 @@
 	      "listenaddress": "Listen addr.",
 	      "port": "Port",
 	      "use-tls": "Enable secure (SSL/TLS) connection",
-	      "tls-config": "TLS Configuration"
+	      "tls-config": "TLS Configuration",
+	      "username": "Username",
+	      "password": "Password"
 	    },
 	    "tabs-label": {
 	      "connection": "Connection",

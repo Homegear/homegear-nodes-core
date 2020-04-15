@@ -2,7 +2,8 @@
 {
     "name": "modbus-out",
     "readableName": "Modbus output",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -29,14 +30,14 @@
     </div>
     <div class="form-row node-input-registers-container-row">
         <input type="hidden" id="node-input-inputs"/>
-        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-out.label.registers"></span></label>
+        <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-out.label.registers"></span></label>
         <ol id="node-input-registers-container"></ol>
     </div>
 </script>
 <script type="text/javascript">
 (function() {
     RED.nodes.registerType('modbus-out',{
-        category: 'output',
+        category: 'network',
         namespace: 'modbus',
         defaults: {
             name: {value:""},
@@ -47,7 +48,7 @@
         color:"#FFF0F0",
         inputs:1,
         outputs:0,
-        icon: "bridge.png",
+        icon: "bridge.svg",
         align: "right",
         label: function() {
             return this.name||this.topic||"modbus";

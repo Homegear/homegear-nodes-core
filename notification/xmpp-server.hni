@@ -2,8 +2,9 @@
 {
     "name": "xmpp-server",
     "readableName": "XMPP Server",
-    "version": "0.0.1",
-    "maxThreadCount": 6
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 0
 }
 </script>
 <script type="text/x-red" data-template-name="xmpp-server">

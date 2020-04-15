@@ -32,8 +32,7 @@
 namespace MyNode
 {
 
-Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings)
-		: BaseLib::IQueue(bl.get(), 2, 1000)
+Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output) : BaseLib::IQueue(bl.get(), 2, 1000)
 {
 	try
 	{
@@ -41,7 +40,6 @@ Mqtt::Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Ou
 
 		_bl = bl;
 		_out = output;
-		_settings = settings;
 		_started = false;
 		_reconnecting = false;
 		_connected = false;
@@ -84,8 +82,6 @@ void Mqtt::start()
 		startQueue(0, false, 1, 0, SCHED_OTHER);
 		startQueue(1, false, 5, 0, SCHED_OTHER);
 
-		_jsonEncoder = std::unique_ptr<BaseLib::Rpc::JsonEncoder>(new BaseLib::Rpc::JsonEncoder(_bl.get()));
-		_jsonDecoder = std::unique_ptr<BaseLib::Rpc::JsonDecoder>(new BaseLib::Rpc::JsonDecoder(_bl.get()));
 		if(!_settings->caData.empty()) _socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->verifyCertificate, _settings->caData, _settings->certData, _settings->keyData));
 		else _socket.reset(new BaseLib::TcpSocket(_bl.get(), _settings->brokerHostname, _settings->brokerPort, _settings->enableSSL, _settings->caPath, _settings->verifyCertificate, _settings->certPath, _settings->keyPath));
 		_bl->threadManager.start(_listenThread, true, &Mqtt::listen, this);
@@ -141,6 +137,12 @@ void Mqtt::waitForStop()
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
+}
+
+void Mqtt::setSettings(const std::shared_ptr<MqttSettings>& settings)
+{
+    if(!_settings) _settings = settings;
+    else _out->printWarning("Warning: Tried to set MQTT settings even though there were already set.");
 }
 
 uint32_t Mqtt::getLength(std::vector<char> packet, uint32_t& lengthBytes)
@@ -1032,7 +1034,7 @@ void Mqtt::publish(const std::string& topic, const std::vector<char>& data, bool
 {
 	try
 	{
-		if(data.empty() || !_started) return;
+		if(topic.empty() || data.empty() || !_started) return;
 		std::vector<char> packet;
 		std::vector<char> payload;
 		payload.reserve(topic.size() + 2 + 2 + data.size());

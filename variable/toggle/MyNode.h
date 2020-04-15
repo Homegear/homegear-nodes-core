@@ -45,6 +45,7 @@ public:
 private:
 	enum class VariableType
 	{
+	    self,
 		device,
 		metadata,
 		system,
@@ -52,6 +53,7 @@ private:
 		global
 	};
 
+	bool _trueOnly = false;
     VariableType _variableType = VariableType::device;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;

@@ -2,7 +2,8 @@
 {
     "name": "toggle",
     "readableName": "Toggle",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -11,9 +12,15 @@
         <label style="width: 110px;" for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="toggle.label.name"></span></label>
         <input style="width: 65%;" type="text" id="node-input-name" data-i18n="[placeholder]toggle.label.name">
     </div>
+    <div class="form-row" id="true-only">
+        <label style="width: 110px">&nbsp;</label>
+        <input type="checkbox" id="node-input-true-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-true-only" style="width: 65%;" data-i18n="toggle.label.true-only"></label>
+    </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="toggle.label.variabletype"></span></label>
         <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
+            <option value="self" data-i18n="toggle.label.novariable"></option>
             <option value="device" data-i18n="toggle.label.devicevariable"></option>
             <option value="metadata" data-i18n="toggle.label.metadata"></option>
             <option value="system" data-i18n="toggle.label.systemvariable"></option>
@@ -52,16 +59,17 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('toggle',{
-        category: 'output',
+        category: 'homegear',
         namespace: 'variable',
         color:"#a6bbcf",
         defaults: {
-            variabletype: {value: "device",required:true},
+            "true-only": {value: false},
+            variabletype: {value: "self",required:true},
             family: {},
             peername: {value:"", required: false},
             peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
-            variable: {value:"",validate: function(v) { return v != ""; }},
+            variable: {value:"",validate: function(v) { if(this.variabletype == "self") return true; else return v != ""; }},
 
             name: {value:""}
         },
@@ -77,7 +85,7 @@
                 types: ["bool"]
             }
         ],
-        icon: "arrow-in.png",
+        icon: "arrow-in.svg",
         align: "right",
         label: function() {
             if(this.name) return this.name;
@@ -99,7 +107,7 @@
                 var type = jQuery.type(variable);
                 if(type == "boolean") return "BOOL";
                 else if(type == "number") {
-                    if(variable % 1 === 0) return "INTEGER";
+                    if(variable % 1 === 0) return "NUMBER";
                     else return "FLOAT";
                 } else if(type == "string") return "STRING";
                 else if(type == "array") return "ARRAY";
@@ -110,7 +118,9 @@
                 var variableType = $("#node-input-variabletype").val();
                 var currentVariable = $("#node-input-variable").val();
                 if(!currentVariable) return;
-                if(variableType == "flow") {
+                if(variableType == "self") {
+                    //Nothing
+                } else if(variableType == "flow") {
                     RED.comms.homegear().invoke("getFlowData", function(message) {
                         if(!message.hasOwnProperty("result")) return;
                         var text = $('<div/>').text(JSON.stringify(message.result)).html();
@@ -266,7 +276,14 @@
             //{{{ Variable type
                 function updateVariableTypeOptions() {
                     var variableType = $("#node-input-variabletype").val();
-                    if (variableType == "device") {
+                    if (variableType == "self") {
+                        $("#node-input-family-container").hide();
+                        $("#node-input-peerid-container").hide();
+                        $("#node-input-channel-container").hide();
+                        $("#node-input-variable-container").hide();
+                        $("#node-create-variable").hide();
+                        updateChannelOptions();
+                    } else if (variableType == "device") {
                         $("#node-input-family-container").show();
                         $("#node-input-peerid-container").show();
                         $("#node-input-channel-container").show();
@@ -456,7 +473,7 @@
 
                     if(variableType == "metadata" && !peerId) return;
 
-                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/></form></div></div>')
+                    var createVariableDialog = $('<div id="create-variable-dialog" class="hide node-red-dialog"><div class="fixed-input"><p>Please enter the name and the initial value of the variable. The type of the value is deduced using the JSON type rules.</p><form><label id="create-variable-dialog-label-name"></label><input type="text" id="create-variable-name" style="width:100%"/><label id="create-variable-dialog-label-type"></label><input type="text" id="create-variable-value" style="width:100%"/><input type="hidden" id="create-variable-valueType"/></form></div></div>')
                         .appendTo("body")
                         .dialog({
                             modal: true,
@@ -478,19 +495,26 @@
                                     text: RED._("variable/variable-in.hni:variable-in.label.create"),
                                     click: function() {
                                         var variableName = $("#create-variable-name").val().trim();
+                                        var variableValueType = $("#create-variable-valueType").val();
                                         var variableValue = $("#create-variable-value").val().trim();
-                                        if(!variableName | !variableValue) return false;
-                                        try {
-                                            variableValue = JSON.parse('[' + variableValue + ']')[0];
-                                        } catch(e) {
-                                            return false;
-                                        }
-                                        if(variableType == "system") RED.comms.homegear().invoke("setSystemVariable", null, variableName, variableValue);
+                                        if(!variableName || variableValue === '' || !variableValueType) return false;
+                                        if (variableValueType == 'bool') variableValue = variableValue == 'true';
+                                        else if (variableValueType == 'int') variableValue = parseInt(variableValue);
+                                        else if (variableValueType == 'float') variableValue = parseFloat(variableValue);
+                                        else if (variableValueType == 'array' || variableValueType == 'struct') variableValue = JSON.parse(variableValue);
+                                        else variableValue = variableValue;
+
+                                        variableValue = JSON.stringify(variableValue);
+                                        if (variableValueType == 'float' && variableValue.indexOf('.') == -1) variableValue += '.0';
+
+                                        var counter = RED.comms.homegear().getCounter();
+
+                                        if(variableType == "system") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setSystemVariable", "id": ' + counter + ', "params": [' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
                                         else if(variableType == "metadata") {
                                             if(peerId == 0) return false;
-                                            RED.comms.homegear().invoke("setMetadata", null, peerId, variableName, variableValue);
-                                        } else if(variableType == "flow") RED.comms.homegear().invoke("setFlowData", null, that.z, variableName, variableValue);
-                                        else if(variableType == "global") RED.comms.homegear().invoke("setGlobalData", null, variableName, variableValue);
+                                            RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setMetadata", "id": ' + counter + ', "params": [' + JSON.stringify(peerId) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
+                                        } else if(variableType == "flow") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setFlowData", "id": ' + counter + ', "params": [' + JSON.stringify(that.z) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
+                                        else if(variableType == "global") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setGlobalData", "id": ' + counter + ', "params": [' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
 
                                         that.variable = variableName;
 
@@ -503,6 +527,14 @@
 
                                 $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
                                 $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+
+                                $("#create-variable-value").typedInput({
+                                    default: 'int',
+                                    typeField: $("#create-variable-valueType"),
+                                    types:['bool','int','float','string','arraySimple','structSimple']
+                                });
+
+                                $("#create-variable-value").typedInput('type', 'int');
                             },
                             close: function(e) {
                                 $(this).remove();

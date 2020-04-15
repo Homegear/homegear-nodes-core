@@ -6,10 +6,13 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/node-blue/nodes/variable
 
-lib_LTLIBRARIES = constant.la toggle.la variable-in.la variable-loop-prevention-group.la variable-out.la
+lib_LTLIBRARIES = constant.la round-robin-shift.la toggle.la variable-in.la variable-loop-prevention-group.la variable-out.la
 
 constant_la_SOURCES = constant/Factory.cpp constant/MyNode.cpp
 constant_la_LDFLAGS =-module -avoid-version -shared
+
+round_robin_shift_la_SOURCES = round-robin-shift/Factory.cpp round-robin-shift/MyNode.cpp
+round_robin_shift_la_LDFLAGS =-module -avoid-version -shared
 
 toggle_la_SOURCES = toggle/Factory.cpp toggle/MyNode.cpp
 toggle_la_LDFLAGS =-module -avoid-version -shared
@@ -24,12 +27,15 @@ variable_loop_prevention_group_la_SOURCES = variable-loop-prevention-group/Facto
 variable_loop_prevention_group_la_LDFLAGS =-module -avoid-version -shared
 
 variable_ladir = $(libdir)
-variable_la_DATA = constant/constant.hni toggle/toggle.hni variable-in/variable-in.hni variable-in/variable-in.png variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
+variable_la_DATA = constant/constant.hni round-robin-shift/round-robin-shift.hni toggle/toggle.hni variable-in/variable-in.hni variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = constant/locales/en-US/constant toggle/locales/en-US/toggle variable-in/locales/en-US/variable-in variable-loop-prevention-group/locales/en-US/variable-loop-prevention-group variable-out/locales/en-US/variable-out
+locale_en_us_DATA = constant/locales/en-US/constant round-robin-shift/locales/en-US/round-robin-shift toggle/locales/en-US/toggle variable-in/locales/en-US/variable-in variable-loop-prevention-group/locales/en-US/variable-loop-prevention-group variable-out/locales/en-US/variable-out
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = constant/locales/de-DE/constant round-robin-shift/locales/de-DE/round-robin-shift toggle/locales/de-DE/toggle variable-in/locales/de-DE/variable-in variable-loop-prevention-group/locales/de-DE/variable-loop-prevention-group variable-out/locales/de-DE/variable-out
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/constant.la
+	rm -f $(DESTDIR)$(libdir)/round-robin-shift.la
 	rm -f $(DESTDIR)$(libdir)/toggle.la
 	rm -f $(DESTDIR)$(libdir)/variable-in.la
 	rm -f $(DESTDIR)$(libdir)/variable-loop-prevention-group.la

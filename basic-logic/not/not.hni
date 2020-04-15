@@ -2,7 +2,8 @@
 {
     "name": "not",
     "readableName": "Not",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -18,7 +19,8 @@
         namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
-            name: {value:""}
+            name: {value:""},
+            l: {value: false}
         },
         inputs:1,
         inputInfo: [
@@ -32,7 +34,7 @@
         		types: ["bool"]
         	}
         ],
-        icon: "function.png",
+        icon: "font-awesome/fa-exclamation",
         label: function() {
             if(this.name) return this.name;
             return "not";

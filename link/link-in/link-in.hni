@@ -2,7 +2,8 @@
 {
     "name": "link-in",
     "readableName": "Link in",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -47,7 +48,7 @@
 </style>
 <script type="text/javascript">
     RED.nodes.registerType('link-in',{
-        category: 'input',
+        category: 'general',
         namespace: 'link',
         color:"#ddd",//"#87D8CF",
         defaults: {
@@ -56,7 +57,7 @@
         },
         inputs:0,
         outputs:1,
-        icon: "link-out.png",
+        icon: "link-out.svg",
         outputLabels: function(i) {
             return this.name||this._("link-in.linkIn");
         },

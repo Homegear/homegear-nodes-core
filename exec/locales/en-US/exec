@@ -1,0 +1,21 @@
+{
+  "exec/exec.hni": {
+    "exec": {
+      "label": {
+        "program": "Program",
+        "arguments": "Arguments",
+        "autostart": "Start program on startup and restart it if it exits.",
+        "collect-output": "Wait to send output until process exits.",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>This node executes a program.</p>",
+      "help": "<p>This node executes a program. <code>EXEC</code> or the autostart option starts the program. The program is allowed to run indefinitely. When the autostart option is enabled, the program is restarted 1 second after it finishes. <code>Program</code> and <code>Arguments</code> can also be passed as input to <code>EXEC</code>. You can send input to the program throuth <code>IN</code> and the program's output is sent to <code>OUT</code> or <code>ERR</code> as an array split on new line characters. When the program finishes, the exit code is output on <code>CODE</code>. You can also send signals to the program through <code>SIG</code>.</p>",
+      "input1Description": "Execute the program. If it is already running, the input is ignored.",
+      "input2Description": "This signal is passed to the running program.",
+      "input3Description": "This input is sent to <code>stdin</code> of the program.",
+      "output1Description": "Outputs the exit code and some additional information when the process finishes.",
+      "output2Description": "<code>stdout</code> of the program.",
+      "output3Description": "<code>stderr</code> of the program."
+    }
+  }
+}

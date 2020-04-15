@@ -1,0 +1,139 @@
+<script type="text/x-homegear">
+{
+    "name": "python",
+    "readableName": "Python",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 2
+}
+</script>
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<script type="text/x-red" data-template-name="python">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="python.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]python.label.name">
+    </div>
+    <div class="form-row" style="margin-bottom: 0px;">
+        <label for="node-input-func"><i class="fa fa-wrench"></i> <span data-i18n="python.label.python"></span></label>
+        <input type="hidden" id="node-input-func" autofocus="autofocus">
+        <input type="hidden" id="node-input-noerr">
+    </div>
+    <div class="form-row node-text-editor-row">
+        <div style="height: 250px; min-height:150px;" class="node-text-editor" id="node-input-func-editor" ></div>
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="python.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;" value="1">
+    </div>
+    <div class="form-row">
+        <label for="node-input-outputs"><i class="fa fa-random"></i> <span data-i18n="python.label.outputs"></span></label>
+        <input id="node-input-outputs" style="width: 60px;" value="1">
+    </div>
+    <div class="form-tips"><span data-i18n="python.tip"></span></div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('python',{
+        color:"#ffdf76",
+        category: 'function',
+        defaults: {
+            name: {value:""},
+            func: {value:"from homegear import Homegear\nimport threading\nimport sys\nimport time\n\nhg = None\n\nstartUpComplete = threading.Condition()\n\n# This callback method is called on Homegear variable changes.\ndef eventHandler(eventSource, peerId, channel, variableName, value):\n\t# Note that the event handler is called by a different thread than the main thread. I. e. thread synchronization is\n\t# needed when you access non local variables.\n\t# See https://effbot.org/zone/thread-synchronization.htm\n\t\n\t# When the flows are fully started, \"startUpComplete\" is set to \"true\". Wait for this event.\n\tif eventSource == \"nodeBlue\" and peerId == 0 and variableName == \"startUpComplete\":\n\t\tstartUpComplete.acquire()\n\t\tstartUpComplete.notify()\n\t\tstartUpComplete.release()\n\t\n\t# Print the parameters to the standard output\n\tprint(\"Event handler called with arguments: eventSource: \" + eventSource + \" peerId: \" + str(peerId) + \"; channel: \" + str(channel) + \"; variableName: \" + variableName + \"; value: \" + str(value));\n\tsys.stdout.flush()\n\t\n\n# This callback method is called when a message arrives on one of the node's inputs.\ndef nodeInput(nodeInfo, inputIndex, message):\n\t# Note that the event handler is called by a different thread than the main thread. I. e. thread synchronization is\n\t# needed when you access non local variables.\n\t# See https://effbot.org/zone/thread-synchronization.htm\n\n\t# When a message arrives on input 2, send \"Hello Homegear\" to output 3.\n\tif inputIndex == 2:\n\t\tmessage[\"payload\"] = \"Hello Homegear\"\n\t\thg.nodeOutput(3, message)\n\n\n# hg waits until the connection is established (but for a maximum of 2 seonds).\n# The socket path is passed in sys.argv[1], the node's ID in sys.argv[2]\nhg = Homegear(sys.argv[1], eventHandler, sys.argv[2], nodeInput);\n\n# Wait for the flows to start.\nstartUpComplete.acquire()\nwhile hg.connected():\n\tif startUpComplete.wait(1) == True:\n\t\tbreak\nstartUpComplete.release()\n\n# The node is now fully started.\n\n# You can call all of Homegear's RPC methods on the hg object.\n# See https://ref.homegear.eu\n# As an example, get Homegear's version and send it to output 3 of the node.\nhomegearVersion = hg.getVersion();\nhg.nodeOutput(3, {\"payload\": homegearVersion})\n\n# The script needs to run permanently. Just stop it, when Homegear is not running anymore.\n# Homegear sends a signal 15 (SIGTERM) to the process to stop it.\nwhile hg.connected():\n\ttime.sleep(1)\n"},
+            inputs: {value:3},
+            outputs: {value:4},
+            noerr: {value:0,required:true,validate:function(v){ return ((!v) || (v === 0)) ? true : false; }}
+        },
+        inputs:2,
+        inputInfo: [
+            {
+                label: "SIG",
+                types: ["int"],
+            },
+            {
+                label: "IN",
+                types: ["string"],
+            }
+        ],
+        outputs:4,
+        outputInfo: [
+            {
+                label: "CODE",
+                types: ["int"]
+            },
+            {
+                label: "OUT",
+                types: ["array[string]"]
+            },
+            {
+                label: "ERR",
+                types: ["array[string]"]
+            }
+        ],
+        icon: "function.svg",
+        label: function() {
+            return this.name;
+        },
+        oneditprepare: function() {
+            var that = this;
+            $( "#node-input-inputs" ).spinner({
+                min:2
+            });
+            $( "#node-input-outputs" ).spinner({
+                min:4
+            });
+
+            this.editor = RED.editor.createEditor({
+                id: 'node-input-func-editor',
+                mode: {path:"ace/mode/python", inline:true},
+                options: {
+                    enableBasicAutocompletion:true,
+                    enableSnippets:true,
+                    tooltipFollowsMouse: false,
+                    tabSize: 4,
+                    useSoftTabs: false
+                },
+                value: $("#node-input-func").val(),
+            });
+
+            this.editor.focus();
+        },
+        oneditsave: function() {
+            var annot = this.editor.getSession().getAnnotations();
+            this.noerr = 0;
+            $("#node-input-noerr").val(0);
+            for (var k=0; k < annot.length; k++) {
+                //console.log(annot[k].type,":",annot[k].text, "on line", annot[k].row);
+                if (annot[k].type === "error") {
+                    $("#node-input-noerr").val(annot.length);
+                    this.noerr = annot.length;
+                }
+            }
+            $("#node-input-func").val(this.editor.getValue());
+            delete this.editor;
+        },
+        oneditresize: function(size) {
+            var rows = $("#dialog-form>div:not(.node-text-editor-row)");
+            var height = $("#dialog-form").height();
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            var editorRow = $("#dialog-form>div.node-text-editor-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $(".node-text-editor").css("height",height+"px");
+            this.editor.resize();
+        }
+    });
+</script>

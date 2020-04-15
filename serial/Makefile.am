@@ -21,6 +21,8 @@ serial_ladir = $(libdir)
 serial_la_DATA = serial-port/serial-port.hni serial-in/serial-in.hni serial-out/serial-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = serial-port/locales/en-US/serial-port serial-in/locales/en-US/serial-in serial-out/locales/en-US/serial-out
+locale_de_dedir = $(libdir)/locales/de-DE
+locale_de_de_DATA = serial-port/locales/de-DE/serial-port serial-in/locales/de-DE/serial-in serial-out/locales/de-DE/serial-out
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/serial-port.la

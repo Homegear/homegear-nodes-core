@@ -1,0 +1,35 @@
+{
+  "presence-light/presence-light.hni": {
+    "presence-light": {
+      "label": {
+        "name": "Name",
+        "on-time": "On time",
+        "on-time2": "Duration in seconds",
+        "always-on-time": "Always on time",
+        "always-on-time2": "Duration in seconds",
+        "always-off-time": "Always off time",
+        "always-off-time2": "Duration in seconds",
+        "process-false": "Switch light off immediately, when \"IN\" is set to \"false\".",
+        "keep-on": "Keep light on when \"EN\" is set to \"false\".",
+        "toggle-profile-0-only": "\"TG\" only toggles on an input of \"0\", other inputs set \"SVAL\", but don't switch the light off.",
+        "restore-profile": "When the light is switched off (in profile mode) using \"TG\", restore the last profile after no \"IN\" for \"On time\".",
+        "changes-only": "Output changes only",
+        "refraction-time": "Rate limiter delay",
+        "refraction-time2": "Duration in milliseconds"
+      },
+      "paletteHelp": "<p>This node automatically switches lights on or off depending on presence.</p>",
+      "input1Description": "Enables or disables processing of <code>IN</code>.",
+      "input2Description": "Enables \"always on mode\".",
+      "input3Description": "Enables \"always off mode\".",
+      "input4Description": "An input of <code>true</code> sets <code>S</code> to <code>SVAL</code> for <code>On time</code> seconds. <code>false</code> is ignored, except when the <code>Switch light off immediately</code> option is enabled.",
+      "input5Description": "An input of <code>true</code> sets <code>S</code> to <code>SVAL</code> for <code>On time</code> seconds. <code>false</code> resets the timer and immediately sets <code>S</code> to <code>false</code> or <code>0</code>.",
+      "input6Description": "<code>SVAL</code> (= State value) changes the value, <code>S</code> should output to switch the light. The change is applied immediately, but in contrast to <code>TG</code>, it doesn't switch the light on or off. This can either be <code>true</code> or a profile number greater or equal to <code>0</code>. <code>0</code> is the off profile.",
+      "input7Description": "An input of <code>true</code> sets <code>S</code> to <code>SVAL</code> for <code>On time</code> seconds when it is <code>false</code>. When <code>S</code> is <code>SVAL</code> it is set to <code>false</code> or <code>0</code> immediately and the timer is reset. This input also works with profile (scene) numbers. <code>0</code> is recognized as the on/off profile toggling the last input scene number greater than 0. Any other number switches to that profile and also sets <code>SVAL</code>.",
+      "output1Description": "Outputs <code>true</code> when the light should switch on and <code>false</code> when it should switch off.",
+      "output2Description": "Outputs <code>true</code> when the always on timer or always off timer reaches <code>0</code>.",
+      "output3Description": "Outputs the remaining \"on time\" (in seconds) every second.",
+      "output4Description": "Outputs the remaining \"always on time\" (in seconds) every second and <code>-1</code> on reset.",
+      "output5Description": "Outputs the remaining \"always off time\" (in seconds) every second and <code>-1</code> on reset."
+    }
+  }
+}

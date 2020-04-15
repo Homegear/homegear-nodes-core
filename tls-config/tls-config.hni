@@ -2,7 +2,8 @@
 {
     "name": "tls-config",
     "readableName": "TLS configuration",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -77,6 +78,7 @@
         category: 'config',
         defaults: {
             name: {value:""},
+            uselocalfiles: {value: false},
             cert: {value:"", validate: function(v) {
                 var currentKey = $("#node-config-input-key").val();
                 if (currentKey === undefined) {
@@ -121,6 +123,7 @@
             $("#node-config-input-uselocalfiles").on("click",function() {
                 updateFileUpload();
             });
+            updateFileUpload();
 
             function saveFile(property, file) {
                 var dataInputId = "#node-config-input-"+property+"data";
@@ -164,10 +167,7 @@
             } else {
                 $("#node-config-row-uselocalfiles").show();
             }
-            // in case paths were set from old TLS config
-            if(this.cert || this.key || this.ca) {
-                $("#node-config-input-uselocalfiles").prop('checked',true);
-            }
+
             $("#tls-config-certname").text(this.certname);
             $("#tls-config-keyname").text(this.keyname);
             $("#tls-config-caname").text(this.caname);

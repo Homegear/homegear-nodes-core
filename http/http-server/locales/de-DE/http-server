@@ -1,0 +1,21 @@
+{
+  "http/http-server.hni": {
+    "http-server": {
+    	"help": "<p>Für eine minimale HTTP-Serververbindung muss nur eine Abhöradresse zur Standardkonfiguration hinzugefügt werden.</p><p>Um die Verbindung mit SSL / TLS zu sichern, muss auch eine TLS-Konfiguration konfiguriert und ausgewählt werden.</p>",
+    	"label": {
+	      "listenaddress": "Abhöradresse",
+	      "port": "Port",
+	      "use-tls": "Sichere Verbindung (SSL/TLS) aktivieren",
+	      "tls-config": "TLS Konfiguration",
+	      "username": "Benutzername",
+	      "password": "Passwort"
+	    },
+	    "tabs-label": {
+	      "connection": "Verbindung",
+	      "security": "Sicherheit"
+	    },
+	    "true": "wahr",
+	    "false": "falsch"
+    }
+  }
+}

@@ -2,7 +2,8 @@
 {
     "name": "http-response",
     "readableName": "HTTP response",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -41,7 +42,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('http-response',{
-        category: 'output',
+        category: 'network',
         namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
@@ -58,7 +59,7 @@
         ],
         outputs:0,
         align: "right",
-        icon: "white-globe.png",
+        icon: "white-globe.svg",
         label: function() {
             return this.name||("http"+(this.statusCode?" ("+this.statusCode+")":""));
         },
@@ -69,7 +70,7 @@
             var headerTypes = [
                 {value:"Content-Type",label:"Content-Type",hasValue: false},
                 {value:"Location",label:"Location",hasValue: false},
-                {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
+                {value:"other",label:"other",icon:"red/images/typedInput/az.svg"}
             ];
             var contentTypes = [
                 {value:"application/json",label:"application/json",hasValue: false},
@@ -79,7 +80,7 @@
                 {value:"text/plain",label:"text/plain",hasValue: false},
                 {value:"image/gif",label:"image/gif",hasValue: false},
                 {value:"image/png",label:"image/png",hasValue: false},
-                {value:"other",label:"other",icon:"red/images/typedInput/az.png"}
+                {value:"other",label:"other",icon:"red/images/typedInput/az.svg"}
             ];
             function resizeRule(rule) {
                 var newWidth = rule.width();
@@ -96,7 +97,7 @@
                     var propertyValue = $('<input/>',{class:"node-input-header-value",type:"text",style:"margin-left: 10px"})
                         .appendTo(row)
                         .typedInput({types:
-                            header.h === 'Content-Type'?contentTypes:[{value:"other",label:"other",icon:"red/images/typedInput/az.png"}]
+                            header.h === 'Content-Type'?contentTypes:[{value:"other",label:"other",icon:"red/images/typedInput/az.svg"}]
                         });
 
                     var matchedType = headerTypes.filter(function(ht) {
@@ -139,7 +140,7 @@
                         if (type === 'Content-Type') {
                             propertyValue.typedInput('types',contentTypes);
                         } else {
-                            propertyValue.typedInput('types',[{value:"other",label:"other",icon:"red/images/typedInput/az.png"}]);
+                            propertyValue.typedInput('types',[{value:"other",label:"other",icon:"red/images/typedInput/az.svg"}]);
                         }
                     });
 

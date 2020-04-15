@@ -52,36 +52,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("payload");
 		if(settingsIterator != info->info->structValue->end()) payload = settingsIterator->second->stringValue;
 
-		_value = std::make_shared<Flows::Variable>();
-		if(_payloadType == "bool")
-		{
-			_value->setType(Flows::VariableType::tBoolean);
-			_value->booleanValue = payload == "true";
-		}
-		else if(_payloadType == "int")
-		{
-			_value->setType(Flows::VariableType::tInteger64);
-			_value->integerValue64 = Flows::Math::getNumber64(payload);
-			_value->integerValue = (int32_t)_value->integerValue64;
-			_value->floatValue = _value->integerValue64;
-		}
-		else if(_payloadType == "float")
-		{
-			_value->setType(Flows::VariableType::tFloat);
-			_value->floatValue = Flows::Math::getDouble(payload);
-			_value->integerValue = _value->floatValue;
-			_value->integerValue64 = _value->floatValue;
-		}
-		else if(_payloadType == "string")
-		{
-			_value->setType(Flows::VariableType::tString);
-			_value->stringValue = payload;
-		}
-		else if(_payloadType == "array" || _payloadType == "struct")
-		{
-			Flows::JsonDecoder jsonDecoder;
-			_value = jsonDecoder.decode(payload);
-		}
+		_value = std::make_shared<Flows::Variable>(_payloadType, payload);
 
         settingsIterator = info->info->structValue->find("outputonstartup");
         if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
@@ -121,7 +92,7 @@ void MyNode::startUpComplete()
 	}
 }
 
-void MyNode::setNodeVariable(std::string variable, Flows::PVariable value)
+void MyNode::setNodeVariable(const std::string& variable, Flows::PVariable value)
 {
 	try
 	{

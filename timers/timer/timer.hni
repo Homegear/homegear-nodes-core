@@ -2,7 +2,8 @@
 {
     "name": "timer",
     "readableName": "Timer",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -119,7 +120,7 @@
             }
         ],
         outputs:1,
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "timer";

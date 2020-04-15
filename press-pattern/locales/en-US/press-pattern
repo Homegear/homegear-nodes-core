@@ -3,16 +3,16 @@
     "press-pattern": {
       "label": {
         "timeout": "Maximum time to wait for the next press.",
-        "name": "Name"
+        "name": "Name",
+        "outputs": "Outputs"
       },
-      "paletteHelp": "<p>Detects single, double, triple or long presses.</p>",
-      "help": "<p>Detects single, double, triple or long presses.</p>",
+      "paletteHelp": "<p>Detects single, double, triple, ... or long presses.</p>",
+      "help": "<p>Detects single, double, triple, ... or long presses.</p>",
       "input1Description": "<code>true</code> for button down, <code>false</code> for button up.",
-      "output1Description": "Single short press.",
-      "output2Description": "Double short press.",
-      "output3Description": "Triple short press.",
-      "output4Description": "The number of short presses if more than three.",
-      "output5Description": "Long press."
+      "output1Description": "Long press.",
+      "output2Description": "Single short press.",
+      "output3Description": "Double short press.",
+      "output4Description": "Triple short press."
     }
   }
 }

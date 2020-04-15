@@ -2,7 +2,8 @@
 {
     "name": "strip",
     "readableName": "Strip",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -32,7 +33,7 @@
                 types: ["any"]
             }
         ],
-        icon: "join.png",
+        icon: "join.svg",
         label: function() {
             return this.name||"strip";
         },

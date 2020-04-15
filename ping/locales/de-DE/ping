@@ -1,0 +1,15 @@
+{
+  "ping/ping.hni": {
+    "ping": {
+      "label": {
+        "ping": "ping",
+        "host": "Hostname",
+        "interval": "Intervall",
+        "name": "Name"
+      },
+      "input1Description": "Aktiviert oder deaktiviert Ping.",
+      "output1Description": "Gibt <code>true</code> aus, wenn das Ziel erreichbar ist, und <code>false</ code>, wenn dies nicht der Fall ist.",
+      "help": "Prüft, ob ein Host erreichbar ist."
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "tcp/tcp-socket.hni": {
+    "tcp-socket": {
+    	"help": "<p>A minimum TCP server connection requires only a listen address to be added to the default configuration.</p><p>To secure the connection with SSL/TLS, a TLS configuration must also be configured and selected.</p><p>A minimum TCP client requires a hostname or IP address and a port to be set.</p>",
+    	"label": {
+	      "listenaddress": "Listen addr.",
+	      "address": "Address",
+	      "port": "Port",
+	      "use-tls": "Enable secure (SSL/TLS) connection",
+	      "tls-config": "TLS Configuration",
+	      "type": "Type",
+	      "server": "Server",
+	      "client": "Client"
+	    },
+	    "true": "true",
+	    "false": "false"
+    }
+  }
+}

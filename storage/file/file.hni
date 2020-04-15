@@ -2,7 +2,8 @@
 {
     "name": "file",
     "readableName": "File",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -64,7 +65,7 @@
         color:"BurlyWood",
         inputs:1,
         outputs:0,
-        icon: "file.png",
+        icon: "file.svg",
         align: "right",
         label: function() {
             if (this.overwriteFile === "delete") {

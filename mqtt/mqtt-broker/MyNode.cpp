@@ -49,6 +49,11 @@ bool MyNode::init(Flows::PNodeInfo info)
 	try
 	{
 		_nodeInfo = info;
+
+        std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
+        _mqtt.reset(new Mqtt(bl, _out));
+        _mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
+
 		return true;
 	}
 	catch(const std::exception& ex)
@@ -94,7 +99,9 @@ bool MyNode::start()
 			{
 				mqttSettings->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
 				mqttSettings->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-				mqttSettings->keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+                auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+				mqttSettings->keyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
+                mqttSettings->keyData->insert(mqttSettings->keyData->end(), keyData.begin(), keyData.end());
 				mqttSettings->caPath = getConfigParameter(tlsNodeId, "ca")->stringValue;
 				mqttSettings->certPath = getConfigParameter(tlsNodeId, "cert")->stringValue;
 				mqttSettings->keyPath = getConfigParameter(tlsNodeId, "key")->stringValue;
@@ -102,10 +109,7 @@ bool MyNode::start()
 			}
 		}
 
-		std::shared_ptr<BaseLib::SharedObjects> bl = std::make_shared<BaseLib::SharedObjects>();
-		_mqtt.reset(new Mqtt(bl, _out, mqttSettings));
-		_mqtt->setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)>(std::bind(&MyNode::invokeNodeMethod, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)));
-		_mqtt->start();
+		_mqtt->setSettings(mqttSettings);
 
 		return true;
 	}
@@ -118,6 +122,11 @@ bool MyNode::start()
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 	return false;
+}
+
+void MyNode::configNodesStarted()
+{
+    _mqtt->start();
 }
 
 void MyNode::stop()

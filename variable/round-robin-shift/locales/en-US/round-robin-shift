@@ -1,0 +1,16 @@
+{
+  "variable/round-robin-shift.hni": {
+    "round-robin-shift": {
+      "label": {
+        "true-only": "Only toggle on \"true\"",
+        "outputs": "Outputs",
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Sends <code>true</code> round robin on one output after the other incrementing or decrementing the output index on every input.</p>",
+      "help": "<p>Sends <code>true</code> round robin on one output after the other. <code>TGF</code> (\"trigger forward\") increments the output index. <code>TGB</code> (\"trigger backward\") decrements the output index.</p><p><code>RES</code> resets the output index so the next input triggers the specified output.</p>",
+      "input1Description": "Every input triggers an output of <code>true</code> on the currently selected output and increments the output index by one.",
+      "input2Description": "Every input triggers an output of <code>true</code> on the currently selected output and decrements the output index by one.",
+      "input3Description": "Resets the output index to the specified value so the next input triggers the specified output."
+    }
+  }
+}

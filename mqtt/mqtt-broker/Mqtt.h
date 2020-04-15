@@ -34,6 +34,7 @@
 #include <homegear-node/Variable.h>
 #include <homegear-node/Output.h>
 #include <homegear-node/HelperFunctions.h>
+#include <homegear-base/Security/SecureVector.h>
 #include <homegear-base/BaseLib.h>
 #include <regex>
 
@@ -60,7 +61,7 @@ public:
 		std::string certPath;
 		std::string certData;
 		std::string keyPath;
-		std::string keyData;
+        std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> keyData;
 		bool verifyCertificate = true;
 	};
 
@@ -76,7 +77,7 @@ public:
 		bool retain = true;
 	};
 
-	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<MqttSettings> settings);
+	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output);
 
 	virtual ~Mqtt();
 
@@ -85,6 +86,8 @@ public:
 	void stop();
 
 	void waitForStop();
+
+	void setSettings(const std::shared_ptr<MqttSettings>& settings);
 
 	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
 
@@ -165,8 +168,6 @@ private:
 	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
 	std::mutex _nodesMutex;
 	std::set<std::string> _nodes;
-	std::unique_ptr<BaseLib::Rpc::JsonEncoder> _jsonEncoder;
-	std::unique_ptr<BaseLib::Rpc::JsonDecoder> _jsonDecoder;
 	std::unique_ptr<BaseLib::TcpSocket> _socket;
 	std::thread _pingThread;
 	std::thread _listenThread;

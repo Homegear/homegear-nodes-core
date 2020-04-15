@@ -1,0 +1,14 @@
+{
+  "gpio/gpio-out.hni": {
+    "gpio-out": {
+      "label": {
+        "name": "Name",
+        "index": "GPIO",
+        "initialtrue": "\"true\" beim Start setzen"
+      },
+      "paletteHelp": "Setzt den Wert eines GPIO.",
+      "help": "<p>Dieser Knoten kann verwendet werden, um den Wert eines GPIO zu setzen. Stellen Sie sicher, dass Homegear über ausreichende Berechtigungen zum Exportieren des GPIO verfügt. Ist dies nicht der Fall, können Sie GPIOs für den Export in der <code>main.conf</code> von Homegear definieren. Diese GPIOs werden als Root exportiert, bevor Homegear die Berechtigungen löscht.</p>",
+      "input1Description": "Der Status, auf den das GPIO gesetzt werden soll."
+    }
+  }
+}

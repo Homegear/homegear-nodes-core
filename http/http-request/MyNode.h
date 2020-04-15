@@ -33,6 +33,7 @@
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonDecoder.h>
 #include <homegear-base/BaseLib.h>
+#include <homegear-base/Security/SecureVector.h>
 
 namespace MyNode
 {
@@ -66,7 +67,7 @@ private:
     std::string _certPath;
     std::string _certData;
     std::string _keyPath;
-    std::string _keyData;
+    std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> _keyData;
     bool _verifyCertificate = true;
     ReturnType _returnType;
 

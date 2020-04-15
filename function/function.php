@@ -45,6 +45,12 @@ function output(int $outputIndex, array $message)
 	return $nodeObject->output($outputIndex, $message);
 }
 
+function eventLog(string $message)
+{
+	global $nodeObject;
+	return $nodeObject->frontendEventLog($message);
+}
+
 class HomegearNode extends HomegearNodeBase
 {
 
@@ -64,6 +70,13 @@ public function executeCode(int $inputIndex, array $message)
 	{
 	    $nodeInfo = $this->nodeInfo;
 		$code = $this->nodeInfo["info"]["func"];
+		if(array_key_exists('info', $this->nodeInfo) && array_key_exists('env', $this->nodeInfo['info']))
+		{
+			foreach($this->nodeInfo['info']['env'] as $name => $value)
+			{
+				putenv($name.'='.$value);
+			}
+		}
 		$hg = new \Homegear\Homegear();
 		return eval($code);
 	}
@@ -80,7 +93,7 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 	$result = $this->executeCode($inputIndex, $message);
 	if($result)
 	{
-		if(array_key_exists('payload', $result))
+		if(gettype(array_key_first($result)) === 'string')
 		{
 			$this->output(0, $result);
 		}
@@ -90,7 +103,7 @@ public function input(array $nodeInfoLocal, int $inputIndex, array $message)
 			foreach($result as $index => $value)
 			{
 				if(!$value || !is_numeric($index) || $index >= $wireCount) continue;
-				if(array_key_exists('payload', $value))
+				if(gettype(array_key_first($value)) === 'string')
 				{
 					$this->output($index, $value);
 				}

@@ -2,7 +2,8 @@
 {
     "name": "mqtt-in",
     "readableName": "MQTT input",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -24,8 +25,8 @@
         <input type="text" id="node-input-broker">
     </div>
     <div class="form-row">
-        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="common.label.topic"></span></label>
-        <input type="text" id="node-input-topic" data-i18n="[placeholder]common.label.topic">
+        <label for="node-input-topic"><i class="fa fa-tasks"></i> <span data-i18n="mqtt-in.label.topic"></span></label>
+        <input type="text" id="node-input-topic" data-i18n="[placeholder]mqtt-in.label.topic">
     </div>
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
@@ -43,7 +44,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('mqtt-in',{
-        category: 'input',
+        category: 'network',
         namespace: 'mqtt',
         defaults: {
             name: {value:""},
@@ -60,7 +61,7 @@
         		types: ["string"]
         	}
         ],
-        icon: "bridge.png",
+        icon: "bridge.svg",
         label: function() {
             return this.name||this.topic||"mqtt";
         },

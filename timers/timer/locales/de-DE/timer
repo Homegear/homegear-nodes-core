@@ -1,0 +1,40 @@
+{
+  "timers/timer.hni": {
+    "timer": {
+      "label": {
+        "name": "Name",
+        "startup": "Zustand beim Start ausgeben",
+        "ontime": "Einschaltzeit",
+        "offtime": "Auschaltzeit",
+        "latitude": "Breitengrad",
+        "longitude": "Längengrad",
+        "onoffset": "Ein-Versatz",
+        "offoffset": "Aus-Versatz",
+        "monday": "Mo",
+        "tuesday": "Di",
+        "wednesday": "Mi",
+        "thursday": "Do",
+        "friday": "Fr",
+        "saturday": "Sa",
+        "sunday": "So",
+        "january": "Jan",
+        "february": "Feb",
+        "march": "Mär",
+        "april": "Apr",
+        "may": "Mai",
+        "june": "Jun",
+        "july": "Jul",
+        "august": "Aug",
+        "september": "Sep",
+        "october": "Okt",
+        "november": "Nov",
+        "december": "Dez"
+      },
+      "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</ code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
+      "input2Description": "<code>HH:MM:[SS]</code> setzen um die \"Einschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+      "input3Description": "<code>HH:MM:[SS]</code> setzen um die \"Ausschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+      "paletteHelp": "<p>Erzeugt Ereignisse zu bestimmten Zeitpunkten.</p>",
+      "help": "Dieser Knoten generiert Ereignisse zu bestimmten Zeitpunkten. Damit die \"Sonnenlichtzeiten\" funktionieren, müssen \"Breitengrad\" und \"Längengrad\" angegeben werden. \"Ein-Versatz\" und \"Aus-Versatz\" (in Minuten) werden zu \"Einschaltzeit\" und \"Auschaltzeit\" addiert. Stellen Sie sicher, dass die Zeit- und Zeitzoneneinstellungen des Computers, auf dem der Flow ausgeführt wird, korrekt sind.<H3>Sonnenlichtzeiten</h3><dl><dt>sunrise</dt><dd>Sonnenaufgang (oberer Rand der Sonne erscheint auf der Horizont)</dd><dt>sunriseEnd</dt><dd>Sonnenaufgang endet (unterer Rand der Sonne berührt den Horizont)</dd><dt>goldenHourEnd</dt><dd>goldene Morgenstunde (weiches Licht, beste Zeit zum Fotografieren) endet</dd><dt>solarNoon</dt><dd>solarer Mittag (die Sonne steht am höchsten)</dd><dt>goldenHour</dt><dd>goldene Abendstunde startet</dd><dt>sunsetStart</dt><dd>Sonnenuntergang startet (unterer Rand der Sonne berührt den Horizont)</dd><dt>sunset</dt><dd>Sonnenuntergang (Sonne verschwindet unter dem Horizont, die Abenddämmerung beginnt)</dd><dt>dusk</dt><dd>Abenddämmerung (Beginn der nautischen Dämmerung)</dd><dt>nauticalDusk</dt><dd>Abenddämmerung (Beginn der astronomischen Dämmerung)</dd><dt>Nacht</dt><dd>Nacht beginnt (dunkel genug für astronomische Beobachtungen)</dd><dt>Nadir</dt><dd>Nadir (dunkelster Moment der Nacht, Sonne ist in der niedrigsten Position)</dd><dt>nightEnd</dt><dd>die Nacht endet (die astronomische Morgendämmerung beginnt)</dd><dt>nauticalDawn</dt><dd>nautische Morgendämmerung (die nautische Morgendämmerung beginnt)</dd><dt>dawn</dt><dd>Morgendämmerung (die nautische Morgendämmerung endet, die bürgerliche Morgendämmerung beginnt)</dd></dl>"
+    }
+  }
+}

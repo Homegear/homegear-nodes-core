@@ -53,12 +53,12 @@ private:
 	std::string _host = "";
 
 	std::atomic_bool _enabled;
-	std::atomic_bool _statusLast;
 	std::atomic_bool _stopThread;
 	std::mutex _workerThreadMutex;
 	std::thread _workerThread;
 
 	void worker();
+    int32_t getMaxFd();
 	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
 };
 

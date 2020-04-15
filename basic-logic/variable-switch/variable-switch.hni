@@ -755,6 +755,7 @@
                     createVariableDialog.dialog("option", "title", RED._("basic-logic/variable-switch.hni:variable-switch.label.createvariable")).dialog("open");
                 });
             //}}}
+
                 if (this.payloadType == null) {
                     this.payloadType = "int";
                 }
@@ -767,6 +768,7 @@
                 });
 
                 $("#node-input-payload").typedInput('type',this.payloadType);
+
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');

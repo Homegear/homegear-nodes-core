@@ -2,7 +2,8 @@
 {
     "name": "modbus-host",
     "readableName": "Modbus host",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -42,27 +43,27 @@
         <label for="node-config-input-debug" style="width: 65%;" data-i18n="modbus-host.label.debug"></label>
     </div>
     <div class="form-row node-config-read-registers-container-row">
-        <label for="node-config-read-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-registers"></span></label>
+        <label for="node-config-read-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.read-registers"></span></label>
         <ol id="node-config-read-registers-container"></ol>
     </div>
     <div class="form-row node-config-write-registers-container-row">
-        <label for="node-config-write-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.write-registers"></span></label>
+        <label for="node-config-write-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.write-registers"></span></label>
         <ol id="node-config-write-registers-container"></ol>
     </div>
     <div class="form-row node-config-read-input-registers-container-row">
-        <label for="node-config-read-input-registers-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-input-registers"></span></label>
+        <label for="node-config-read-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.read-input-registers"></span></label>
         <ol id="node-config-read-input-registers-container"></ol>
     </div>
     <div class="form-row node-config-read-coils-container-row">
-        <label for="node-config-read-coils-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-coils"></span></label>
+        <label for="node-config-read-coils-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.read-coils"></span></label>
         <ol id="node-config-read-coils-container"></ol>
     </div>
     <div class="form-row node-config-write-coils-container-row">
-        <label for="node-config-write-coils-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.write-coils"></span></label>
+        <label for="node-config-write-coils-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.write-coils"></span></label>
         <ol id="node-config-write-coils-container"></ol>
     </div>
     <div class="form-row node-config-read-discrete-inputs-container-row">
-        <label for="node-config-read-discrete-inputs-container" style="width: 100%"><i class="fa fa-clock"></i> <span data-i18n="modbus-host.label.read-discrete-inputs"></span></label>
+        <label for="node-config-read-discrete-inputs-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.read-discrete-inputs"></span></label>
         <ol id="node-config-read-discrete-inputs-container"></ol>
     </div>
 </script>

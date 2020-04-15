@@ -1,0 +1,13 @@
+{
+  "parsers/strip.hni": {
+    "strip": {
+      "label": {
+        "name": "Name"
+      },
+      "paletteHelp": "<p>Erstellt eine Kopie des <code>$message</code>-Objekts, wobei nur der <code>payload</code>beibehalten wird.</p>",
+      "help": "Dieser Knoten erstellt eine Kopie des <code>$message</code>-Objekts, wobei nur der <code>payload</code>beibehalten wird.",
+      "input1Description": "Irgendein message-Object.",
+      "output1Description": "Eine Kopie des Eingangsnachrichtenobjekts, die nur <code>payload</code> enthält."
+    }
+  }
+}

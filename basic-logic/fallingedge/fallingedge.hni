@@ -2,7 +2,8 @@
 {
     "name": "fallingedge",
     "readableName": "FallingEdge",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -33,7 +34,7 @@
         		types: ["any"]
         	}
         ],
-        icon: "function.png",
+        icon: "function.svg",
         label: function() {
             if(this.name) return this.name;
             return "fallingedge";

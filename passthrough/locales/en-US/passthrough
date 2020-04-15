@@ -3,6 +3,7 @@
     "passthrough": {
       "label": {
         "onboolean": "Output stored value of \"v\" when \"EN\" is changed to \"true\"",
+        "resetonstartup": "Reset \"EN\" to \"false\" on start up.",
         "name": "Name"
       },
       "paletteHelp": "<p>This node passes a value to the output depending on a boolean input.</p>",

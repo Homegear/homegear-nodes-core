@@ -2,7 +2,8 @@
 {
     "name": "http-request",
     "readableName": "HTTP request",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -74,7 +75,7 @@
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('http-request',{
-        category: 'input',
+        category: 'network',
         namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
@@ -98,7 +99,7 @@
                 types: ["string","struct","binary"]
             }
         ],
-        icon: "white-globe.png",
+        icon: "white-globe.svg",
         label: function() {
             return this.name||"http request";
         },

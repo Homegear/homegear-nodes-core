@@ -1,0 +1,14 @@
+{
+  "timers/sun-position.hni": {
+    "sun-position": {
+      "label": {
+        "name": "Name",
+        "latitude": "Breitengrad",
+        "longitude": "Längengrad"
+      },
+      "paletteHelp": "<p>Gibt den Azimut und die Höhe der Sonne aus.</p>",
+      "help": "Dieser Knoten gibt jede Minute den aktuellen Azimut und die aktuelle Höhe aus. Der Ausgabetyp ist <code>struct</code> mit den Schlüsseln <code>azimuth</code> und <code>height</code>.",
+      "output1Description": "Gibt einen <code>struct</code> mit den Schlüsseln <code>azimuth</code> und <code>altitude</code> aus."
+    }
+  }
+}

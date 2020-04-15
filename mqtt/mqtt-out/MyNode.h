@@ -49,6 +49,7 @@ private:
 
 	std::string _broker;
 	std::string _topic;
+	bool _retainSet = false;
 	bool _retain = false;
 
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);

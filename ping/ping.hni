@@ -2,28 +2,30 @@
 {
     "name": "ping",
     "readableName": "ping",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
 <script type="text/x-red" data-template-name="ping">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <label style="width: 130px;" for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
-        <label for="node-input-host"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.host"></span></label>
+        <label style="width: 130px;" for="node-input-host"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.host"></span></label>
         <input type="text" id="node-input-host" data-i18n="[placeholder]ping.label.host">
     </div>
     <div class="form-row">
-        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.interval"></span></label>
-        <input type="text" id="node-input-interval" data-i18n="[placeholder]ping.label.interval">
+        <label style="width: 130px;" for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="ping.label.interval"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-interval" data-i18n="[placeholder]ping.label.interval">
+        <label for="node-input-interval">s</label>
     </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('ping',{
         color:"#C0DEED",
-        category: 'communication',
+        category: 'network',
         defaults: {
             "host": {value:"",required:true},
             name: {value:""},
@@ -42,7 +44,7 @@
                 types: ["boolean"]
             }
         ],
-        icon: "bridge.png",
+        icon: "bridge.svg",
         label: function() {
             if(this.name) return this.name;
             return "ping";

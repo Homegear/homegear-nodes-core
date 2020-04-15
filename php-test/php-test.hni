@@ -2,7 +2,8 @@
 {
     "name": "php-test",
     "readableName": "php-test",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -57,7 +58,7 @@
         },
         inputs:1,
         outputs:1,
-        icon: "function.png",
+        icon: "function.svg",
         label: function() {
             return this.name;
         },

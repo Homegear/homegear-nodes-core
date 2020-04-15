@@ -155,21 +155,25 @@ void MyNode::worker()
 			}
 			if(_stopThread) break;
 
-			double average = 0.0;
+			if(!_values.empty())
+            {
+                double average = 0.0;
 
-			{
-				std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
-				for(auto value : _values)
-				{
-					average += value;
-				}
-				if(!_values.empty()) average /= _values.size();
-				_values.clear();
-			}
+                {
+                    std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
+                    for(auto value : _values)
+                    {
+                        average += value;
+                    }
+                    if(!_values.empty()) average /= _values.size();
+                    _values.clear();
+                }
 
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
-			output(0, message);
+                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
+                output(0, message);
+            }
+
 			int64_t diff = Flows::HelperFunctions::getTime() - startTime;
 			if(diff <= _interval) sleepingTime = _interval;
 			else sleepingTime = _interval - (diff - _interval);

@@ -2,7 +2,8 @@
 {
     "name": "presence-light",
     "readableName": "Presence light",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -37,6 +38,16 @@
         <label for="node-input-keep-on" style="width: 60%;" data-i18n="presence-light.label.keep-on"></label>
     </div>
     <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-toggle-profile-0-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-toggle-profile-0-only" style="width: 60%;" data-i18n="presence-light.label.toggle-profile-0-only"></label>
+    </div>
+    <div class="form-row">
+        <label style="width: 130px;">&nbsp;</label>
+        <input type="checkbox" id="node-input-restore-profile" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-restore-profile" style="width: 60%;" data-i18n="presence-light.label.restore-profile"></label>
+    </div>
+    <div class="form-row">
         <label style="width: 130px;" for="node-input-refraction-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.refraction-time"></span></label>
         <input style="width: 40%;" type="text" id="node-input-refraction-time" data-i18n="[placeholder]presence-light.label.refraction-time2">
         <label for="node-input-on-time">ms</label>
@@ -54,12 +65,14 @@
         color: "#A6BBCF",
         defaults: {
             name: {value:""},
-            "on-time": {value: "300",required:true,validate:RED.validators.number()},
-            "always-on-time": {value: "21600",required:true,validate:RED.validators.number()},
-            "always-off-time": {value: "21600",required:true,validate:RED.validators.number()},
-            "process-false": {value: false,required:false},
-            "keep-on": {value: false,required:false},
-            "refraction-time": {value: "1000",required:true,validate:RED.validators.number()},
+            "on-time": {value:"300",required:false,validate:RED.validators.number()},
+            "always-on-time": {value:"21600",required:false,validate:RED.validators.number()},
+            "always-off-time": {value:"21600",required:false,validate:RED.validators.number()},
+            "process-false": {value:false,required:false},
+            "keep-on": {value:false,required:false},
+            "toggle-profile-0-only": {value:false,required:false},
+            "restore-profile": {value:false,required:false},
+            "refraction-time": {value:"1000",required:true,validate:RED.validators.number()},
             "changes-only": {value:false,required:false}
         },
         inputs:7,
@@ -116,7 +129,7 @@
                 types: ["integer"]
             }
         ],
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             if(this.name) return this.name;
             return "presence-light";

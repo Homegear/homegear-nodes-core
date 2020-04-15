@@ -50,7 +50,7 @@ public:
     virtual void waitForStop();
 private:
     //{{{ Only used by one thread / protected by input mutex of Homegear
-    uint32_t _onTime = 300000;
+    uint32_t _onTime = 0;
     uint32_t _alwaysOnTime = 21600000;
     uint32_t _alwaysOffTime = 21600000;
     int64_t _lastInput = -1;
@@ -60,13 +60,15 @@ private:
     bool _outputChangesOnly = false;
     //}}}
 
-	std::atomic<int64_t> _lastLightEvent{-1};
     std::atomic_bool _stopThread{true};
     std::atomic_bool _stopped{true};
     std::mutex _timerThreadMutex;
     std::thread _timerThread;
+    std::atomic_bool _toggleProfile0Only{false};
+    std::atomic_bool _restoreProfile{false};
     std::atomic_bool _booleanStateValue{true};
     std::atomic<int64_t> _stateValue{1};
+    std::atomic<int64_t> _lastNonNullStateValue{1};
 
     std::atomic_bool _enabled{true};
     std::atomic_bool _manuallyEnabled{false};

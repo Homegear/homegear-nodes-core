@@ -2,7 +2,8 @@
 {
     "name": "comment",
     "readableName": "Comment",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -30,7 +31,7 @@
         },
         inputs:0,
         outputs:0,
-        icon: "comment.png",
+        icon: "comment.svg",
         label: function() {
             return this.name||"";
         },

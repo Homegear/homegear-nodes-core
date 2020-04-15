@@ -2,7 +2,8 @@
 {
     "name": "impulse",
     "readableName": "Impulse",
-    "version": "0.0.1",
+    "version": "1.0.0",
+    "coreNode": true,
     "maxThreadCount": 1
 }
 </script>
@@ -19,7 +20,7 @@
     <div class="form-row">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-allow-retrigger" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-process-false" data-i18n="impulse.label.allow-retrigger"></label>
+        <label for="node-input-allow-retrigger" data-i18n="impulse.label.allow-retrigger"></label>
     </div>
 </script>
 <script type="text/javascript">
@@ -43,10 +44,10 @@
         outputInfo: [
             {
 		        label: "Q",
-                types: ["integer"]
+                types: ["boolean"]
             }
         ],
-        icon: "serial.png",
+        icon: "serial.svg",
         label: function() {
             if(this.name) return this.name;
             return "impulse";
