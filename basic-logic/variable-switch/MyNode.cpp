@@ -483,7 +483,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 						setNodeData("previousOutputValue" + std::to_string(i), trueValue);
 
 					    if(_staticOnly){
-					    	message->structValue->emplace("payload", _value);
+					    	Flows::PVariable myMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+					    	myMessage->structValue->emplace("payload", _value);
 						   	output(i, message);
 					    }else{
 					    	output(i, trueMessage);

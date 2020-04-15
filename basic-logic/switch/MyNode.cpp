@@ -146,6 +146,31 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) staticValue = settingsIterator->second->stringValue;
 		_value = std::make_shared<Flows::Variable>(_payloadType, staticValue);
 
+		if(_payloadType =="int"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tInteger);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="bool"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tBoolean);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="float"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="float"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="string"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tString);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="arraySimple"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+			staticMessage->structValue->emplace("payload", _value);
+		}else if(_payloadType =="structSimple"){
+			Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+			staticMessage->structValue->emplace("payload", _value);
+		}
+
+
+
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
 		if(settingsIterator != info->info->structValue->end()) rules = settingsIterator->second->arrayValue;
@@ -432,11 +457,12 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 						setNodeData("previousOutputValue" + std::to_string(i), trueValue);
 
 				        if(_staticOnly){
-				        	myMessage->structValue->emplace("payload", _value);
-				        	output(i, myMessage);
+
+				        	output(i, staticMessage);
 				        }else{
 				        	output(i, trueMessage);
-				        }}
+				        }
+					}
 				}
 				else
 				{
@@ -445,8 +471,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 						_rules.at(i).previousOutput = currentMessage;
 						setNodeData("previousOutputValue" + std::to_string(i), currentMessage);
 				        if(_staticOnly){
-				        	myMessage->structValue->emplace("payload", _value);
-				        	output(i, myMessage);
+
+				        	output(i, staticMessage);
 				        }else{
 				        	output(i, myMessage);
 				        }
