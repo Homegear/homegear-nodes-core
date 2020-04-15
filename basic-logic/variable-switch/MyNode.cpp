@@ -153,7 +153,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("changes-only");
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
-<<<<<<< HEAD
+
 		settingsIterator = info->info->structValue->find("static-only");
 		if(settingsIterator != info->info->structValue->end()) _staticOnly = settingsIterator->second->booleanValue;
 
@@ -167,8 +167,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 
 		_value = std::make_shared<Flows::Variable>(_payloadType, staticValue);
 
-=======
->>>>>>> upstream/dev
+
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
 		if(settingsIterator != info->info->structValue->end()) rules = settingsIterator->second->arrayValue;
@@ -482,16 +481,14 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 						trueMessage->structValue->emplace("payload", trueValue);
 						_rules.at(i).previousOutput = trueValue;
 						setNodeData("previousOutputValue" + std::to_string(i), trueValue);
-<<<<<<< HEAD
+
 					    if(_staticOnly){
 					    	message->structValue->emplace("payload", _value);
 						   	output(i, message);
 					    }else{
 					    	output(i, trueMessage);
 					    }
-=======
-						output(i, trueMessage);
->>>>>>> upstream/dev
+
 					}
 				}
 				else
@@ -500,16 +497,14 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = inputValue;
 						setNodeData("previousOutputValue" + std::to_string(i), inputValue);
-<<<<<<< HEAD
+
 					    if(_staticOnly){
 					    	message->structValue->emplace("payload", _value);
 						   	output(i, message);
 					    }else{
 					    	output(i, message);
 					    }
-=======
-						output(i, message);
->>>>>>> upstream/dev
+
 					}
 				}
 				if(!_checkAll) break;
