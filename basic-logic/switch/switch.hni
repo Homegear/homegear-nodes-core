@@ -108,7 +108,7 @@
         defaults: {
             name: {value:""},
             property: {value:"payload", required:true},
-            "static-value":{value:"", required:true},
+            "static-value":{value:""},
             payloadType: {value:"int"},
             "changes-only": {value:false},
             "output-true": {value:false},

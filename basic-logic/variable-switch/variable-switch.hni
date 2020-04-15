@@ -140,7 +140,7 @@
         namespace: 'basic-logic',
         defaults: {
             name: {value:""},
-            "static-value":{value:"", required:true},
+            "static-value":{value:""},
             payloadType: {value:"int"},
             variabletype: {value: "device",required: true},
             family: {},
