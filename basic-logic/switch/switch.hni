@@ -2,7 +2,8 @@
 {
     "name": "switch",
     "readableName": "Switch",
-    "version": "0.0.1",
+    "version": "1.1.0",
+    "coreNode": true,
     "maxThreadCount": 0
 }
 </script>
@@ -32,6 +33,11 @@
         <input type="text" id="node-input-property" style="width: 70%"/>
         <input type="hidden" id="node-input-outputs"/>
     </div>
+    <div class="form-row">
+        <label data-i18n="switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="switch.label.payload"></span></label>
+        <input type="text" id="node-input-static-value" style="width: 70%"/>
+        <input type="hidden" id="node-input-payloadType"/>
+    </div>
     <div class="form-row" id="changes-only">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
@@ -46,6 +52,11 @@
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-output-false" style="width: 70%;" data-i18n="switch.label.output-false"></label>
+    </div>
+    <div class="form-row" id="static-only">
+    	<label>&nbsp;</label>
+    	<input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
+    	<label for="node-input-static-only" style="width: 70%;" data-i18n="switch.label.static-only"></label>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -85,7 +96,7 @@
     function getValueLabel(t,v) {
         if (t === 'str') {
             return '"'+clipValueLength(v)+'"';
-        } else if (t === 'msg' || t==='flow' || t==='global') {
+        } else if (t === 'msg' || t==='flow' || t==='global' || t==='env') {
             return t+"."+clipValueLength(v);
         }
         return clipValueLength(v);
@@ -97,17 +108,20 @@
         defaults: {
             name: {value:""},
             property: {value:"payload", required:true},
+            "static-value":{value:"", required:true},
+            payloadType: {value:"int"},
             "changes-only": {value:false},
             "output-true": {value:false},
             "output-false": {value:false},
+            "static-only": {value:false},
             rules: {value:[{t:"eq", v:""}]},
-            checkall: {value:"true", required:true},
+            checkall: {value:"true", required:true}, 
             inputs: {value:1},
             outputs: {value:1}
         },
         inputs: 1,
         outputs: 1,
-        icon: "switch.png",
+        icon: "switch.svg",
         label: function() {
             return this.name||"switch";
         },
@@ -117,6 +131,7 @@
             var secondInputValueType = {value:"second",label:this._("switch.input2"),hasValue:false};
             var flowValueType = {value:"flow",label:this._("switch.flow"),hasValue:true};
             var globalValueType = {value:"global",label:this._("switch.global"),hasValue:true};
+            var envValueType = {value:"env",label:this._("switch.env"),hasValue:true};
 
             var outputCount = $("#node-input-outputs").val("{}");
 
@@ -176,10 +191,10 @@
                     for (var d in operators) {
                         selectField.append($("<option></option>").val(operators[d].v).text(/^switch/.test(operators[d].t)?node._(operators[d].t):operators[d].t));
                     }
-                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,secondInputValueType,flowValueType,globalValueType]});
-                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType]});
+                    var valueField = $('<input/>',{class:"node-input-rule-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'string',types:['bool','int','float','string','array','struct',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
+                    var btwnValueField = $('<input/>',{class:"node-input-rule-btwn-value",type:"text",style:"margin-left: 5px;"}).appendTo(row).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
                     var btwnAndLabel = $('<span/>',{class:"node-input-rule-btwn-label"}).text(" "+andLabel+" ").appendTo(row3);
-                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType]});
+                    var btwnValue2Field = $('<input/>',{class:"node-input-rule-btwn-value2",type:"text",style:"margin-left:2px;"}).appendTo(row3).typedInput({default:'int',types:['int','float',previousValueType,secondInputValueType,flowValueType,globalValueType,envValueType]});
                     var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-rule-index">'+i+'</span> ');
                     var caseSensitive = $('<input/>',{id:"node-input-rule-case-"+i,class:"node-input-rule-case",type:"checkbox",style:"width:auto;vertical-align:top"}).appendTo(row2);
@@ -264,6 +279,19 @@
                 var rule = this.rules[i];
                 $("#node-input-rule-container").editableList('addItem',{r:rule,i:i});
             }
+            
+            if (this.payloadType == null) {
+                this.payloadType = "int";
+            }
+            $("#node-input-payloadType").val(this.payloadType);
+
+            $("#node-input-static-value").typedInput({
+                default: 'int',
+                typeField: $("#node-input-payloadType"),
+                types:['bool','int','float','string','arraySimple','structSimple']
+            });
+
+            $("#node-input-payload").typedInput('type',this.payloadType);
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');
