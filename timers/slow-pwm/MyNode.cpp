@@ -214,27 +214,31 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 		}
 		else if(index == 1)
 		{
-			_enabled = message->structValue->at("payload")->booleanValue;
-			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
-			nodeEvent("statusTop/" + _id, status);
-			std::lock_guard<std::mutex> timerGuard(_timerMutex);
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
-			if(_stopped) return;
-			if(_enabled)
-			{
-				_startTimeAll = Flows::HelperFunctions::getTime();
-				_stopThread = false;
-				_timerThread = std::thread(&MyNode::timer, this);
-			}
-			else
-			{
-				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-				output(0, message);
-			}
+		    bool newState = (bool)(*message->structValue->at("payload"));
+		    if(newState != _enabled)
+            {
+                _enabled = newState;
+                setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+                Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
+                nodeEvent("statusTop/" + _id, status);
+                std::lock_guard<std::mutex> timerGuard(_timerMutex);
+                _stopThread = true;
+                if(_timerThread.joinable()) _timerThread.join();
+                if(_stopped) return;
+                if(_enabled)
+                {
+                    _startTimeAll = Flows::HelperFunctions::getTime();
+                    _stopThread = false;
+                    _timerThread = std::thread(&MyNode::timer, this);
+                }
+                else
+                {
+                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+                    output(0, message);
+                }
+            }
 		}
 	}
 	catch(const std::exception& ex)
