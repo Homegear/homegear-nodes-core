@@ -32,17 +32,19 @@
 
 #include <homegear-node/INode.h>
 
-namespace MyNode
+namespace VariableIn
 {
 
-class MyNode: public Flows::INode
+class VariableIn : public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	VariableIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~VariableIn();
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
+	bool init(Flows::PNodeInfo info) override;
+	bool start() override;
+	void startUpComplete() override;
+	void stop() override;
 
 private:
 	enum class VariableType
@@ -60,6 +62,7 @@ private:
         device,
         homegear,
         scriptEngine,
+        profileManager,
         nodeBlue,
         rpcClient,
         ipcClient,
@@ -76,16 +79,16 @@ private:
 	int32_t _channel = -1;
 	std::string _variable;
 	EventSource _eventSource = EventSource::all;
-	std::string _name;
+	Flows::PVariable _metadata;
 
 	Flows::VariableType _type = Flows::VariableType::tVoid;
 	std::string _loopPreventionGroup;
 	bool _loopPrevention = false;
 
-	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
-    virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
-    virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
-    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	void variableEvent(const std::string& source, uint64_t peerId, int32_t channel, const std::string& variable, const Flows::PVariable& value, const Flows::PVariable& metadata) override;
+    void flowVariableEvent(const std::string& flowId, const std::string& variable, const Flows::PVariable& value) override;
+    void globalVariableEvent(const std::string& variable, const Flows::PVariable& value) override;
+    void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
 };
 
 }

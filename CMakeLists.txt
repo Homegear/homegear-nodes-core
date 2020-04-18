@@ -253,8 +253,8 @@ set(SOURCE_FILES
         variable/toggle/MyNode.h
         variable/variable-in/Factory.cpp
         variable/variable-in/Factory.h
-        variable/variable-in/MyNode.cpp
-        variable/variable-in/MyNode.h
+        variable/variable-in/VariableIn.cpp
+        variable/variable-in/VariableIn.h
         variable/variable-loop-prevention-group/Factory.cpp
         variable/variable-loop-prevention-group/Factory.h
         variable/variable-loop-prevention-group/MyNode.cpp

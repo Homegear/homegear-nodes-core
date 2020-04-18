@@ -12,10 +12,10 @@
           "regex": "Benutze reguläre Ausdrücke"
       },
       "action": {
-          "set": "Setzen",
-          "change": "Ändern",
-          "delete": "Löschen",
-          "move": "Verschieben",
+          "set": "Setze",
+          "change": "Ändere",
+          "delete": "Lösche",
+          "move": "Verschiebe",
           "to": "auf",
           "search": "Suche nach",
           "replace": "Ändere mit"

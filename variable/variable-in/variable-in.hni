@@ -58,6 +58,7 @@
                 <option value="homegear" data-i18n="variable-in.label.homegear"></option>
                 <option value="nodeblue" data-i18n="variable-in.label.nodeblue"></option>
                 <option value="scriptengine" data-i18n="variable-in.label.scriptengine"></option>
+                <option value="profilemanager" data-i18n="variable-in.label.profilemanager"></option>
                 <option value="rpcclient" data-i18n="variable-in.label.rpcclient"></option>
                 <option value="ipcclient" data-i18n="variable-in.label.ipcclient"></option>
                 <option value="mqtt" data-i18n="variable-in.label.mqtt"></option>
