@@ -11,7 +11,7 @@ lib_LTLIBRARIES = and.la change.la fallingedge.la not.la or.la risingedge.la srf
 and_la_SOURCES = and/Factory.cpp and/MyNode.cpp
 and_la_LDFLAGS =-module -avoid-version -shared
 
-change_la_SOURCES = change/Factory.cpp change/MyNode.cpp
+change_la_SOURCES = change/Factory.cpp change/Change.cpp
 change_la_LDFLAGS =-module -avoid-version -shared
 
 fallingedge_la_SOURCES = fallingedge/Factory.cpp fallingedge/MyNode.cpp
@@ -29,7 +29,7 @@ risingedge_la_LDFLAGS =-module -avoid-version -shared
 srflipflop_la_SOURCES = srflipflop/Factory.cpp srflipflop/MyNode.cpp
 srflipflop_la_LDFLAGS =-module -avoid-version -shared
 
-switch_la_SOURCES = switch/Factory.cpp switch/MyNode.cpp
+switch_la_SOURCES = switch/Factory.cpp switch/Switch.cpp
 switch_la_LDFLAGS =-module -avoid-version -shared
 
 variable_switch_la_SOURCES = variable-switch/Factory.cpp variable-switch/MyNode.cpp

@@ -14,8 +14,8 @@ set(SOURCE_FILES
         basic-logic/and/MyNode.h
 		basic-logic/change/Factory.cpp
 		basic-logic/change/Factory.h
-		basic-logic/change/MyNode.cpp
-		basic-logic/change/MyNode.h
+		basic-logic/change/Change.cpp
+		basic-logic/change/Change.h
         basic-logic/fallingedge/Factory.cpp
         basic-logic/fallingedge/Factory.h
         basic-logic/fallingedge/MyNode.cpp
@@ -38,8 +38,8 @@ set(SOURCE_FILES
 		basic-logic/srflipflop/MyNode.h
         basic-logic/switch/Factory.cpp
         basic-logic/switch/Factory.h
-        basic-logic/switch/MyNode.cpp
-        basic-logic/switch/MyNode.h
+        basic-logic/switch/Switch.cpp
+        basic-logic/switch/Switch.h
 		basic-logic/variable-switch/Factory.cpp
 		basic-logic/variable-switch/Factory.h
 		basic-logic/variable-switch/MyNode.cpp

@@ -17,8 +17,9 @@
           "delete": "Lösche",
           "move": "Verschiebe",
           "to": "auf",
+          "to2": "nach",
           "search": "Suche nach",
-          "replace": "Ändere mit"
+          "replace": "Ersetze mit"
       },
       "errors": {
           "invalid-from": "Ungültige 'von' Eigenschaft: __error__",

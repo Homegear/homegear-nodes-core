@@ -27,18 +27,19 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef CHANGE_H_
+#define CHANGE_H_
 
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonDecoder.h>
+#include <homegear-node/MessageProperty.h>
 #include <mutex>
 #include <regex>
 
-namespace MyNode
+namespace Change
 {
 
-class MyNode: public Flows::INode
+class Change : public Flows::INode
 {
 public:
 	enum class RuleType
@@ -49,27 +50,27 @@ public:
 		tDelete
 	};
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	Change(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~Change();
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
 	struct Rule
 	{
 		RuleType t;
-		std::string messageProperty;
+		Flows::MessageProperty messageProperty;
 		std::string flowVariable;
 		std::string globalVariable;
         Flows::PVariable from;
         Flows::VariableType fromt;
-        std::string messagePropertyFrom;
+        Flows::MessageProperty messagePropertyFrom;
         std::string flowVariableFrom;
         std::string globalVariableFrom;
         bool fromRegexSet = false;
         std::regex fromRegex;
 		Flows::PVariable to;
 		Flows::VariableType tot;
-        std::string messagePropertyTo;
+        Flows::MessageProperty messagePropertyTo;
 		std::string flowVariableTo;
 		std::string globalVariableTo;
         std::string envVariableTo;

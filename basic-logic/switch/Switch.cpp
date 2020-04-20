@@ -28,40 +28,40 @@
  */
 
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
-#include "MyNode.h"
+#include "Switch.h"
 
-namespace MyNode
+namespace Switch
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-}
-
-MyNode::~MyNode()
+Switch::Switch(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 }
 
-MyNode::RuleType MyNode::getRuleTypeFromString(std::string& t)
+Switch::~Switch()
 {
-	MyNode::RuleType ruleType = MyNode::RuleType::tEq;
-	if(t == "eq") ruleType = MyNode::RuleType::tEq;
-	else if(t == "neq") ruleType = MyNode::RuleType::tNeq;
-	else if(t == "lt") ruleType = MyNode::RuleType::tLt;
-	else if(t == "lte") ruleType = MyNode::RuleType::tLte;
-	else if(t == "gt") ruleType = MyNode::RuleType::tGt;
-	else if(t == "gte") ruleType = MyNode::RuleType::tGte;
-	else if(t == "btwn") ruleType = MyNode::RuleType::tBtwn;
-	else if(t == "cont") ruleType = MyNode::RuleType::tCont;
-	else if(t == "regex") ruleType = MyNode::RuleType::tRegex;
-	else if(t == "true") ruleType = MyNode::RuleType::tTrue;
-	else if(t == "false") ruleType = MyNode::RuleType::tFalse;
-	else if(t == "null") ruleType = MyNode::RuleType::tNull;
-	else if(t == "nnull") ruleType = MyNode::RuleType::tNnull;
-	else if(t == "else") ruleType = MyNode::RuleType::tElse;
+}
+
+Switch::RuleType Switch::getRuleTypeFromString(std::string& t)
+{
+	Switch::RuleType ruleType = Switch::RuleType::tEq;
+	if(t == "eq") ruleType = Switch::RuleType::tEq;
+	else if(t == "neq") ruleType = Switch::RuleType::tNeq;
+	else if(t == "lt") ruleType = Switch::RuleType::tLt;
+	else if(t == "lte") ruleType = Switch::RuleType::tLte;
+	else if(t == "gt") ruleType = Switch::RuleType::tGt;
+	else if(t == "gte") ruleType = Switch::RuleType::tGte;
+	else if(t == "btwn") ruleType = Switch::RuleType::tBtwn;
+	else if(t == "cont") ruleType = Switch::RuleType::tCont;
+	else if(t == "regex") ruleType = Switch::RuleType::tRegex;
+	else if(t == "true") ruleType = Switch::RuleType::tTrue;
+	else if(t == "false") ruleType = Switch::RuleType::tFalse;
+	else if(t == "null") ruleType = Switch::RuleType::tNull;
+	else if(t == "nnull") ruleType = Switch::RuleType::tNnull;
+	else if(t == "else") ruleType = Switch::RuleType::tElse;
 	return ruleType;
 }
 
-Flows::VariableType MyNode::getValueTypeFromString(std::string& vt)
+Flows::VariableType Switch::getValueTypeFromString(std::string& vt)
 {
 	Flows::VariableType variableType = Flows::VariableType::tVoid;
 	if(vt == "bool") variableType = Flows::VariableType::tBoolean;
@@ -73,7 +73,7 @@ Flows::VariableType MyNode::getValueTypeFromString(std::string& vt)
 	return variableType;
 }
 
-void MyNode::convertType(Flows::PVariable& value, Flows::VariableType vt)
+void Switch::convertType(Flows::PVariable& value, Flows::VariableType vt)
 {
     if(vt == Flows::VariableType::tBoolean)
     {
@@ -101,12 +101,11 @@ void MyNode::convertType(Flows::PVariable& value, Flows::VariableType vt)
 	}
 	else if(vt == Flows::VariableType::tArray || vt == Flows::VariableType::tStruct)
 	{
-		Flows::JsonDecoder jsonDecoder;
-		value = jsonDecoder.decode(value->stringValue);
+		value = Flows::JsonDecoder::decode(value->stringValue);
 	}
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool Switch::init(Flows::PNodeInfo info)
 {
 	try
 	{
@@ -131,7 +130,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
 		settingsIterator = info->info->structValue->find("property");
-		if(settingsIterator != info->info->structValue->end()) _property = BaseLib::HelperFunctions::splitAll(settingsIterator->second->stringValue, '.');
+		if(settingsIterator != info->info->structValue->end()) _property = Flows::MessageProperty(settingsIterator->second->stringValue);
 
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
@@ -213,7 +212,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-bool MyNode::isTrue(Flows::PVariable& value)
+bool Switch::isTrue(Flows::PVariable& value)
 {
 	if(value->type != Flows::VariableType::tBoolean)
 	{
@@ -246,7 +245,7 @@ bool MyNode::isTrue(Flows::PVariable& value)
 	return value->booleanValue;
 }
 
-bool MyNode::match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value)
+bool Switch::match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value)
 {
 	try
 	{
@@ -382,20 +381,17 @@ bool MyNode::match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariabl
 	return false;
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void Switch::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
 		Flows::PVariable myMessage = std::make_shared<Flows::Variable>();
 		*myMessage = *message;
 
-		Flows::PVariable currentMessage = myMessage;
-		for(auto& element : _property)
-		{
-			auto messageIterator = currentMessage->structValue->find(element);
-			if(messageIterator == currentMessage->structValue->end()) return;
-			currentMessage = messageIterator->second;
-		}
+		if(!_property.match(myMessage)) return;
+
+		Flows::PVariable currentMessage = _property.match(myMessage);
+		if(!currentMessage) return;
 
 		if(index == 1) //2nd input
 		{
