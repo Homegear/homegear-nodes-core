@@ -253,60 +253,82 @@ void Change::applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVar
             }
             else if(rule.t == RuleType::tChange)
             {
-                Flows::PVariable currentValue;
+                Flows::PVariable haystack;
+                Flows::PVariable fromValue;
+                Flows::PVariable toValue;
 
-                if(!rule.flowVariable.empty()) currentValue = getFlowData(rule.flowVariable);
-                else if(!rule.globalVariable.empty()) currentValue = getGlobalData(rule.globalVariable);
+                if(!rule.flowVariable.empty()) haystack = getFlowData(rule.flowVariable);
+                else if(!rule.globalVariable.empty()) haystack = getGlobalData(rule.globalVariable);
                 else if(!rule.messageProperty.empty())
                 {
-                    currentValue = rule.messageProperty.match(value);
-                    if(!currentValue) currentValue = std::make_shared<Flows::Variable>();
+                    haystack = rule.messageProperty.match(value);
+                    if(!haystack) haystack = std::make_shared<Flows::Variable>();
                 }
-                else currentValue = std::make_shared<Flows::Variable>();
+                else haystack = std::make_shared<Flows::Variable>();
+
+                if(!rule.flowVariableFrom.empty()) fromValue = getFlowData(rule.flowVariableFrom);
+                else if(!rule.globalVariableFrom.empty()) fromValue = getGlobalData(rule.globalVariableFrom);
+                else if(!rule.messagePropertyFrom.empty())
+                {
+                    fromValue = rule.messagePropertyFrom.match(value);
+                    if(!fromValue) fromValue = std::make_shared<Flows::Variable>();
+                }
+                else if(rule.from) fromValue = rule.from;
+                else fromValue = std::make_shared<Flows::Variable>();
+
+                if(!rule.flowVariableTo.empty()) toValue = getFlowData(rule.flowVariableTo);
+                else if(!rule.globalVariableTo.empty()) toValue = getGlobalData(rule.globalVariableTo);
+                else if(!rule.messagePropertyTo.empty())
+                {
+                    toValue = rule.messagePropertyTo.match(value);
+                    if(!toValue) toValue = std::make_shared<Flows::Variable>();
+                }
+                else if(rule.to) toValue = rule.to;
+                else toValue = std::make_shared<Flows::Variable>();
 
                 if(rule.fromRegexSet)
                 {
-                    if(currentValue->type != Flows::VariableType::tString)
+                    if(haystack->type != Flows::VariableType::tString)
                     {
-                        currentValue->stringValue = currentValue->toString();
-                        currentValue->type = Flows::VariableType::tString;
+                        haystack->stringValue = haystack->toString();
+                        haystack->type = Flows::VariableType::tString;
                     }
 
                     if(rule.tot != Flows::VariableType::tString)
                     {
-                        if(!std::regex_match(currentValue->stringValue, rule.fromRegex)) return;
-                        currentValue = rule.to;
+                        if(!std::regex_match(haystack->stringValue, rule.fromRegex)) return;
+                        haystack = toValue;
                     }
-                    else currentValue->stringValue = std::regex_replace(currentValue->stringValue, rule.fromRegex, rule.to->toString());
+                    else haystack->stringValue = std::regex_replace(haystack->stringValue, rule.fromRegex, toValue->toString());
                 }
                 else
                 {
-                    if(rule.fromt == Flows::VariableType::tString)
+                    if(fromValue->type == Flows::VariableType::tString)
                     {
-                        if(currentValue->type != Flows::VariableType::tString)
+                        if(haystack->type != Flows::VariableType::tString)
                         {
-                            currentValue->stringValue = currentValue->toString();
-                            currentValue->type = Flows::VariableType::tString;
+                            haystack->stringValue = haystack->toString();
+                            haystack->type = Flows::VariableType::tString;
                         }
 
-                        if(currentValue->stringValue.find(rule.from->stringValue) == std::string::npos) return;
+                        if(haystack->stringValue.find(fromValue->stringValue) == std::string::npos) return;
 
-                        if(rule.tot != Flows::VariableType::tString) currentValue = rule.to;
-                        else stringReplace(currentValue->stringValue, rule.from->stringValue, rule.to->toString());
+                        if(rule.tot != Flows::VariableType::tString) haystack = toValue;
+                        else stringReplace(haystack->stringValue, fromValue->stringValue, toValue->toString());
                     }
                     else
                     {
-                        if(currentValue->type != rule.from->type) return;
+                        if(haystack->type != fromValue->type) return;
 
-                        if(currentValue->type == Flows::VariableType::tBoolean && currentValue->booleanValue == rule.from->booleanValue) currentValue = rule.to;
-                        else if(currentValue->type == Flows::VariableType::tInteger64 && currentValue->integerValue64 == rule.from->integerValue64) currentValue = rule.to;
-                        else if(currentValue->type == Flows::VariableType::tFloat && currentValue->floatValue == rule.from->floatValue) currentValue = rule.to;
+                        if(haystack->type == Flows::VariableType::tBoolean && haystack->booleanValue == fromValue->booleanValue) haystack = toValue;
+                        else if(haystack->type == Flows::VariableType::tInteger64 && haystack->integerValue64 == fromValue->integerValue64) haystack = toValue;
+                        else if(haystack->type == Flows::VariableType::tFloat && haystack->floatValue == fromValue->floatValue) haystack = toValue;
                     }
                 }
 
-                if(!rule.flowVariable.empty()) setFlowData(rule.flowVariable, currentValue);
-                else if(!rule.globalVariable.empty()) setFlowData(rule.globalVariable, currentValue);
-                else if(!rule.messageProperty.empty()) rule.messageProperty.set(value, currentValue);
+                if(!rule.flowVariable.empty()) setFlowData(rule.flowVariable, haystack);
+                else if(!rule.globalVariable.empty()) setFlowData(rule.globalVariable, haystack);
+                else if(!rule.messageProperty.empty()) rule.messageProperty.set(value, haystack);
             }
         }
     }
