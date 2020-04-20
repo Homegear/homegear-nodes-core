@@ -3,6 +3,8 @@
     "switch": {
       "label": {
         "property": "Eigenschaft",
+        "static-value": "Fester Wert",
+        "static-only": "Festen Wert an Ausgabe weiterleiten",
         "changes-only": "Nur Änderungen der Ausgabe weiterleiten",
         "output-true": "\"true\" ausgeben, anstatt die Eingabe weiterzuleiten",
         "output-false": "Auch \"false\" ausgeben",

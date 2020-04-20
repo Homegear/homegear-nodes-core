@@ -90,6 +90,7 @@ private:
 	typedef std::string Operator;
 
 	Flows::MessageProperty _property;
+	std::vector<std::string> _staticValue;
 	Flows::PVariable _previousInputValue;
 	Flows::PVariable _previousInputValue2;
 	std::vector<Rule> _rules;
@@ -97,6 +98,10 @@ private:
 	bool _outputTrue = false;
 	bool _outputFalse = false;
 	bool _checkAll = true;
+	bool _staticOnly = false;
+
+	Flows::PVariable _value;
+	std::string _payloadType;
 
 	RuleType getRuleTypeFromString(std::string& t);
 	Flows::VariableType getValueTypeFromString(std::string& vt);

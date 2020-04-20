@@ -153,6 +153,21 @@ bool MyNode::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("changes-only");
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
+
+		settingsIterator = info->info->structValue->find("static-only");
+		if(settingsIterator != info->info->structValue->end()) _staticOnly = settingsIterator->second->booleanValue;
+
+		std::string staticValue;
+		settingsIterator = info->info->structValue->find("static-value");
+		if(settingsIterator != info->info->structValue->end()) staticValue = settingsIterator->second->stringValue;
+
+		_payloadType = "int";
+		settingsIterator = info->info->structValue->find("payloadType");
+		if(settingsIterator != info->info->structValue->end()) _payloadType = settingsIterator->second->stringValue;
+
+		_value = std::make_shared<Flows::Variable>(_payloadType, staticValue);
+
+
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
 		if(settingsIterator != info->info->structValue->end()) rules = settingsIterator->second->arrayValue;
@@ -475,7 +490,15 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = inputValue;
 						setNodeData("previousOutputValue" + std::to_string(i), inputValue);
-						output(i, message);
+
+					    if(_staticOnly)
+						{
+							Flows::PVariable tmpMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				        	tmpMessage->structValue->emplace("payload", _value);	
+							output(i, tmpMessage);
+						}
+				        else output(i, message);
+
 					}
 				}
 				if(!_checkAll) break;

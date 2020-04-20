@@ -2,7 +2,7 @@
 {
     "name": "variable-switch",
     "readableName": "Variable switch",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "coreNode": true,
     "maxThreadCount": 0
 }
@@ -28,6 +28,11 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
         <input type="hidden" id="node-input-outputs"/>
+    </div>
+    <div class="form-row">
+        <label data-i18n="variable-switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="variable-switch.label.payload"></span></label>
+        <input type="text" id="node-input-static-value" style="width: 70%"/>
+        <input type="hidden" id="node-input-payloadType"/>
     </div>
     <div class="form-row">
         <label style="width: 130px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="variable-switch.label.variabletype"></span></label>
@@ -81,6 +86,11 @@
         <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-output-false" style="width: 70%;" data-i18n="variable-switch.label.output-false"></label>
     </div>
+    <div class="form-row" id="static-only">
+    	<label>&nbsp;</label>
+    	<input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
+    	<label for="node-input-static-only" style="width: 70%;" data-i18n="variable-switch.label.static-only"></label>
+    </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
     </div>
@@ -130,6 +140,8 @@
         namespace: 'basic-logic',
         defaults: {
             name: {value:""},
+            "static-value":{value:""},
+            payloadType: {value:"int"},
             variabletype: {value: "device",required: true},
             family: {},
             peername: {value:"", required: false},
@@ -139,6 +151,7 @@
             "changes-only": {value:false},
             "output-true": {value:false},
             "output-false": {value:false},
+            "static-only": {value:false},
             rules: {value:[{t:"eq", v:""}]},
             checkall: {value:"true", required:true},
             inputs: {value:1},
@@ -742,6 +755,20 @@
                     createVariableDialog.dialog("option", "title", RED._("basic-logic/variable-switch.hni:variable-switch.label.createvariable")).dialog("open");
                 });
             //}}}
+
+                if (this.payloadType == null) {
+                    this.payloadType = "int";
+                }
+                $("#node-input-payloadType").val(this.payloadType);
+
+                $("#node-input-static-value").typedInput({
+                    default: 'int',
+                    typeField: $("#node-input-payloadType"),
+                    types:['bool','int','float','string','arraySimple','structSimple']
+                });
+
+                $("#node-input-payload").typedInput('type',this.payloadType);
+
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');

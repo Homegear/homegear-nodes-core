@@ -20,7 +20,9 @@
         "changes-only": "Nur Änderungen ausgeben",
         "output-true": "\"true\" ausgeben, anstatt die Nachricht weiterzuleiten",
         "output-false": "Auch \"false\" ausgeben",
-        "rule": "Regel"
+        "rule": "Regel",
+        "static-value": "Fester Wert",
+        "static-only": "Festen Wert an Ausgabe weiterleiten"
       },
       "and": "und",
       "checkall": "alle Regeln prüfen",

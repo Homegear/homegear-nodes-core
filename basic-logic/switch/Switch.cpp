@@ -129,8 +129,58 @@ bool Switch::init(Flows::PNodeInfo info)
 		settingsIterator = info->info->structValue->find("changes-only");
 		if(settingsIterator != info->info->structValue->end()) _changesOnly = settingsIterator->second->booleanValue;
 
+		settingsIterator = info->info->structValue->find("static-only");
+		if(settingsIterator != info->info->structValue->end()) _staticOnly = settingsIterator->second->booleanValue;
+
 		settingsIterator = info->info->structValue->find("property");
 		if(settingsIterator != info->info->structValue->end()) _property = Flows::MessageProperty(settingsIterator->second->stringValue);
+
+		_payloadType = "int";
+		settingsIterator = info->info->structValue->find("payloadType");
+		if(settingsIterator != info->info->structValue->end()) _payloadType = settingsIterator->second->stringValue;
+
+        {
+            settingsIterator = info->info->structValue->find("static-value");
+            if(settingsIterator != info->info->structValue->end()) _value = std::make_shared<Flows::Variable>(_payloadType, settingsIterator->second->stringValue);
+            else _value = std::make_shared<Flows::Variable>(_payloadType, std::string());
+
+            if(_payloadType == "int")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tInteger);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "bool")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tBoolean);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "float")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "float")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "string")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tString);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "arraySimple")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+            else if(_payloadType == "structSimple")
+            {
+                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                staticMessage->structValue->emplace("payload", _value);
+            }
+        }
+
 
 		Flows::PArray rules;
 		settingsIterator = info->info->structValue->find("rules");
@@ -422,7 +472,14 @@ void Switch::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					{
 						_rules.at(i).previousOutput = currentMessage;
 						setNodeData("previousOutputValue" + std::to_string(i), currentMessage);
-						output(i, myMessage);
+				        
+						if(_staticOnly)
+						{
+							Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+				        	message->structValue->emplace("payload", _value);	
+							output(i, message);
+						}
+				        else output(i, myMessage);
 					}
 				}
 				if(!_checkAll) break;

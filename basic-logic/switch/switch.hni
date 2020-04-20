@@ -2,7 +2,7 @@
 {
     "name": "switch",
     "readableName": "Switch",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "coreNode": true,
     "maxThreadCount": 0
 }
@@ -33,6 +33,11 @@
         <input type="text" id="node-input-property" style="width: 70%"/>
         <input type="hidden" id="node-input-outputs"/>
     </div>
+    <div class="form-row">
+        <label data-i18n="switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="switch.label.payload"></span></label>
+        <input type="text" id="node-input-static-value" style="width: 70%"/>
+        <input type="hidden" id="node-input-payloadType"/>
+    </div>
     <div class="form-row" id="changes-only">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
@@ -47,6 +52,11 @@
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-output-false" style="width: 70%;" data-i18n="switch.label.output-false"></label>
+    </div>
+    <div class="form-row" id="static-only">
+    	<label>&nbsp;</label>
+    	<input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
+    	<label for="node-input-static-only" style="width: 70%;" data-i18n="switch.label.static-only"></label>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -98,11 +108,14 @@
         defaults: {
             name: {value:""},
             property: {value:"payload", required:true},
+            "static-value":{value:""},
+            payloadType: {value:"int"},
             "changes-only": {value:false},
             "output-true": {value:false},
             "output-false": {value:false},
+            "static-only": {value:false},
             rules: {value:[{t:"eq", v:""}]},
-            checkall: {value:"true", required:true},
+            checkall: {value:"true", required:true}, 
             inputs: {value:1},
             outputs: {value:1}
         },
@@ -266,6 +279,19 @@
                 var rule = this.rules[i];
                 $("#node-input-rule-container").editableList('addItem',{r:rule,i:i});
             }
+            
+            if (this.payloadType == null) {
+                this.payloadType = "int";
+            }
+            $("#node-input-payloadType").val(this.payloadType);
+
+            $("#node-input-static-value").typedInput({
+                default: 'int',
+                typeField: $("#node-input-payloadType"),
+                types:['bool','int','float','string','arraySimple','structSimple']
+            });
+
+            $("#node-input-payload").typedInput('type',this.payloadType);
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');

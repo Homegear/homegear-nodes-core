@@ -101,6 +101,7 @@ private:
     uint64_t _peerId = 0;
     int32_t _channel = -1;
     std::string _variable;
+    std::vector<std::string> _staticValue;
 
 	Flows::PVariable _previousValue;
     Flows::PVariable _previousInputValue;
@@ -109,6 +110,10 @@ private:
 	bool _outputTrue = false;
 	bool _outputFalse = false;
 	bool _checkAll = true;
+	bool _staticOnly = false;
+
+	Flows::PVariable _value;
+	std::string _payloadType;
 
 	RuleType getRuleTypeFromString(std::string& t);
 	Flows::VariableType getValueTypeFromString(std::string& vt);
