@@ -1,0 +1,57 @@
+<script type="text/x-homegear">
+{
+    "name": "udp-in",
+    "readableName": "UDP input",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="udp-in">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]node-red:common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-listenaddress"><i class="fa fa-globe"></i> <span data-i18n="udp-in.label.listenaddress"></span></label>
+        <input class="input-append-left" type="text" id="node-input-listenaddress" placeholder="e.g. ::" style="width:40%;" >
+        <label for="node-input-listenport" style="margin-left:20px; width:35px; "> <span data-i18n="udp-in.label.port"></span></label>
+        <input type="text" id="node-input-listenport" data-i18n="[placeholder]udp-in.label.port" style="width:55px">
+    </div>
+    <div class="form-row">
+        <label for="node-input-output"><i class="fa fa-long-arrow-right"></i> <span data-i18n="udp-in.label.output"></span></label>
+        <select id="node-input-output" style="width:180px;">
+            <option value="raw" data-i18n="udp-in.label.raw"></option>
+            <option value="hex" data-i18n="udp-in.label.hex"></option>
+            <option value="json" data-i18n="udp-in.label.json"></option>
+        </select>
+    </div>
+</script>
+<script type="text/javascript">
+(function() {
+    RED.nodes.registerType('udp-in',{
+        category: 'network',
+        namespace: 'udp',
+        defaults: {
+            name: {name:""},
+            listenaddress: {value:"::",validate: function(v) { return v != ""; }},
+            listenport: {value:"7000",validate: function(v) { return $.isNumeric(v); }},
+            output: {value:"hex"}
+        },
+        color:"#c0c0c0",
+        inputs:0,
+        outputs:1,
+        icon: "bridge-dash.svg",
+        label: function() {
+            if(this.name) return this.name;
+            var b = this.listenaddress;
+            if (b === "") { b = "undefined"; }
+            else if(b.indexOf(":") > -1) { b = "[" + b + "]" }
+            return b+":"+this.listenport;
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+})();
+</script>

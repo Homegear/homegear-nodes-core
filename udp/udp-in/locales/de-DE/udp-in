@@ -1,0 +1,16 @@
+{
+  "udp/udp-in.hni": {
+    "udp-in": {
+      "output1Description": "Empfangenes Paket im Binärformat, als Hexadezimalstring oder als JSON, abhängig von der Auswahl in <code>Datenformat</code>.",
+      "label": {
+        "udp": "udp",
+        "listenaddress": "Abhöraddr.",
+        "port": "Port",
+        "output": "Datenformat",
+        "raw": "Binär",
+        "hex": "Hexadezimalstring",
+        "json": "Geparster JSON"
+      }
+    }
+  }
+}

@@ -239,6 +239,14 @@ set(SOURCE_FILES
         tls-server-config/Factory.h
         tls-server-config/MyNode.cpp
         tls-server-config/MyNode.h
+		udp/udp-in/Factory.cpp
+		udp/udp-in/Factory.h
+		udp/udp-in/UdpIn.cpp
+		udp/udp-in/UdpIn.h
+		udp/udp-out/Factory.cpp
+		udp/udp-out/Factory.h
+		udp/udp-out/UdpOut.cpp
+		udp/udp-out/UdpOut.h
         variable/constant/Factory.cpp
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
