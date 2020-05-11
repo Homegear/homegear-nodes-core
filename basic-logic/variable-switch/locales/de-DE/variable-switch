@@ -22,7 +22,7 @@
         "output-false": "Auch \"false\" ausgeben",
         "rule": "Regel",
         "static-value": "Fester Wert",
-        "static-only": "Festen Wert an Ausgabe weiterleiten"
+        "static-only": "Festen Wert ausgeben"
       },
       "and": "und",
       "checkall": "alle Regeln prüfen",
@@ -44,7 +44,7 @@
       "global": "global.",
       "env": "env.",
       "paletteHelp": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p>",
-      "help": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p><h3>Details</h3><p><p>Wenn eine Nachricht eintrifft, wertet der Knoten jede der definierten Regeln aus und leitet die Nachricht an die entsprechenden Ausgaben aller übereinstimmenden Regeln weiter.</p><p>Optional kann der Knoten so eingestellt werden, dass er die Auswertung von Regeln beendet, sobald er eine Übereinstimmung gefunden hat.</p><p>Weiterhin kann der Knoten auch optional <code>true</code> und <code>false</code> ausgeben, anstatt die eingegebenen Nutzdaten weiterzuleiten.</p>",
+      "help": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p><h3>Details</h3><p><p>Wenn eine Nachricht eintrifft, liest der Knoten den Wert der angegebenen Varialben. Der Wert wird anschließend anhand jeder der definierten Regeln analysiert und die Nachricht an die entsprechenden Ausgaben aller übereinstimmenden Regeln weitergeleitet.</p><p>Optional kann der Knoten so eingestellt werden, dass er die Auswertung von Regeln beendet, sobald er eine Übereinstimmung gefunden hat.</p><p>Weiterhin kann der Knoten auch optional <code>true</code>, <code>false</code> oder einen festern Fert ausgeben, anstatt die eingegebenen Nutzdaten weiterzuleiten.</p>",
       "input1Description": "Der zu vergleichende Eingang."
     }
   }
