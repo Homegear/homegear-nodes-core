@@ -4,7 +4,8 @@
       "label": {
         "name": "Name",
         "index": "GPIO",
-        "trueonly": "Nur \"true\" ausgeben"
+        "trueonly": "Nur \"true\" ausgeben",
+        "debounce": "Eingang entprellen"
       },
       "paletteHelp": "Erzeugt Ereignisse bei GPIO-Eingangsänderungen.",
       "help": "<p>Dieser Knoten generiert Ereignisse bei Änderungen des GPIO-Eingangs. Stellen Sie sicher, dass Homegear über ausreichende Berechtigungen zum Exportieren des GPIO verfügt. Ist dies nicht der Fall, können Sie GPIOs für den Export in der <code>main.conf</code> von Homegear definieren. Diese GPIOs werden als Root exportiert, bevor Homegear die Berechtigungen löscht.</p>",
