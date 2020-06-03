@@ -122,8 +122,8 @@ set(SOURCE_FILES
         parsers/json/MyNode.h
 		parsers/xml/Factory.cpp
 		parsers/xml/Factory.h
-		parsers/xml/MyNode.cpp
-		parsers/xml/MyNode.h
+		parsers/xml/Xml.cpp
+		parsers/xml/Xml.h
         passthrough/Factory.cpp
         passthrough/Factory.h
         passthrough/MyNode.cpp

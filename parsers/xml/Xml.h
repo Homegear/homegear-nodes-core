@@ -32,24 +32,26 @@
 
 #include <homegear-node/INode.h>
 #include "RapidXml/rapidxml.hpp"
+#include "RapidXml/rapidxml_print.hpp"
 #include <mutex>
 
 using namespace rapidxml;
 
-namespace MyNode
+namespace Parsers
 {
 
-class MyNode: public Flows::INode
+class Xml : public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	Xml(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~Xml();
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 
 	Flows::PVariable parseXmlNode(xml_node<>* node);
+	void parseVariable(xml_document<>* doc, xml_node<>* parentNode, const Flows::PVariable& variable);
 };
 
 }
