@@ -41,7 +41,8 @@ public:
 	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
 	virtual ~MyNode();
 
-	virtual bool init(Flows::PNodeInfo info);
+	bool init(Flows::PNodeInfo info) override;
+    bool start() override;
 private:
 	enum class VariableType
 	{
@@ -54,12 +55,15 @@ private:
 	};
 
 	bool _trueOnly = false;
+	bool _useFeedback = false;
     VariableType _variableType = VariableType::device;
 	uint64_t _peerId = 0;
 	int32_t _channel = -1;
 	std::string _variable;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	bool _currentValue = false;
+
+	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
 };
 
 }
