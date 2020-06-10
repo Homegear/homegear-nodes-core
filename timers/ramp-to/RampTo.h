@@ -48,6 +48,8 @@ public:
 	void stop() override;
 	void waitForStop() override;
 private:
+    bool _intervalUpSet = false;
+    bool _intervalDownSet = false;
 	std::atomic<int32_t> _intervalUp{60000};
     std::atomic<int32_t> _intervalDown{60000};
 	int32_t _stepInterval = 50;

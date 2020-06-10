@@ -49,10 +49,18 @@ bool RampTo::init(Flows::PNodeInfo info)
 	try
 	{
         auto settingsIterator = info->info->structValue->find("interval-up");
-        if(settingsIterator != info->info->structValue->end()) _intervalUp = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        if(settingsIterator != info->info->structValue->end() && !settingsIterator->second->stringValue.empty())
+        {
+            _intervalUpSet = true;
+            _intervalUp = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        }
 
         settingsIterator = info->info->structValue->find("interval-down");
-        if(settingsIterator != info->info->structValue->end()) _intervalDown = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        if(settingsIterator != info->info->structValue->end() && !settingsIterator->second->stringValue.empty())
+        {
+            _intervalDownSet = true;
+            _intervalDown = Flows::Math::getNumber(settingsIterator->second->stringValue);
+        }
 
 		settingsIterator = info->info->structValue->find("step-interval");
 		if(settingsIterator != info->info->structValue->end()) _stepInterval = Flows::Math::getNumber(settingsIterator->second->stringValue);
@@ -129,7 +137,8 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger)
     double interval = 0;
     if(rampTo > startValue) interval = (std::abs(rampTo - startValue) / (_maximum - _minimum)) * _intervalUp;
     else interval = (std::abs(rampTo - startValue) / (_maximum - _minimum)) * _intervalDown;
-    uint32_t stepCount = std::lround(interval / _stepInterval);
+    if(sleepingTime > interval) sleepingTime = interval;
+    uint32_t stepCount = std::lround(interval / sleepingTime);
     double stepSize = std::abs(rampTo - startValue) / (double)stepCount;
     if(stepSize == 0.0) stepSize = 1.0;
     bool up = rampTo > startValue;
@@ -209,16 +218,43 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	{
 		if(index == 0)
         {
-		    auto messageIterator = message->structValue->find("interval-up");
-		    if(messageIterator != message->structValue->end()) _intervalUp = messageIterator->second->integerValue;
-            messageIterator = message->structValue->find("interval-down");
-            if(messageIterator != message->structValue->end()) _intervalDown = messageIterator->second->integerValue;
+		    if(!_intervalUpSet)
+            {
+                auto messageIterator = message->structValue->find("interval-up");
+                if(messageIterator != message->structValue->end()) _intervalUp = messageIterator->second->integerValue;
+                if(_intervalUp < 1) _intervalUp = 1;
+            }
+            if(!_intervalDownSet)
+            {
+                auto messageIterator = message->structValue->find("interval-down");
+                if(messageIterator != message->structValue->end()) _intervalDown = messageIterator->second->integerValue;
+                if(_intervalDown < 1) _intervalDown = 1;
+            }
 
-			std::lock_guard<std::mutex> timerGuard(_timerMutex);
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
-			_stopThread = false;
-			_timerThread = std::thread(&RampTo::timer, this, _currentValue.load(), message->structValue->at("payload")->floatValue, message->structValue->at("payload")->type != Flows::VariableType::tFloat);
+            std::lock_guard<std::mutex> timerGuard(_timerMutex);
+            _stopThread = true;
+            if(_timerThread.joinable()) _timerThread.join();
+
+            auto rampToValue = message->structValue->at("payload")->floatValue;
+
+            if(_intervalUp == 1 && _intervalDown == 1)
+            {
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                if(message->structValue->at("payload")->type != Flows::VariableType::tFloat)
+                {
+                    outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::llround(rampToValue)));
+                }
+                else
+                {
+                    outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(rampToValue));
+                }
+                output(0, outputMessage);
+            }
+            else
+            {
+                _stopThread = false;
+                _timerThread = std::thread(&RampTo::timer, this, _currentValue.load(), rampToValue, message->structValue->at("payload")->type != Flows::VariableType::tFloat);
+            }
 		}
 		else if(index == 1)
 		{

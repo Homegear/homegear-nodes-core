@@ -42,8 +42,8 @@
         namespace: 'timers',
         color:"#FFCC66",
         defaults: {
-            'interval-up': {value:"60000",required:false,validate:RED.validators.number()},
-            'interval-down': {value:"60000",required:false,validate:RED.validators.number()},
+            'interval-up': {value:"60000",required:false,validate: function(v) { if(!v) return true; else return $.isNumeric(v); }},
+            'interval-down': {value:"60000",required:false,validate: function(v) { if(!v) return true; else return $.isNumeric(v); }},
             'step-interval': {value:"50",required:true,validate:RED.validators.number()},
             minimum: {value:"0",required:true,validate:RED.validators.number()},
             maximum: {value:"100",required:true,validate:RED.validators.number()},
