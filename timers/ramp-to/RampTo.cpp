@@ -209,6 +209,11 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	{
 		if(index == 0)
         {
+		    auto messageIterator = message->structValue->find("interval-up");
+		    if(messageIterator != message->structValue->end()) _intervalUp = messageIterator->second->integerValue;
+            messageIterator = message->structValue->find("interval-down");
+            if(messageIterator != message->structValue->end()) _intervalDown = messageIterator->second->integerValue;
+
 			std::lock_guard<std::mutex> timerGuard(_timerMutex);
 			_stopThread = true;
 			if(_timerThread.joinable()) _timerThread.join();

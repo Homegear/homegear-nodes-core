@@ -48,8 +48,8 @@ public:
 	void stop() override;
 	void waitForStop() override;
 private:
-	int32_t _intervalUp = 60000;
-	int32_t _intervalDown = 60000;
+	std::atomic<int32_t> _intervalUp{60000};
+    std::atomic<int32_t> _intervalDown{60000};
 	int32_t _stepInterval = 50;
 
 	std::mutex _timerMutex;

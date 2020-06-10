@@ -1,10 +1,10 @@
 <p>Dieser Knoten kann verwendet werden, um zu beliebigen Werten zu rampen.</p>
 <h3>Konfigurationsparameter</h3>
 <dl class="message-properties">
-	<dt>Intervall hoch</dt>
-	<dd>Die Gesamtrampzeit zum Hochrampen.</dd>
-	<dt>Intervall runter</dt>
-	<dd>Die Gesamtrampzeit zum Runterrampen.</dd>
+	<dt>Intervall hoch (optional)</dt>
+	<dd>Die Gesamtrampzeit zum Hochrampen. Wenn das Feld leer gelassen wird, kann das Intervall über <code>$message['interval-up']</code> gesetzt werden.</dd>
+	<dt>Intervall runter (optional)</dt>
+	<dd>Die Gesamtrampzeit zum Runterrampen. Wenn das Feld leer gelassen wird, kann das Intervall über <code>$message['interval-down']</code> gesetzt werden.</dd>
 	<dt>Schrittintervall</dt>
 	<dd>Das Intervall, nach dem eine Wertaktualisierung ausgegeben Wert.</dd>
 	<dt>Minimum</dt>
