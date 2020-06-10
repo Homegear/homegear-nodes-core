@@ -10,7 +10,8 @@
         "raw": "Raw binary",
         "hex": "Hexadecimal string",
         "json": "JSON"
-      }
+      },
+      "paletteHelp": "<p>Sends UDP packets.</p>"
     }
   }
 }

@@ -85,8 +85,9 @@ bool MyNode::start()
 		if(!_enabled) return true;
 		std::lock_guard<std::mutex> timerGuard(_timerMutex);
 		_inputTime = Flows::HelperFunctions::getTime();
-		_stopThread = false;
+		_stopThread = true;
 		if(_timerThread.joinable()) _timerThread.join();
+		_stopThread = false;
 		_timerThread = std::thread(&MyNode::timer, this);
 
 		return true;

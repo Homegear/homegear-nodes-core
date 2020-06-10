@@ -4,8 +4,8 @@
       "label": {
         "name": "Name",
         "function": "Funktion",
-        "inputs": "Eingaben",
-        "outputs": "Ausgaben"
+        "inputs": "Eingänge",
+        "outputs": "Ausgänge"
       },
       "tip": "Tipp: Auf der Registerkarte \"Info\" finden Sie Hilfe.",
       "paletteHelp": "<p>Ein Knoten zum Schreiben von Python-Code, um interessantere Dinge zu tun.</p>",

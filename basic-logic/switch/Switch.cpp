@@ -143,42 +143,6 @@ bool Switch::init(Flows::PNodeInfo info)
             settingsIterator = info->info->structValue->find("static-value");
             if(settingsIterator != info->info->structValue->end()) _value = std::make_shared<Flows::Variable>(_payloadType, settingsIterator->second->stringValue);
             else _value = std::make_shared<Flows::Variable>(_payloadType, std::string());
-
-            if(_payloadType == "int")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tInteger);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "bool")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tBoolean);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "float")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "float")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tFloat);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "string")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tString);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "arraySimple")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-                staticMessage->structValue->emplace("payload", _value);
-            }
-            else if(_payloadType == "structSimple")
-            {
-                Flows::PVariable staticMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                staticMessage->structValue->emplace("payload", _value);
-            }
         }
 
 

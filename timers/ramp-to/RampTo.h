@@ -34,34 +34,34 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
+namespace RampTo
 {
 
-class MyNode: public Flows::INode
+class RampTo: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	RampTo(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	~RampTo() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
+	bool init(Flows::PNodeInfo info) override;
+	bool start() override;
+	void stop() override;
+	void waitForStop() override;
 private:
-	std::atomic_bool _enabled;
-	int64_t _startTimeAll = 0;
-	int64_t _tick = 0;
-	int64_t _inputTime = 0;
-	int32_t _interval = 60000;
-	uint32_t _resetAfter = 0;
+	int32_t _intervalUp = 60000;
+	int32_t _intervalDown = 60000;
+	int32_t _stepInterval = 50;
 
 	std::mutex _timerMutex;
 	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
 	std::thread _timerThread;
 
-	void timer();
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	std::atomic<double> _currentValue{0};
+	double _minimum = 0;
+	double _maximum = 100;
+
+	void timer(double startValue, double rampTo, bool isInteger);
+	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
 };
 
 }

@@ -10,7 +10,8 @@
         "raw": "Binär",
         "hex": "Hexadezimalstring",
         "json": "JSON"
-      }
+      },
+      "paletteHelp": "<p>Sendet UDP-Pakete.</p>"
     }
   }
 }

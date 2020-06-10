@@ -205,6 +205,10 @@ set(SOURCE_FILES
         timers/on-delay/Factory.h
         timers/on-delay/MyNode.cpp
         timers/on-delay/MyNode.h
+		timers/ramp-to/Factory.cpp
+		timers/ramp-to/Factory.h
+		timers/ramp-to/RampTo.cpp
+		timers/ramp-to/RampTo.h
 		timers/rate-limiter/Factory.cpp
 		timers/rate-limiter/Factory.h
 		timers/rate-limiter/MyNode.cpp

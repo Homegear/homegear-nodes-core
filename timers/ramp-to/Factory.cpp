@@ -27,43 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "RampTo.h"
 
-#include <homegear-node/INode.h>
-#include <thread>
-#include <mutex>
-
-namespace MyNode
+Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	std::atomic_bool _enabled;
-	int64_t _startTimeAll = 0;
-	int64_t _tick = 0;
-	int64_t _inputTime = 0;
-	int32_t _interval = 60000;
-	uint32_t _resetAfter = 0;
-
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::thread _timerThread;
-
-	void timer();
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-};
-
+	return new RampTo::RampTo(path, nodeNamespace, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

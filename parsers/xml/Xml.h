@@ -50,7 +50,7 @@ public:
 private:
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 
-	Flows::PVariable parseXmlNode(xml_node<>* node);
+	Flows::PVariable parseXmlNode(xml_node<>* node, bool& isDataNode);
 	void parseVariable(xml_document<>* doc, xml_node<>* parentNode, const Flows::PVariable& variable);
 };
 

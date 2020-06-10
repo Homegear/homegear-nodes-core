@@ -33,11 +33,6 @@
         <input type="text" id="node-input-property" style="width: 70%"/>
         <input type="hidden" id="node-input-outputs"/>
     </div>
-    <div class="form-row">
-        <label data-i18n="switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="switch.label.payload"></span></label>
-        <input type="text" id="node-input-static-value" style="width: 70%"/>
-        <input type="hidden" id="node-input-payloadType"/>
-    </div>
     <div class="form-row" id="changes-only">
         <label>&nbsp;</label>
         <input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
@@ -53,10 +48,15 @@
         <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-output-false" style="width: 70%;" data-i18n="switch.label.output-false"></label>
     </div>
-    <div class="form-row" id="static-only">
+    <div class="form-row">
     	<label>&nbsp;</label>
     	<input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
     	<label for="node-input-static-only" style="width: 70%;" data-i18n="switch.label.static-only"></label>
+    </div>
+    <div id="node-input-static-value-container" class="form-row hide">
+        <label data-i18n="switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="switch.label.payload"></span></label>
+        <input type="text" id="node-input-static-value" style="width: 70%"/>
+        <input type="hidden" id="node-input-payloadType"/>
     </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
@@ -285,11 +285,22 @@
             }
             $("#node-input-payloadType").val(this.payloadType);
 
-            $("#node-input-static-value").typedInput({
-                default: 'int',
-                typeField: $("#node-input-payloadType"),
-                types:['bool','int','float','string','arraySimple','structSimple']
-            });
+            //{{{ Static value
+                $("#node-input-static-value").typedInput({
+                    default: 'int',
+                    typeField: $("#node-input-payloadType"),
+                    types:['bool','int','float','string','arraySimple','structSimple']
+                });
+
+                if(this['static-only']) $("#node-input-static-value-container").show();
+                $("#node-input-static-only").on("click", function() {
+                    if(this.checked) {
+                        $("#node-input-static-value-container").show();
+                    } else {
+                        $("#node-input-static-value-container").hide();
+                    }
+                });
+            //}}}
 
             $("#node-input-payload").typedInput('type',this.payloadType);
         },

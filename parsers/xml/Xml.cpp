@@ -114,7 +114,8 @@ void Xml::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVaria
 			doc.parse<parse_no_entity_translation | parse_validate_closing_tags>((char*)xmlString.c_str());
             Flows::PVariable xml = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
             std::string nodeName(doc.first_node()->name());
-            auto element = parseXmlNode(doc.first_node());
+            bool isDataNode = false;
+            auto element = parseXmlNode(doc.first_node(), isDataNode);
             if(!element->errorStruct) xml->structValue->emplace(nodeName, element);
             outputMessage->structValue->emplace("payload", xml);
             output(0, outputMessage);
@@ -126,10 +127,11 @@ void Xml::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVaria
 	}
 }
 
-Flows::PVariable Xml::parseXmlNode(xml_node<>* node)
+Flows::PVariable Xml::parseXmlNode(xml_node<>* node, bool& isDataNode)
 {
 	try
 	{
+	    isDataNode = false;
         auto nodeVariable = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
         bool hasElements = false;
@@ -149,16 +151,26 @@ Flows::PVariable Xml::parseXmlNode(xml_node<>* node)
 
             hasElements = true;
 
+            bool isDataNode = false;
+            auto subNodeVariable = parseXmlNode(subNode, isDataNode);
+
             auto variableIterator = nodeVariable->structValue->find(nodeName);
             if(variableIterator == nodeVariable->structValue->end())
             {
-                variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
-                variableIterator->second->arrayValue->reserve(100);
+                if(isDataNode)
+                {
+                    nodeVariable->structValue->emplace(nodeName, subNodeVariable).first;
+                    continue;
+                }
+                else
+                {
+                    variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
+                    variableIterator->second->arrayValue->reserve(100);
+                }
             }
 
             if(variableIterator->second->arrayValue->size() == variableIterator->second->arrayValue->capacity()) variableIterator->second->arrayValue->reserve(variableIterator->second->arrayValue->size() + 100);
 
-            auto subNodeVariable = parseXmlNode(subNode);
             if(!subNodeVariable->errorStruct) variableIterator->second->arrayValue->emplace_back(subNodeVariable);
 		}
 
@@ -175,6 +187,7 @@ Flows::PVariable Xml::parseXmlNode(xml_node<>* node)
                 jsonNodeValue = std::make_shared<Flows::Variable>(nodeValue);
             }
 
+            isDataNode = true;
             if(nodeVariable->structValue->empty()) return jsonNodeValue;
             else
             {
