@@ -48,16 +48,6 @@
         <input type="checkbox" id="node-input-output-false" disabled style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-output-false" style="width: 70%;" data-i18n="switch.label.output-false"></label>
     </div>
-    <div class="form-row">
-    	<label>&nbsp;</label>
-    	<input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
-    	<label for="node-input-static-only" style="width: 70%;" data-i18n="switch.label.static-only"></label>
-    </div>
-    <div id="node-input-static-value-container" class="form-row hide">
-        <label data-i18n="switch.label.static-value"><i class="fa fa-envelope"></i> <span data-i18n="switch.label.payload"></span></label>
-        <input type="text" id="node-input-static-value" style="width: 70%"/>
-        <input type="hidden" id="node-input-payloadType"/>
-    </div>
     <div class="form-row node-input-rule-container-row">
         <ol id="node-input-rule-container"></ol>
     </div>
@@ -66,6 +56,15 @@
             <option value="true" data-i18n="switch.checkall"></option>
             <option value="false" data-i18n="switch.stopfirst"></option>
         </select>
+    </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-static-only" style="width: auto" data-i18n="switch.label.static-only"></label>
+        <div id="node-input-row-static-value" class="hide">
+            <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-input-static-value"><span data-i18n="switch.label.static-value"></span></label>
+            <input type="text" id="node-input-static-value" style="width: 70%"/>
+            <input type="hidden" id="node-input-payloadType"/>
+        </div>
     </div>
 </script>
 <script type="text/javascript">
@@ -279,30 +278,33 @@
                 var rule = this.rules[i];
                 $("#node-input-rule-container").editableList('addItem',{r:rule,i:i});
             }
-            
-            if (this.payloadType == null) {
-                this.payloadType = "int";
-            }
-            $("#node-input-payloadType").val(this.payloadType);
 
             //{{{ Static value
+                if (this.payloadType == null) {
+                    this.payloadType = "int";
+                }
+                $("#node-input-payloadType").val(this.payloadType);
+
                 $("#node-input-static-value").typedInput({
                     default: 'int',
                     typeField: $("#node-input-payloadType"),
                     types:['bool','int','float','string','arraySimple','structSimple']
                 });
 
-                if(this['static-only']) $("#node-input-static-value-container").show();
-                $("#node-input-static-only").on("click", function() {
-                    if(this.checked) {
-                        $("#node-input-static-value-container").show();
+                $("#node-input-payload").typedInput('type',this.payloadType);
+
+                function updateStaticValueInputVisibility() {
+                    if ($("#node-input-static-only").is(':checked')) {
+                        $("#node-input-row-static-value").show();
                     } else {
-                        $("#node-input-static-value-container").hide();
+                        $("#node-input-row-static-value").hide();
                     }
+                }
+                updateStaticValueInputVisibility();
+                $("#node-input-static-only").on("click",function() {
+                    updateStaticValueInputVisibility();
                 });
             //}}}
-
-            $("#node-input-payload").typedInput('type',this.payloadType);
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');

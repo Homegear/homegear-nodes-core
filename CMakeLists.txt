@@ -148,6 +148,10 @@ set(SOURCE_FILES
 		python/Factory.h
 		python/Python.cpp
 		python/Python.h
+		python-wrapper/Factory.cpp
+		python-wrapper/Factory.h
+		python-wrapper/Python.cpp
+		python-wrapper/Python.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
