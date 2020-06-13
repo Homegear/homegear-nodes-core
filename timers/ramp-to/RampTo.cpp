@@ -77,8 +77,8 @@ bool RampTo::init(Flows::PNodeInfo info)
             _maximum = 100;
         }
 
-		if(_intervalUp < 1) _intervalUp = 1;
-        if(_intervalDown < 1) _intervalDown = 1;
+		if(_intervalUp < 0) _intervalUp = 0;
+        if(_intervalDown < 0) _intervalDown = 0;
         if(_stepInterval < 1) _stepInterval = 1;
 
 		return true;
@@ -137,6 +137,7 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger)
     double interval = 0;
     if(rampTo > startValue) interval = (std::abs(rampTo - startValue) / (_maximum - _minimum)) * _intervalUp;
     else interval = (std::abs(rampTo - startValue) / (_maximum - _minimum)) * _intervalDown;
+    if(interval == 0) return; //Could happen as a race condition
     if(sleepingTime > interval) sleepingTime = interval;
     uint32_t stepCount = std::lround(interval / sleepingTime);
     double stepSize = std::abs(rampTo - startValue) / (double)stepCount;
@@ -222,13 +223,13 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
             {
                 auto messageIterator = message->structValue->find("interval-up");
                 if(messageIterator != message->structValue->end()) _intervalUp = messageIterator->second->integerValue;
-                if(_intervalUp < 1) _intervalUp = 1;
+                if(_intervalUp < 0) _intervalUp = 0;
             }
             if(!_intervalDownSet)
             {
                 auto messageIterator = message->structValue->find("interval-down");
                 if(messageIterator != message->structValue->end()) _intervalDown = messageIterator->second->integerValue;
-                if(_intervalDown < 1) _intervalDown = 1;
+                if(_intervalDown < 0) _intervalDown = 0;
             }
 
             std::lock_guard<std::mutex> timerGuard(_timerMutex);
@@ -237,7 +238,8 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 
             auto rampToValue = message->structValue->at("payload")->floatValue;
 
-            if(_intervalUp == 1 && _intervalDown == 1)
+            if(rampToValue == _currentValue) return;
+            else if((_intervalUp == 0 && rampToValue > _currentValue) || (_intervalDown == 0 & & rampToValue < _currentValue))
             {
                 Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 if(message->structValue->at("payload")->type != Flows::VariableType::tFloat)
@@ -269,9 +271,9 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                 if(_timerThread.joinable()) _timerThread.join();
             }
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-            output(1, message);
+            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+            output(1, outputMessage);
         }
 	}
 	catch(const std::exception& ex)
