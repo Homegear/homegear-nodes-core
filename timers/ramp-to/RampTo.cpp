@@ -142,6 +142,7 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger)
     uint32_t stepCount = std::lround(interval / sleepingTime);
     double stepSize = std::abs(rampTo - startValue) / (double)stepCount;
     if(stepSize == 0.0) stepSize = 1.0;
+    else if(stepSize < 0.000001) stepSize = 0.000001;
     bool up = rampTo > startValue;
 
     int64_t lastIntegerValue = std::llround(startValue);
@@ -239,7 +240,7 @@ void RampTo::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
             auto rampToValue = message->structValue->at("payload")->floatValue;
 
             if(rampToValue == _currentValue) return;
-            else if((_intervalUp == 0 && rampToValue > _currentValue) || (_intervalDown == 0 & & rampToValue < _currentValue))
+            else if((_intervalUp == 0 && rampToValue > _currentValue) || (_intervalDown == 0 && rampToValue < _currentValue))
             {
                 Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 if(message->structValue->at("payload")->type != Flows::VariableType::tFloat)
