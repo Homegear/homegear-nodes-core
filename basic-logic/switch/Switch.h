@@ -27,18 +27,19 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef SWITCH_H_
+#define SWITCH_H_
 
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonDecoder.h>
+#include <homegear-node/MessageProperty.h>
 #include <mutex>
 #include <regex>
 
-namespace MyNode
+namespace Switch
 {
 
-class MyNode: public Flows::INode
+class Switch : public Flows::INode
 {
 public:
 	enum class RuleType
@@ -59,8 +60,8 @@ public:
 		tElse
 	};
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	Switch(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	virtual ~Switch();
 
 	virtual bool init(Flows::PNodeInfo info);
 private:
@@ -88,7 +89,7 @@ private:
 
 	typedef std::string Operator;
 
-	std::vector<std::string> _property;
+	Flows::MessageProperty _property;
 	Flows::PVariable _previousInputValue;
 	Flows::PVariable _previousInputValue2;
 	std::vector<Rule> _rules;
@@ -96,10 +97,14 @@ private:
 	bool _outputTrue = false;
 	bool _outputFalse = false;
 	bool _checkAll = true;
+	bool _staticOnly = false;
+
+	Flows::PVariable _value;
+	std::string _payloadType;
 
 	RuleType getRuleTypeFromString(std::string& t);
 	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
+	static void convertType(Flows::PVariable& value, Flows::VariableType vt);
 	bool isTrue(Flows::PVariable& value);
 	bool match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
 	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);

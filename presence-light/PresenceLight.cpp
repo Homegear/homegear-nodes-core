@@ -522,8 +522,7 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 if(onTime == 0)
                 {
                     auto payloadIterator = message->structValue->find("onTime");
-                    if (payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64
-                            * 1000;
+                    if (payloadIterator != message->structValue->end()) onTime = payloadIterator->second->integerValue64 * 1000;
                 }
                 if(onTime <= 0)
                 {
@@ -545,8 +544,6 @@ void PresenceLight::input(const Flows::PNodeInfo info, uint32_t index, const Flo
                 _onTo.store(-1, std::memory_order_release);
 
                 setNodeData("onTo", std::make_shared<Flows::Variable>(-1));
-
-                if(!getLightState()) return;
             }
         }
         else if(index == 5) //State value

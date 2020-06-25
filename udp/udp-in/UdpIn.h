@@ -27,65 +27,39 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef UDPIN_H_
+#define UDPIN_H_
 
 #include <homegear-node/INode.h>
+#include <thread>
 
-namespace MyNode
+namespace UdpIn
 {
 
-class MyNode: public Flows::INode
+class UdpIn: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	UdpIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	~UdpIn() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-
+	bool init(Flows::PNodeInfo info) override;
+    bool start() override;
+    void stop() override;
+    void waitForStop() override;
 private:
-	enum class VariableType
+    enum class PayloadType
     {
-        device,
-        metadata,
-        system,
-        flow,
-        global
+        raw,
+        hex,
+        json
     };
 
-    enum class EventSource
-    {
-        all,
-        device,
-        homegear,
-        scriptEngine,
-        nodeBlue,
-        rpcClient,
-        ipcClient,
-        mqtt
-    };
+    Flows::PNodeInfo _nodeInfo;
+    std::atomic_bool _stopListenThread{false};
+    std::thread _listenThread;
 
-    VariableType _variableType = VariableType::device;
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	Flows::PVariable _lastValue;
-	bool _outputChangesOnly = false;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	EventSource _eventSource = EventSource::all;
-	std::string _name;
-
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
-
-	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
-    virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
-    virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
-    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+    int getSocketDescriptor(const std::string& listenAddress, uint16_t port);
+    void listen(std::string listenAddress, uint16_t port, PayloadType payloadType);
 };
 
 }

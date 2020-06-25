@@ -27,29 +27,50 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef RUNSCRIPT_H_
+#define RUNSCRIPT_H_
 
 #include <homegear-node/INode.h>
-#include "RapidXml/rapidxml.hpp"
+#include <homegear-base/BaseLib.h>
 #include <mutex>
 
-using namespace rapidxml;
-
-namespace MyNode
+namespace PythonWrapper
 {
 
-class MyNode: public Flows::INode
+class Python : public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	Python(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	~Python() override;
 
-	virtual bool init(Flows::PNodeInfo info);
+	bool init(Flows::PNodeInfo info) override;
+	bool start() override;
+	void startUpComplete() override;
+	void stop() override;
+	void waitForStop() override;
 private:
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+    Flows::PNodeInfo _info;
+    std::atomic_bool _startUpError{false};
+    std::atomic_bool _startUpComplete{false};
+    std::atomic_bool _processStartUpComplete{false};
+    int32_t _callbackHandlerId = -1;
+	std::string _codeFile;
+	std::atomic_bool _stopThread{false};
+	std::thread _execThread;
+	std::thread _errorThread;
+	std::atomic_int _pid{-1};
+	std::atomic_int _stdIn{-1};
+    std::atomic_int _stdOut{-1};
+    std::atomic_int _stdErr{-1};
 
-	Flows::PVariable parseXmlNode(xml_node<>* node);
+	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+	void startProgram();
+	int32_t getMaxFd();
+    void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
+	void execThread();
+	void errorThread();
+	int32_t read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize);
+	void callStartUpComplete();
 };
 
 }

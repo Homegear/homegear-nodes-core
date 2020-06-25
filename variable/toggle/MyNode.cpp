@@ -47,6 +47,9 @@ bool MyNode::init(Flows::PNodeInfo info)
         auto settingsIterator = info->info->structValue->find("true-only");
         if(settingsIterator != info->info->structValue->end()) _trueOnly = settingsIterator->second->booleanValue;
 
+        settingsIterator = info->info->structValue->find("use-feedback");
+        if(settingsIterator != info->info->structValue->end()) _useFeedback = settingsIterator->second->booleanValue;
+
 		std::string variableType = "device";
 		settingsIterator = info->info->structValue->find("variabletype");
 		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
@@ -89,73 +92,116 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
+bool MyNode::start()
+{
+    try
+    {
+        _currentValue = getNodeData("value")->booleanValue;
+
+        return true;
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch(...)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+    return false;
+}
+
 void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
 	try
 	{
-	    if(_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
-
-        if(_variableType == VariableType::self)
+	    if(index == 0)
         {
-            bool newValue = !((bool)(*getNodeData("value")));
-            setNodeData("value", std::make_shared<Flows::Variable>(newValue));
+            if(_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+            if(_variableType == VariableType::self)
+            {
+                bool newValue = !_currentValue;
+                if(!_useFeedback)
+                {
+                    newValue = !((bool)(*getNodeData("value")));
+                    setNodeData("value", std::make_shared<Flows::Variable>(newValue));
+                }
 
-            output(0, message);
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+
+                output(0, outputMessage);
+            }
+            else if(_variableType == VariableType::flow)
+            {
+                bool newValue = !_currentValue;
+                if(!_useFeedback)
+                {
+                    newValue = !((bool)(*getFlowData(_variable)));
+                    setFlowData(_variable, std::make_shared<Flows::Variable>(newValue));
+                }
+
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+
+                output(0, outputMessage);
+            }
+            else if(_variableType == VariableType::global)
+            {
+                bool newValue = !_currentValue;
+                if(!_useFeedback)
+                {
+                    newValue = !((bool)(*getFlowData(_variable)));
+                    setGlobalData(_variable, std::make_shared<Flows::Variable>(newValue));
+                }
+
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+
+                output(0, outputMessage);
+            }
+            else
+            {
+                Flows::PArray parameters = std::make_shared<Flows::Array>();
+                parameters->reserve(4);
+                parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+                parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+                parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+
+                bool newValue = !_currentValue;
+                if(!_useFeedback)
+                {
+                    Flows::PVariable oldValue = invoke("getValue", parameters);
+                    if(oldValue->errorStruct)
+                    {
+                        _out->printError("Error getting variable value (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + oldValue->structValue->at("faultString")->stringValue);
+                        return;
+                    }
+                    newValue = !oldValue->booleanValue;
+                }
+
+                parameters->push_back(std::make_shared<Flows::Variable>(newValue));
+
+                Flows::PVariable result = invoke("setValue", parameters);
+                if(result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
+
+                Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+                outputMessage->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+                outputMessage->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+                outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
+
+                output(0, outputMessage);
+            }
         }
-		else if(_variableType == VariableType::flow)
-		{
-		    bool newValue = !((bool)(*getFlowData(_variable)));
-			setFlowData(_variable, std::make_shared<Flows::Variable>(newValue));
-
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
-
-            output(0, message);
-		}
-		else if(_variableType == VariableType::global)
-		{
-            bool newValue = !((bool)(*getFlowData(_variable)));
-			setGlobalData(_variable, std::make_shared<Flows::Variable>(newValue));
-
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
-
-            output(0, message);
-		}
-		else
-		{
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-			parameters->reserve(4);
-			parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-			parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-			parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-
-			Flows::PVariable oldValue = invoke("getValue", parameters);
-			if(oldValue->errorStruct)
-			{
-				_out->printError("Error getting variable value (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + oldValue->structValue->at("faultString")->stringValue);
-				return;
-			}
-			oldValue->booleanValue = !oldValue->booleanValue;
-
-			parameters->push_back(oldValue);
-
-			Flows::PVariable result = invoke("setValue", parameters);
-			if(result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
-
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
-			message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
-			message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-			message->structValue->emplace("payload", oldValue);
-
-			output(0, message);
-		}
+        else if(index == 1 && _useFeedback)
+        {
+            _currentValue = (bool)(*message->structValue->at("payload"));
+            setNodeData("value", std::make_shared<Flows::Variable>(_currentValue));
+        }
 	}
 	catch(const std::exception& ex)
 	{

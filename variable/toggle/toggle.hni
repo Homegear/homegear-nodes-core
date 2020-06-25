@@ -17,6 +17,11 @@
         <input type="checkbox" id="node-input-true-only" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-true-only" style="width: 65%;" data-i18n="toggle.label.true-only"></label>
     </div>
+    <div class="form-row" id="true-only">
+        <label style="width: 110px">&nbsp;</label>
+        <input type="checkbox" id="node-input-use-feedback" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-use-feedback" style="width: 65%;" data-i18n="toggle.label.use-feedback"></label>
+    </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="toggle.label.variabletype"></span></label>
         <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
@@ -63,20 +68,27 @@
         namespace: 'variable',
         color:"#a6bbcf",
         defaults: {
-            "true-only": {value: true},
+            "true-only": {value: false},
+            "use-feedback": {value: false},
             variabletype: {value: "self",required:true},
             family: {},
             peername: {value:"", required: false},
             peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { if(this.variabletype == "self") return true; else return v != ""; }},
+            inputs: {value:1},
 
             name: {value:""}
         },
         inputs:1,
         inputInfo: [
             {
+                label: "IN",
                 types: ["any"]
+            },
+            {
+                label: "FB",
+                types: ["bool"]
             }
         ],
         outputs:1,
@@ -548,6 +560,10 @@
                     createVariableDialog.dialog("option", "title", RED._("variable/variable-in.hni:variable-in.label.createvariable")).dialog("open");
                 });
             //}}}
+
+            $('#node-input-use-feedback').change(function() {
+                that.inputs = this.checked ? 2 : 1;
+            });
         },
         oneditsave: function() {
         }

@@ -59,6 +59,7 @@ RED.nodes.registerType('change', {
         var del = this._("change.action.delete");
         var move = this._("change.action.move");
         var to = this._("change.action.to");
+        var to2 = this._("change.action.to2");
         var search = this._("change.action.search");
         var replace = this._("change.action.replace");
         var regex = this._("change.label.regex");
@@ -138,7 +139,7 @@ RED.nodes.registerType('change', {
                     .typedInput({default:'string',types:[messageValueType,flowValueType,globalValueType,'bool','int','float','string']});
 
                 $('<div/>',{style:"display:inline-block;text-align:right; width:120px; padding-right:10px; box-sizing:border-box;"})
-                    .text(to)
+                    .text(to2)
                     .appendTo(row4);
                 var moveValue = $('<input/>',{class:"node-input-rule-property-move-value",type:"text"})
                     .appendTo(row4)

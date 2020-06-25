@@ -223,8 +223,7 @@ void MyNode::dim(bool up)
 			else if(startValue->type == Flows::VariableType::tFloat) parameters->at(3)->floatValue = currentValue;
 			invoke("setValue", parameters);
 			std::this_thread::sleep_for(std::chrono::milliseconds(_interval));
-			if(up && currentValue == _maxValue->floatValue) break;
-			else if(!up && currentValue == _minValue->floatValue) break;
+			if((up && currentValue == _maxValue->floatValue) || (!up && currentValue == _minValue->floatValue)) break;
 		}
 
 		setNodeData("currentvalue", startValue);

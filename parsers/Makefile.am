@@ -12,7 +12,7 @@ json_la_SOURCES = json/Factory.cpp json/MyNode.cpp
 json_la_LDFLAGS =-module -avoid-version -shared
 strip_la_SOURCES = strip/Factory.cpp strip/MyNode.cpp
 strip_la_LDFLAGS =-module -avoid-version -shared
-xml_la_SOURCES = xml/Factory.cpp xml/MyNode.cpp
+xml_la_SOURCES = xml/Factory.cpp xml/Xml.cpp
 xml_la_LDFLAGS =-module -avoid-version -shared
 
 parsers_ladir = $(libdir)

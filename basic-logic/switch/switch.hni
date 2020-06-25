@@ -2,7 +2,7 @@
 {
     "name": "switch",
     "readableName": "Switch",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "coreNode": true,
     "maxThreadCount": 0
 }
@@ -57,6 +57,15 @@
             <option value="false" data-i18n="switch.stopfirst"></option>
         </select>
     </div>
+    <div class="form-row">
+        <input type="checkbox" id="node-input-static-only" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-static-only" style="width: auto" data-i18n="switch.label.static-only"></label>
+        <div id="node-input-row-static-value" class="hide">
+            <label style="width: auto; margin-left: 20px; margin-right: 10px;" for="node-input-static-value"><span data-i18n="switch.label.static-value"></span></label>
+            <input type="text" id="node-input-static-value" style="width: 70%"/>
+            <input type="hidden" id="node-input-payloadType"/>
+        </div>
+    </div>
 </script>
 <script type="text/javascript">
 (function() {
@@ -98,11 +107,14 @@
         defaults: {
             name: {value:""},
             property: {value:"payload", required:true},
+            "static-value": {value:""},
+            payloadType: {value:"int"},
             "changes-only": {value:false},
             "output-true": {value:false},
             "output-false": {value:false},
+            "static-only": {value:false},
             rules: {value:[{t:"eq", v:""}]},
-            checkall: {value:"true", required:true},
+            checkall: {value:"true", required:true}, 
             inputs: {value:1},
             outputs: {value:1}
         },
@@ -266,6 +278,33 @@
                 var rule = this.rules[i];
                 $("#node-input-rule-container").editableList('addItem',{r:rule,i:i});
             }
+
+            //{{{ Static value
+                if (this.payloadType == null) {
+                    this.payloadType = "int";
+                }
+                $("#node-input-payloadType").val(this.payloadType);
+
+                $("#node-input-static-value").typedInput({
+                    default: 'int',
+                    typeField: $("#node-input-payloadType"),
+                    types:['bool','int','float','string','arraySimple','structSimple']
+                });
+
+                $("#node-input-payload").typedInput('type',this.payloadType);
+
+                function updateStaticValueInputVisibility() {
+                    if ($("#node-input-static-only").is(':checked')) {
+                        $("#node-input-row-static-value").show();
+                    } else {
+                        $("#node-input-row-static-value").hide();
+                    }
+                }
+                updateStaticValueInputVisibility();
+                $("#node-input-static-only").on("click",function() {
+                    updateStaticValueInputVisibility();
+                });
+            //}}}
         },
         oneditsave: function() {
             var rules = $("#node-input-rule-container").editableList('items');

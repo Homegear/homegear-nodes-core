@@ -52,7 +52,7 @@ private:
 	int64_t _startTimeAll = 0;
 	int64_t _tick = 0;
 	int64_t _inputTime = 0;
-	uint32_t _interval = 60000;
+	int32_t _interval = 60000;
 	uint32_t _resetAfter = 0;
 
 	std::mutex _timerMutex;

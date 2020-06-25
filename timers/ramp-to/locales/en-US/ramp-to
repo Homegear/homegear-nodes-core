@@ -1,0 +1,22 @@
+{
+  "timers/ramp-to.hni": {
+    "ramp-to": {
+      "label": {
+        "interval-up": "Interval up",
+        "interval-down": "Interval down",
+        "interval2": "Interval in ms",
+        "step-interval": "Step interval",
+        "step-interval2": "Step interval in ms",
+        "minimum": "Minimum",
+        "maximum": "Maximum",
+        "name": "Name"
+      },
+      "input1Description": "Ramp to this value.",
+      "input2Description": "Set current value. You don't need to worry about feedback loops here.",
+      "input2Description": "Stop ramping.",
+      "output1Description": "Outputs the current value every step interval. The value is only output, when it changed.",
+      "output2Description": "Outputs <code>true</code> when the ramping is finished.",
+      "paletteHelp": "<p>Ramps to values.</p>"
+    }
+  }
+}

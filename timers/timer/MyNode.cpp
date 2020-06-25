@@ -592,6 +592,8 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 					if(_stopped) return;
 					_stopThread = false;
 					_timerThread = std::thread(&MyNode::timer, this);
+
+                    _forceUpdate = true;
 				}
 			}
 			else

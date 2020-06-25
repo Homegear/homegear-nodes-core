@@ -17,6 +17,7 @@
           "delete": "Delete",
           "move": "Move",
           "to": "to",
+          "to2": "to",
           "search": "Search for",
           "replace": "Replace with"
       },

@@ -3,6 +3,7 @@
     "toggle": {
       "label": {
         "true-only": "Nur bei \"true\" togglen",
+        "use-feedback": "Rückmeldeeingang verwenden",
         "variabletype": "Variablentyp",
         "devicevariable": "Gerätevariable",
         "metadata": "Metadaten",
@@ -19,7 +20,7 @@
       },
       "tip": "Tipp: Informationen zur Verwendung finden Sie auf der Registerkarte Hilfe.",
       "paletteHelp": "<p>Schaltet eine Variable um.</p>",
-      "help": "Verwenden Sie diesen Knoten, um eine Variable in Homegear umzuschalten. Der neue Wert wird ausgegeben.",
+      "help": "Verwenden Sie diesen Knoten, um eine Variable in Homegear umzuschalten. Der neue Wert wird ausgegeben. Wenn keine Variable angegeben ist, wird trotzdem eine Ausgabe generiert. Wenn eine Variable angegeben ist, liest Node-BLUE den aktuellen Wert und invertiert diesen. <code>Rückmeldeeingang verwenden</code> aktiviert einen zweiten Eingang, welcher genutzt werden kann, um den aktuellen Variablenwert zu aktualisieren. Wenn aktiviert, wird der aktuelle Wert der Variablen ignoriert und dieser rückgemeldete Wert invertiert auf die angegebene Variable geschrieben bzw. ausgegeben.",
       "input1Description": "Bei jeder Eingabe wird die angegebene Variable umgeschaltet.",
       "output1Description": "Gibt den neuen Wert der Variablen aus."
     }

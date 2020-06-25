@@ -38,7 +38,7 @@
         color: "#C0DEED",
         defaults: {
             name: {value:""},
-            program: {value:"",required:true},
+            program: {value:"",required:false},
             arguments: {value:"",required:false},
             autostart: {value:false,required:false},
             "collect-output": {value:false,required:false}

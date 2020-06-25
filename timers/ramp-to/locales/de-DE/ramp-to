@@ -1,0 +1,22 @@
+{
+  "timers/ramp-to.hni": {
+    "ramp-to": {
+      "label": {
+        "interval-up": "Interv. hoch",
+        "interval-down": "Interv. runter",
+        "interval2": "Intervall in ms",
+        "step-interval": "Schrittinterv.",
+        "step-interval2": "Schrittintervall in ms",
+        "minimum": "Minimum",
+        "maximum": "Maximum",
+        "name": "Name"
+      },
+      "input1Description": "Rampe zu diesem Wert.",
+      "input2Description": "Setzt den aktuellen Wert. Es können keine Rückkopplungsschleifen entstehen.",
+      "input2Description": "Stoppt das Rampen.",
+      "output1Description": "Gibt jedes <code>Schrittintervall</code> den aktuellen Wert aus. Es werden nur Wertänderungen ausgegeben.",
+      "output2Description": "Gibt <code>true</code> aus, wenn das Rampen abgeschlossen ist.",
+      "paletteHelp": "<p>Rampt zu beliebigen Werten.</p>"
+    }
+  }
+}

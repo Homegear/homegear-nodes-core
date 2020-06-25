@@ -28,12 +28,12 @@
  */
 
 #include "Factory.h"
-#include "MyNode.h"
+#include "VariableIn.h"
 #include "../config.h"
 
 Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
 {
-	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
+	return new VariableIn::VariableIn(path, nodeNamespace, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()

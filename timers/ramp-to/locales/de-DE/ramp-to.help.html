@@ -1,0 +1,30 @@
+<p>Dieser Knoten kann verwendet werden, um zu beliebigen Werten zu rampen. Das Rampen kann dabei sowohl über sehr kurze Zeiträume (Millisekunden) als auch sehr lange Zeiträume (Tage) erfolgen. Dabei ist jedoch zu beachten, dass das Rampen nach einem "Implementieren" oder Homegearneustart nicht fortgesetzt wird.</p>
+<h3>Konfigurationsparameter</h3>
+<dl class="message-properties">
+	<dt>Intervall hoch (optional)</dt>
+	<dd>Die Gesamtrampzeit zum Hochrampen. Wenn das Feld leer gelassen wird, kann das Intervall über <code>$message['interval-up']</code> gesetzt werden.</dd>
+	<dt>Intervall runter (optional)</dt>
+	<dd>Die Gesamtrampzeit zum Runterrampen. Wenn das Feld leer gelassen wird, kann das Intervall über <code>$message['interval-down']</code> gesetzt werden.</dd>
+	<dt>Schrittintervall</dt>
+	<dd>Das Intervall, nach dem eine Wertaktualisierung ausgegeben Wert.</dd>
+	<dt>Minimum</dt>
+	<dd>Der minimal mögliche Wert.</dd>
+	<dt>Maximum</dt>
+	<dd>Der maximal mögliche Wert. Der Rampbereich liegt zwischen <code>Minimum</code> und <code>Maximum</code>. Werte außerhalb dieses Bereichs werden abgeschnitten.</dd>
+</dl>
+<h3>Eingänge</h3>
+<dl class="message-properties">
+	<dt>R</dt>
+	<dd>Startet das Rampen zu diesem Wert. Der Wert kann sowohl als <code>Integer</code> als auch als <code>Float</code> angegeben werden. Die Ausgabe erfolgt mit dem gleichen Variablentyp.</dd>
+	<dt>FB</dt>
+	<dd>Setzt den aktuellen Wert. Das nächste Rampen startet dann mit diesem Wert. Rückkopplungsschleifen können nicht entstehen.</dd>
+	<dt>S</dt>
+	<dd>Stoppt das Rampen.</dd>
+</dl>
+<h3>Ausgänge</h3>
+<dl class="message-properties">
+	<dt>V</dt>
+	<dd>Der aktuelle Wert. Die Ausgabe wird jedes <code>Schrittintervall</code> generiert, allerdings nur bei Wertänderungen.</dd>
+	<dt>F</dt>
+	<dd>Gibt <code>true</code> aus, wenn das Rampen abgeschlossen ist.</dd>
+</dl>

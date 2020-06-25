@@ -44,12 +44,33 @@
         defaults: {
             name: {value:""},
             server: {type:"modbus-host", required:true},
-            registers: {value:[{mt:"0", r:"1", c:"1", t:"bin", ir:false, ib:false}]},
+            registers: {value:[{mt:"0", n:"", r:"1", c:"1", t:"bin", ir:false, ib:false}]},
             outputs: {value:1}
         },
         color:"#FFF0F0",
         inputs:0,
         outputs:1,
+        outputInfo: function(i) {
+            if(this.registers && i < this.registers.length) {
+                var register = this.registers[i];
+                if(!register.hasOwnProperty('mt') || !register.hasOwnProperty('n') || !register.hasOwnProperty('r') || !register.hasOwnProperty('c') || !register.hasOwnProperty('t')) {
+                    return {label: i+''};
+                }
+                var type = register.t;
+                if(type == "bin") type = "binary";
+                var modbusType;
+                if(register.mt == 0) modbusType = 'HReg';
+                else if(register.mt == 1) modbusType = 'Coil';
+                else if(register.mt == 2) modbusType = 'DiscI';
+                else if(register.mt == 3) modbusType = 'IReg';
+                return {
+                    types: [type],
+                    label: register.n ? register.n : register.r + '',
+                    description: "<b>Modbus type:</b> " + modbusType + "<br/><b>Index:</b> " + register.r + "<br/><b>Count:</b> " + register.c + "<br/><b>Invert bytes:</b> " + register.ib + "<br/><b>Invert registers:</b> " + register.ir
+                }
+            }
+            else return {label: i+''};
+        },
         icon: "bridge.svg",
         label: function() {
             return this.name||this.topic||"modbus";
@@ -58,6 +79,7 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
+            var nameLabelText = this._("common.label.name");
             var indexLabelText = this._("modbus-in.label.index");
             var countLabelText = this._("modbus-in.label.count");
             var typeLabelText = this._("modbus-in.label.type");
@@ -66,7 +88,7 @@
 
             var outputCount = $("#node-input-outputs").val("{}");
 
-            $("#node-input-registers-container").css('min-height','150px').css('min-width','600px').editableList({
+            $("#node-input-registers-container").css('min-height','150px').css('min-width','700px').editableList({
                 addItem: function(container,i,opt) {
                     if (!opt.hasOwnProperty('r')) {
                         opt.r = {};
@@ -74,6 +96,9 @@
                     var register = opt.r;
                     if (!register.hasOwnProperty('mt')) {
                         register.mt = '0';
+                    }
+                    if (!register.hasOwnProperty('n')) {
+                        register.n = '';
                     }
                     if (!register.hasOwnProperty('r')) {
                         register.r = '';
@@ -93,6 +118,8 @@
                     modbusTypeField.append($("<option></option>").val("IReg").text("IReg"));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     modbusTypeField.append($("<option></option>").val("DiscI").text("DiscI"));
+                    var nameLabel = $('<span/>',{class:"node-input-register-name-label"}).text(" "+nameLabelText+" ").appendTo(row);
+                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"5",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
                     var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
@@ -113,6 +140,7 @@
                     else if(register.mt == 1) modbusTypeField.val('Coil');
                     else if(register.mt == 2) modbusTypeField.val('DiscI');
                     else if(register.mt == 3) modbusTypeField.val('IReg');
+                    nameField.val(register.n);
                     indexField.val(register.r);
                     countField.val(register.c);
                     selectField.val(register.t);
@@ -200,12 +228,13 @@
                 if(modbusTypeString == 'Coil') modbusType = 1;
                 else if(modbusTypeString == 'DiscI') modbusType = 2;
                 else if(modbusTypeString == 'IReg') modbusType = 3;
+                var name = register.find(".node-input-register-name").val();
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
                 var type = register.find(".node-input-register-type").val();
                 var invertBytes = register.find(".node-input-register-invertbytes").prop('checked');
                 var invertRegisters = register.find(".node-input-register-invertregisters").prop('checked');
-                node.registers.push({mt:modbusType,r:index,c:count,t:type,ib:invertBytes,ir:invertRegisters});
+                node.registers.push({mt:modbusType,n:name,r:index,c:count,t:type,ib:invertBytes,ir:invertRegisters});
             });
         },
         oneditresize: function(size) {

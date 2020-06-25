@@ -12,13 +12,14 @@
           "regex": "Benutze reguläre Ausdrücke"
       },
       "action": {
-          "set": "Setzen",
-          "change": "Ändern",
-          "delete": "Löschen",
-          "move": "Verschieben",
-          "to": "nach",
+          "set": "Setze",
+          "change": "Ändere",
+          "delete": "Lösche",
+          "move": "Verschiebe",
+          "to": "auf",
+          "to2": "nach",
           "search": "Suche nach",
-          "replace": "Ändere mit"
+          "replace": "Ersetze mit"
       },
       "errors": {
           "invalid-from": "Ungültige 'von' Eigenschaft: __error__",

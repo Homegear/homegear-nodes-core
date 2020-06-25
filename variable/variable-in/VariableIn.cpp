@@ -27,20 +27,21 @@
  * files in the program, then also delete it here.
  */
 
-#include "MyNode.h"
+#include "VariableIn.h"
 
-namespace MyNode
+namespace VariableIn
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+VariableIn::VariableIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+{
+    _metadata = std::make_shared<Flows::Variable>();
+}
+
+VariableIn::~VariableIn()
 {
 }
 
-MyNode::~MyNode()
-{
-}
-
-bool MyNode::init(Flows::PNodeInfo info)
+bool VariableIn::init(Flows::PNodeInfo info)
 {
 	try
 	{
@@ -77,6 +78,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 			else if(eventSource == "device") _eventSource = EventSource::device;
 			else if(eventSource == "homegear") _eventSource = EventSource::homegear;
             else if(eventSource == "scriptengine") _eventSource = EventSource::scriptEngine;
+            else if(eventSource == "profilemanager") _eventSource = EventSource::profileManager;
             else if(eventSource == "nodeblue") _eventSource = EventSource::nodeBlue;
             else if(eventSource == "rpcclient") _eventSource = EventSource::rpcClient;
             else if(eventSource == "ipcclient") _eventSource = EventSource::ipcClient;
@@ -130,7 +132,21 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::startUpComplete()
+bool VariableIn::start()
+{
+    try
+    {
+        _metadata = getNodeData("metadata");
+        return true;
+    }
+    catch(const std::exception& ex)
+    {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    return false;
+}
+
+void VariableIn::startUpComplete()
 {
     try
     {
@@ -150,21 +166,6 @@ void MyNode::startUpComplete()
             {
                 _type = payload->type;
 
-				if(_variableType == VariableType::device || _variableType == VariableType::metadata)
-				{
-					parameters->clear();
-					parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-					parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-					auto result = invoke("getName", parameters);
-					if(result->stringValue.empty())
-					{
-						parameters->clear();
-						parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-						result = invoke("getName", parameters);
-					}
-					_name = result->stringValue;
-				}
-
                 if(_outputOnStartup)
                 {
                     Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -172,7 +173,7 @@ void MyNode::startUpComplete()
                     message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
                     message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
                     message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                    if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
+                    message->structValue->emplace("metadata", _metadata);
                     message->structValue->emplace("payload", payload);
 
                     output(0, message);
@@ -224,7 +225,19 @@ void MyNode::startUpComplete()
     }
 }
 
-void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value)
+void VariableIn::stop()
+{
+    try
+    {
+        setNodeData("metadata", _metadata);
+    }
+    catch(const std::exception& ex)
+    {
+        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+}
+
+void VariableIn::variableEvent(const std::string& source, uint64_t peerId, int32_t channel, const std::string& variable, const Flows::PVariable& value, const Flows::PVariable& metadata)
 {
 	try
 	{
@@ -232,6 +245,7 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 		{
 			if(source.compare(0, 7, "device-") == 0 && _eventSource != EventSource::device) return;
 			else if(source.compare(0, 12, "scriptEngine") == 0 && _eventSource != EventSource::scriptEngine) return;
+            else if(source.compare(0, 14, "profileManager") == 0 && _eventSource != EventSource::profileManager) return;
 			else if(source.compare(0, 8, "nodeBlue") == 0 && _eventSource != EventSource::nodeBlue) return;
             else if(source.compare(0, 9, "ipcServer") == 0 && _eventSource != EventSource::ipcClient) return;
             else if(source.compare(0, 8, "homegear") == 0 && _eventSource != EventSource::homegear) return;
@@ -245,13 +259,14 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 
 		if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
 		_lastValue = value;
+		_metadata = metadata;
 
 		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 		message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>(source));
 		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
 		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
 		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-		if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
+        message->structValue->emplace("metadata", _metadata);
 		message->structValue->emplace("payload", value);
 
 		if(_loopPrevention && !_loopPreventionGroup.empty())
@@ -277,7 +292,7 @@ void MyNode::variableEvent(std::string source, uint64_t peerId, int32_t channel,
 	}
 }
 
-void MyNode::flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value)
+void VariableIn::flowVariableEvent(const std::string& flowId, const std::string& variable, const Flows::PVariable& value)
 {
 	try
 	{
@@ -315,7 +330,7 @@ void MyNode::flowVariableEvent(std::string flowId, std::string variable, Flows::
 	}
 }
 
-void MyNode::globalVariableEvent(std::string variable, Flows::PVariable value)
+void VariableIn::globalVariableEvent(const std::string& variable, const Flows::PVariable& value)
 {
 	try
 	{
@@ -353,7 +368,7 @@ void MyNode::globalVariableEvent(std::string variable, Flows::PVariable value)
 	}
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void VariableIn::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
 {
     try
     {
@@ -376,7 +391,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                 message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
                 message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
                 message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                if(!_name.empty()) message->structValue->emplace("peerName", std::make_shared<Flows::Variable>(_name));
+                message->structValue->emplace("metadata", _metadata);
                 message->structValue->emplace("payload", payload);
 
                 output(0, message);

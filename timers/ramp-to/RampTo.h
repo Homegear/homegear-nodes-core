@@ -31,60 +31,39 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include <thread>
 #include <mutex>
-#include <regex>
 
-namespace MyNode
+namespace RampTo
 {
 
-class MyNode: public Flows::INode
+class RampTo: public Flows::INode
 {
 public:
-	enum class RuleType
-	{
-		tSet,
-		tChange,
-		tMove,
-		tDelete
-	};
+	RampTo(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+	~RampTo() override;
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
-
-	virtual bool init(Flows::PNodeInfo info);
+	bool init(Flows::PNodeInfo info) override;
+	bool start() override;
+	void stop() override;
+	void waitForStop() override;
 private:
-	struct Rule
-	{
-		RuleType t;
-		std::string messageProperty;
-		std::string flowVariable;
-		std::string globalVariable;
-        Flows::PVariable from;
-        Flows::VariableType fromt;
-        std::string messagePropertyFrom;
-        std::string flowVariableFrom;
-        std::string globalVariableFrom;
-        bool fromRegexSet = false;
-        std::regex fromRegex;
-		Flows::PVariable to;
-		Flows::VariableType tot;
-        std::string messagePropertyTo;
-		std::string flowVariableTo;
-		std::string globalVariableTo;
-        std::string envVariableTo;
-	};
+    bool _intervalUpSet = false;
+    bool _intervalDownSet = false;
+	std::atomic<int32_t> _intervalUp{60000};
+    std::atomic<int32_t> _intervalDown{60000};
+	int32_t _stepInterval = 50;
 
-	typedef std::string Operator;
+	std::mutex _timerMutex;
+	std::atomic_bool _stopThread;
+	std::thread _timerThread;
 
-	std::vector<Rule> _rules;
+	std::atomic<double> _currentValue{0};
+	double _minimum = 0;
+	double _maximum = 100;
 
-    std::string& stringReplace(std::string& haystack, const std::string& search, const std::string& replace);
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-    void applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	void timer(double startValue, double rampTo, bool isInteger);
+	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
 };
 
 }

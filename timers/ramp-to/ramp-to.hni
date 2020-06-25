@@ -1,0 +1,84 @@
+<script type="text/x-homegear">
+{
+    "name": "ramp-to",
+    "readableName": "Ramp to",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="ramp-to">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval-up"><i class="fa fa-clock-o"></i> <span data-i18n="ramp-to.label.interval-up"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-interval-up" data-i18n="[placeholder]ramp-to.label.interval2">
+        <label for="node-input-interval-up">ms</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-interval-down"><i class="fa fa-clock-o"></i> <span data-i18n="ramp-to.label.interval-down"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-interval-down" data-i18n="[placeholder]ramp-to.label.interval2">
+        <label for="node-input-interval-down">ms</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-step-interval"><i class="fa fa-clock-o"></i> <span data-i18n="ramp-to.label.step-interval"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-step-interval" data-i18n="[placeholder]ramp-to.label.step-interval2">
+        <label for="node-input-step-interval">ms</label>
+    </div>
+    <div class="form-row">
+        <label for="node-input-minimum"><i class="fa fa-minus-square"></i> <span data-i18n="ramp-to.label.minimum"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-minimum">
+    </div>
+    <div class="form-row">
+        <label for="node-input-maximum"><i class="fa fa-plus-square"></i> <span data-i18n="ramp-to.label.maximum"></span></label>
+        <input style="width: 40%;" type="text" id="node-input-maximum">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('ramp-to',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            'interval-up': {value:"60000",required:false,validate: function(v) { if(!v) return true; else return $.isNumeric(v); }},
+            'interval-down': {value:"60000",required:false,validate: function(v) { if(!v) return true; else return $.isNumeric(v); }},
+            'step-interval': {value:"50",required:true,validate:RED.validators.number()},
+            minimum: {value:"0",required:true,validate:RED.validators.number()},
+            maximum: {value:"100",required:true,validate:RED.validators.number()},
+            name: {value:""}
+        },
+        inputs:3,
+        inputInfo: [
+            {
+                label: "R",
+                types: ["integer", "float"]
+            },
+            {
+                label: "FB",
+                types: ["integer", "float"]
+            },
+            {
+                label: "S",
+                types: ["boolean"]
+            }
+        ],
+        outputs:2,
+        outputInfo: [
+            {
+                label: "V",
+                types: ["integer", "float"]
+            },
+            {
+                label: "F",
+                types: ["boolean"]
+            }
+        ],
+        icon: "font-awesome/fa-hourglass",
+        label: function() {
+            if(this.name) return this.name;
+            return "ramp-to";
+        }
+    });
+</script>

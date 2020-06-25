@@ -28,6 +28,8 @@
  */
 
 #include "MyNode.h"
+#include "../../parsers/xml/Xml.h"
+
 
 namespace MyNode
 {
@@ -124,10 +126,6 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
 	catch(const std::exception& ex)
 	{
 		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
 	}
 }
 
