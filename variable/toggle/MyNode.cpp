@@ -127,6 +127,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     newValue = !((bool)(*getNodeData("value")));
                     setNodeData("value", std::make_shared<Flows::Variable>(newValue));
                 }
+                else _currentValue = newValue;
 
                 Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newValue));
@@ -141,6 +142,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     newValue = !((bool)(*getFlowData(_variable)));
                     setFlowData(_variable, std::make_shared<Flows::Variable>(newValue));
                 }
+                else _currentValue = newValue;
 
                 Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
@@ -156,6 +158,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     newValue = !((bool)(*getFlowData(_variable)));
                     setGlobalData(_variable, std::make_shared<Flows::Variable>(newValue));
                 }
+                else _currentValue = newValue;
 
                 Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
                 outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
@@ -182,6 +185,7 @@ void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVa
                     }
                     newValue = !oldValue->booleanValue;
                 }
+                else _currentValue = newValue;
 
                 parameters->push_back(std::make_shared<Flows::Variable>(newValue));
 

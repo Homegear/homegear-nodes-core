@@ -33,64 +33,60 @@
 #include <homegear-node/INode.h>
 #include <homegear-base/BaseLib.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool *frontendConnected);
+  virtual ~MyNode();
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
+  virtual bool init(Flows::PNodeInfo info);
+  virtual bool start();
+  virtual void stop();
+  virtual void waitForStop();
 
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
-private:
-    enum class SplitType
-    {
-        no,
-        character,
-        timeout,
-        fixedLength
-    };
+  virtual Flows::PVariable getConfigParameterIncoming(std::string name);
+ private:
+  enum class SplitType {
+    no,
+    character,
+    timeout,
+    fixedLength
+  };
 
-	Flows::PNodeInfo _nodeInfo;
+  Flows::PNodeInfo _nodeInfo;
 
-    std::mutex _nodesMutex;
-    std::set<std::string> _nodes;
+  std::mutex _nodesMutex;
+  std::set<std::string> _nodes;
 
-    std::shared_ptr<BaseLib::SharedObjects> _bl;
-    std::shared_ptr<BaseLib::SerialReaderWriter> _serial;
-    std::atomic_bool _stopThread;
-	std::thread _readThread;
-    std::vector<char> _dataBuffer;
+  std::shared_ptr<BaseLib::SharedObjects> _bl;
+  std::shared_ptr<BaseLib::SerialReaderWriter> _serial;
+  std::atomic_bool _stopThread;
+  std::thread _readThread;
 
-    //{{{ Settings
-        std::string _serialPort;
-        int32_t _baudRate = 57600;
-        BaseLib::SerialReaderWriter::CharacterSize _dataBits = BaseLib::SerialReaderWriter::CharacterSize::Eight;
-        bool _evenParity = false;
-        bool _oddParity = false;
-        int32_t _stopBits = 1;
-        char _newLine = '\n';
-        int32_t _timeout = 0;
-        int32_t _fixedCount = 1;
-        bool _binaryOutput = true;
-        SplitType _splitType;
-        bool _addCharacter = false;
-    //}}}
+  //{{{ Settings
+  std::string _serialPort;
+  int32_t _baudRate = 57600;
+  BaseLib::SerialReaderWriter::CharacterSize _dataBits = BaseLib::SerialReaderWriter::CharacterSize::Eight;
+  bool _evenParity = false;
+  bool _oddParity = false;
+  int32_t _stopBits = 1;
+  char _newLine = '\n';
+  int32_t _timeout = 0;
+  int32_t _fixedCount = 1;
+  bool _binaryOutput = true;
+  SplitType _splitType;
+  bool _addCharacter = false;
+  //}}}
 
-    void listenThread();
-    void reopen();
-    void packetReceived(Flows::PVariable data);
+  void listenThread();
+  void reopen();
+  void packetReceived(Flows::PVariable data);
 
-	//{{{ RPC methods
-	Flows::PVariable registerNode(Flows::PArray parameters);
-	Flows::PVariable write(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable registerNode(Flows::PArray parameters);
+  Flows::PVariable write(Flows::PArray parameters);
+  //}}}
 };
 
 }

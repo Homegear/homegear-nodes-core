@@ -34,32 +34,30 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool *frontendConnected);
+  virtual ~MyNode();
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	uint32_t _delay = 10000;
+  virtual bool init(Flows::PNodeInfo info);
+  virtual bool start();
+  virtual void stop();
+  virtual void waitForStop();
+ private:
+  uint32_t _delay = 10000;
 
-	std::atomic_bool _threadRunning;
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::mutex _timerThreadMutex;
-	std::thread _timerThread;
+  std::atomic_bool _threadRunning;
+  std::atomic_bool _stopThread;
+  std::atomic_bool _stopped;
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
 
-	bool _firstInput = true;
-	bool _lastInputState = false;
-	void timer(int64_t inputTime);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  bool _firstInput = true;
+  bool _lastInputState = false;
+  void timer(int64_t inputTime);
+  virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
 };
 
 }
