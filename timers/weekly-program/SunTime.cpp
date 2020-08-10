@@ -44,7 +44,7 @@
 
 #include "SunTime.h"
 
-namespace MyNode
+namespace WeeklyProgram
 {
 
 SunTime::SunTime()

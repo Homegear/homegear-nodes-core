@@ -29,24 +29,20 @@
 
 #include "MyNode.h"
 
-namespace MyNode
+namespace WeeklyProgram
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-    _stopThread = true;
-    _stopped = true;
-    _enabled = true;
 }
 
 MyNode::~MyNode()
 {
     _stopThread = true;
-    waitForStop();
 }
 
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
     try
     {
@@ -170,7 +166,7 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
     {
         elements.push_back(element);
     }
-    if(string.back() == delimiter) elements.push_back(std::string());
+    if(string.back() == delimiter) elements.emplace_back(std::string());
     return elements;
 }
 
@@ -246,7 +242,7 @@ Flows::PVariable MyNode::getCurrentValue()
 std::string MyNode::getDateString(int64_t time)
 {
     const char timeFormat[] = "%x";
-    std::time_t t;
+    std::time_t t = 0;
     if(time > 0)
     {
         t = std::time_t(time / 1000);
@@ -404,7 +400,7 @@ void MyNode::timer()
     }
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message)
 {
     try
     {

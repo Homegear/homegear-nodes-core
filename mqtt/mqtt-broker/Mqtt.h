@@ -38,200 +38,189 @@
 #include <homegear-base/BaseLib.h>
 #include <regex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class Mqtt : public BaseLib::IQueue
-{
-public:
-	typedef std::string NodeId;
-	typedef std::string Topic;
-	typedef std::regex TopicRegex;
+class Mqtt : public BaseLib::IQueue {
+ public:
+  typedef std::string NodeId;
+  typedef std::string Topic;
+  typedef std::regex TopicRegex;
 
-	struct MqttSettings
-	{
-		std::string brokerHostname;
-		std::string brokerPort;
-		std::string clientId;
-		std::string username;
-		std::string password;
-		bool enableSSL = false;
-		std::string caPath;
-		std::string caData;
-		std::string certPath;
-		std::string certData;
-		std::string keyPath;
-        std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> keyData;
-		bool verifyCertificate = true;
-	};
+  struct MqttSettings {
+    std::string brokerHostname;
+    std::string brokerPort;
+    std::string clientId;
+    std::string username;
+    std::string password;
+    bool enableSSL = false;
+    std::string caPath;
+    std::string caData;
+    std::string certPath;
+    std::string certData;
+    std::string keyPath;
+    std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> keyData;
+    bool verifyCertificate = true;
+  };
 
-	struct TopicEntry
-	{
+  struct TopicEntry {
 
-	};
+  };
 
-	struct MqttMessage
-	{
-		std::string topic;
-		std::vector<char> message;
-		bool retain = true;
-	};
+  struct MqttMessage {
+    std::string topic;
+    std::vector<char> message;
+    bool retain = true;
+  };
 
-	Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output);
+  Mqtt(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output);
 
-	virtual ~Mqtt();
+  ~Mqtt() override;
 
-	void start();
+  void start();
 
-	void stop();
+  void stop();
 
-	void waitForStop();
+  void waitForStop();
 
-	void setSettings(const std::shared_ptr<MqttSettings>& settings);
+  void setSettings(const std::shared_ptr<MqttSettings> &settings);
 
-	void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> value) { _invoke.swap(value); }
+  void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray &, bool)> value) { _invoke.swap(value); }
 
-	void registerNode(std::string& node);
+  void registerNode(std::string &node);
 
-	void registerTopic(std::string& node, std::string& topic);
+  void registerTopic(std::string &node, std::string &topic);
 
-	void unregisterTopic(std::string& node, std::string& topic);
+  void unregisterTopic(std::string &node, std::string &topic);
 
-	/**
-	 * Queues a generic message for publishing to the MQTT broker.
-	 *
-	 * @param topic The MQTT topic.
-	 * @param payload The MQTT payload.
-	 */
-	void queueMessage(std::string& topic, std::string& payload, bool retain);
+  /**
+   * Queues a generic message for publishing to the MQTT broker.
+   *
+   * @param topic The MQTT topic.
+   * @param payload The MQTT payload.
+   */
+  void queueMessage(std::string &topic, std::string &payload, bool retain);
 
-private:
-	class QueueEntrySend : public BaseLib::IQueueEntry
-	{
-	public:
-		QueueEntrySend() {}
+ private:
+  class QueueEntrySend : public BaseLib::IQueueEntry {
+   public:
+    QueueEntrySend() = default;
 
-		QueueEntrySend(std::shared_ptr<MqttMessage>& message) { this->message = message; }
+    explicit QueueEntrySend(std::shared_ptr<MqttMessage> &message) { this->message = message; }
 
-		virtual ~QueueEntrySend() {}
+    ~QueueEntrySend() override = default;
 
-		std::shared_ptr<MqttMessage> message;
-	};
+    std::shared_ptr<MqttMessage> message;
+  };
 
-	class QueueEntryReceived : public BaseLib::IQueueEntry
-	{
-	public:
-		QueueEntryReceived() {}
+  class QueueEntryReceived : public BaseLib::IQueueEntry {
+   public:
+    QueueEntryReceived() = default;
 
-		QueueEntryReceived(std::vector<char>& data) { this->data = data; }
+    explicit QueueEntryReceived(std::vector<char> &data) { this->data = data; }
 
-		virtual ~QueueEntryReceived() {}
+    ~QueueEntryReceived() override = default;
 
-		std::vector<char> data;
-	};
+    std::vector<char> data;
+  };
 
-	class Request
-	{
-	public:
-		std::mutex mutex;
-		std::condition_variable conditionVariable;
-		bool mutexReady = false;
-		std::vector<char> response;
+  class Request {
+   public:
+    std::mutex mutex;
+    std::condition_variable conditionVariable;
+    bool mutexReady = false;
+    std::vector<char> response;
 
-		uint8_t getResponseControlByte() { return _responseControlByte; }
+    uint8_t getResponseControlByte() const { return _responseControlByte; }
 
-		Request(uint8_t responseControlByte) { _responseControlByte = responseControlByte; };
+    explicit Request(uint8_t responseControlByte) { _responseControlByte = responseControlByte; };
 
-		virtual ~Request() {};
-	private:
-		uint8_t _responseControlByte;
-	};
+    ~Request() = default;
+   private:
+    uint8_t _responseControlByte;
+  };
 
-	class RequestByType
-	{
-	public:
-		std::mutex mutex;
-		std::condition_variable conditionVariable;
-		bool mutexReady = false;
-		std::vector<char> response;
+  class RequestByType {
+   public:
+    std::mutex mutex;
+    std::condition_variable conditionVariable;
+    bool mutexReady = false;
+    std::vector<char> response;
 
-		RequestByType() {};
+    RequestByType() = default;
 
-		virtual ~RequestByType() {};
-	};
+    ~RequestByType() = default;
+  };
 
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	std::shared_ptr<Flows::Output> _out;
-	std::shared_ptr<MqttSettings> _settings;
-	std::function<Flows::PVariable(std::string, std::string, Flows::PArray&, bool)> _invoke;
-	std::mutex _topicsMutex;
-	std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
-	std::mutex _nodesMutex;
-	std::set<std::string> _nodes;
-	std::unique_ptr<BaseLib::TcpSocket> _socket;
-	std::thread _pingThread;
-	std::thread _listenThread;
-	std::atomic_bool _reconnecting;
-	std::mutex _reconnectThreadMutex;
-	std::thread _reconnectThread;
-	std::mutex _connectMutex;
-	std::atomic_bool _started;
-	std::atomic_bool _connected;
-	std::atomic<int16_t> _packetId;
-	std::mutex _requestsMutex;
-	std::map<int16_t, std::shared_ptr<Request>> _requests;
-	std::mutex _requestsByTypeMutex;
-	std::map<uint8_t, std::shared_ptr<RequestByType>> _requestsByType;
+  std::shared_ptr<BaseLib::SharedObjects> _bl;
+  std::shared_ptr<Flows::Output> _out;
+  std::shared_ptr<MqttSettings> _settings;
+  std::function<Flows::PVariable(std::string, std::string, Flows::PArray &, bool)> _invoke;
+  std::mutex _topicsMutex;
+  std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
+  std::mutex _nodesMutex;
+  std::set<std::string> _nodes;
+  std::unique_ptr<BaseLib::TcpSocket> _socket;
+  std::thread _pingThread;
+  std::thread _listenThread;
+  std::atomic_bool _reconnecting;
+  std::mutex _reconnectThreadMutex;
+  std::thread _reconnectThread;
+  std::mutex _connectMutex;
+  std::atomic_bool _started;
+  std::atomic_bool _connected;
+  std::atomic<int16_t> _packetId;
+  std::mutex _requestsMutex;
+  std::map<int16_t, std::shared_ptr<Request>> _requests;
+  std::mutex _requestsByTypeMutex;
+  std::map<uint8_t, std::shared_ptr<RequestByType>> _requestsByType;
 
-	Mqtt(const Mqtt&);
+  Mqtt(const Mqtt &);
 
-	Mqtt& operator=(const Mqtt&);
+  Mqtt &operator=(const Mqtt &);
 
-	void connect();
+  void connect();
 
-	void reconnect();
+  void reconnect();
 
-	void reconnectThread();
+  void reconnectThread();
 
-	void disconnect();
+  void disconnect();
 
-	void processMessages();
+  void processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry> &entry) override;
 
-	void processQueueEntry(int32_t index, std::shared_ptr<BaseLib::IQueueEntry>& entry);
+  std::vector<char> getLengthBytes(uint32_t length);
 
-	std::vector<char> getLengthBytes(uint32_t length);
+  uint32_t getLength(std::vector<char> packet, uint32_t &lengthBytes);
 
-	uint32_t getLength(std::vector<char> packet, uint32_t& lengthBytes);
+  void printConnectionError(char resultCode);
 
-	void printConnectionError(char resultCode);
+  /**
+   * Publishes data to the MQTT broker.
+   *
+   * @param topic The topic without Homegear prefix ("/homegear/UNIQUEID/") and without starting "/" (e.g. c/d).
+   * @param data The data to publish.
+   */
+  void publish(const std::string &topic, const std::vector<char> &data, bool retain);
 
-	/**
-	 * Publishes data to the MQTT broker.
-	 *
-	 * @param topic The topic without Homegear prefix ("/homegear/UNIQUEID/") and without starting "/" (e.g. c/d).
-	 * @param data The data to publish.
-	 */
-	void publish(const std::string& topic, const std::vector<char>& data, bool retain);
+  void ping();
 
-	void ping();
+  void getResponseByType(const std::vector<char> &packet, std::vector<char> &responseBuffer, uint8_t responseType, bool errors = true);
 
-	void getResponseByType(const std::vector<char>& packet, std::vector<char>& responseBuffer, uint8_t responseType, bool errors = true);
+  void getResponse(const std::vector<char> &packet, std::vector<char> &responseBuffer, uint8_t responseType, int16_t packetId, bool errors = true);
 
-	void getResponse(const std::vector<char>& packet, std::vector<char>& responseBuffer, uint8_t responseType, int16_t packetId, bool errors = true);
+  void listen();
 
-	void listen();
+  void processData(std::vector<char> &data);
 
-	void processData(std::vector<char>& data);
+  void processPublish(std::vector<char> &data);
 
-	void processPublish(std::vector<char>& data);
+  void subscribe(std::string &topic);
 
-	void subscribe(std::string& topic);
+  void unsubscribe(std::string &topic);
 
-	void unsubscribe(std::string& topic);
+  void send(const std::vector<char> &data);
 
-	void send(const std::vector<char>& data);
-
-	std::string& escapeTopic(std::string& topic);
+  std::string &escapeTopic(std::string &topic);
 };
 
 }

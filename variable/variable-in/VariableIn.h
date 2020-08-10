@@ -32,63 +32,59 @@
 
 #include <homegear-node/INode.h>
 
-namespace VariableIn
-{
+namespace VariableIn {
 
-class VariableIn : public Flows::INode
-{
-public:
-	VariableIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~VariableIn();
+class VariableIn : public Flows::INode {
+ public:
+  VariableIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~VariableIn() override;
 
-	bool init(Flows::PNodeInfo info) override;
-	bool start() override;
-	void startUpComplete() override;
-	void stop() override;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
 
-private:
-	enum class VariableType
-    {
-        device,
-        metadata,
-        system,
-        flow,
-        global
-    };
+ private:
+  enum class VariableType {
+    device,
+    metadata,
+    system,
+    flow,
+    global
+  };
 
-    enum class EventSource
-    {
-        all,
-        device,
-        homegear,
-        scriptEngine,
-        profileManager,
-        nodeBlue,
-        rpcClient,
-        ipcClient,
-        mqtt
-    };
+  enum class EventSource {
+    all,
+    device,
+    homegear,
+    scriptEngine,
+    profileManager,
+    nodeBlue,
+    rpcClient,
+    ipcClient,
+    mqtt
+  };
 
-    VariableType _variableType = VariableType::device;
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	Flows::PVariable _lastValue;
-	bool _outputChangesOnly = false;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	EventSource _eventSource = EventSource::all;
-	Flows::PVariable _metadata;
+  VariableType _variableType = VariableType::device;
+  int64_t _lastInput = 0;
+  uint32_t _refractionPeriod = 0;
+  Flows::PVariable _lastValue;
+  bool _outputChangesOnly = false;
+  bool _outputOnStartup = false;
+  uint64_t _peerId = 0;
+  int32_t _channel = -1;
+  std::string _variable;
+  EventSource _eventSource = EventSource::all;
+  Flows::PVariable _metadata;
 
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
+  Flows::VariableType _type = Flows::VariableType::tVoid;
+  std::string _loopPreventionGroup;
+  bool _loopPrevention = false;
 
-	void variableEvent(const std::string& source, uint64_t peerId, int32_t channel, const std::string& variable, const Flows::PVariable& value, const Flows::PVariable& metadata) override;
-    void flowVariableEvent(const std::string& flowId, const std::string& variable, const Flows::PVariable& value) override;
-    void globalVariableEvent(const std::string& variable, const Flows::PVariable& value) override;
-    void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+  void variableEvent(const std::string &source, uint64_t peerId, int32_t channel, const std::string &variable, const Flows::PVariable &value, const Flows::PVariable &metadata) override;
+  void flowVariableEvent(const std::string &flowId, const std::string &variable, const Flows::PVariable &value) override;
+  void globalVariableEvent(const std::string &variable, const Flows::PVariable &value) override;
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

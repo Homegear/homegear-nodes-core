@@ -31,30 +31,18 @@
 
 namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
-  _stopThread = false;
-
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
   _bl = std::make_shared<BaseLib::SharedObjects>();
 
   _localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
   _localRpcMethods.emplace("write", std::bind(&MyNode::write, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode() {
-}
+MyNode::~MyNode() = default;
 
-bool MyNode::init(Flows::PNodeInfo info) {
-  try {
-    _nodeInfo = info;
-    return true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-  }
-  return false;
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  _nodeInfo = info;
+  return true;
 }
 
 bool MyNode::start() {
@@ -163,15 +151,7 @@ bool MyNode::start() {
 }
 
 void MyNode::stop() {
-  try {
-    _stopThread = true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-  }
+  _stopThread = true;
 }
 
 void MyNode::waitForStop() {
@@ -187,7 +167,7 @@ void MyNode::waitForStop() {
   }
 }
 
-Flows::PVariable MyNode::getConfigParameterIncoming(std::string name) {
+Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
   try {
     auto settingsIterator = _nodeInfo->info->structValue->find(name);
     if (settingsIterator != _nodeInfo->info->structValue->end()) return settingsIterator->second;
@@ -217,12 +197,12 @@ void MyNode::reopen() {
   }
 }
 
-void MyNode::packetReceived(Flows::PVariable data) {
+void MyNode::packetReceived(const Flows::PVariable &data) {
   try {
     Flows::PArray parameters = std::make_shared<Flows::Array>();
     parameters->push_back(data);
     std::lock_guard<std::mutex> nodesGuard(_nodesMutex);
-    for (auto &node : _nodes) {
+    for (const auto &node : _nodes) {
       invokeNodeMethod(node, "packetReceived", parameters, false);
     }
   }
@@ -299,7 +279,7 @@ void MyNode::listenThread() {
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::registerNode(Flows::PArray parameters) {
+Flows::PVariable MyNode::registerNode(const Flows::PArray &parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tString || parameters->at(0)->stringValue.empty()) return Flows::Variable::createError(-1, "Parameter is not of type string.");
@@ -318,7 +298,7 @@ Flows::PVariable MyNode::registerNode(Flows::PArray parameters) {
   return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::write(Flows::PArray parameters) {
+Flows::PVariable MyNode::write(const Flows::PArray &parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter.");
     if (parameters->at(0)->type != Flows::VariableType::tString && parameters->at(0)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter is not of type Binary or String.");

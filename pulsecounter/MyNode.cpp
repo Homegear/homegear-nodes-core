@@ -30,185 +30,149 @@
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_stopThread = true;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThread = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThread = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("maxgap");
+    if (settingsIterator != info->info->structValue->end()) _maxgap = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("maxgap");
-		if(settingsIterator != info->info->structValue->end()) _maxgap = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-        {
-            std::lock_guard<std::mutex> listGuard(_listMutex);
-            auto pulses = getNodeData("pulses");
-            for (auto& pulse : *pulses->arrayValue)
-            {
-                _pulses.push_back(pulse->integerValue64);
-            }
-        }
+bool MyNode::start() {
+  try {
+    {
+      std::lock_guard<std::mutex> listGuard(_listMutex);
+      auto pulses = getNodeData("pulses");
+      for (auto &pulse : *pulses->arrayValue) {
+        _pulses.push_back(pulse->integerValue64);
+      }
+    }
 
-        std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-        _stopThread = true;
-		if (_workerThread.joinable())_workerThread.join();
-		_stopThread = false;
-		_workerThread = std::thread(&MyNode::worker, this);
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable())_workerThread.join();
+    _stopThread = false;
+    _workerThread = std::thread(&MyNode::worker, this);
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-		_stopThread = true;
+void MyNode::stop() {
+  try {
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    std::lock_guard<std::mutex> listGuard(_listMutex);
+    Flows::PVariable pulses = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+    pulses->arrayValue->reserve(_pulses.size());
+    while (!_pulses.empty()) {
+      pulses->arrayValue->push_back(std::make_shared<Flows::Variable>(_pulses.front()));
+      _pulses.pop_front();
+    }
+    setNodeData("pulses", pulses);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable()) _workerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void MyNode::worker() {
+  try {
+    int64_t now = 0;
+    int64_t size = 0;
+    float duration = 0;
+    while (!_stopThread) {
+      {
+        now = BaseLib::HelperFunctions::getTime();
         std::lock_guard<std::mutex> listGuard(_listMutex);
-        Flows::PVariable pulses = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        pulses->arrayValue->reserve(_pulses.size());
-        while(!_pulses.empty())
-        {
-            pulses->arrayValue->push_back(std::make_shared<Flows::Variable>(_pulses.front()));
-            _pulses.pop_front();
+        while (!_pulses.empty() && now - _pulses.front() > _maxgap) _pulses.pop_front();
+
+        int64_t x_last = 0;
+        int64_t durationAll = 0;
+        for (long x : _pulses) {
+          if (x_last != 0) {
+            duration = (float)(x - x_last);
+            durationAll += duration;
+            //_out->printInfo(std::to_string(duration) + "ms");
+          }
+          x_last = x;
         }
-        setNodeData("pulses", pulses);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+        size = _pulses.size();
+        if (size > 1)
+          duration = (float)(60000.0 / ((float)durationAll / (float)(size - 1)));
+        else
+          duration = 0.0;
+        //_out->printInfo("---- AVG: " + std::to_string(duration) + " cnt/min");
+      }
+
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(duration));
+      output(0, outputMessage); //countsPerMinute
+
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Limit to one output per second
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-		_stopThread = true;
-		if (_workerThread.joinable()) _workerThread.join();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void MyNode::worker()
-{
-	try
-	{
-        int64_t now = 0;
-        int64_t size = 0;
-        float duration = 0;
-		while (!_stopThread)
-		{
-            {
-                now = BaseLib::HelperFunctions::getTime();
-                std::lock_guard<std::mutex> listGuard(_listMutex);
-                while(!_pulses.empty() && now - _pulses.front() > _maxgap) _pulses.pop_front();
-                
-                int64_t x_last = 0;
-                int64_t durationAll = 0;
-                for (auto it = _pulses.begin(); it != _pulses.end(); ++it)
-                {
-				    int64_t x = *it;
-				    if (x_last != 0)
-				    {
-				    	duration = x - x_last;
-				    	durationAll += duration;
-				    	//_out->printInfo(std::to_string(duration) + "ms");
-					}
-				    x_last = x;
-				}
-				size = _pulses.size();
-				if (size > 1)
-					duration = (60000.0 / ((float)durationAll / (float)(size - 1)));
-				else
-					duration = 0.0;
-				//_out->printInfo("---- AVG: " + std::to_string(duration) + " cnt/min");
-            }
-
-            Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(duration));
-            output(0, outputMessage); //countsPerMinute
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000)); //Limit to one output per second
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void MyNode::input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message)
-{
-	try
-	{
-		Flows::PVariable& input = message->structValue->at("payload");
-        if(!*input) return;
-		std::lock_guard<std::mutex> listGuard(_listMutex);
-		_pulses.push_back(BaseLib::HelperFunctions::getTime());
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PVariable &input = message->structValue->at("payload");
+    if (!*input) return;
+    std::lock_guard<std::mutex> listGuard(_listMutex);
+    _pulses.push_back(BaseLib::HelperFunctions::getTime());
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

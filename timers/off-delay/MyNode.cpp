@@ -31,18 +31,14 @@
 
 namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
-  _stopThread = true;
-  _stopped = true;
-  _threadRunning = false;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
 MyNode::~MyNode() {
   _stopThread = true;
-  waitForStop();
 }
 
-bool MyNode::init(Flows::PNodeInfo info) {
+bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("off-delay");
     if (settingsIterator != info->info->structValue->end()) _delay = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
@@ -84,17 +80,9 @@ bool MyNode::start() {
 }
 
 void MyNode::stop() {
-  try {
-    _stopped = true;
-    std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-    _stopThread = true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-  }
+  _stopped = true;
+  std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+  _stopThread = true;
 }
 
 void MyNode::waitForStop() {
@@ -156,7 +144,7 @@ void MyNode::timer(int64_t delayTo) {
   }
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) {
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
     Flows::PVariable &input = message->structValue->at("payload");
     if (index == 0) {

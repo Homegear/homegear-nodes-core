@@ -29,108 +29,76 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_localRpcMethods.emplace("event", std::bind(&MyNode::event, this, std::placeholders::_1));
-	_lastEvent = 0;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+  _localRpcMethods.emplace("event", std::bind(&MyNode::event, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    _nodeInfo = info;
+
+    auto settingsIterator = _nodeInfo->info->structValue->find("refractoryperiod");
+    if (settingsIterator != _nodeInfo->info->structValue->end()) _refractoryPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		_nodeInfo = info;
-
-		auto settingsIterator = _nodeInfo->info->structValue->find("refractoryperiod");
-		if(settingsIterator != _nodeInfo->info->structValue->end()) _refractoryPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+bool MyNode::start() {
+  return true;
 }
 
-bool MyNode::start()
-{
-	return true;
+void MyNode::stop() {
 }
 
-void MyNode::stop()
-{
-	try
-	{
-
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
-{
-	try
-	{
-		auto settingsIterator = _nodeInfo->info->structValue->find(name);
-		if(settingsIterator != _nodeInfo->info->structValue->end()) return settingsIterator->second;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return std::make_shared<Flows::Variable>();
+Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
+  try {
+    auto settingsIterator = _nodeInfo->info->structValue->find(name);
+    if (settingsIterator != _nodeInfo->info->structValue->end()) return settingsIterator->second;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return std::make_shared<Flows::Variable>();
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::event(Flows::PArray parameters)
-{
-	try
-	{
-		if(parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-        if(parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
+Flows::PVariable MyNode::event(const Flows::PArray &parameters) {
+  try {
+    if (parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly two parameters. " + std::to_string(parameters->size()) + " given.");
+    if (parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
+    if (parameters->at(1)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 2 is not of type string.");
 
-		std::lock_guard<std::mutex> lastEventGuard(_lastEventMutex);
-		if(Flows::HelperFunctions::getTime() - _lastEvent <= _refractoryPeriod && (parameters->at(0)->stringValue != _lastEventNode || parameters->at(1)->stringValue != _lastEventSource))
-		{
-			return std::make_shared<Flows::Variable>(false);
-		}
-		_lastEvent = Flows::HelperFunctions::getTime();
-		_lastEventNode = parameters->at(0)->stringValue;
-		_lastEventSource = parameters->at(1)->stringValue;
-		return std::make_shared<Flows::Variable>(true);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
+    std::lock_guard<std::mutex> lastEventGuard(_lastEventMutex);
+    if (Flows::HelperFunctions::getTime() - _lastEvent <= _refractoryPeriod && (parameters->at(0)->stringValue != _lastEventNode || parameters->at(1)->stringValue != _lastEventSource)) {
+      return std::make_shared<Flows::Variable>(false);
+    }
+    _lastEvent = Flows::HelperFunctions::getTime();
+    _lastEventNode = parameters->at(0)->stringValue;
+    _lastEventSource = parameters->at(1)->stringValue;
+    return std::make_shared<Flows::Variable>(true);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 //}}}
 

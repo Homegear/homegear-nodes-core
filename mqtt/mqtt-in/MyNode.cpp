@@ -32,17 +32,15 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
 	_localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode()
-{
-}
+MyNode::~MyNode() = default;
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
 	try
 	{
@@ -104,7 +102,7 @@ bool MyNode::start()
 }
 
 //{{{ RPC methods
-	Flows::PVariable MyNode::publish(Flows::PArray parameters)
+	Flows::PVariable MyNode::publish(const Flows::PArray& parameters)
 	{
 		try
 		{
@@ -115,13 +113,13 @@ bool MyNode::start()
 
 			if(_loopPrevention && !_loopPreventionGroup.empty())
 			{
-				Flows::PArray parameters = std::make_shared<Flows::Array>();
-				parameters->reserve(2);
-				parameters->push_back(std::make_shared<Flows::Variable>(_id));
-                parameters->push_back(std::make_shared<Flows::Variable>(std::string()));
-				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
+				Flows::PArray eventParameters = std::make_shared<Flows::Array>();
+				eventParameters->reserve(2);
+				eventParameters->push_back(std::make_shared<Flows::Variable>(_id));
+                eventParameters->push_back(std::make_shared<Flows::Variable>(std::string()));
+				Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", eventParameters, true);
 				if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
-				if(!result->booleanValue) return std::make_shared<Flows::Variable>();;
+				if(!result->booleanValue) return std::make_shared<Flows::Variable>();
 			}
 
 			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -144,7 +142,7 @@ bool MyNode::start()
 		return Flows::Variable::createError(-32500, "Unknown application error.");
 	}
 
-	Flows::PVariable MyNode::setConnectionState(Flows::PArray parameters)
+	Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters)
 	{
 		try
 		{

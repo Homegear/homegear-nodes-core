@@ -37,15 +37,15 @@ namespace MyNode {
 
 class MyNode : public Flows::INode {
  public:
-  MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool *frontendConnected);
-  virtual ~MyNode();
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-  virtual bool init(Flows::PNodeInfo info);
-  virtual bool start();
-  virtual void stop();
-  virtual void waitForStop();
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
 
-  virtual Flows::PVariable getConfigParameterIncoming(std::string name);
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
  private:
   enum class SplitType {
     no,
@@ -61,7 +61,7 @@ class MyNode : public Flows::INode {
 
   std::shared_ptr<BaseLib::SharedObjects> _bl;
   std::shared_ptr<BaseLib::SerialReaderWriter> _serial;
-  std::atomic_bool _stopThread;
+  std::atomic_bool _stopThread{true};
   std::thread _readThread;
 
   //{{{ Settings
@@ -75,17 +75,17 @@ class MyNode : public Flows::INode {
   int32_t _timeout = 0;
   int32_t _fixedCount = 1;
   bool _binaryOutput = true;
-  SplitType _splitType;
+  SplitType _splitType = SplitType::no;
   bool _addCharacter = false;
   //}}}
 
   void listenThread();
   void reopen();
-  void packetReceived(Flows::PVariable data);
+  void packetReceived(const Flows::PVariable& data);
 
   //{{{ RPC methods
-  Flows::PVariable registerNode(Flows::PArray parameters);
-  Flows::PVariable write(Flows::PArray parameters);
+  Flows::PVariable registerNode(const Flows::PArray& parameters);
+  Flows::PVariable write(const Flows::PArray& parameters);
   //}}}
 };
 

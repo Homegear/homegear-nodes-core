@@ -29,34 +29,25 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-}
+MyNode::~MyNode() = default;
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-        for(uint32_t outputIndex = 0; outputIndex < info->wiresOut.size(); outputIndex++)
-        {
-            output(outputIndex, message, true);
-        }
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    for (uint32_t outputIndex = 0; outputIndex < info->wiresOut.size(); outputIndex++) {
+      output(outputIndex, message, true);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

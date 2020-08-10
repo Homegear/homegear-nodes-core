@@ -35,51 +35,48 @@
 
 #include <regex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
 
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
-private:
-	struct NodeInfo
-	{
-		std::string id;
-		std::regex pathRegex;
-		std::unordered_map<int32_t, std::string> paramsMap;
-	};
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
+ private:
+  struct NodeInfo {
+    std::string id;
+    std::regex pathRegex;
+    std::unordered_map<int32_t, std::string> paramsMap;
+  };
 
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<BaseLib::HttpServer> _server;
-	std::string _username;
-	std::string _password;
-	BaseLib::Http _http;
+  std::shared_ptr<BaseLib::SharedObjects> _bl;
+  Flows::PNodeInfo _nodeInfo;
+  std::unique_ptr<BaseLib::HttpServer> _server;
+  std::string _username;
+  std::string _password;
+  BaseLib::Http _http;
 
-	std::mutex _nodesMutex;
-	std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
+  std::mutex _nodesMutex;
+  std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
 
-	BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
+  BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
 
-	std::string& createPathRegex(std::string& path, std::unordered_map<int32_t, std::string>& paramsMap);
+  std::string &createPathRegex(std::string &path, std::unordered_map<int32_t, std::string> &paramsMap);
 
-	BaseLib::TcpSocket::TcpPacket getError(int32_t code, std::string longDescription);
-	std::string constructHeader(uint32_t contentLength, int32_t code, Flows::PVariable headers);
-	void packetReceived(int32_t clientId, BaseLib::Http http);
+  BaseLib::TcpSocket::TcpPacket getError(int32_t code, const std::string& longDescription);
+  std::string constructHeader(uint32_t contentLength, int32_t code, const Flows::PVariable& headers);
+  void packetReceived(int32_t clientId, BaseLib::Http http);
 
-	//{{{ RPC methods
-		Flows::PVariable send(Flows::PArray parameters);
-		Flows::PVariable registerNode(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable send(const Flows::PArray& parameters);
+  Flows::PVariable registerNode(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

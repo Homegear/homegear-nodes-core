@@ -36,24 +36,22 @@
 
 #include <cstdio>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	std::string _directory;
-	std::string _filename;
-	bool _appendNewLine = false;
-	bool _createDirectory = false;
-	std::string _operation;
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  std::string _directory;
+  std::string _filename;
+  bool _appendNewLine = false;
+  bool _createDirectory = false;
+  std::string _operation;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

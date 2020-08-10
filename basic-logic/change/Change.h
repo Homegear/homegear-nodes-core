@@ -36,56 +36,52 @@
 #include <mutex>
 #include <regex>
 
-namespace Change
-{
+namespace Change {
 
-class Change : public Flows::INode
-{
-public:
-	enum class RuleType
-	{
-		tSet,
-		tChange,
-		tMove,
-		tDelete
-	};
+class Change : public Flows::INode {
+ public:
+  enum class RuleType {
+    tSet,
+    tChange,
+    tMove,
+    tDelete
+  };
 
-	Change(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~Change();
+  Change(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Change() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	struct Rule
-	{
-		RuleType t;
-		Flows::MessageProperty messageProperty;
-		std::string flowVariable;
-		std::string globalVariable;
-        Flows::PVariable from;
-        Flows::VariableType fromt;
-        Flows::MessageProperty messagePropertyFrom;
-        std::string flowVariableFrom;
-        std::string globalVariableFrom;
-        bool fromRegexSet = false;
-        std::regex fromRegex;
-		Flows::PVariable to;
-		Flows::VariableType tot;
-        Flows::MessageProperty messagePropertyTo;
-		std::string flowVariableTo;
-		std::string globalVariableTo;
-        std::string envVariableTo;
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  struct Rule {
+    RuleType t;
+    Flows::MessageProperty messageProperty;
+    std::string flowVariable;
+    std::string globalVariable;
+    Flows::PVariable from;
+    Flows::VariableType fromt;
+    Flows::MessageProperty messagePropertyFrom;
+    std::string flowVariableFrom;
+    std::string globalVariableFrom;
+    bool fromRegexSet = false;
+    std::regex fromRegex;
+    Flows::PVariable to;
+    Flows::VariableType tot;
+    Flows::MessageProperty messagePropertyTo;
+    std::string flowVariableTo;
+    std::string globalVariableTo;
+    std::string envVariableTo;
+  };
 
-	typedef std::string Operator;
+  typedef std::string Operator;
 
-	std::vector<Rule> _rules;
+  std::vector<Rule> _rules;
 
-    std::string& stringReplace(std::string& haystack, const std::string& search, const std::string& replace);
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-    void applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  std::string &stringReplace(std::string &haystack, const std::string &search, const std::string &replace);
+  RuleType getRuleTypeFromString(std::string &t);
+  Flows::VariableType getValueTypeFromString(std::string &vt);
+  void convertType(Flows::PVariable &value, Flows::VariableType vt);
+  void applyRule(const Flows::PNodeInfo &nodeInfo, Rule &rule, Flows::PVariable &value);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

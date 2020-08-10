@@ -41,15 +41,15 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected);
+	~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
+	bool init(const Flows::PNodeInfo &info) override;
+	bool start() override;
+	void stop() override;
+	void waitForStop() override;
 
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
+	Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
 private:
 	struct NodeInfo
 	{
@@ -67,8 +67,8 @@ private:
     void packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket& packet);
 
 	//{{{ RPC methods
-		Flows::PVariable send(Flows::PArray parameters);
-		Flows::PVariable registerNode(Flows::PArray parameters);
+		Flows::PVariable send(const Flows::PArray& parameters);
+		Flows::PVariable registerNode(const Flows::PArray& parameters);
 	//}}}
 };
 

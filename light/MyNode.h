@@ -33,46 +33,43 @@
 #include <homegear-node/INode.h>
 #include <thread>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	enum class LightType
-	{
-		switchState,
-		dimmerState,
-		dimmer
-	};
+class MyNode : public Flows::INode {
+ public:
+  enum class LightType {
+    switchState,
+    dimmerState,
+    dimmer
+  };
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	bool _twoInputs = false;
-	LightType _lightType = LightType::switchState;
-	double _step = 1.0;
-	double _factor = 0.0;
-	int32_t _interval = 0;
+  bool init(const Flows::PNodeInfo &info) override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  uint64_t _peerId = 0;
+  int32_t _channel = -1;
+  std::string _variable;
+  bool _twoInputs = false;
+  LightType _lightType = LightType::switchState;
+  double _step = 1.0;
+  double _factor = 0.0;
+  int32_t _interval = 0;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::thread _timerThread;
 
-	Flows::PVariable _onValue;
-	Flows::PVariable _offValue;
-	Flows::PVariable _minValue;
-	Flows::PVariable _maxValue;
+  Flows::PVariable _onValue;
+  Flows::PVariable _offValue;
+  Flows::PVariable _minValue;
+  Flows::PVariable _maxValue;
 
-	void dim(bool up);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void dim(bool up);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

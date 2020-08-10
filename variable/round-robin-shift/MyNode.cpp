@@ -29,102 +29,83 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("true-only");
+    if (settingsIterator != info->info->structValue->end()) _trueOnly = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("outputs");
+    if (settingsIterator != info->info->structValue->end()) _outputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
+
+    _currentOutputIndex = getNodeData("currentOutputIndex")->integerValue;
+    auto nodeData = getNodeData("forward");
+    if (nodeData->type == Flows::VariableType::tBoolean) _forward = nodeData->booleanValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-        auto settingsIterator = info->info->structValue->find("true-only");
-        if(settingsIterator != info->info->structValue->end()) _trueOnly = settingsIterator->second->booleanValue;
-
-        settingsIterator = info->info->structValue->find("outputs");
-        if(settingsIterator != info->info->structValue->end()) _outputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
-
-        _currentOutputIndex = getNodeData("currentOutputIndex")->integerValue;
-        auto nodeData = getNodeData("forward");
-        if(nodeData->type == Flows::VariableType::tBoolean) _forward = nodeData->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	return false;
-}
-
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    if (index == 0 || index == 1) //Toggle forward
     {
-	    if(index == 0 || index == 1) //Toggle forward
-        {
-            if(_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
+      if (_trueOnly && !(bool)(*message->structValue->at("payload"))) return;
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
 
-            if(index == 0)
-            {
-                if(!_forward)
-                {
-                    _forward = true;
-                    for(int32_t i = 0; i < 2; i++)
-                    {
-                        _currentOutputIndex++;
-                        if (_currentOutputIndex >= _outputs) _currentOutputIndex = 0;
-                    }
-                    setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
-                }
-                message->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
-                output(_currentOutputIndex, message);
-                _currentOutputIndex++;
-                if(_currentOutputIndex >= _outputs) _currentOutputIndex = 0;
-            }
-            else
-            {
-                if(_forward)
-                {
-                    _forward = false;
-                    for(int32_t i = 0; i < 2; i++)
-                    {
-                        _currentOutputIndex--;
-                        if (_currentOutputIndex < 0) _currentOutputIndex = _outputs - 1;
-                    }
-                    setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
-                }
-                message->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
-                output(_currentOutputIndex, message);
-                _currentOutputIndex--;
-                if(_currentOutputIndex < 0) _currentOutputIndex = _outputs - 1;
-            }
-            setNodeData("currentOutputIndex", std::make_shared<Flows::Variable>(_currentOutputIndex));
+      if (index == 0) {
+        if (!_forward) {
+          _forward = true;
+          for (int32_t i = 0; i < 2; i++) {
+            _currentOutputIndex++;
+            if (_currentOutputIndex >= _outputs) _currentOutputIndex = 0;
+          }
+          setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
         }
-	    else //Reset
-        {
-	        if(message->structValue->at("payload")->type == Flows::VariableType::tInteger64) _currentOutputIndex = message->structValue->at("payload")->integerValue64;
-	        else
-            {
-                if (!(bool) (*message->structValue->at("payload"))) return;
-                _currentOutputIndex = 0;
-            }
-            setNodeData("currentOutputIndex", std::make_shared<Flows::Variable>(_currentOutputIndex));
+        outputMessage->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
+        output(_currentOutputIndex, outputMessage);
+        _currentOutputIndex++;
+        if (_currentOutputIndex >= _outputs) _currentOutputIndex = 0;
+      } else {
+        if (_forward) {
+          _forward = false;
+          for (int32_t i = 0; i < 2; i++) {
+            _currentOutputIndex--;
+            if (_currentOutputIndex < 0) _currentOutputIndex = _outputs - 1;
+          }
+          setNodeData("forward", std::make_shared<Flows::Variable>(_forward));
         }
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
+        outputMessage->structValue->emplace("index", std::make_shared<Flows::Variable>(_currentOutputIndex));
+        output(_currentOutputIndex, outputMessage);
+        _currentOutputIndex--;
+        if (_currentOutputIndex < 0) _currentOutputIndex = _outputs - 1;
+      }
+      setNodeData("currentOutputIndex", std::make_shared<Flows::Variable>(_currentOutputIndex));
+    } else //Reset
+    {
+      if (message->structValue->at("payload")->type == Flows::VariableType::tInteger64) _currentOutputIndex = message->structValue->at("payload")->integerValue64;
+      else {
+        if (!(bool)(*message->structValue->at("payload"))) return;
+        _currentOutputIndex = 0;
+      }
+      setNodeData("currentOutputIndex", std::make_shared<Flows::Variable>(_currentOutputIndex));
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
 }
 
 }

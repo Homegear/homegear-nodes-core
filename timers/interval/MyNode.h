@@ -34,34 +34,32 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	std::atomic_bool _enabled;
-	int64_t _startTimeAll = 0;
-	int64_t _tick = 0;
-	int64_t _inputTime = 0;
-	int32_t _interval = 60000;
-	uint32_t _resetAfter = 0;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  std::atomic_bool _enabled{true};
+  int64_t _startTimeAll = 0;
+  int64_t _tick = 0;
+  int64_t _inputTime = 0;
+  int32_t _interval = 60000;
+  uint32_t _resetAfter = 0;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::atomic_bool _stopped{true};
+  std::thread _timerThread;
 
-	void timer();
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void timer();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

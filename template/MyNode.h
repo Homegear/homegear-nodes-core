@@ -36,30 +36,28 @@
 
 using namespace kainjow;
 
-namespace MyNode
-{
+namespace MyNode {
 
-class Template : public Flows::INode
-{
-public:
-	Template(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~Template();
+class Template : public Flows::INode {
+ public:
+  Template(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Template() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	Flows::PNodeInfo _nodeInfo;
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  Flows::PNodeInfo _nodeInfo;
 
-	std::string _plainTemplate;
-	std::unique_ptr<mustache::mustache> _template;
-	std::string _field;
-	bool _mustache = true;
-	bool _parseJson = false;
-	std::mutex _inputMutex;
-	mustache::data _data;
+  std::string _plainTemplate;
+  std::unique_ptr<mustache::mustache> _template;
+  std::string _field;
+  bool _mustache = true;
+  bool _parseJson = false;
+  std::mutex _inputMutex;
+  mustache::data _data;
 
-	void addData(mustache::DataSource dataSource, std::string key);
-	void setData(mustache::data& data, std::string key, Flows::PVariable value);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void addData(mustache::DataSource dataSource, const std::string& key);
+  void setData(mustache::data &data, const std::string& key, const Flows::PVariable& value);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

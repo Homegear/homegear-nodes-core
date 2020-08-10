@@ -33,33 +33,30 @@
 #include <homegear-node/INode.h>
 #include <thread>
 
-namespace UdpIn
-{
+namespace UdpIn {
 
-class UdpIn: public Flows::INode
-{
-public:
-	UdpIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	~UdpIn() override;
+class UdpIn : public Flows::INode {
+ public:
+  UdpIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~UdpIn() override;
 
-	bool init(Flows::PNodeInfo info) override;
-    bool start() override;
-    void stop() override;
-    void waitForStop() override;
-private:
-    enum class PayloadType
-    {
-        raw,
-        hex,
-        json
-    };
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  enum class PayloadType {
+    raw,
+    hex,
+    json
+  };
 
-    Flows::PNodeInfo _nodeInfo;
-    std::atomic_bool _stopListenThread{false};
-    std::thread _listenThread;
+  Flows::PNodeInfo _nodeInfo;
+  std::atomic_bool _stopListenThread{false};
+  std::thread _listenThread;
 
-    int getSocketDescriptor(const std::string& listenAddress, uint16_t port);
-    void listen(std::string listenAddress, uint16_t port, PayloadType payloadType);
+  int getSocketDescriptor(const std::string &listenAddress, uint16_t port);
+  void listen(std::string listenAddress, uint16_t port, PayloadType payloadType);
 };
 
 }

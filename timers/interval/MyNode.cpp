@@ -29,228 +29,184 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_enabled = true;
-	_stopped = true;
-	_stopThread = true;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThread = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThread = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("interval");
+    if (settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("interval");
-		if(settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    settingsIterator = info->info->structValue->find("resetafter");
+    if (settingsIterator != info->info->structValue->end()) _resetAfter = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-		settingsIterator = info->info->structValue->find("resetafter");
-		if(settingsIterator != info->info->structValue->end()) _resetAfter = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    if (_interval < 1) _interval = 1;
 
-		if(_interval < 1) _interval = 1;
+    auto enabled = getNodeData("enabled");
+    if (enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 
-		auto enabled = getNodeData("enabled");
-		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
+    _tick = getNodeData("tick")->integerValue64;
+    _startTimeAll = getNodeData("startTimeAll")->integerValue64;
 
-		_tick = getNodeData("tick")->integerValue64;
-		_startTimeAll = getNodeData("startTimeAll")->integerValue64;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-        _stopped = false;
-		if(!_enabled) return true;
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_inputTime = Flows::HelperFunctions::getTime();
-		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-		_stopThread = false;
-		_timerThread = std::thread(&MyNode::timer, this);
+bool MyNode::start() {
+  try {
+    _stopped = false;
+    if (!_enabled) return true;
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _inputTime = Flows::HelperFunctions::getTime();
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+    _stopThread = false;
+    _timerThread = std::thread(&MyNode::timer, this);
 
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		_stopThread = true;
-		_stopped = true;
-		setNodeData("tick", std::make_shared<Flows::Variable>(_tick));
-		setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::stop() {
+  try {
+    _stopThread = true;
+    _stopped = true;
+    setNodeData("tick", std::make_shared<Flows::Variable>(_tick));
+    setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::timer()
-{
-	int32_t sleepingTime = _interval - (Flows::HelperFunctions::getTime() - _inputTime);
-	if(sleepingTime < 1) sleepingTime = 1;
+void MyNode::timer() {
+  int32_t sleepingTime = _interval - (Flows::HelperFunctions::getTime() - _inputTime);
+  if (sleepingTime < 1) sleepingTime = 1;
 
-	int64_t startTime = Flows::HelperFunctions::getTime();
+  int64_t startTime = Flows::HelperFunctions::getTime();
 
-	while(!_stopThread)
-	{
-		try
-		{
-			_tick++;
-			if(sleepingTime > 1000 && sleepingTime < 30000)
-			{
-				int32_t iterations = sleepingTime / 100;
-				for(int32_t j = 0; j < iterations; j++)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(100));
-					if(_stopThread) break;
-				}
-				if(sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
-			}
-			else if(sleepingTime >= 30000)
-			{
-				int32_t iterations = sleepingTime / 1000;
-				for(int32_t j = 0; j < iterations; j++)
-				{
-					std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-					if(_stopThread) break;
-				}
-				if(sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
-			}
-			else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-			if(_stopThread) break;
-			Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_tick));
-			if(_resetAfter > 0 && Flows::HelperFunctions::getTime() - _startTimeAll >= _resetAfter)
-			{
-				_stopThread = true;
-				_enabled = false;
-				Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-				output(1, message);
-				setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-				Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-				status->structValue->emplace("text", std::make_shared<Flows::Variable>("disabled"));
-				nodeEvent("statusTop/" + _id, status);
-				break;
-			}
-			output(0, message);
-			int64_t diff = Flows::HelperFunctions::getTime() - startTime;
-			if(diff <= _interval) sleepingTime = _interval;
-			else sleepingTime = _interval - (diff - _interval);
-			if(sleepingTime < 1) sleepingTime = 1;
-			startTime = Flows::HelperFunctions::getTime();
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-	}
+  while (!_stopThread) {
+    try {
+      _tick++;
+      if (sleepingTime > 1000 && sleepingTime < 30000) {
+        int32_t iterations = sleepingTime / 100;
+        for (int32_t j = 0; j < iterations; j++) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          if (_stopThread) break;
+        }
+        if (sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
+      } else if (sleepingTime >= 30000) {
+        int32_t iterations = sleepingTime / 1000;
+        for (int32_t j = 0; j < iterations; j++) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+          if (_stopThread) break;
+        }
+        if (sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
+      } else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
+      if (_stopThread) break;
+      Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(_tick));
+      if (_resetAfter > 0 && Flows::HelperFunctions::getTime() - _startTimeAll >= _resetAfter) {
+        _stopThread = true;
+        _enabled = false;
+        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+        output(1, outputMessage);
+        setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+        Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        status->structValue->emplace("text", std::make_shared<Flows::Variable>("disabled"));
+        nodeEvent("statusTop/" + _id, status);
+        break;
+      }
+      output(0, message);
+      int64_t diff = Flows::HelperFunctions::getTime() - startTime;
+      if (diff <= _interval) sleepingTime = _interval;
+      else sleepingTime = _interval - (diff - _interval);
+      if (sleepingTime < 1) sleepingTime = 1;
+      startTime = Flows::HelperFunctions::getTime();
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch (...) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+  }
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		_inputTime = Flows::HelperFunctions::getTime();
-		if(index == 0)
-		{
-			_enabled = message->structValue->at("payload")->booleanValue;
-			setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-			Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
-			nodeEvent("statusTop/" + _id, status);
-			std::lock_guard<std::mutex> timerGuard(_timerMutex);
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
-            if(_stopped) return;
-			if(_enabled)
-			{
-				_tick = 0;
-				_startTimeAll = Flows::HelperFunctions::getTime();
-				_stopThread = false;
-				_timerThread = std::thread(&MyNode::timer, this);
-			}
-		}
-		else if(index == 1 && _enabled && message->structValue->at("payload"))
-		{
-			std::lock_guard<std::mutex> timerGuard(_timerMutex);
-			_stopThread = true;
-			if(_timerThread.joinable()) _timerThread.join();
-            if(_stopped) return;
-			_tick = 0;
-			_startTimeAll = Flows::HelperFunctions::getTime();
-			_stopThread = false;
-			_timerThread = std::thread(&MyNode::timer, this);
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    _inputTime = Flows::HelperFunctions::getTime();
+    if (index == 0) {
+      _enabled = message->structValue->at("payload")->booleanValue;
+      setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+      Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
+      nodeEvent("statusTop/" + _id, status);
+      std::lock_guard<std::mutex> timerGuard(_timerMutex);
+      _stopThread = true;
+      if (_timerThread.joinable()) _timerThread.join();
+      if (_stopped) return;
+      if (_enabled) {
+        _tick = 0;
+        _startTimeAll = Flows::HelperFunctions::getTime();
+        _stopThread = false;
+        _timerThread = std::thread(&MyNode::timer, this);
+      }
+    } else if (index == 1 && _enabled && message->structValue->at("payload")) {
+      std::lock_guard<std::mutex> timerGuard(_timerMutex);
+      _stopThread = true;
+      if (_timerThread.joinable()) _timerThread.join();
+      if (_stopped) return;
+      _tick = 0;
+      _startTimeAll = Flows::HelperFunctions::getTime();
+      _stopThread = false;
+      _timerThread = std::thread(&MyNode::timer, this);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

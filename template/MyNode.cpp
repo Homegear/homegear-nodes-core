@@ -29,179 +29,141 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-Template::Template(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+Template::Template(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-Template::~Template()
-{
+Template::~Template() = default;
+
+bool Template::init(const Flows::PNodeInfo &info) {
+  try {
+    _nodeInfo = info;
+
+    auto settingsIterator = info->info->structValue->find("template");
+    if (settingsIterator != info->info->structValue->end()) _plainTemplate = settingsIterator->second->stringValue;
+    _template.reset(new kainjow::mustache::mustache(_plainTemplate));
+
+    settingsIterator = info->info->structValue->find("syntax");
+    if (settingsIterator != info->info->structValue->end()) _mustache = settingsIterator->second->stringValue == "mustache";
+
+    settingsIterator = info->info->structValue->find("output");
+    if (settingsIterator != info->info->structValue->end()) _parseJson = settingsIterator->second->stringValue == "json";
+
+    settingsIterator = info->info->structValue->find("field");
+    if (settingsIterator != info->info->structValue->end()) _field = settingsIterator->second->stringValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool Template::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		_nodeInfo = info;
+void Template::addData(mustache::DataSource dataSource, const std::string &key) {
+  try {
+    Flows::PVariable result;
+    if (dataSource == mustache::DataSource::environment) {
+      auto envIterator = _nodeInfo->info->structValue->find("env");
+      if (envIterator == _nodeInfo->info->structValue->end()) return;
+      auto envIterator2 = envIterator->second->structValue->find(key);
+      if (envIterator2 == envIterator->second->structValue->end()) return;
+      result = envIterator2->second;
+    } else {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(2);
+      parameters->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
+      parameters->push_back(std::make_shared<Flows::Variable>(key));
+      result = invoke("getNodeData", parameters);
+      if (result->errorStruct) return;
+    }
 
-		auto settingsIterator = info->info->structValue->find("template");
-		if(settingsIterator != info->info->structValue->end()) _plainTemplate = settingsIterator->second->stringValue;
-		_template.reset(new kainjow::mustache::mustache(_plainTemplate));
-
-		settingsIterator = info->info->structValue->find("syntax");
-		if(settingsIterator != info->info->structValue->end()) _mustache = settingsIterator->second->stringValue == "mustache";
-
-		settingsIterator = info->info->structValue->find("output");
-		if(settingsIterator != info->info->structValue->end()) _parseJson = settingsIterator->second->stringValue == "json";
-
-		settingsIterator = info->info->structValue->find("field");
-		if(settingsIterator != info->info->structValue->end()) _field = settingsIterator->second->stringValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    auto *data = (mustache::data *)(_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
+    if (!data) return;
+    setData(*data, key, result);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void Template::addData(mustache::DataSource dataSource, std::string key)
-{
-	try
-	{
-        Flows::PVariable result;
-        if(dataSource == mustache::DataSource::environment)
-        {
-            auto envIterator = _nodeInfo->info->structValue->find("env");
-            if(envIterator == _nodeInfo->info->structValue->end()) return;
-            auto envIterator2 = envIterator->second->structValue->find(key);
-            if(envIterator2 == envIterator->second->structValue->end()) return;
-            result = envIterator2->second;
-        }
-	    else
-        {
-            Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(2);
-            parameters->push_back(std::make_shared<Flows::Variable>(dataSource == mustache::DataSource::global ? "global" : _nodeInfo->info->structValue->at("z")->stringValue));
-            parameters->push_back(std::make_shared<Flows::Variable>(key));
-            result = invoke("getNodeData", parameters);
-            if (result->errorStruct) return;
-        }
-
-        auto data = (mustache::data *) (_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
-        if (!data) return;
-        setData(*data, key, result);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void Template::setData(mustache::data &data, const std::string& key, const Flows::PVariable& value) {
+  try {
+    if (value->type == Flows::VariableType::tArray) {
+      mustache::data element = mustache::data::type::list;
+      for (const auto& arrayElement : *value->arrayValue) {
+        setData(element, "", arrayElement);
+      }
+      if (key.empty()) data.push_back(element); else data.set(key, element);
+    } else if (value->type == Flows::VariableType::tStruct) {
+      mustache::data element = mustache::data::type::object;
+      for (const auto& pair : *value->structValue) {
+        setData(element, pair.first, pair.second);
+      }
+      if (key.empty()) data.push_back(element); else data.set(key, element);
+    } else {
+      if (key.empty()) data.push_back(value->toString()); else data.set(key, value->toString());
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void Template::setData(mustache::data& data, std::string key, Flows::PVariable value)
-{
-	try
-	{
-		if(value->type == Flows::VariableType::tArray)
-		{
-			mustache::data element = mustache::data::type::list;
-			for(auto arrayElement : *value->arrayValue)
-			{
-				setData(element, "", arrayElement);
-			}
-			if(key.empty()) data.push_back(element); else data.set(key, element);
-		}
-		else if(value->type == Flows::VariableType::tStruct)
-		{
-			mustache::data element = mustache::data::type::object;
-			for(auto pair : *value->structValue)
-			{
-				setData(element, pair.first, pair.second);
-			}
-			if(key.empty()) data.push_back(element); else data.set(key, element);
-		}
-		else
-		{
-			if(key.empty()) data.push_back(value->toString()); else data.set(key, value->toString());
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
+void Template::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    std::lock_guard<std::mutex> inputGuard(_inputMutex);
+    _data = mustache::data();
+    for (auto &element : *message->structValue) {
+      setData(_data, element.first, element.second);
+    }
+    _data.set("flow", mustache::data(mustache::data::type::object));
+    _data.set("global", mustache::data(mustache::data::type::object));
+    _data.set("env", mustache::data(mustache::data::type::object));
 
-void Template::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		std::lock_guard<std::mutex> inputGuard(_inputMutex);
-        _data = mustache::data();
-		for(auto& element : *message->structValue)
-		{
-			setData(_data, element.first, element.second);
-		}
-		_data.set("flow", mustache::data(mustache::data::type::object));
-		_data.set("global", mustache::data(mustache::data::type::object));
-        _data.set("env", mustache::data(mustache::data::type::object));
+    Flows::PVariable result;
+    if (_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
+    else result = std::make_shared<Flows::Variable>(_plainTemplate);
 
-		Flows::PVariable result;
-		if(_mustache) result = std::make_shared<Flows::Variable>(_template->render(_data, std::function<void(mustache::DataSource, std::string)>(std::bind(&Template::addData, this, std::placeholders::_1, std::placeholders::_2))));
-		else result = std::make_shared<Flows::Variable>(_plainTemplate);
-
-		auto outputMessage = std::make_shared<Flows::Variable>();
-		*outputMessage = *message;
-		if(_parseJson)
-		{
-			Flows::PVariable json;
-			result->stringValue = Flows::HelperFunctions::trim(result->stringValue);
-			if(result->stringValue.empty()) json = std::make_shared<Flows::Variable>();
-			json = Flows::JsonDecoder::decode(result->stringValue);
-			if(_field.empty() && json->type == Flows::VariableType::tStruct)
-			{
-				outputMessage = json;
-			}
-			else
-			{
-				if(_field.empty()) _field = "payload";
-				outputMessage->structValue->operator[](_field) = json;
-			}
-			output(0, outputMessage);
-		}
-		else
-		{
-			if(_field.empty()) _field = "payload";
-            outputMessage->structValue->operator[](_field) = result;
-			output(0, outputMessage);
-		}
-	}
-	catch(const Flows::JsonDecoderException& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    auto outputMessage = std::make_shared<Flows::Variable>();
+    *outputMessage = *message;
+    if (_parseJson) {
+      Flows::PVariable json;
+      result->stringValue = Flows::HelperFunctions::trim(result->stringValue);
+      if (result->stringValue.empty()) json = std::make_shared<Flows::Variable>();
+      json = Flows::JsonDecoder::decode(result->stringValue);
+      if (_field.empty() && json->type == Flows::VariableType::tStruct) {
+        outputMessage = json;
+      } else {
+        if (_field.empty()) _field = "payload";
+        outputMessage->structValue->operator[](_field) = json;
+      }
+      output(0, outputMessage);
+    } else {
+      if (_field.empty()) _field = "payload";
+      outputMessage->structValue->operator[](_field) = result;
+      output(0, outputMessage);
+    }
+  }
+  catch (const Flows::JsonDecoderException &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

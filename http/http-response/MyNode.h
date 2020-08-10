@@ -39,17 +39,17 @@ namespace MyNode
 class HttpResponse : public Flows::INode
 {
 public:
-	HttpResponse(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~HttpResponse();
+	HttpResponse(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected);
+	~HttpResponse() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
+	bool init(const Flows::PNodeInfo &info) override;
+	void configNodesStarted() override;
 private:
 	std::string _server;
 	int32_t _statusCode = 200;
 	Flows::PVariable _headers;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+	void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

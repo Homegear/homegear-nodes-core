@@ -32,40 +32,36 @@
 
 #include <homegear-node/INode.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void setNodeVariable(const std::string& variable, Flows::PVariable value);
-private:
-	bool _active = true;
-	bool _hg = false;
-	bool _debTabHg = true;
-	int32_t _logLevel = 4;
+  bool init(const Flows::PNodeInfo &info) override;
+  void setNodeVariable(const std::string &variable, const Flows::PVariable &value) override;
+ private:
+  bool _active = true;
+  bool _hg = false;
+  bool _debTabHg = true;
+  int32_t _logLevel = 4;
 
-	static std::string& stringReplace(std::string& haystack, std::string search, std::string replace)
-	{
-		if(search.empty()) return haystack;
-		int32_t pos = 0;
-		while(true)
-		{
-			 pos = haystack.find(search, pos);
-			 if (pos == (signed)std::string::npos) break;
-			 haystack.replace(pos, search.size(), replace);
-			 pos += replace.size();
-		}
-		return haystack;
-	}
+  static std::string &stringReplace(std::string &haystack, const std::string &search, const std::string &replace) {
+    if (search.empty()) return haystack;
+    int32_t pos = 0;
+    while (true) {
+      pos = haystack.find(search, pos);
+      if (pos == (signed)std::string::npos) break;
+      haystack.replace(pos, search.size(), replace);
+      pos += replace.size();
+    }
+    return haystack;
+  }
 
-	std::string stripNonPrintable(const std::string& s);
+  std::string stripNonPrintable(const std::string &s);
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

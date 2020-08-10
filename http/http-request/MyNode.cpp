@@ -29,249 +29,196 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-    _bl = std::unique_ptr<BaseLib::SharedObjects>(new BaseLib::SharedObjects());
-    _jsonDecoder = std::unique_ptr<Flows::JsonDecoder>(new Flows::JsonDecoder());
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+  _bl = std::unique_ptr<BaseLib::SharedObjects>(new BaseLib::SharedObjects());
+  _jsonDecoder = std::unique_ptr<Flows::JsonDecoder>(new Flows::JsonDecoder());
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("url");
+    if (settingsIterator != info->info->structValue->end()) _url = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("method");
+    if (settingsIterator != info->info->structValue->end()) _method = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("ret");
+    if (settingsIterator != info->info->structValue->end()) {
+      if (settingsIterator->second->stringValue == "bin") _returnType = ReturnType::bin;
+      else if (settingsIterator->second->stringValue == "obj") _returnType = ReturnType::obj;
+      else _returnType = ReturnType::txt;
+    }
+
+    settingsIterator = info->info->structValue->find("tls");
+    if (settingsIterator != info->info->structValue->end()) _tlsNode = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("usetls");
+    if (settingsIterator != info->info->structValue->end()) _useTls = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("basicauth");
+    if (settingsIterator != info->info->structValue->end()) _useBasicAuth = settingsIterator->second->booleanValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("url");
-		if(settingsIterator != info->info->structValue->end()) _url = settingsIterator->second->stringValue;
+void MyNode::configNodesStarted() {
+  try {
+    std::string username = getNodeData("username")->stringValue;
+    std::string password = getNodeData("password")->stringValue;
 
-        settingsIterator = info->info->structValue->find("method");
-        if(settingsIterator != info->info->structValue->end()) _method = settingsIterator->second->stringValue;
+    if (_useBasicAuth && !username.empty()) {
+      std::string raw = username + ":" + password;
+      BaseLib::Base64::encode(raw, _basicAuth);
+      _basicAuth = "Authorization: Basic " + _basicAuth + "\r\n";
+    }
 
-        settingsIterator = info->info->structValue->find("ret");
-        if(settingsIterator != info->info->structValue->end())
-        {
-            if(settingsIterator->second->stringValue == "bin") _returnType = ReturnType::bin;
-            else if(settingsIterator->second->stringValue == "obj") _returnType = ReturnType::obj;
-            else _returnType = ReturnType::txt;
-        }
-
-        settingsIterator = info->info->structValue->find("tls");
-        if(settingsIterator != info->info->structValue->end()) _tlsNode = settingsIterator->second->stringValue;
-
-        settingsIterator = info->info->structValue->find("usetls");
-        if(settingsIterator != info->info->structValue->end()) _useTls = settingsIterator->second->booleanValue;
-
-        settingsIterator = info->info->structValue->find("basicauth");
-        if(settingsIterator != info->info->structValue->end()) _useBasicAuth = settingsIterator->second->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    if (!_url.empty()) setUrl(_url);
+  }
+  catch (BaseLib::Exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::configNodesStarted()
-{
-	try
-	{
-        std::string username = getNodeData("username")->stringValue;
-        std::string password = getNodeData("password")->stringValue;
-
-        if(_useBasicAuth && !username.empty())
-        {
-            std::string raw = username + ":" + password;
-            BaseLib::Base64::encode(raw, _basicAuth);
-            _basicAuth = "Authorization: Basic " + _basicAuth + "\r\n";
-        }
-
-        if(!_url.empty()) setUrl(_url);
-	}
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+void MyNode::setUrl(std::string &url) {
+  try {
+    if (url.compare(0, 7, "http://") == 0) {
+      url = url.substr(7);
+    } else if (url.compare(0, 8, "https://") == 0) {
+      _useTls = true;
+      _verifyCertificate = true;
+      url = url.substr(8);
+    } else {
+      _out->printError("Error: URL does not start with http:// or https://.");
+      return;
     }
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+
+    if (_useTls && !_tlsNode.empty()) {
+      _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
+      _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
+      auto keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
+      _keyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
+      _keyData->insert(_keyData->end(), keyData.begin(), keyData.end());
+      _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
+      _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
+      _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
+      _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
+    }
+
+    auto pathPair = BaseLib::HelperFunctions::splitFirst(url, '/');
+    _path = '/' + pathPair.second;
+
+    auto hostPair = BaseLib::HelperFunctions::splitLast(pathPair.first, ':');
+    _hostname = hostPair.first;
+    if (_hostname.size() >= 2 && _hostname.front() == '[' && _hostname.back() == ']') {
+      _hostname = _hostname.substr(1, _hostname.size() - 2);
+    }
+    if (_hostname.empty()) {
+      _out->printError("Error: URL does not contain a valid hostname or IP address.");
+      return;
+    }
+
+    _port = Flows::Math::getNumber(hostPair.second);
+    if (_port <= 0 || _port > 65535) _port = _useTls ? 443 : 80;
+
+    _httpClient = std::unique_ptr<BaseLib::HttpClient>(new BaseLib::HttpClient(_bl.get(), _hostname, _port, false, _useTls, _verifyCertificate, _caPath, _caData, _certPath, _certData, _keyPath, _keyData));
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::setUrl(std::string& url)
-{
-    try
-    {
-        if(url.compare(0, 7, "http://") == 0)
-        {
-            url = url.substr(7);
-        }
-        else if(url.compare(0, 8, "https://") == 0)
-        {
-            _useTls = true;
-            _verifyCertificate = true;
-            url = url.substr(8);
-        }
-        else
-        {
-            _out->printError("Error: URL does not start with http:// or https://.");
-            return;
-        }
-
-        if(_useTls && !_tlsNode.empty())
-        {
-            _caData = getConfigParameter(_tlsNode, "cadata.password")->stringValue;
-            _certData = getConfigParameter(_tlsNode, "certdata.password")->stringValue;
-            auto keyData = getConfigParameter(_tlsNode, "keydata.password")->stringValue;
-            _keyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
-            _keyData->insert(_keyData->end(), keyData.begin(), keyData.end());
-            _caPath = getConfigParameter(_tlsNode, "ca")->stringValue;
-            _certPath = getConfigParameter(_tlsNode, "cert")->stringValue;
-            _keyPath = getConfigParameter(_tlsNode, "key")->stringValue;
-            _verifyCertificate = getConfigParameter(_tlsNode, "verifyservercert")->booleanValue;
-        }
-
-        auto pathPair = BaseLib::HelperFunctions::splitFirst(url, '/');
-        _path = '/' + pathPair.second;
-
-        auto hostPair = BaseLib::HelperFunctions::splitLast(pathPair.first, ':');
-        _hostname = hostPair.first;
-        if(_hostname.size() >= 2 && _hostname.front() == '[' && _hostname.back() == ']')
-        {
-            _hostname = _hostname.substr(1, _hostname.size() - 2);
-        }
-        if(_hostname.empty())
-        {
-            _out->printError("Error: URL does not contain a valid hostname or IP address.");
-            return;
-        }
-
-        _port = Flows::Math::getNumber(hostPair.second);
-        if(_port <= 0 || _port > 65535) _port = _useTls ? 443 : 80;
-
-        _httpClient = std::unique_ptr<BaseLib::HttpClient>(new BaseLib::HttpClient(_bl.get(), _hostname, _port, false, _useTls, _verifyCertificate, _caPath, _caData, _certPath, _certData, _keyPath, _keyData));
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    auto urlIterator = message->structValue->find("url");
+    if (urlIterator != message->structValue->end()) {
+      if (urlIterator->second->stringValue.empty()) return;
+      setUrl(urlIterator->second->stringValue);
     }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+
+    if (!_httpClient) return;
+
+    std::string content;
+    if (message->structValue->at("payload")->type == Flows::VariableType::tBinary) {
+      content.insert(content.end(), message->structValue->at("payload")->binaryValue.begin(), message->structValue->at("payload")->binaryValue.end());
+    } else {
+      content = message->structValue->at("payload")->stringValue;
     }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+
+    BaseLib::Http result;
+    if (_method == "GET") {
+      std::string getRequest = "GET " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
+      _httpClient->sendRequest(getRequest, result);
+    } else if (_method == "DELETE") {
+      std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
+      _httpClient->sendRequest(deleteRequest, result);
+    } else if (_method == "PUT") {
+      std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+      putRequest.insert(putRequest.end(), content.begin(), content.end());
+      _httpClient->sendRequest(putRequest, result);
+    } else if (_method == "POST") {
+      std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+      postRequest.insert(postRequest.end(), content.begin(), content.end());
+      _httpClient->sendRequest(postRequest, result);
+    } else if (_method == "PATCH") {
+      std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+      patchRequest.insert(patchRequest.end(), content.begin(), content.end());
+      _httpClient->sendRequest(patchRequest, result);
     }
-}
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-        auto urlIterator = message->structValue->find("url");
-        if(urlIterator != message->structValue->end())
-        {
-            if(urlIterator->second->stringValue.empty()) return;
-            setUrl(urlIterator->second->stringValue);
-        }
+    Flows::PVariable outputMessage = std::make_shared<Flows::Variable>();
+    *outputMessage = *message;
+    (*outputMessage->structValue)["statusCode"] = std::make_shared<Flows::Variable>(result.getHeader().responseCode);
 
-        if(!_httpClient) return;
-
-        std::string content;
-        if(message->structValue->at("payload")->type == Flows::VariableType::tBinary)
-        {
-            content.insert(content.end(), message->structValue->at("payload")->binaryValue.begin(), message->structValue->at("payload")->binaryValue.end());
-        }
-        else
-        {
-            content = message->structValue->at("payload")->stringValue;
-        }
-
-        BaseLib::Http result;
-        if(_method == "GET")
-        {
-            std::string getRequest = "GET " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
-            _httpClient->sendRequest(getRequest, result);
-        }
-        else if(_method == "DELETE")
-        {
-            std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
-            _httpClient->sendRequest(deleteRequest, result);
-        }
-        else if(_method == "PUT")
-        {
-            std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
-            putRequest.insert(putRequest.end(), content.begin(), content.end());
-            _httpClient->sendRequest(putRequest, result);
-        }
-        else if(_method == "POST")
-        {
-            std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
-            postRequest.insert(postRequest.end(), content.begin(), content.end());
-            _httpClient->sendRequest(postRequest, result);
-        }
-        else if(_method == "PATCH")
-        {
-            std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
-            patchRequest.insert(patchRequest.end(), content.begin(), content.end());
-            _httpClient->sendRequest(patchRequest, result);
-        }
-
-
-        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>();
-        *outputMessage = *message;
-        (*outputMessage->structValue)["statusCode"] = std::make_shared<Flows::Variable>(result.getHeader().responseCode);
-
-        Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        (*outputMessage->structValue)["headers"] = headers;
-        auto& header = result.getHeader().fields;
-        for(auto& field : header)
-        {
-            headers->structValue->emplace(field.first, std::make_shared<Flows::Variable>(field.second));
-        }
-
-        if(_returnType == ReturnType::bin)
-        {
-            (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(result.getContent());
-        }
-        else if(_returnType == ReturnType::obj)
-        {
-            try
-            {
-                (*outputMessage->structValue)["payload"] = _jsonDecoder->decode(result.getContent());
-            }
-            catch(Flows::JsonDecoderException& ex)
-            {
-                (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
-            }
-        }
-        else (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
-
-        output(0, outputMessage);
-	}
-    catch(BaseLib::Exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    (*outputMessage->structValue)["headers"] = headers;
+    auto &header = result.getHeader().fields;
+    for (auto &field : header) {
+      headers->structValue->emplace(field.first, std::make_shared<Flows::Variable>(field.second));
     }
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+
+    if (_returnType == ReturnType::bin) {
+      (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(result.getContent());
+    } else if (_returnType == ReturnType::obj) {
+      try {
+        (*outputMessage->structValue)["payload"] = _jsonDecoder->decode(result.getContent());
+      }
+      catch (Flows::JsonDecoderException &ex) {
+        (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
+      }
+    } else (*outputMessage->structValue)["payload"] = std::make_shared<Flows::Variable>(std::string(result.getContent().data(), result.getContent().size()));
+
+    output(0, outputMessage);
+  }
+  catch (BaseLib::Exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }
