@@ -125,6 +125,10 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger) {
   else if (stepSize < 0.000001) stepSize = 0.000001;
   bool up = rampTo > startValue;
 
+  Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+  output(up ? 1 : 2, outputMessage);
+
   int64_t lastIntegerValue = std::llround(startValue);
 
   for (uint32_t i = 0; i < stepCount; i++) {
@@ -173,9 +177,9 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger) {
     }
   }
 
-  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-  message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-  output(1, message);
+  outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+  output(up ? 1 : 2, outputMessage);
 
   _currentValue = startValue;
   setNodeData("currentValue", std::make_shared<Flows::Variable>(_currentValue));
@@ -211,9 +215,6 @@ void RampTo::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         }
         output(0, outputMessage);
       } else {
-        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
-        output(1, outputMessage);
         _stopThread = false;
         _timerThread = std::thread(&RampTo::timer, this, _currentValue.load(), rampToValue, message->structValue->at("payload")->type != Flows::VariableType::tFloat);
       }
@@ -226,10 +227,6 @@ void RampTo::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         _stopThread = true;
         if (_timerThread.joinable()) _timerThread.join();
       }
-
-      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-      output(1, outputMessage);
     }
   }
   catch (const std::exception &ex) {

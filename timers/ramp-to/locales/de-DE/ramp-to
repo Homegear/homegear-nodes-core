@@ -15,7 +15,8 @@
       "input2Description": "Setzt den aktuellen Wert. Es können keine Rückkopplungsschleifen entstehen.",
       "input3Description": "Stoppt das Rampen.",
       "output1Description": "Gibt jedes <code>Schrittintervall</code> den aktuellen Wert aus. Es werden nur Wertänderungen ausgegeben.",
-      "output2Description": "Gibt <code>true</code> aus, wenn das Rampen startet und <code>false</code>, wenn es abgeschlossen ist.",
+      "output2Description": "Gibt <code>true</code> aus, wenn das Hochrampen startet und <code>false</code>, wenn es abgeschlossen ist.",
+      "output3Description": "Gibt <code>true</code> aus, wenn das Runterrampen startet und <code>false</code>, wenn es abgeschlossen ist.",
       "paletteHelp": "<p>Rampt zu beliebigen Werten.</p>"
     }
   }

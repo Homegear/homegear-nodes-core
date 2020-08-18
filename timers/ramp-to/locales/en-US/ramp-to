@@ -15,7 +15,8 @@
       "input2Description": "Set current value. You don't need to worry about feedback loops here.",
       "input2Description": "Stop ramping.",
       "output1Description": "Outputs the current value every step interval. The value is only output, when it changed.",
-      "output2Description": "Outputs <code>true</code> when the ramping starts and <code>false</code> when it stopped.",
+      "output2Description": "Outputs <code>true</code> when the ramping up starts and <code>false</code> when it stopped.",
+      "output3Description": "Outputs <code>true</code> when the ramping down starts and <code>false</code> when it stopped.",
       "paletteHelp": "<p>Ramps to values.</p>"
     }
   }

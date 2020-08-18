@@ -64,14 +64,18 @@
                 types: ["boolean"]
             }
         ],
-        outputs:2,
+        outputs:3,
         outputInfo: [
             {
                 label: "V",
                 types: ["integer", "float"]
             },
             {
-                label: "R",
+                label: "RU",
+                types: ["boolean"]
+            },
+            {
+                label: "RD",
                 types: ["boolean"]
             }
         ],
