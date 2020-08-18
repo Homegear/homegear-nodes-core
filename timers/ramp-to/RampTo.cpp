@@ -174,7 +174,7 @@ void RampTo::timer(double startValue, double rampTo, bool isInteger) {
   }
 
   Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-  message->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+  message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
   output(1, message);
 
   _currentValue = startValue;
@@ -211,6 +211,9 @@ void RampTo::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         }
         output(0, outputMessage);
       } else {
+        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+        output(1, outputMessage);
         _stopThread = false;
         _timerThread = std::thread(&RampTo::timer, this, _currentValue.load(), rampToValue, message->structValue->at("payload")->type != Flows::VariableType::tFloat);
       }
@@ -225,7 +228,7 @@ void RampTo::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       }
 
       Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(true));
+      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
       output(1, outputMessage);
     }
   }

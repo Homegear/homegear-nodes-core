@@ -71,7 +71,7 @@
                 types: ["integer", "float"]
             },
             {
-                label: "F",
+                label: "R",
                 types: ["boolean"]
             }
         ],

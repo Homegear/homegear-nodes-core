@@ -232,7 +232,13 @@ set(SOURCE_FILES
         timers/timer/MyNode.cpp
         timers/timer/MyNode.h
         timers/timer/SunTime.cpp
-        timers/timer/SunTime.h
+        timers/timer2/SunTime.h
+		timers/timer2/Factory.cpp
+		timers/timer2/Factory.h
+		timers/timer2/MyNode.cpp
+		timers/timer2/MyNode.h
+		timers/timer2/SunTime.cpp
+		timers/timer2/SunTime.h
 		timers/weekly-program/Factory.cpp
 		timers/weekly-program/Factory.h
 		timers/weekly-program/MyNode.cpp
