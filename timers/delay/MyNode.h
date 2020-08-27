@@ -34,30 +34,28 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	uint32_t _delay = 10000;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  uint32_t _delay = 10000;
 
-	std::atomic_bool _stopThreads;
-	std::atomic_int _currentTimerThreadIndex;
-	std::atomic_int _currentTimerThreadCount;
-	std::mutex _timerThreadsMutex;
-	std::array<std::thread, 10> _timerThreads;
+  std::atomic_bool _stopThreads{true};
+  std::atomic_int _currentTimerThreadIndex{0};
+  std::atomic_int _currentTimerThreadCount{0};
+  std::mutex _timerThreadsMutex;
+  std::array<std::thread, 10> _timerThreads;
 
-	void timer(int64_t inputTime, Flows::PVariable message);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void timer(int64_t inputTime, const Flows::PVariable &message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

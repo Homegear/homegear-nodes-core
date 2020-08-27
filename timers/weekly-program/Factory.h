@@ -33,12 +33,11 @@
 #include <homegear-node/NodeFactory.h>
 #include "MyNode.h"
 
-class MyFactory : Flows::NodeFactory
-{
-public:
-	virtual Flows::INode* createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
+class MyFactory : Flows::NodeFactory {
+ public:
+  Flows::INode *createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) override;
 };
 
-extern "C" Flows::NodeFactory* getFactory();
+extern "C" Flows::NodeFactory *getFactory();
 
 #endif

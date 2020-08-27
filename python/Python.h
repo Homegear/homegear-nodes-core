@@ -34,42 +34,40 @@
 #include <homegear-base/BaseLib.h>
 #include <mutex>
 
-namespace Python
-{
+namespace Python {
 
-class Python : public Flows::INode
-{
-public:
-	Python(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	~Python() override;
+class Python : public Flows::INode {
+ public:
+  Python(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Python() override;
 
-	bool init(Flows::PNodeInfo info) override;
-	bool start() override;
-	void startUpComplete() override;
-	void stop() override;
-	void waitForStop() override;
-private:
-    std::atomic_bool _startUpError{false};
-    std::atomic_bool _startUpComplete{false};
-    std::atomic_bool _processStartUpComplete{false};
-    int32_t _callbackHandlerId = -1;
-	std::string _codeFile;
-	std::atomic_bool _stopThread{false};
-	std::thread _execThread;
-	std::thread _errorThread;
-	std::atomic_int _pid{-1};
-	std::atomic_int _stdIn{-1};
-    std::atomic_int _stdOut{-1};
-    std::atomic_int _stdErr{-1};
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  std::atomic_bool _startUpError{false};
+  std::atomic_bool _startUpComplete{false};
+  std::atomic_bool _processStartUpComplete{false};
+  int32_t _callbackHandlerId = -1;
+  std::string _codeFile;
+  std::atomic_bool _stopThread{false};
+  std::thread _execThread;
+  std::thread _errorThread;
+  std::atomic_int _pid{-1};
+  std::atomic_int _stdIn{-1};
+  std::atomic_int _stdOut{-1};
+  std::atomic_int _stdErr{-1};
 
-	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
-	void startProgram();
-	int32_t getMaxFd();
-    void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
-	void execThread();
-	void errorThread();
-	int32_t read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize);
-	void callStartUpComplete();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void startProgram();
+  int32_t getMaxFd();
+  void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
+  void execThread();
+  void errorThread();
+  int32_t read(std::atomic_int &fd, uint8_t *buffer, int32_t bufferSize);
+  void callStartUpComplete();
 };
 
 }

@@ -29,72 +29,46 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  return true;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-
-		if(message->structValue->at("payload")->type == Flows::VariableType::tStruct)
-		{
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(_jsonEncoder.getString(message->structValue->at("payload"))));
-			output(0, outputMessage);
-		}
-		else if(message->structValue->at("payload")->type == Flows::VariableType::tString)
-		{
-			std::string jsonString = message->structValue->at("payload")->stringValue;
-			Flows::HelperFunctions::trim(jsonString);
-			if(jsonString.empty()) return;
-			Flows::PVariable json;
-			if(jsonString.front() != '{' && jsonString.front() != '[')
-			{
-				if(jsonString.front() == '"' && jsonString.back() == '"') jsonString = jsonString.substr(1, jsonString.length() - 2);
-				jsonString = '[' + jsonString + ']';
-				json = _jsonDecoder.decode(jsonString);
-				if(json->arrayValue->empty()) return;
-				json = json->arrayValue->front();
-			}
-			else json = _jsonDecoder.decode(jsonString);
-			outputMessage->structValue->emplace("payload", json);
-			output(0, outputMessage);
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    if (message->structValue->at("payload")->type == Flows::VariableType::tStruct) {
+      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(_jsonEncoder.getString(message->structValue->at("payload"))));
+      output(0, outputMessage);
+    } else if (message->structValue->at("payload")->type == Flows::VariableType::tString) {
+      std::string jsonString = message->structValue->at("payload")->stringValue;
+      Flows::HelperFunctions::trim(jsonString);
+      if (jsonString.empty()) return;
+      Flows::PVariable json;
+      if (jsonString.front() != '{' && jsonString.front() != '[') {
+        if (jsonString.front() == '"' && jsonString.back() == '"') jsonString = jsonString.substr(1, jsonString.length() - 2);
+        jsonString = '[' + jsonString + ']';
+        json = Flows::JsonDecoder::decode(jsonString);
+        if (json->arrayValue->empty()) return;
+        json = json->arrayValue->front();
+      } else json = Flows::JsonDecoder::decode(jsonString);
+      outputMessage->structValue->emplace("payload", json);
+      output(0, outputMessage);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

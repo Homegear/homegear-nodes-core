@@ -29,109 +29,85 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("changes-only");
+    if (settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("changes-only");
-		if(settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
+bool MyNode::start() {
+  try {
+    _lastOutput = getNodeData("lastOutput")->booleanValue;
 
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-		_lastOutput = getNodeData("lastOutput")->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+void MyNode::stop() {
+  try {
+    setNodeData("lastOutput", std::make_shared<Flows::Variable>(_lastOutput));
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PVariable &input = message->structValue->at("payload");
 
-void MyNode::stop()
-{
-	try
-	{
-		setNodeData("lastOutput", std::make_shared<Flows::Variable>(_lastOutput));
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
+    //_out->printInfo("Index: " + std::to_string(index));
+    bool newOutput = false;
+    if (index == 0)  //Set-Input
+    {
+      if (*input) newOutput = true;
+      else return;
+    } else if (index == 1) {
+      if (!*input) return;
+    }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		Flows::PVariable& input = message->structValue->at("payload");
+    bool doOutput = (((_lastOutput != newOutput) && _outputChangesOnly) || !_outputChangesOnly);
+    if (doOutput) {
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newOutput));
+      output(0, outputMessage);
+    }
 
-		//_out->printInfo("Index: " + std::to_string(index));
-		bool newOutput = false;
-        if(index == 0)  //Set-Input
-        {
-            if(*input) newOutput = true;
-            else return;
-        }
-		else if(index == 1)
-        {
-            if(!*input) return;
-        }
-
-		bool doOutput = (((_lastOutput != newOutput) && _outputChangesOnly) || !_outputChangesOnly);
-		if(doOutput)
-		{
-			Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-			outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(newOutput));
-			output(0, outputMessage);
-		}
-
-		_lastOutput = newOutput;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    _lastOutput = newOutput;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

@@ -29,355 +29,272 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_stopThread = true;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThread = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThread = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("units");
+    std::string unit;
+    if (settingsIterator != info->info->structValue->end()) unit = settingsIterator->second->stringValue;
+    if (unit == "ms") _unit = Units::ms;
+    else if (unit == "s") _unit = Units::s;
+    else if (unit == "m") _unit = Units::m;
+    else if (unit == "h") _unit = Units::h;
+    else if (unit == "dom") _unit = Units::dom;
+    else if (unit == "dow") _unit = Units::dow;
+    else if (unit == "doy") _unit = Units::doy;
+    else if (unit == "w") _unit = Units::w;
+    else if (unit == "M") _unit = Units::M;
+    else if (unit == "Y") _unit = Units::Y;
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("units");
-		std::string unit;
-		if(settingsIterator != info->info->structValue->end()) unit = settingsIterator->second->stringValue;
-		if(unit == "ms") _unit = Units::ms;
-		else if(unit == "s") _unit = Units::s;
-		else if(unit == "m") _unit = Units::m;
-		else if(unit == "h") _unit = Units::h;
-		else if(unit == "dom") _unit = Units::dom;
-		else if(unit == "dow") _unit = Units::dow;
-		else if(unit == "doy") _unit = Units::doy;
-		else if(unit == "w") _unit = Units::w;
-		else if(unit == "M") _unit = Units::M;
-		else if(unit == "Y") _unit = Units::Y;
+    settingsIterator = info->info->structValue->find("timestamp");
+    if (settingsIterator != info->info->structValue->end()) _timestamp = settingsIterator->second->booleanValue;
 
-		settingsIterator = info->info->structValue->find("timestamp");
-		if(settingsIterator != info->info->structValue->end()) _timestamp = settingsIterator->second->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+bool MyNode::start() {
+  try {
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-void MyNode::startUpComplete()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = false;
-		if(_timerThread.joinable()) _timerThread.join();
-		_timerThread = std::thread(&MyNode::timer, this);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::startUpComplete() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = false;
+    if (_timerThread.joinable()) _timerThread.join();
+    _timerThread = std::thread(&MyNode::timer, this);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		_stopThread = true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::stop() {
+  try {
+    _stopThread = true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::outputMessage(int64_t localTime, int64_t utcTime)
-{
-	try
-	{
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		std::tm tm;
-		getTimeStruct(tm, utcTime);
+void MyNode::outputMessage(int64_t localTime, int64_t utcTime) {
+  try {
+    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    std::tm tm{};
+    getTimeStruct(tm, utcTime);
 
-		int32_t weekNum = 0;
-		{
-			int32_t julian = tm.tm_yday;
-			int32_t dow = tm.tm_wday;
-			int64_t time2 = localTime - (julian * 86400000);
-			std::tm tm2;
-			getTimeStruct(tm2, time2);
-			weekNum = ((julian + 6) / 7);
-			if(dow < tm2.tm_wday) weekNum++;
-		}
+    int32_t weekNum = 0;
+    {
+      int32_t julian = tm.tm_yday;
+      int32_t dow = tm.tm_wday;
+      int64_t time2 = localTime - (julian * 86400000);
+      std::tm tm2{};
+      getTimeStruct(tm2, time2);
+      weekNum = ((julian + 6) / 7);
+      if (dow < tm2.tm_wday) weekNum++;
+    }
 
-		message->structValue->emplace("timestamp", std::make_shared<Flows::Variable>(localTime / 1000));
-		message->structValue->emplace("seconds", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
-		message->structValue->emplace("minutes", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
-		message->structValue->emplace("hours", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
-		message->structValue->emplace("dom", std::make_shared<Flows::Variable>(tm.tm_mday));
-		message->structValue->emplace("dow", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
-		message->structValue->emplace("doy", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
-		message->structValue->emplace("week", std::make_shared<Flows::Variable>(weekNum));
-		message->structValue->emplace("month", std::make_shared<Flows::Variable>(tm.tm_mon + 1));
-		message->structValue->emplace("year", std::make_shared<Flows::Variable>(tm.tm_year + 1900));
+    message->structValue->emplace("timestamp", std::make_shared<Flows::Variable>(localTime / 1000));
+    message->structValue->emplace("seconds", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
+    message->structValue->emplace("minutes", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
+    message->structValue->emplace("hours", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
+    message->structValue->emplace("dom", std::make_shared<Flows::Variable>(tm.tm_mday));
+    message->structValue->emplace("dow", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
+    message->structValue->emplace("doy", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
+    message->structValue->emplace("week", std::make_shared<Flows::Variable>(weekNum));
+    message->structValue->emplace("month", std::make_shared<Flows::Variable>(tm.tm_mon + 1));
+    message->structValue->emplace("year", std::make_shared<Flows::Variable>(tm.tm_year + 1900));
 
-		if(_unit == Units::ms)
-		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime % 1000));
-		}
-		else if(_unit == Units::s)
-		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
-		}
-		else if(_unit == Units::m)
-		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
-		}
-		else if(_unit == Units::h)
-		{
-			if(_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
-			else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
-		}
-		else if(_unit == Units::dom)
-		{
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_mday));
-		}
-		else if(_unit == Units::dow)
-		{
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
-		}
-		else if(_unit == Units::doy)
-		{
-			message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
-		}
-		else if(_unit == Units::w)
-		{
-			if(weekNum != _lastWeek)
-			{
-				_lastWeek = weekNum;
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(weekNum));
-			}
-		}
-		else if(_unit == Units::M)
-		{
-			int32_t month = tm.tm_mon + 1;
-			if(month != _lastMonth)
-			{
-				_lastMonth = month;
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(month));
-			}
-		}
-		else if(_unit == Units::Y)
-		{
-			int32_t year = tm.tm_year + 1900;
-			if(year != _lastYear)
-			{
-				_lastYear = year;
-				message->structValue->emplace("payload", std::make_shared<Flows::Variable>(year));
-			}
-		}
-		output(0, message);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    if (_unit == Units::ms) {
+      if (_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(time));
+      else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime % 1000));
+    } else if (_unit == Units::s) {
+      if (_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+      else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 1000) % 60));
+    } else if (_unit == Units::m) {
+      if (_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+      else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 60000) % 60));
+    } else if (_unit == Units::h) {
+      if (_timestamp) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(localTime / 1000));
+      else message->structValue->emplace("payload", std::make_shared<Flows::Variable>((localTime / 3600000) % 24));
+    } else if (_unit == Units::dom) {
+      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_mday));
+    } else if (_unit == Units::dow) {
+      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_wday == 0 ? 7 : tm.tm_wday));
+    } else if (_unit == Units::doy) {
+      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(tm.tm_yday + 1));
+    } else if (_unit == Units::w) {
+      if (weekNum != _lastWeek) {
+        _lastWeek = weekNum;
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(weekNum));
+      }
+    } else if (_unit == Units::M) {
+      int32_t month = tm.tm_mon + 1;
+      if (month != _lastMonth) {
+        _lastMonth = month;
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(month));
+      }
+    } else if (_unit == Units::Y) {
+      int32_t year = tm.tm_year + 1900;
+      if (year != _lastYear) {
+        _lastYear = year;
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(year));
+      }
+    }
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-std::pair<int64_t, int64_t> MyNode::getLocalAndUtcTime(int64_t utcTime)
-{
-	std::time_t t;
-	if(utcTime > 0)
-	{
-		t = std::time_t(utcTime / 1000);
-	}
-	else
-	{
-		const auto timePoint = std::chrono::system_clock::now();
-		t = std::chrono::system_clock::to_time_t(timePoint);
-	}
-	std::tm localTime;
-	localtime_r(&t, &localTime);
-	int64_t millisecondOffset = localTime.tm_gmtoff * 1000;
-	if(utcTime > 0) return std::make_pair(utcTime + millisecondOffset, utcTime);
-	else
-	{
-		utcTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-		return std::make_pair(utcTime + millisecondOffset, utcTime);
-	}
+std::pair<int64_t, int64_t> MyNode::getLocalAndUtcTime(int64_t utcTime) {
+  std::time_t t = 0;
+  if (utcTime > 0) {
+    t = std::time_t(utcTime / 1000);
+  } else {
+    const auto timePoint = std::chrono::system_clock::now();
+    t = std::chrono::system_clock::to_time_t(timePoint);
+  }
+  std::tm localTime{};
+  localtime_r(&t, &localTime);
+  int64_t millisecondOffset = localTime.tm_gmtoff * 1000;
+  if (utcTime > 0) return std::make_pair(utcTime + millisecondOffset, utcTime);
+  else {
+    utcTime = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+    return std::make_pair(utcTime + millisecondOffset, utcTime);
+  }
 }
 
-void MyNode::getTimeStruct(std::tm& timeStruct, int64_t utcTime)
-{
-	std::time_t t;
-	if(utcTime > 0)
-	{
-		t = std::time_t(utcTime / 1000);
-	}
-	else
-	{
-		const auto timePoint = std::chrono::system_clock::now();
-		t = std::chrono::system_clock::to_time_t(timePoint);
-	}
+void MyNode::getTimeStruct(std::tm &timeStruct, int64_t utcTime) {
+  std::time_t t = 0;
+  if (utcTime > 0) {
+    t = std::time_t(utcTime / 1000);
+  } else {
+    const auto timePoint = std::chrono::system_clock::now();
+    t = std::chrono::system_clock::to_time_t(timePoint);
+  }
 
-	localtime_r(&t, &timeStruct);
+  localtime_r(&t, &timeStruct);
 }
 
-void MyNode::timer()
-{
-	auto currentTimes = getLocalAndUtcTime();
-	int64_t currentLocalTime = currentTimes.first;
-	int64_t currentUtcTime = currentTimes.second;
-	int64_t sleepTime = 0;
-	if(_unit == Units::ms)
-	{
-		currentLocalTime = (currentLocalTime / 100) * 100;
-		currentUtcTime = (currentUtcTime / 100) * 100;
-	}
-	else
-	{
-		currentLocalTime = (currentLocalTime / 1000) * 1000;
-		currentUtcTime = (currentUtcTime / 1000) * 1000;
-	}
-	outputMessage(currentLocalTime, currentUtcTime);
-	if(_unit == Units::ms)
-	{
-		currentLocalTime += 100;
-		currentUtcTime += 100;
-	}
-	else
-	{
-		currentLocalTime += 1000;
-		currentUtcTime += 1000;
-	}
-	while(!_stopThread)
-	{
-		try
-		{
-			currentTimes = getLocalAndUtcTime();
-			if(currentLocalTime <= currentTimes.first || currentLocalTime >= currentTimes.first + 5000)
-			{
-				if(_unit == Units::ms)
-				{
-					currentLocalTime = (currentTimes.first / 100) * 100 + 100;
-					currentUtcTime = (currentTimes.second / 100) * 100 + 100;
-				}
-				else
-				{
-					currentLocalTime = (currentTimes.first / 1000) * 1000 + 1000;
-					currentUtcTime = (currentTimes.second / 1000) * 1000 + 1000;
-				}
-				outputMessage(currentLocalTime, currentUtcTime);
-			}
-			std::tm timeStruct;
-			getTimeStruct(timeStruct);
-			sleepTime = currentUtcTime - currentTimes.second;
-			if(sleepTime < 10) sleepTime = 10;
-			else
-			{
-				if(_unit == Units::ms && sleepTime > 100) sleepTime = 100;
-				else if(sleepTime > 1000) sleepTime = 1000;
-			}
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-			currentLocalTime += (_unit == Units::ms) ? 100 : 1000;
-			currentUtcTime += (_unit == Units::ms) ? 100 : 1000;
-			if(_stopThread) break;
-			switch(_unit)
-			{
-			case Units::ms:
-				break;
-			case Units::s:
-				break;
-			case Units::m:
-				if(currentLocalTime % 60000 != 0) continue;
-				break;
-			case Units::h:
-				if(currentLocalTime % 3600000 != 0) continue;
-				break;
-			case Units::dom:
-			case Units::dow:
-			case Units::doy:
-			case Units::w:
-			case Units::M:
-			case Units::Y:
-				if(currentLocalTime % 86400000 != 0) continue;
-				break;
-			}
-			outputMessage(currentLocalTime, currentUtcTime);
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-	}
+void MyNode::timer() {
+  auto currentTimes = getLocalAndUtcTime();
+  int64_t currentLocalTime = currentTimes.first;
+  int64_t currentUtcTime = currentTimes.second;
+  int64_t sleepTime = 0;
+  if (_unit == Units::ms) {
+    currentLocalTime = (currentLocalTime / 100) * 100;
+    currentUtcTime = (currentUtcTime / 100) * 100;
+  } else {
+    currentLocalTime = (currentLocalTime / 1000) * 1000;
+    currentUtcTime = (currentUtcTime / 1000) * 1000;
+  }
+  outputMessage(currentLocalTime, currentUtcTime);
+  if (_unit == Units::ms) {
+    currentLocalTime += 100;
+    currentUtcTime += 100;
+  } else {
+    currentLocalTime += 1000;
+    currentUtcTime += 1000;
+  }
+  while (!_stopThread) {
+    try {
+      currentTimes = getLocalAndUtcTime();
+      if (currentLocalTime <= currentTimes.first || currentLocalTime >= currentTimes.first + 5000) {
+        if (_unit == Units::ms) {
+          currentLocalTime = (currentTimes.first / 100) * 100 + 100;
+          currentUtcTime = (currentTimes.second / 100) * 100 + 100;
+        } else {
+          currentLocalTime = (currentTimes.first / 1000) * 1000 + 1000;
+          currentUtcTime = (currentTimes.second / 1000) * 1000 + 1000;
+        }
+        outputMessage(currentLocalTime, currentUtcTime);
+      }
+      std::tm timeStruct{};
+      getTimeStruct(timeStruct);
+      sleepTime = currentUtcTime - currentTimes.second;
+      if (sleepTime < 10) sleepTime = 10;
+      else {
+        if (_unit == Units::ms && sleepTime > 100) sleepTime = 100;
+        else if (sleepTime > 1000) sleepTime = 1000;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+      currentLocalTime += (_unit == Units::ms) ? 100 : 1000;
+      currentUtcTime += (_unit == Units::ms) ? 100 : 1000;
+      if (_stopThread) break;
+      switch (_unit) {
+        case Units::ms:
+        case Units::s: break;
+        case Units::m: if (currentLocalTime % 60000 != 0) continue;
+          break;
+        case Units::h: if (currentLocalTime % 3600000 != 0) continue;
+          break;
+        case Units::dom:
+        case Units::dow:
+        case Units::doy:
+        case Units::w:
+        case Units::M:
+        case Units::Y: if (currentLocalTime % 86400000 != 0) continue;
+          break;
+      }
+      outputMessage(currentLocalTime, currentUtcTime);
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch (...) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+  }
 }
 
 }

@@ -33,22 +33,20 @@
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonDecoder.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
-	virtual void setNodeVariable(const std::string& variable, Flows::PVariable value);
-private:
-	bool _outputOnStartup = true;
-	std::string _payloadType;
-	Flows::PVariable _value;
+  bool init(const Flows::PNodeInfo &info) override;
+  void startUpComplete() override;
+  void setNodeVariable(const std::string &variable, const Flows::PVariable &value) override;
+ private:
+  bool _outputOnStartup = true;
+  std::string _payloadType;
+  Flows::PVariable _value;
 };
 
 }

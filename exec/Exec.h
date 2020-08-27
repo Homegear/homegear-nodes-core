@@ -34,42 +34,40 @@
 #include <homegear-base/BaseLib.h>
 #include <mutex>
 
-namespace Exec
-{
+namespace Exec {
 
-class Exec : public Flows::INode
-{
-public:
-	Exec(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~Exec();
+class Exec : public Flows::INode {
+ public:
+  Exec(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Exec() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-    int32_t _callbackHandlerId = -1;
-	std::string _program;
-    std::string _arguments;
-    std::atomic_bool _autostart{false};
-    bool _collectOutput = false;
-	std::thread _execThread;
-	std::thread _errorThread;
-	std::mutex _bufferMutex;
-	std::string _bufferOut;
-    std::string _bufferErr;
-	std::atomic_int _pid{-1};
-	std::atomic_int _stdIn{-1};
-    std::atomic_int _stdOut{-1};
-    std::atomic_int _stdErr{-1};
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  int32_t _callbackHandlerId = -1;
+  std::string _program;
+  std::string _arguments;
+  std::atomic_bool _autostart{false};
+  bool _collectOutput = false;
+  std::thread _execThread;
+  std::thread _errorThread;
+  std::mutex _bufferMutex;
+  std::string _bufferOut;
+  std::string _bufferErr;
+  std::atomic_int _pid{-1};
+  std::atomic_int _stdIn{-1};
+  std::atomic_int _stdOut{-1};
+  std::atomic_int _stdErr{-1};
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-	void startProgram(const std::string& program, const std::string& arguments);
-	int32_t getMaxFd();
-    void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
-	void execThread(std::string program, std::string arguments);
-	void errorThread();
-	int32_t read(std::atomic_int& fd, uint8_t* buffer, int32_t bufferSize);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void startProgram(const std::string &program, const std::string &arguments);
+  int32_t getMaxFd();
+  void sigchildHandler(pid_t pid, int exitCode, int signal, bool coreDumped);
+  void execThread(std::string program, std::string arguments);
+  void errorThread();
+  int32_t read(std::atomic_int &fd, uint8_t *buffer, int32_t bufferSize);
 };
 
 }

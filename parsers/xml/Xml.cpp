@@ -30,227 +30,174 @@
 #include <homegear-node/JsonDecoder.h>
 #include "Xml.h"
 
-namespace Parsers
-{
+namespace Parsers {
 
-Xml::Xml(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+Xml::Xml(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-Xml::~Xml()
-{
+Xml::~Xml() = default;
+
+bool Xml::init(const Flows::PNodeInfo &info) {
+  return true;
 }
 
-bool Xml::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
+void Xml::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
-void Xml::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    if (message->structValue->at("payload")->type == Flows::VariableType::tStruct) {
+      auto &payload = message->structValue->at("payload");
 
-		if(message->structValue->at("payload")->type == Flows::VariableType::tStruct)
-		{
-		    auto& payload = message->structValue->at("payload");
+      if (payload->structValue->empty()) return;
 
-		    if(payload->structValue->empty()) return;
+      Flows::PVariable rootVariable;
 
-		    Flows::PVariable rootVariable;
-
-            xml_document<> doc;
-            try
-            {
-                xml_node<>* rootNode = nullptr;
-                if(payload->structValue->size() > 1)
-                {
-                    rootVariable = payload;
-                    rootNode = doc.allocate_node(node_element, "root");
-                }
-                else
-                {
-                    rootVariable = payload->structValue->begin()->second;
-                    rootNode = doc.allocate_node(node_element, payload->structValue->begin()->first.c_str());
-                }
-
-                doc.append_node(rootNode);
-
-                parseVariable(&doc, rootNode, rootVariable);
-
-                std::ostringstream stringStream;
-                stringStream << doc;
-                outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(stringStream.str()));
-            }
-            catch(const std::exception& ex)
-            {
-                _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-            }
-
-            doc.clear();
-
-			output(0, outputMessage);
-		}
-		else if(message->structValue->at("payload")->type == Flows::VariableType::tString)
-		{
-			std::string xmlString = message->structValue->at("payload")->stringValue;
-			Flows::HelperFunctions::trim(xmlString);
-			if(xmlString.empty()) return;
-
-			xml_document<> doc;
-			doc.parse<parse_no_entity_translation | parse_validate_closing_tags>((char*)xmlString.c_str());
-            Flows::PVariable xml = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            std::string nodeName(doc.first_node()->name());
-            bool isDataNode = false;
-            auto element = parseXmlNode(doc.first_node(), isDataNode);
-            if(!element->errorStruct) xml->structValue->emplace(nodeName, element);
-            outputMessage->structValue->emplace("payload", xml);
-            output(0, outputMessage);
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-}
-
-Flows::PVariable Xml::parseXmlNode(xml_node<>* node, bool& isDataNode)
-{
-	try
-	{
-	    isDataNode = false;
-        auto nodeVariable = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-
-        bool hasElements = false;
-		for(xml_attribute<>* attr = node->first_attribute(); attr; attr = attr->next_attribute())
-		{
-			std::string attributeName(attr->name());
-			std::string attributeValue(attr->value());
-
-            nodeVariable->structValue->emplace("@" + attributeName, std::make_shared<Flows::Variable>(attributeValue));
-		}
-
-		for(xml_node<>* subNode = node->first_node(); subNode; subNode = subNode->next_sibling())
-		{
-			std::string nodeName(subNode->name());
-			if(nodeName.empty()) continue;
-            std::string nodeValue(subNode->value());
-
-            hasElements = true;
-
-            bool isDataNode = false;
-            auto subNodeVariable = parseXmlNode(subNode, isDataNode);
-
-            auto variableIterator = nodeVariable->structValue->find(nodeName);
-            if(variableIterator == nodeVariable->structValue->end())
-            {
-                if(isDataNode)
-                {
-                    nodeVariable->structValue->emplace(nodeName, subNodeVariable).first;
-                    continue;
-                }
-                else
-                {
-                    variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
-                    variableIterator->second->arrayValue->reserve(100);
-                }
-            }
-
-            if(variableIterator->second->arrayValue->size() == variableIterator->second->arrayValue->capacity()) variableIterator->second->arrayValue->reserve(variableIterator->second->arrayValue->size() + 100);
-
-            if(!subNodeVariable->errorStruct) variableIterator->second->arrayValue->emplace_back(subNodeVariable);
-		}
-
-        if(!hasElements)
-        {
-            std::string nodeValue = std::string(node->value());
-            Flows::PVariable jsonNodeValue;
-            try
-            {
-                jsonNodeValue = Flows::JsonDecoder::decode(nodeValue);
-            }
-            catch(const std::exception& ex)
-            {
-                jsonNodeValue = std::make_shared<Flows::Variable>(nodeValue);
-            }
-
-            isDataNode = true;
-            if(nodeVariable->structValue->empty()) return jsonNodeValue;
-            else
-            {
-                if(!nodeValue.empty()) nodeVariable->structValue->emplace("@@value", jsonNodeValue);
-                return nodeVariable;
-            }
+      xml_document<> doc;
+      try {
+        xml_node<> *rootNode = nullptr;
+        if (payload->structValue->size() > 1) {
+          rootVariable = payload;
+          rootNode = doc.allocate_node(node_element, "root");
+        } else {
+          rootVariable = payload->structValue->begin()->second;
+          rootNode = doc.allocate_node(node_element, payload->structValue->begin()->first.c_str());
         }
-        else return nodeVariable;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
-}
 
-void Xml::parseVariable(xml_document<>* doc, xml_node<>* parentNode, const Flows::PVariable& variable)
-{
-    try
-    {
-        std::string tempString;
+        doc.append_node(rootNode);
 
-        for(auto& structElement : *variable->structValue)
-        {
-            if(structElement.first.empty()) continue;
-            else if(structElement.first == "@@value") //Value when node has attributes
-            {
-                tempString = structElement.second->toString();
-                parentNode->value(doc->allocate_string(tempString.c_str(), tempString.size() + 1));
-            }
-            else if(structElement.first.front() == '@' && structElement.first.size() > 1) //Attribute
-            {
-                tempString = structElement.second->toString();
-                auto* attr = doc->allocate_attribute(structElement.first.c_str() + 1, doc->allocate_string(tempString.c_str(), tempString.size() + 1));
-                parentNode->append_attribute(attr);
-            }
-            else //Element
-            {
-                if(structElement.second->type == Flows::VariableType::tStruct)
-                {
-                    auto* node = doc->allocate_node(node_element, structElement.first.c_str());
-                    parentNode->append_node(node);
-                    parseVariable(doc, node, structElement.second);
-                }
-                else if(structElement.second->type == Flows::VariableType::tArray)
-                {
-                    auto* node = doc->allocate_node(node_element, "element");
-                    parentNode->append_node(node);
-                    parseVariable(doc, node, structElement.second);
-                }
-                else
-                {
-                    tempString = structElement.second->toString();
-                    auto* node = doc->allocate_node(node_element, structElement.first.c_str(), doc->allocate_string(tempString.c_str(), tempString.size() + 1));
-                    parentNode->append_node(node);
-                }
-            }
-        }
-    }
-    catch(const std::exception& ex)
-    {
+        parseVariable(&doc, rootNode, rootVariable);
+
+        std::ostringstream stringStream;
+        stringStream << doc;
+        outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(stringStream.str()));
+      }
+      catch (const std::exception &ex) {
         _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+      }
+
+      doc.clear();
+
+      output(0, outputMessage);
+    } else if (message->structValue->at("payload")->type == Flows::VariableType::tString) {
+      std::string xmlString = message->structValue->at("payload")->stringValue;
+      Flows::HelperFunctions::trim(xmlString);
+      if (xmlString.empty()) return;
+
+      xml_document<> doc;
+      doc.parse<parse_no_entity_translation | parse_validate_closing_tags>((char *)xmlString.c_str());
+      Flows::PVariable xml = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      std::string nodeName(doc.first_node()->name());
+      bool isDataNode = false;
+      auto element = parseXmlNode(doc.first_node(), isDataNode);
+      if (!element->errorStruct) xml->structValue->emplace(nodeName, element);
+      outputMessage->structValue->emplace("payload", xml);
+      output(0, outputMessage);
     }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+}
+
+Flows::PVariable Xml::parseXmlNode(xml_node<> *node, bool &isDataNode) {
+  try {
+    isDataNode = false;
+    auto nodeVariable = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+    bool hasElements = false;
+    for (xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute()) {
+      std::string attributeName(attr->name());
+      std::string attributeValue(attr->value());
+
+      nodeVariable->structValue->emplace("@" + attributeName, std::make_shared<Flows::Variable>(attributeValue));
+    }
+
+    for (xml_node<> *subNode = node->first_node(); subNode; subNode = subNode->next_sibling()) {
+      std::string nodeName(subNode->name());
+      if (nodeName.empty()) continue;
+      std::string nodeValue(subNode->value());
+
+      hasElements = true;
+
+      bool isDataNode2 = false;
+      auto subNodeVariable = parseXmlNode(subNode, isDataNode2);
+
+      auto variableIterator = nodeVariable->structValue->find(nodeName);
+      if (variableIterator == nodeVariable->structValue->end()) {
+        if (isDataNode2) {
+          nodeVariable->structValue->emplace(nodeName, subNodeVariable);
+          continue;
+        } else {
+          variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
+          variableIterator->second->arrayValue->reserve(100);
+        }
+      }
+
+      if (variableIterator->second->arrayValue->size() == variableIterator->second->arrayValue->capacity()) variableIterator->second->arrayValue->reserve(variableIterator->second->arrayValue->size() + 100);
+
+      if (!subNodeVariable->errorStruct) variableIterator->second->arrayValue->emplace_back(subNodeVariable);
+    }
+
+    if (!hasElements) {
+      std::string nodeValue = std::string(node->value());
+      Flows::PVariable jsonNodeValue;
+      try {
+        jsonNodeValue = Flows::JsonDecoder::decode(nodeValue);
+      }
+      catch (const std::exception &ex) {
+        jsonNodeValue = std::make_shared<Flows::Variable>(nodeValue);
+      }
+
+      isDataNode = true;
+      if (nodeVariable->structValue->empty()) return jsonNodeValue;
+      else {
+        if (!nodeValue.empty()) nodeVariable->structValue->emplace("@@value", jsonNodeValue);
+        return nodeVariable;
+      }
+    } else return nodeVariable;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return Flows::Variable::createError(-32500, "Unknown application error.");
+}
+
+void Xml::parseVariable(xml_document<> *doc, xml_node<> *parentNode, const Flows::PVariable &variable) {
+  try {
+    std::string tempString;
+
+    for (auto &structElement : *variable->structValue) {
+      if (structElement.first.empty()) continue;
+      else if (structElement.first == "@@value") //Value when node has attributes
+      {
+        tempString = structElement.second->toString();
+        parentNode->value(doc->allocate_string(tempString.c_str(), tempString.size() + 1));
+      } else if (structElement.first.front() == '@' && structElement.first.size() > 1) //Attribute
+      {
+        tempString = structElement.second->toString();
+        auto *attr = doc->allocate_attribute(structElement.first.c_str() + 1, doc->allocate_string(tempString.c_str(), tempString.size() + 1));
+        parentNode->append_attribute(attr);
+      } else //Element
+      {
+        if (structElement.second->type == Flows::VariableType::tStruct) {
+          auto *node = doc->allocate_node(node_element, structElement.first.c_str());
+          parentNode->append_node(node);
+          parseVariable(doc, node, structElement.second);
+        } else if (structElement.second->type == Flows::VariableType::tArray) {
+          auto *node = doc->allocate_node(node_element, "element");
+          parentNode->append_node(node);
+          parseVariable(doc, node, structElement.second);
+        } else {
+          tempString = structElement.second->toString();
+          auto *node = doc->allocate_node(node_element, structElement.first.c_str(), doc->allocate_string(tempString.c_str(), tempString.size() + 1));
+          parentNode->append_node(node);
+        }
+      }
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
 }
 
 }

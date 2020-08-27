@@ -32,21 +32,17 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
-	_stopThread = true;
-	_stopped = true;
-	_enabled = true;
 }
 
 MyNode::~MyNode()
 {
 	_stopThread = true;
-	waitForStop();
 }
 
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
 	try
 	{
@@ -259,11 +255,11 @@ std::vector<std::string> MyNode::splitAll(std::string string, char delimiter)
 	{
 		elements.push_back(element);
 	}
-	if(string.back() == delimiter) elements.push_back(std::string());
+	if(string.back() == delimiter) elements.emplace_back(std::string());
 	return elements;
 }
 
-int64_t MyNode::getSunTime(int64_t timeStamp, std::string time)
+int64_t MyNode::getSunTime(int64_t timeStamp, const std::string& time)
 {
 	try
 	{
@@ -294,7 +290,7 @@ int64_t MyNode::getSunTime(int64_t timeStamp, std::string time)
 	return -1;
 }
 
-int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset)
+int64_t MyNode::getTime(int64_t currentTime, const std::string& time, const std::string& timeType, int64_t offset)
 {
 	try
 	{
@@ -314,26 +310,26 @@ int64_t MyNode::getTime(int64_t currentTime, std::string time, std::string timeT
 		else
 		{
 			auto timeVector = splitAll(time, ':');
-			int64_t time = (_sunTime.getLocalTime() / 86400000) * 86400000 + offset - 86400000;
-			if(timeVector.size() > 0)
+			int64_t returnValue = (_sunTime.getLocalTime() / 86400000) * 86400000 + offset - 86400000;
+			if(!timeVector.empty())
 			{
-				time += Flows::Math::getNumber64(timeVector.at(0)) * 3600000;
+              returnValue += Flows::Math::getNumber64(timeVector.at(0)) * 3600000;
 				if(timeVector.size() > 1)
 				{
-					time += Flows::Math::getNumber64(timeVector.at(1)) * 60000;
-					if(timeVector.size() > 2) time += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
+                  returnValue += Flows::Math::getNumber64(timeVector.at(1)) * 60000;
+					if(timeVector.size() > 2) returnValue += Flows::Math::getNumber64(timeVector.at(2)) * 1000;
 				}
 			}
             std::tm timeStruct {};
             _sunTime.getTimeStruct(timeStruct);
-            int64_t utcTime = _sunTime.getUtcTime(time);
-			while(time < currentTime || !_days.at(timeStruct.tm_wday) || !_months.at(timeStruct.tm_mon))
+            int64_t utcTime = _sunTime.getUtcTime(returnValue);
+			while(returnValue < currentTime || !_days.at(timeStruct.tm_wday) || !_months.at(timeStruct.tm_mon))
             {
-                time += 86400000;
-                utcTime = _sunTime.getUtcTime(time);
+              returnValue += 86400000;
+                utcTime = _sunTime.getUtcTime(returnValue);
                 _sunTime.getTimeStruct(timeStruct, utcTime);
             }
-			return time;
+			return returnValue;
 		}
 	}
 	catch(const std::exception& ex)
@@ -395,7 +391,7 @@ std::pair<int64_t, bool> MyNode::getNext(int64_t currentTime, int64_t onTime, in
 std::string MyNode::getDateString(int64_t time)
 {
 	const char timeFormat[] = "%x";
-	std::time_t t;
+	std::time_t t = 0;
 	if(time > 0)
 	{
 		t = std::time_t(time / 1000);
@@ -574,7 +570,7 @@ void MyNode::timer()
 	}
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message)
 {
 	try
 	{

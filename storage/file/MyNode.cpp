@@ -30,103 +30,82 @@
 #include "MyNode.h"
 #include "../../parsers/xml/Xml.h"
 
+namespace MyNode {
 
-namespace MyNode
-{
-
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("filename");
+    if (settingsIterator != info->info->structValue->end()) _filename = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("appendNewline");
+    if (settingsIterator != info->info->structValue->end()) _appendNewLine = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("createDir");
+    if (settingsIterator != info->info->structValue->end()) _createDirectory = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("overwriteFile");
+    if (settingsIterator != info->info->structValue->end()) _operation = settingsIterator->second->stringValue;
+
+    if (_operation == "true") _operation = "overwrite";
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("filename");
-		if(settingsIterator != info->info->structValue->end()) _filename = settingsIterator->second->stringValue;
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    std::string filename = _filename;
+    if (filename.empty()) {
+      auto messageIterator = message->structValue->find("filename");
+      if (messageIterator != message->structValue->end()) filename = messageIterator->second->stringValue;
 
-		settingsIterator = info->info->structValue->find("appendNewline");
-		if(settingsIterator != info->info->structValue->end()) _appendNewLine = settingsIterator->second->booleanValue;
+      if (filename.empty()) {
+        _out->printError("Error: filename is not set.");
+        return;
+      }
+    }
+    std::string directory = BaseLib::HelperFunctions::splitLast(filename, '/').first + '/';
 
-		settingsIterator = info->info->structValue->find("createDir");
-		if(settingsIterator != info->info->structValue->end()) _createDirectory = settingsIterator->second->booleanValue;
+    if (_operation == "delete" || _operation == "overwrite") {
+      BaseLib::Io::deleteFile(filename);
+      if (_operation == "delete") return;
+    }
 
-		settingsIterator = info->info->structValue->find("overwriteFile");
-		if(settingsIterator != info->info->structValue->end()) _operation = settingsIterator->second->stringValue;
+    if (!BaseLib::Io::directoryExists(directory)) {
+      if (_createDirectory) BaseLib::Io::createDirectory(directory, S_IRWXU | S_IRWXG);
+      if (!BaseLib::Io::directoryExists(directory)) {
+        _out->printError("Error: Directory " + directory + " doesn't exist. If \"create directory\" is set, it couldn't be created.");
+        return;
+      }
+    }
 
-		if(_operation == "true") _operation = "overwrite";
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		std::string filename = _filename;
-		if(filename.empty())
-		{
-			auto messageIterator = message->structValue->find("filename");
-			if(messageIterator != message->structValue->end()) filename = messageIterator->second->stringValue;
-
-			if(filename.empty())
-			{
-				_out->printError("Error: filename is not set.");
-				return;
-			}
-		}
-		std::string directory = BaseLib::HelperFunctions::splitLast(filename, '/').first + '/';
-
-		if(_operation == "delete" || _operation == "overwrite")
-		{
-			BaseLib::Io::deleteFile(filename);
-			if(_operation == "delete") return;
-		}
-
-		if(!BaseLib::Io::directoryExists(directory))
-		{
-			if(_createDirectory) BaseLib::Io::createDirectory(directory, S_IRWXU | S_IRWXG);
-			if(!BaseLib::Io::directoryExists(directory))
-			{
-				_out->printError("Error: Directory " + directory + " doesn't exist. If \"create directory\" is set, it couldn't be created.");
-				return;
-			}
-		}
-
-		if(_appendNewLine)
-		{
-			if(message->type == Flows::VariableType::tBinary) message->structValue->at("payload")->binaryValue.push_back('\n');
-			else message->structValue->at("payload")->stringValue.push_back('\n');
-		}
-		if(_operation == "overwrite")
-		{
-			if(message->type == Flows::VariableType::tBinary) BaseLib::Io::writeFile(filename, message->structValue->at("payload")->binaryValue, message->structValue->at("payload")->binaryValue.size());
-			else BaseLib::Io::writeFile(filename, message->structValue->at("payload")->stringValue);
-		}
-		else
-		{
-			if(message->type == Flows::VariableType::tBinary) BaseLib::Io::appendToFile(filename, message->structValue->at("payload")->binaryValue, message->structValue->at("payload")->binaryValue.size());
-			else BaseLib::Io::appendToFile(filename, message->structValue->at("payload")->stringValue);
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
+    if (_appendNewLine) {
+      if (message->type == Flows::VariableType::tBinary) message->structValue->at("payload")->binaryValue.push_back('\n');
+      else message->structValue->at("payload")->stringValue.push_back('\n');
+    }
+    if (_operation == "overwrite") {
+      if (message->type == Flows::VariableType::tBinary) BaseLib::Io::writeFile(filename, message->structValue->at("payload")->binaryValue, message->structValue->at("payload")->binaryValue.size());
+      else BaseLib::Io::writeFile(filename, message->structValue->at("payload")->stringValue);
+    } else {
+      if (message->type == Flows::VariableType::tBinary) BaseLib::Io::appendToFile(filename, message->structValue->at("payload")->binaryValue, message->structValue->at("payload")->binaryValue.size());
+      else BaseLib::Io::appendToFile(filename, message->structValue->at("payload")->stringValue);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
 }
 
 }

@@ -1,0 +1,1 @@
+virtual bool init(const Flows::PNodeInfo &info);

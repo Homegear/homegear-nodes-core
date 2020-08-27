@@ -31,7 +31,7 @@
 #include "MyNode.h"
 #include "../config.h"
 
-Flows::INode* MyFactory::createNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected)
 {
 	return new MyNode::MyNode(path, nodeNamespace, type, frontendConnected);
 }

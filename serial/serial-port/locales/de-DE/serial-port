@@ -13,15 +13,16 @@
             "split": "Eingabe aufteilen",
             "deliver": "und ausgeben",
             "output": "Ausgabe",
-            "none": "nichts"
+            "none": "nichts",
+            "unit": "Zeichen"
         },
         "placeholder": {
-            "serialport": "for example: /dev/ttyUSB0/"
+            "serialport": "Zum Beispiel: /dev/ttyUSB0"
         },
         "parity": {
-            "none": "None",
-            "even": "Even",
-            "odd": "Odd"
+            "none": "Keine",
+            "even": "Gerade",
+            "odd": "Ungerade"
         },
         "split": {
             "no": "nein",
@@ -30,8 +31,8 @@
             "lengths": "nach einer festen Länge von"
         },
         "output": {
-            "ascii": "ascii Zeichenkette",
-            "binary": "binäre Puffer"
+            "ascii": "Zeichenkette",
+            "binary": "Binärdaten"
         },
         "addsplit": "Aufteilungs-Zeichen zu den Ausgabenachrichten hinzufügen",
         "tip": {

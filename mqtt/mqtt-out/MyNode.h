@@ -33,30 +33,28 @@
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonEncoder.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-	Flows::JsonEncoder _jsonEncoder;
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  Flows::JsonEncoder _jsonEncoder;
 
-	std::string _broker;
-	std::string _topic;
-	bool _retainSet = false;
-	bool _retain = false;
+  std::string _broker;
+  std::string _topic;
+  bool _retainSet = false;
+  bool _retain = false;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 
-	//{{{ RPC methods
-	Flows::PVariable setConnectionState(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

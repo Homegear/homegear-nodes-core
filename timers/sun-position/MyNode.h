@@ -36,30 +36,28 @@
 #include <mutex>
 #include <random>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void startUpComplete();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	SunTime _sunTime;
-	double _latitude = 54.32;
-	double _longitude = 10.13;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  SunTime _sunTime;
+  double _latitude = 54.32;
+  double _longitude = 10.13;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::thread _timerThread;
 
-	void timer();
+  void timer();
 };
 
 }

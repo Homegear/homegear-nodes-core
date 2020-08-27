@@ -35,93 +35,88 @@
 #include <mutex>
 #include <regex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-    enum class VariableType
-    {
-        device,
-        metadata,
-        system,
-        flow,
-        global
-    };
+class MyNode : public Flows::INode {
+ public:
+  enum class VariableType {
+    device,
+    metadata,
+    system,
+    flow,
+    global
+  };
 
-	enum class RuleType
-	{
-		tEq,
-		tNeq,
-		tLt,
-		tLte,
-		tGt,
-		tGte,
-		tBtwn,
-		tCont,
-		tRegex,
-		tTrue,
-		tFalse,
-		tNull,
-		tNnull,
-		tElse
-	};
+  enum class RuleType {
+    tEq,
+    tNeq,
+    tLt,
+    tLte,
+    tGt,
+    tGte,
+    tBtwn,
+    tCont,
+    tRegex,
+    tTrue,
+    tFalse,
+    tNull,
+    tNnull,
+    tElse
+  };
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	struct Rule
-	{
-		RuleType t;
-		Flows::PVariable v;
-		Flows::VariableType vt;
-		Flows::PVariable previousOutput;
-		bool previousValue = false;
-		bool input = false;
-		std::string flowVariable;
-		std::string globalVariable;
-		std::string envVariable;
-		bool ignoreCase = false;
-		Flows::PVariable v2;
-		Flows::VariableType v2t;
-		bool previousValue2 = false;
-		bool input2 = false;
-		std::string flowVariable2;
-		std::string globalVariable2;
-		std::string envVariable2;
-		std::regex regex;
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  struct Rule {
+    RuleType t;
+    Flows::PVariable v;
+    Flows::VariableType vt;
+    Flows::PVariable previousOutput;
+    bool previousValue = false;
+    bool input = false;
+    std::string flowVariable;
+    std::string globalVariable;
+    std::string envVariable;
+    bool ignoreCase = false;
+    Flows::PVariable v2;
+    Flows::VariableType v2t;
+    bool previousValue2 = false;
+    bool input2 = false;
+    std::string flowVariable2;
+    std::string globalVariable2;
+    std::string envVariable2;
+    std::regex regex;
+  };
 
-	typedef std::string Operator;
+  typedef std::string Operator;
 
-    VariableType _variableType = VariableType::device;
-    uint64_t _peerId = 0;
-    int32_t _channel = -1;
-    std::string _variable;
-    std::vector<std::string> _staticValue;
+  VariableType _variableType = VariableType::device;
+  uint64_t _peerId = 0;
+  int32_t _channel = -1;
+  std::string _variable;
+  std::vector<std::string> _staticValue;
 
-	Flows::PVariable _previousValue;
-    Flows::PVariable _previousInputValue;
-	std::vector<Rule> _rules;
-	bool _changesOnly = false;
-	bool _outputTrue = false;
-	bool _outputFalse = false;
-	bool _checkAll = true;
-	bool _staticOnly = false;
+  Flows::PVariable _previousValue;
+  Flows::PVariable _previousInputValue;
+  std::vector<Rule> _rules;
+  bool _changesOnly = false;
+  bool _outputTrue = false;
+  bool _outputFalse = false;
+  bool _checkAll = true;
+  bool _staticOnly = false;
 
-	Flows::PVariable _value;
-	std::string _payloadType;
+  Flows::PVariable _value;
+  std::string _payloadType;
 
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-	bool isTrue(Flows::PVariable& value);
-	bool match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
-	Flows::PVariable getCurrentValue();
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  RuleType getRuleTypeFromString(std::string &t);
+  Flows::VariableType getValueTypeFromString(std::string &vt);
+  void convertType(Flows::PVariable &value, Flows::VariableType vt);
+  bool isTrue(Flows::PVariable &value);
+  bool match(const Flows::PNodeInfo &nodeInfo, Rule &rule, Flows::PVariable &value);
+  Flows::PVariable getCurrentValue();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

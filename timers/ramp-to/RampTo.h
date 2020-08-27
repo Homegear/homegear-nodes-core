@@ -34,36 +34,34 @@
 #include <thread>
 #include <mutex>
 
-namespace RampTo
-{
+namespace RampTo {
 
-class RampTo: public Flows::INode
-{
-public:
-	RampTo(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	~RampTo() override;
+class RampTo : public Flows::INode {
+ public:
+  RampTo(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~RampTo() override;
 
-	bool init(Flows::PNodeInfo info) override;
-	bool start() override;
-	void stop() override;
-	void waitForStop() override;
-private:
-    bool _intervalUpSet = false;
-    bool _intervalDownSet = false;
-	std::atomic<int32_t> _intervalUp{60000};
-    std::atomic<int32_t> _intervalDown{60000};
-	int32_t _stepInterval = 50;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  bool _intervalUpSet = false;
+  bool _intervalDownSet = false;
+  std::atomic<int32_t> _intervalUp{60000};
+  std::atomic<int32_t> _intervalDown{60000};
+  int32_t _stepInterval = 50;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::thread _timerThread;
 
-	std::atomic<double> _currentValue{0};
-	double _minimum = 0;
-	double _maximum = 100;
+  std::atomic<double> _currentValue{0};
+  double _minimum = 0;
+  double _maximum = 100;
 
-	void timer(double startValue, double rampTo, bool isInteger);
-	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+  void timer(double startValue, double rampTo, bool isInteger);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

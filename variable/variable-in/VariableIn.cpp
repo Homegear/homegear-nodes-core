@@ -29,407 +29,342 @@
 
 #include "VariableIn.h"
 
-namespace VariableIn
-{
+namespace VariableIn {
 
-VariableIn::VariableIn(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-    _metadata = std::make_shared<Flows::Variable>();
+VariableIn::VariableIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+  _metadata = std::make_shared<Flows::Variable>();
 }
 
-VariableIn::~VariableIn()
-{
-}
+VariableIn::~VariableIn() = default;
 
-bool VariableIn::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		std::string variableType = "device";
-		auto settingsIterator = info->info->structValue->find("variabletype");
-		if(settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
+bool VariableIn::init(const Flows::PNodeInfo &info) {
+  try {
+    std::string variableType = "device";
+    auto settingsIterator = info->info->structValue->find("variabletype");
+    if (settingsIterator != info->info->structValue->end()) variableType = settingsIterator->second->stringValue;
 
-		if(variableType == "device") _variableType = VariableType::device;
-		else if(variableType == "metadata") _variableType = VariableType::metadata;
-		else if(variableType == "system") _variableType = VariableType::system;
-		else if(variableType == "flow") _variableType = VariableType::flow;
-		else if(variableType == "global") _variableType = VariableType::global;
+    if (variableType == "device") _variableType = VariableType::device;
+    else if (variableType == "metadata") _variableType = VariableType::metadata;
+    else if (variableType == "system") _variableType = VariableType::system;
+    else if (variableType == "flow") _variableType = VariableType::flow;
+    else if (variableType == "global") _variableType = VariableType::global;
 
-		if(_variableType == VariableType::device || _variableType == VariableType::metadata)
-		{
-			settingsIterator = info->info->structValue->find("peerid");
-			if(settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
-		}
-
-		if(_variableType == VariableType::device)
-		{
-			settingsIterator = info->info->structValue->find("channel");
-			if(settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
-		}
-		
-		settingsIterator = info->info->structValue->find("variable");
-		if(settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
-
-		settingsIterator = info->info->structValue->find("eventsource");
-		if(settingsIterator != info->info->structValue->end())
-		{
-			std::string eventSource = settingsIterator->second->stringValue;
-			if(eventSource == "all") _eventSource = EventSource::all;
-			else if(eventSource == "device") _eventSource = EventSource::device;
-			else if(eventSource == "homegear") _eventSource = EventSource::homegear;
-            else if(eventSource == "scriptengine") _eventSource = EventSource::scriptEngine;
-            else if(eventSource == "profilemanager") _eventSource = EventSource::profileManager;
-            else if(eventSource == "nodeblue") _eventSource = EventSource::nodeBlue;
-            else if(eventSource == "rpcclient") _eventSource = EventSource::rpcClient;
-            else if(eventSource == "ipcclient") _eventSource = EventSource::ipcClient;
-            else if(eventSource == "mqtt") _eventSource = EventSource::mqtt;
-		}
-
-		if(variableType == "device") _variableType = VariableType::device;
-		else if(variableType == "metadata") _variableType = VariableType::metadata;
-		else if(variableType == "system") _variableType = VariableType::system;
-		else if(variableType == "flow") _variableType = VariableType::flow;
-		else if(variableType == "global") _variableType = VariableType::global;
-
-		settingsIterator = info->info->structValue->find("refractoryperiod");
-		if(settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-		settingsIterator = info->info->structValue->find("outputonstartup");
-		if(settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
-
-        settingsIterator = info->info->structValue->find("changes-only");
-        if(settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
-
-		settingsIterator = info->info->structValue->find("loopprevention");
-		if(settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
-
-		settingsIterator = info->info->structValue->find("looppreventiongroup");
-		if(settingsIterator != info->info->structValue->end()) _loopPreventionGroup = settingsIterator->second->stringValue;
-
-		if(_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system)
-		{
-			subscribePeer(_peerId, _channel, _variable);
-		}
-		else if(_variableType == VariableType::flow)
-		{
-			subscribeFlow();
-		}
-		else if(_variableType == VariableType::global)
-		{
-			subscribeGlobal();
-		}
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-bool VariableIn::start()
-{
-    try
-    {
-        _metadata = getNodeData("metadata");
-        return true;
+    if (_variableType == VariableType::device || _variableType == VariableType::metadata) {
+      settingsIterator = info->info->structValue->find("peerid");
+      if (settingsIterator != info->info->structValue->end()) _peerId = Flows::Math::getNumber64(settingsIterator->second->stringValue);
     }
-    catch(const std::exception& ex)
-    {
+
+    if (_variableType == VariableType::device) {
+      settingsIterator = info->info->structValue->find("channel");
+      if (settingsIterator != info->info->structValue->end()) _channel = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    }
+
+    settingsIterator = info->info->structValue->find("variable");
+    if (settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("eventsource");
+    if (settingsIterator != info->info->structValue->end()) {
+      std::string eventSource = settingsIterator->second->stringValue;
+      if (eventSource == "all") _eventSource = EventSource::all;
+      else if (eventSource == "device") _eventSource = EventSource::device;
+      else if (eventSource == "homegear") _eventSource = EventSource::homegear;
+      else if (eventSource == "scriptengine") _eventSource = EventSource::scriptEngine;
+      else if (eventSource == "profilemanager") _eventSource = EventSource::profileManager;
+      else if (eventSource == "nodeblue") _eventSource = EventSource::nodeBlue;
+      else if (eventSource == "rpcclient") _eventSource = EventSource::rpcClient;
+      else if (eventSource == "ipcclient") _eventSource = EventSource::ipcClient;
+      else if (eventSource == "mqtt") _eventSource = EventSource::mqtt;
+    }
+
+    if (variableType == "device") _variableType = VariableType::device;
+    else if (variableType == "metadata") _variableType = VariableType::metadata;
+    else if (variableType == "system") _variableType = VariableType::system;
+    else if (variableType == "flow") _variableType = VariableType::flow;
+    else if (variableType == "global") _variableType = VariableType::global;
+
+    settingsIterator = info->info->structValue->find("refractoryperiod");
+    if (settingsIterator != info->info->structValue->end()) _refractionPeriod = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+    settingsIterator = info->info->structValue->find("outputonstartup");
+    if (settingsIterator != info->info->structValue->end()) _outputOnStartup = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("changes-only");
+    if (settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("loopprevention");
+    if (settingsIterator != info->info->structValue->end()) _loopPrevention = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("looppreventiongroup");
+    if (settingsIterator != info->info->structValue->end()) _loopPreventionGroup = settingsIterator->second->stringValue;
+
+    if (_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system) {
+      subscribePeer(_peerId, _channel, _variable);
+    } else if (_variableType == VariableType::flow) {
+      subscribeFlow();
+    } else if (_variableType == VariableType::global) {
+      subscribeGlobal();
+    }
+
+    return true;
+  }
+  catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    return false;
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-void VariableIn::startUpComplete()
-{
-    try
-    {
-        if(_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system)
-        {
-            Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(3);
-            parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-            parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-            parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-            auto payload = invoke("getValue", parameters);
-            if(payload->errorStruct)
-            {
-                _out->printError("Error: Could not get value of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-            }
-            else
-            {
-                _type = payload->type;
-
-                if(_outputOnStartup)
-                {
-                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-                    message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
-                    message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
-                    message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                    message->structValue->emplace("metadata", _metadata);
-                    message->structValue->emplace("payload", payload);
-
-                    output(0, message);
-                }
-            }
-        }
-        else if(_variableType == VariableType::flow)
-        {
-            auto result = getFlowData(_variable);
-
-            _type = result->type;
-
-            if(_outputOnStartup)
-            {
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                message->structValue->emplace("payload", result);
-                output(0, message);
-            }
-        }
-        else if(_variableType == VariableType::global)
-        {
-            auto result = getGlobalData(_variable);
-
-            _type = result->type;
-
-            if(_outputOnStartup)
-            {
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                message->structValue->emplace("payload", result);
-                output(0, message);
-	        }
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
+bool VariableIn::start() {
+  try {
+    _metadata = getNodeData("metadata");
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return false;
 }
 
-void VariableIn::stop()
-{
-    try
-    {
-        setNodeData("metadata", _metadata);
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-}
+void VariableIn::startUpComplete() {
+  try {
+    if (_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system) {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(3);
+      parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+      parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+      parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+      auto payload = invoke("getValue", parameters);
+      if (payload->errorStruct) {
+        _out->printError("Error: Could not get value of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+      } else {
+        _type = payload->type;
 
-void VariableIn::variableEvent(const std::string& source, uint64_t peerId, int32_t channel, const std::string& variable, const Flows::PVariable& value, const Flows::PVariable& metadata)
-{
-	try
-	{
-		if(_eventSource != EventSource::all)
-		{
-			if(source.compare(0, 7, "device-") == 0 && _eventSource != EventSource::device) return;
-			else if(source.compare(0, 12, "scriptEngine") == 0 && _eventSource != EventSource::scriptEngine) return;
-            else if(source.compare(0, 14, "profileManager") == 0 && _eventSource != EventSource::profileManager) return;
-			else if(source.compare(0, 8, "nodeBlue") == 0 && _eventSource != EventSource::nodeBlue) return;
-            else if(source.compare(0, 9, "ipcServer") == 0 && _eventSource != EventSource::ipcClient) return;
-            else if(source.compare(0, 8, "homegear") == 0 && _eventSource != EventSource::homegear) return;
-            else if(source.compare(0, 7, "client-") == 0 && _eventSource != EventSource::rpcClient) return;
-            else if(source.compare(0, 11, "rpc-client-") == 0 && _eventSource != EventSource::rpcClient) return;
-            else if(source.compare(0, 4, "mqtt") == 0 && _eventSource != EventSource::mqtt) return;
-		}
+        if (_outputOnStartup) {
+          Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+          message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+          message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+          message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+          message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+          message->structValue->emplace("metadata", _metadata);
+          message->structValue->emplace("payload", payload);
 
-		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
-		_lastInput = Flows::HelperFunctions::getTime();
-
-		if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
-		_lastValue = value;
-		_metadata = metadata;
-
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>(source));
-		message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
-		message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-        message->structValue->emplace("metadata", _metadata);
-		message->structValue->emplace("payload", value);
-
-		if(_loopPrevention && !_loopPreventionGroup.empty())
-		{
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-			parameters->reserve(2);
-			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-            parameters->push_back(std::make_shared<Flows::Variable>(source));
-			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
-			if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
-			if(!result->booleanValue) return;
-		}
-
-		output(0, message);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void VariableIn::flowVariableEvent(const std::string& flowId, const std::string& variable, const Flows::PVariable& value)
-{
-	try
-	{
-	    if(variable != _variable) return;
-		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
-		_lastInput = Flows::HelperFunctions::getTime();
-
-        if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
-        _lastValue = value;
-
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-		message->structValue->emplace("payload", value);
-
-		if(_loopPrevention && !_loopPreventionGroup.empty())
-		{
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(2);
-			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-            parameters->push_back(std::make_shared<Flows::Variable>(std::string("nodeBlue")));
-			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
-			if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
-			if(!result->booleanValue) return;
-		}
-
-		output(0, message);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void VariableIn::globalVariableEvent(const std::string& variable, const Flows::PVariable& value)
-{
-	try
-	{
-        if(variable != _variable) return;
-		if(Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
-		_lastInput = Flows::HelperFunctions::getTime();
-
-        if(_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
-        _lastValue = value;
-
-		Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-		message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
-		message->structValue->emplace("payload", value);
-
-		if(_loopPrevention && !_loopPreventionGroup.empty())
-		{
-			Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(2);
-			parameters->push_back(std::make_shared<Flows::Variable>(_id));
-            parameters->push_back(std::make_shared<Flows::Variable>(std::string("nodeBlue")));
-			Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
-			if(result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
-			if(!result->booleanValue) return;
-		}
-
-		output(0, message);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
-
-void VariableIn::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-    try
-    {
-        if(_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system)
-        {
-            Flows::PArray parameters = std::make_shared<Flows::Array>();
-            parameters->reserve(3);
-            parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
-            parameters->push_back(std::make_shared<Flows::Variable>(_channel));
-            parameters->push_back(std::make_shared<Flows::Variable>(_variable));
-            auto payload = invoke("getValue", parameters);
-            if(payload->errorStruct)
-            {
-                _out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
-            }
-            else
-            {
-                Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-                message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
-                message->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
-                message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-                message->structValue->emplace("metadata", _metadata);
-                message->structValue->emplace("payload", payload);
-
-                output(0, message);
-            }
+          output(0, message);
         }
-        else if(_variableType == VariableType::flow)
-        {
-            auto result = getFlowData(_variable);
+      }
+    } else if (_variableType == VariableType::flow) {
+      auto result = getFlowData(_variable);
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", result);
-            output(0, message);
-        }
-        else if(_variableType == VariableType::global)
-        {
-            auto result = getGlobalData(_variable);
+      _type = result->type;
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
-            message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
-            message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
-            message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
-            message->structValue->emplace("payload", result);
-            output(0, message);
-        }
+      if (_outputOnStartup) {
+        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+        message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+        message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+        message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+        message->structValue->emplace("payload", result);
+        output(0, message);
+      }
+    } else if (_variableType == VariableType::global) {
+      auto result = getGlobalData(_variable);
+
+      _type = result->type;
+
+      if (_outputOnStartup) {
+        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+        message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+        message->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+        message->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+        message->structValue->emplace("payload", result);
+        output(0, message);
+      }
     }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void VariableIn::stop() {
+  try {
+    setNodeData("metadata", _metadata);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+}
+
+void VariableIn::variableEvent(const std::string &source, uint64_t peerId, int32_t channel, const std::string &variable, const Flows::PVariable &value, const Flows::PVariable &metadata) {
+  try {
+    if (_eventSource != EventSource::all) {
+      if (source.compare(0, 7, "device-") == 0 && _eventSource != EventSource::device) return;
+      else if (source.compare(0, 12, "scriptEngine") == 0 && _eventSource != EventSource::scriptEngine) return;
+      else if (source.compare(0, 14, "profileManager") == 0 && _eventSource != EventSource::profileManager) return;
+      else if (source.compare(0, 8, "nodeBlue") == 0 && _eventSource != EventSource::nodeBlue) return;
+      else if (source.compare(0, 9, "ipcServer") == 0 && _eventSource != EventSource::ipcClient) return;
+      else if (source.compare(0, 8, "homegear") == 0 && _eventSource != EventSource::homegear) return;
+      else if (source.compare(0, 7, "client-") == 0 && _eventSource != EventSource::rpcClient) return;
+      else if (source.compare(0, 11, "rpc-client-") == 0 && _eventSource != EventSource::rpcClient) return;
+      else if (source.compare(0, 4, "mqtt") == 0 && _eventSource != EventSource::mqtt) return;
     }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+
+    if (Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
+    _lastInput = Flows::HelperFunctions::getTime();
+
+    if (_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+    _lastValue = value;
+    _metadata = metadata;
+
+    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    message->structValue->emplace("eventSource", std::make_shared<Flows::Variable>(source));
+    message->structValue->emplace("peerId", std::make_shared<Flows::Variable>(peerId));
+    message->structValue->emplace("channel", std::make_shared<Flows::Variable>(channel));
+    message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
+    message->structValue->emplace("metadata", _metadata);
+    message->structValue->emplace("payload", value);
+
+    if (_loopPrevention && !_loopPreventionGroup.empty()) {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(2);
+      parameters->push_back(std::make_shared<Flows::Variable>(_id));
+      parameters->push_back(std::make_shared<Flows::Variable>(source));
+      Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
+      if (result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+      if (!result->booleanValue) return;
     }
+
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void VariableIn::flowVariableEvent(const std::string &flowId, const std::string &variable, const Flows::PVariable &value) {
+  try {
+    if (variable != _variable) return;
+    if (Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
+    _lastInput = Flows::HelperFunctions::getTime();
+
+    if (_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+    _lastValue = value;
+
+    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
+    message->structValue->emplace("payload", value);
+
+    if (_loopPrevention && !_loopPreventionGroup.empty()) {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(2);
+      parameters->push_back(std::make_shared<Flows::Variable>(_id));
+      parameters->push_back(std::make_shared<Flows::Variable>(std::string("nodeBlue")));
+      Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
+      if (result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+      if (!result->booleanValue) return;
+    }
+
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void VariableIn::globalVariableEvent(const std::string &variable, const Flows::PVariable &value) {
+  try {
+    if (variable != _variable) return;
+    if (Flows::HelperFunctions::getTime() - _lastInput < _refractionPeriod) return;
+    _lastInput = Flows::HelperFunctions::getTime();
+
+    if (_outputChangesOnly && _lastValue && (*_lastValue) == (*value)) return;
+    _lastValue = value;
+
+    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    message->structValue->emplace("variable", std::make_shared<Flows::Variable>(variable));
+    message->structValue->emplace("payload", value);
+
+    if (_loopPrevention && !_loopPreventionGroup.empty()) {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(2);
+      parameters->push_back(std::make_shared<Flows::Variable>(_id));
+      parameters->push_back(std::make_shared<Flows::Variable>(std::string("nodeBlue")));
+      Flows::PVariable result = invokeNodeMethod(_loopPreventionGroup, "event", parameters, true);
+      if (result->errorStruct) _out->printError("Error calling \"event\": " + result->structValue->at("faultString")->stringValue);
+      if (!result->booleanValue) return;
+    }
+
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void VariableIn::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    if (_variableType == VariableType::device || _variableType == VariableType::metadata || _variableType == VariableType::system) {
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(3);
+      parameters->push_back(std::make_shared<Flows::Variable>(_peerId));
+      parameters->push_back(std::make_shared<Flows::Variable>(_channel));
+      parameters->push_back(std::make_shared<Flows::Variable>(_variable));
+      auto payload = invoke("getValue", parameters);
+      if (payload->errorStruct) {
+        _out->printError("Error: Could not get type of variable: (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + ").");
+      } else {
+        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        outputMessage->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+        outputMessage->structValue->emplace("peerId", std::make_shared<Flows::Variable>(_peerId));
+        outputMessage->structValue->emplace("channel", std::make_shared<Flows::Variable>(_channel));
+        outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+        outputMessage->structValue->emplace("metadata", _metadata);
+        outputMessage->structValue->emplace("payload", payload);
+
+        output(0, outputMessage);
+      }
+    } else if (_variableType == VariableType::flow) {
+      auto result = getFlowData(_variable);
+
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      outputMessage->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+      outputMessage->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+      outputMessage->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+      outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+      outputMessage->structValue->emplace("payload", result);
+      output(0, outputMessage);
+    } else if (_variableType == VariableType::global) {
+      auto result = getGlobalData(_variable);
+
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      outputMessage->structValue->emplace("eventSource", std::make_shared<Flows::Variable>("nodeBlue"));
+      outputMessage->structValue->emplace("peerId", std::make_shared<Flows::Variable>(0));
+      outputMessage->structValue->emplace("channel", std::make_shared<Flows::Variable>(-1));
+      outputMessage->structValue->emplace("variable", std::make_shared<Flows::Variable>(_variable));
+      outputMessage->structValue->emplace("payload", result);
+      output(0, outputMessage);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

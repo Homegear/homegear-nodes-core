@@ -34,59 +34,54 @@
 #include <homegear-node/INode.h>
 #include <unordered_map>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-	enum class ModbusType
-	{
-		tHoldingRegister = 0,
-		tCoil = 1,
-        tDiscreteInput = 2,
-		tInputRegister = 3
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  enum class ModbusType {
+    tHoldingRegister = 0,
+    tCoil = 1,
+    tDiscreteInput = 2,
+    tInputRegister = 3
+  };
 
-    enum class RegisterType
-    {
-        tBin,
-        tBool,
-        tInt,
-		tUInt,
-        tFloat,
-        tString
-    };
+  enum class RegisterType {
+    tBin,
+    tBool,
+    tInt,
+    tUInt,
+    tFloat,
+    tString
+  };
 
-    struct RegisterInfo
-    {
-        ModbusType modbusType = ModbusType::tHoldingRegister;
-        uint32_t outputIndex = 0;
-        uint32_t index = 0;
-        uint32_t count = 0;
-        RegisterType type = RegisterType::tBin;
-        bool invertBytes = false;
-        bool invertRegisters = false;
-        std::vector<uint8_t> lastValue;
-    };
+  struct RegisterInfo {
+    ModbusType modbusType = ModbusType::tHoldingRegister;
+    uint32_t outputIndex = 0;
+    uint32_t index = 0;
+    uint32_t count = 0;
+    RegisterType type = RegisterType::tBin;
+    bool invertBytes = false;
+    bool invertRegisters = false;
+    std::vector<uint8_t> lastValue;
+  };
 
-    std::string _server;
-    uint32_t _outputs = 0;
-    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
-    std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
-	std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
-	std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
+  std::string _server;
+  uint32_t _outputs = 0;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
 
-	//{{{ RPC methods
-	Flows::PVariable packetReceived(Flows::PArray parameters);
-	Flows::PVariable setConnectionState(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable packetReceived(const Flows::PArray& parameters);
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

@@ -35,50 +35,47 @@
 #include <homegear-base/BaseLib.h>
 #include <homegear-base/Security/SecureVector.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-    enum class ReturnType
-    {
-        txt,
-        bin,
-        obj
-    };
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  enum class ReturnType {
+    txt,
+    bin,
+    obj
+  };
 
-    std::unique_ptr<BaseLib::SharedObjects> _bl;
+  std::unique_ptr<BaseLib::SharedObjects> _bl;
 
-    std::string _tlsNode;
-    bool _useTls = false;
-	bool _useBasicAuth = false;
-	std::string _url;
-    std::string _method;
-    std::string _basicAuth;
-    std::string _caPath;
-    std::string _caData;
-    std::string _certPath;
-    std::string _certData;
-    std::string _keyPath;
-    std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> _keyData;
-    bool _verifyCertificate = true;
-    ReturnType _returnType;
+  std::string _tlsNode;
+  bool _useTls = false;
+  bool _useBasicAuth = false;
+  std::string _url;
+  std::string _method;
+  std::string _basicAuth;
+  std::string _caPath;
+  std::string _caData;
+  std::string _certPath;
+  std::string _certData;
+  std::string _keyPath;
+  std::shared_ptr<BaseLib::Security::SecureVector<uint8_t>> _keyData;
+  bool _verifyCertificate = true;
+  ReturnType _returnType = ReturnType::bin;
 
-    std::string _hostname;
-    std::string _path;
-    int32_t _port = 80;
-    std::unique_ptr<Flows::JsonDecoder> _jsonDecoder;
-    std::unique_ptr<BaseLib::HttpClient> _httpClient;
+  std::string _hostname;
+  std::string _path;
+  int32_t _port = 80;
+  std::unique_ptr<Flows::JsonDecoder> _jsonDecoder;
+  std::unique_ptr<BaseLib::HttpClient> _httpClient;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-	void setUrl(std::string& url);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void setUrl(std::string &url);
 };
 
 }

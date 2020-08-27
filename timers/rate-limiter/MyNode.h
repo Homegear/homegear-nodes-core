@@ -34,36 +34,41 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-    uint32_t _maxInputs = 1;
-	uint32_t _interval = 1000;
-	bool _outputFirst = true;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  enum class RateLimiterState : int32_t {
+    kIdle = 0,
+    kFirst = 1,
+    kFirstOffset = 2,
+    kReceiving = 3,
+    kWaitingForInput = 4,
+  };
 
-	std::atomic_bool _firstInterval{true};
-	std::atomic_bool _stopThread{true};
-	std::mutex _timerThreadMutex;
-	std::thread _timerThread;
+  uint32_t _maxInputs = 1;
+  uint32_t _interval = 1000;
+  bool _outputFirst = true;
 
-	std::mutex _lastInputMutex;
-	Flows::PVariable _lastInput;
-	std::atomic<int64_t> _lastInputTime{0};
-	std::atomic<size_t> _inputCount{0};
-	void timer();
-	void checkLastInput();
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  std::atomic_bool _stopThread{true};
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
+
+  std::mutex _dataMutex;
+  RateLimiterState _state = RateLimiterState::kIdle;
+  Flows::PVariable _lastInput;
+  int64_t _firstInputTime = 0;
+  size_t _inputCount = 0;
+  void timer();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

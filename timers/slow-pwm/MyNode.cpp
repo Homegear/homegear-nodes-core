@@ -30,225 +30,175 @@
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_stopThread = true;
-	_stopped = true;
-	_enabled = true;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThread = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThread = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("period");
+    if (settingsIterator != info->info->structValue->end()) _period = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("period");
-		if(settingsIterator != info->info->structValue->end()) _period = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    settingsIterator = info->info->structValue->find("dutycyclemin");
+    if (settingsIterator != info->info->structValue->end()) _dutyCycleMin = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-		settingsIterator = info->info->structValue->find("dutycyclemin");
-		if(settingsIterator != info->info->structValue->end()) _dutyCycleMin = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    settingsIterator = info->info->structValue->find("dutycyclemax");
+    if (settingsIterator != info->info->structValue->end()) _dutyCycleMax = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
-		settingsIterator = info->info->structValue->find("dutycyclemax");
-		if(settingsIterator != info->info->structValue->end()) _dutyCycleMax = Flows::Math::getNumber(settingsIterator->second->stringValue);
+    if (_dutyCycleMax <= _dutyCycleMin) {
+      _out->printError("Error: Duty cycle maximum is smaller than or equal to duty cycle minimum. Setting both to defaults.");
+      _dutyCycleMin = 0;
+      _dutyCycleMax = 100;
+    }
 
-		if(_dutyCycleMax <= _dutyCycleMin)
-		{
-			_out->printError("Error: Duty cycle maximum is smaller than or equal to duty cycle minimum. Setting both to defaults.");
-			_dutyCycleMin = 0;
-			_dutyCycleMax = 100;
-		}
+    if (_period < 10) _period = 10;
+    _period *= 1000;
 
-		if(_period < 10) _period = 10;
-		_period *= 1000;
+    auto enabled = getNodeData("enabled");
+    if (enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
 
-		auto enabled = getNodeData("enabled");
-		if(enabled->type == Flows::VariableType::tBoolean) _enabled = enabled->booleanValue;
+    _startTimeAll = getNodeData("startTimeAll")->integerValue;
+    if (_startTimeAll == 0) _startTimeAll = Flows::HelperFunctions::getTime();
 
-		_startTimeAll = getNodeData("startTimeAll")->integerValue;
-		if(_startTimeAll == 0) _startTimeAll = Flows::HelperFunctions::getTime();
+    _currentDutyCycle = getNodeData("dutycycle")->integerValue;
 
-		_currentDutyCycle = getNodeData("dutycycle")->integerValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-		_stopped = false;
-		if(!_enabled) return true;
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = false;
-		if(_timerThread.joinable()) _timerThread.join();
-		_timerThread = std::thread(&MyNode::timer, this);
+bool MyNode::start() {
+  try {
+    _stopped = false;
+    if (!_enabled) return true;
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = false;
+    if (_timerThread.joinable()) _timerThread.join();
+    _timerThread = std::thread(&MyNode::timer, this);
 
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		_stopped = true;
-		_stopThread = true;
-		setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::stop() {
+  try {
+    _stopped = true;
+    _stopThread = true;
+    setNodeData("startTimeAll", std::make_shared<Flows::Variable>(_startTimeAll));
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-int32_t MyNode::scale(int32_t value, int32_t valueMin, int32_t valueMax, int32_t scaleMin, int32_t scaleMax)
-{
-	double vPerc = ((double)(value - valueMin)) / (valueMax - valueMin);
-	double bigSpan = vPerc * (scaleMax - scaleMin);
+void MyNode::timer() {
+  uint32_t pwmPosition = (Flows::HelperFunctions::getTime() - _startTimeAll) % _period;
+  bool pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
+  bool lastPwmState = pwmState;
 
-	return std::lround(scaleMin + bigSpan);
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  message->structValue->emplace("payload", std::make_shared<Flows::Variable>(pwmState));
+  output(0, message);
+
+  while (!_stopThread) {
+    try {
+      if (_period < 120000) std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      else std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      if (_stopThread) return;
+
+      pwmPosition = (Flows::HelperFunctions::getTime() - _startTimeAll) % _period;
+      pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
+      if (pwmState != lastPwmState || BaseLib::HelperFunctions::getTime() - _lastOutput >= _period) {
+        _lastOutput = BaseLib::HelperFunctions::getTime();
+        lastPwmState = pwmState;
+        message->structValue->at("payload")->booleanValue = pwmState;
+        output(0, message);
+      }
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch (...) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+  }
 }
 
-void MyNode::timer()
-{
-	uint32_t pwmPosition = (Flows::HelperFunctions::getTime() - _startTimeAll) % _period;
-	bool pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
-	bool lastPwmState = pwmState;
-
-	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	message->structValue->emplace("payload", std::make_shared<Flows::Variable>(pwmState));
-	output(0, message);
-
-	while(!_stopThread)
-	{
-		try
-		{
-            if(_period < 120000) std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            else std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			if(_stopThread) return;
-
-			pwmPosition = (Flows::HelperFunctions::getTime() - _startTimeAll) % _period;
-			pwmState = pwmPosition <= _currentDutyCycle && _currentDutyCycle > _dutyCycleMin;
-			if(pwmState != lastPwmState || BaseLib::HelperFunctions::getTime() - _lastOutput >= _period)
-			{
-				_lastOutput = BaseLib::HelperFunctions::getTime();
-				lastPwmState = pwmState;
-				message->structValue->at("payload")->booleanValue = pwmState;
-				output(0, message);
-			}
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-	}
-}
-
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		if(index == 0)
-		{
-		    auto& payload = message->structValue->at("payload");
-			double dutyCycle = (payload->type == Flows::VariableType::tFloat) ? payload->floatValue : payload->integerValue64;
-			if(dutyCycle > _dutyCycleMax) dutyCycle = _dutyCycleMax;
-			else if(dutyCycle < _dutyCycleMin) dutyCycle = _dutyCycleMin;
-			uint32_t currentDutyCycle = std::lround((double)_period * ((dutyCycle - (double)_dutyCycleMin) / (double)(_dutyCycleMax - _dutyCycleMin)));
-			_currentDutyCycle = currentDutyCycle;
-			setNodeData("dutycycle", std::make_shared<Flows::Variable>(currentDutyCycle));
-		}
-		else if(index == 1)
-		{
-		    bool newState = (bool)(*message->structValue->at("payload"));
-		    if(newState != _enabled)
-            {
-                _enabled = newState;
-                setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
-                Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
-                nodeEvent("statusTop/" + _id, status);
-                std::lock_guard<std::mutex> timerGuard(_timerMutex);
-                _stopThread = true;
-                if(_timerThread.joinable()) _timerThread.join();
-                if(_stopped) return;
-                if(_enabled)
-                {
-                    _startTimeAll = Flows::HelperFunctions::getTime();
-                    _stopThread = false;
-                    _timerThread = std::thread(&MyNode::timer, this);
-                }
-                else
-                {
-                    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-                    message->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
-                    output(0, message);
-                }
-            }
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    if (index == 0) {
+      auto &payload = message->structValue->at("payload");
+      double dutyCycle = (payload->type == Flows::VariableType::tFloat) ? payload->floatValue : payload->integerValue64;
+      if (dutyCycle > _dutyCycleMax) dutyCycle = _dutyCycleMax;
+      else if (dutyCycle < _dutyCycleMin) dutyCycle = _dutyCycleMin;
+      uint32_t currentDutyCycle = std::lround((double)_period * ((dutyCycle - (double)_dutyCycleMin) / (double)(_dutyCycleMax - _dutyCycleMin)));
+      _currentDutyCycle = currentDutyCycle;
+      setNodeData("dutycycle", std::make_shared<Flows::Variable>(currentDutyCycle));
+    } else if (index == 1) {
+      bool newState = (bool)(*message->structValue->at("payload"));
+      if (newState != _enabled) {
+        _enabled = newState;
+        setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
+        Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
+        nodeEvent("statusTop/" + _id, status);
+        std::lock_guard<std::mutex> timerGuard(_timerMutex);
+        _stopThread = true;
+        if (_timerThread.joinable()) _timerThread.join();
+        if (_stopped) return;
+        if (_enabled) {
+          _startTimeAll = Flows::HelperFunctions::getTime();
+          _stopThread = false;
+          _timerThread = std::thread(&MyNode::timer, this);
+        } else {
+          Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+          outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
+          output(0, outputMessage);
+        }
+      }
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

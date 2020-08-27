@@ -32,23 +32,21 @@
 
 #include <homegear-node/INode.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-    bool _forward = true;
-	bool _trueOnly = true;
-    int32_t _outputs = 2;
-    int32_t _currentOutputIndex = 0;
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  bool _forward = true;
+  bool _trueOnly = true;
+  int32_t _outputs = 2;
+  int32_t _currentOutputIndex = 0;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

@@ -68,7 +68,7 @@ public:
 
     Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings);
 
-    virtual ~Modbus();
+    ~Modbus();
 
     void start();
 

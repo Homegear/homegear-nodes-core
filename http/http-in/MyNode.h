@@ -34,31 +34,29 @@
 #include <homegear-node/JsonDecoder.h>
 #include <homegear-base/BaseLib.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-	std::string _server;
-	std::string _method;
-	std::string _path;
-	bool _fileUploads = false;
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  std::string _server;
+  std::string _method;
+  std::string _path;
+  bool _fileUploads = false;
 
-	Flows::JsonDecoder _jsonDecoder;
+  Flows::JsonDecoder _jsonDecoder;
 
-	std::pair<std::string, std::string> splitFirst(std::string string, char delimiter);
-	std::vector<std::string> splitAll(std::string string, char delimiter);
+  std::pair<std::string, std::string> splitFirst(const std::string &string, char delimiter);
+  std::vector<std::string> splitAll(std::string string, char delimiter);
 
-	//{{{ RPC methods
-		Flows::PVariable packetReceived(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable packetReceived(const Flows::PArray &parameters);
+  //}}}
 };
 
 }

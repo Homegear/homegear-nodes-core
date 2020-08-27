@@ -35,52 +35,50 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void startUpComplete();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	SunTime _sunTime;
-	std::atomic_bool _enabled;
-	bool _outputOnStartUp = false;
-	std::mutex _timeVariableMutex;
-	std::string _onTime;
-	std::string _onTimeType;
-	std::string _offTime;
-	std::string _offTimeType;
-	int64_t _onOffset = 0;
-	int64_t _offOffset = 0;
-	int64_t _lastOnTime = 0;
-	int64_t _lastOffTime = 0;
-	double _latitude = 54.32;
-	double _longitude = 10.13;
-	std::vector<bool> _days;
-	std::vector<bool> _months;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  SunTime _sunTime;
+  std::atomic_bool _enabled{true};
+  bool _outputOnStartUp = false;
+  std::mutex _timeVariableMutex;
+  std::string _onTime;
+  std::string _onTimeType;
+  std::string _offTime;
+  std::string _offTimeType;
+  int64_t _onOffset = 0;
+  int64_t _offOffset = 0;
+  int64_t _lastOnTime = 0;
+  int64_t _lastOffTime = 0;
+  double _latitude = 54.32;
+  double _longitude = 10.13;
+  std::vector<bool> _days;
+  std::vector<bool> _months;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::atomic_bool _forceUpdate;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::atomic_bool _stopped{true};
+  std::atomic_bool _forceUpdate{false};
+  std::thread _timerThread;
 
-	std::vector<std::string> splitAll(std::string string, char delimiter);
-	void timer();
-	std::string getDateString(int64_t time);
-	int64_t getSunTime(int64_t timeStamp, std::string time);
-	int64_t getTime(int64_t currentTime, std::string time, std::string timeType, int64_t offset);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
-	std::pair<int64_t, bool> getNext(int64_t currentTime, int64_t onTime, int64_t offTime);
-	void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
+  std::vector<std::string> splitAll(std::string string, char delimiter);
+  void timer();
+  std::string getDateString(int64_t time);
+  int64_t getSunTime(int64_t timeStamp, const std::string& time);
+  int64_t getTime(int64_t currentTime, const std::string& time, const std::string& timeType, int64_t offset);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  std::pair<int64_t, bool> getNext(int64_t currentTime, int64_t onTime, int64_t offTime);
+  void printNext(int64_t currentTime, int64_t onTime, int64_t offTime);
 };
 
 }

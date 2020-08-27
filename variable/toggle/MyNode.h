@@ -32,38 +32,35 @@
 
 #include <homegear-node/INode.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	bool init(Flows::PNodeInfo info) override;
-    bool start() override;
-private:
-	enum class VariableType
-	{
-	    self,
-		device,
-		metadata,
-		system,
-		flow,
-		global
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+ private:
+  enum class VariableType {
+    self,
+    device,
+    metadata,
+    system,
+    flow,
+    global
+  };
 
-	bool _trueOnly = false;
-	bool _useFeedback = false;
-    VariableType _variableType = VariableType::device;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
+  bool _trueOnly = false;
+  bool _useFeedback = false;
+  VariableType _variableType = VariableType::device;
+  uint64_t _peerId = 0;
+  int32_t _channel = -1;
+  std::string _variable;
 
-	bool _currentValue = false;
+  bool _currentValue = false;
 
-	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

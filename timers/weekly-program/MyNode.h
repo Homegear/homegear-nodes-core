@@ -27,8 +27,8 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef WEEKLY_PROGRAM_H_
+#define WEEKLY_PROGRAM_H_
 
 #include "SunTime.h"
 #include <homegear-node/INode.h>
@@ -36,48 +36,45 @@
 #include <mutex>
 #include <homegear-base/Variable.h>
 
-namespace MyNode
-{
+namespace WeeklyProgram {
 
-class MyNode: public Flows::INode
-{
-public:
-    MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-    virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-    virtual bool init(Flows::PNodeInfo info);
-    virtual bool start();
-    virtual void startUpComplete();
-    virtual void stop();
-    virtual void waitForStop();
-private:
-    struct TimeEntry
-    {
-        int64_t time;
-        Flows::PVariable value;
-    };
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  struct TimeEntry {
+    int64_t time;
+    Flows::PVariable value;
+  };
 
-    std::atomic_bool _enabled;
-    bool _outputOnStartUp = false;
-    std::array<std::map<int64_t, TimeEntry>, 7> _program;
+  std::atomic_bool _enabled{true};
+  bool _outputOnStartUp = false;
+  std::array<std::map<int64_t, TimeEntry>, 7> _program;
 
-    std::mutex _timerMutex;
-    std::atomic_bool _stopThread;
-    std::atomic_bool _stopped;
-    std::atomic_bool _forceUpdate;
-    std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::atomic_bool _stopped{true};
+  std::atomic_bool _forceUpdate{false};
+  std::thread _timerThread;
 
-    Flows::PVariable _currentValue;
+  Flows::PVariable _currentValue;
 
-    std::vector<std::string> splitAll(std::string string, char delimiter);
-    void timer();
-    std::string getDateString(int64_t time);
+  std::vector<std::string> splitAll(std::string string, char delimiter);
+  void timer();
+  std::string getDateString(int64_t time);
 
-    int64_t getTimestampFromString(const std::string& time);
-    Flows::PVariable getCurrentValue();
-    int64_t getNext();
-    void printNext(int64_t timestamp);
-    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  int64_t getTimestampFromString(const std::string &time);
+  Flows::PVariable getCurrentValue();
+  int64_t getNext();
+  void printNext(int64_t timestamp);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

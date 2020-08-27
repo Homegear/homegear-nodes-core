@@ -29,183 +29,146 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-HttpResponse::HttpResponse(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+HttpResponse::HttpResponse(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-HttpResponse::~HttpResponse()
-{
+HttpResponse::~HttpResponse() = default;
+
+bool HttpResponse::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("server");
+    if (settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("statusCode");
+    if (settingsIterator != info->info->structValue->end()) _statusCode = Flows::Math::getNumber(settingsIterator->second->stringValue);
+
+    _headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+    settingsIterator = info->info->structValue->find("headers");
+    if (settingsIterator != info->info->structValue->end()) {
+      for (auto &header : *(settingsIterator->second->structValue)) {
+        std::string key = header.first;
+        Flows::HelperFunctions::toLower(key);
+        _headers->structValue->emplace(key, header.second);
+      }
+    }
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool HttpResponse::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("server");
-		if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
-
-		settingsIterator = info->info->structValue->find("statusCode");
-		if(settingsIterator != info->info->structValue->end()) _statusCode = Flows::Math::getNumber(settingsIterator->second->stringValue);
-
-		_headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-
-		settingsIterator = info->info->structValue->find("headers");
-		if(settingsIterator != info->info->structValue->end())
-		{
-			for(auto& header : *(settingsIterator->second->structValue))
-			{
-				std::string key = header.first;
-				Flows::HelperFunctions::toLower(key);
-				_headers->structValue->emplace(key, header.second);
-			}
-		}
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+void HttpResponse::configNodesStarted() {
+  try {
+    if (_server.empty()) {
+      _out->printError("Error: This node has no server assigned.");
+      return;
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void HttpResponse::configNodesStarted()
-{
-	try
-	{
-		if(_server.empty())
-		{
-			_out->printError("Error: This node has no server assigned.");
-			return;
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-}
+void HttpResponse::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    if (_server.empty()) {
+      _out->printError("Error: This node has no server assigned.");
+      return;
+    }
 
-void HttpResponse::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		if(_server.empty())
-		{
-			_out->printError("Error: This node has no server assigned.");
-			return;
-		}
+    auto messageIterator = message->structValue->find("_internal");
+    if (messageIterator == message->structValue->end()) {
+      _out->printError("Error: No internal data found in message object.");
+      return;
+    }
 
-		auto messageIterator = message->structValue->find("_internal");
-		if(messageIterator == message->structValue->end())
-		{
-			_out->printError("Error: No internal data found in message object.");
-			return;
-		}
+    auto internalIterator = messageIterator->second->structValue->find("clientId");
+    if (internalIterator == messageIterator->second->structValue->end()) {
+      _out->printError("Error: No clientId found in internal data.");
+      return;
+    }
 
-		auto internalIterator = messageIterator->second->structValue->find("clientId");
-		if(internalIterator == messageIterator->second->structValue->end())
-		{
-			_out->printError("Error: No clientId found in internal data.");
-			return;
-		}
+    int32_t statusCode = _statusCode;
+    if (statusCode == 0) {
+      messageIterator = message->structValue->find("statusCode");
+      if (messageIterator != message->structValue->end()) {
+        statusCode = messageIterator->second->integerValue;
+      }
+    }
+    if (statusCode == 0) statusCode = 200;
 
-		int32_t statusCode = _statusCode;
-		if(statusCode == 0)
-		{
-			messageIterator = message->structValue->find("statusCode");
-			if(messageIterator != message->structValue->end())
-			{
-				statusCode = messageIterator->second->integerValue;
-			}
-		}
-		if(statusCode == 0) statusCode = 200;
+    Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
+    bool contentType = false;
+    if (_headers->structValue->empty()) {
+      messageIterator = message->structValue->find("headers");
+      if (messageIterator != message->structValue->end()) {
+        for (auto &header : *(messageIterator->second->structValue)) {
+          if (header.second->stringValue.empty()) continue;
+          std::string key = header.first;
+          Flows::HelperFunctions::toLower(key);
+          if (key == "content-type") contentType = true;
+          headers->arrayValue->push_back(std::make_shared<Flows::Variable>(key + ": " + header.second->stringValue));
+        }
+      }
+    } else {
+      for (auto &header : *(_headers->structValue)) {
+        if (header.second->stringValue.empty()) continue;
+        std::string key = header.first;
+        if (key == "content-type") contentType = true;
+        headers->arrayValue->push_back(std::make_shared<Flows::Variable>(key + ": " + header.second->stringValue));
+      }
+    }
+    if (!contentType) headers->arrayValue->push_back(std::make_shared<Flows::Variable>("Content-Type: text/plain"));
 
-		Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-		bool contentType = false;
-		if(_headers->structValue->empty())
-		{
-			messageIterator = message->structValue->find("headers");
-			if(messageIterator != message->structValue->end())
-			{
-				for(auto& header : *(messageIterator->second->structValue))
-				{
-					if(header.second->stringValue.empty()) continue;
-					std::string key = header.first;
-					Flows::HelperFunctions::toLower(key);
-					if(key == "content-type") contentType = true;
-					headers->arrayValue->push_back(std::make_shared<Flows::Variable>(key + ": " + header.second->stringValue));
-				}
-			}
-		}
-		else
-		{
-			for(auto& header : *(_headers->structValue))
-			{
-				if(header.second->stringValue.empty()) continue;
-				std::string key = header.first;
-				if(key == "content-type") contentType = true;
-				headers->arrayValue->push_back(std::make_shared<Flows::Variable>(key + ": " + header.second->stringValue));
-			}
-		}
-		if(!contentType) headers->arrayValue->push_back(std::make_shared<Flows::Variable>("Content-Type: text/plain"));
+    messageIterator = message->structValue->find("cookies");
+    if (messageIterator != message->structValue->end()) {
+      for (auto &cookie : *messageIterator->second->structValue) {
+        if (cookie.second->type == Flows::VariableType::tString) {
+          headers->arrayValue->push_back(std::make_shared<Flows::Variable>("Set-Cookie: " + cookie.first + "=" + cookie.second->stringValue));
+        } else {
+          auto cookieIterator = cookie.second->structValue->find("value");
+          if (cookieIterator == cookie.second->structValue->end()) continue;
+          std::string cookieString = "Set-Cookie: " + cookie.first + "=" + cookieIterator->second->stringValue;
+          if (!cookieIterator->second->stringValue.empty()) {
+            for (auto &element : *cookie.second->structValue) {
+              if (element.first == "value") continue;
+              if (element.second->stringValue.empty()) cookieString.append("; " + element.first);
+              else cookieString.append("; " + element.first + "=" + element.second->stringValue);
+            }
+          }
+          headers->arrayValue->push_back(std::make_shared<Flows::Variable>(cookieString));
+        }
+      }
+    }
 
-		messageIterator = message->structValue->find("cookies");
-		if(messageIterator != message->structValue->end())
-		{
-			for(auto& cookie : *messageIterator->second->structValue)
-			{
-				if(cookie.second->type == Flows::VariableType::tString)
-				{
-					headers->arrayValue->push_back(std::make_shared<Flows::Variable>("Set-Cookie: " + cookie.first + "=" + cookie.second->stringValue));
-				}
-				else
-				{
-					auto cookieIterator = cookie.second->structValue->find("value");
-					if(cookieIterator == cookie.second->structValue->end()) continue;
-					std::string cookieString = "Set-Cookie: " + cookie.first + "=" + cookieIterator->second->stringValue;
-					if(!cookieIterator->second->stringValue.empty())
-					{
-						for(auto& element : *cookie.second->structValue)
-						{
-							if(element.first == "value") continue;
-							if(element.second->stringValue.empty()) cookieString.append("; " + element.first);
-							else cookieString.append("; " + element.first + "=" + element.second->stringValue);
-						}
-					}
-					headers->arrayValue->push_back(std::make_shared<Flows::Variable>(cookieString));
-				}
-			}
-		}
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->reserve(4);
+    parameters->push_back(internalIterator->second);
+    parameters->push_back(std::make_shared<Flows::Variable>(statusCode));
+    parameters->push_back(headers);
+    parameters->push_back(message->structValue->at("payload"));
 
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(4);
-		parameters->push_back(internalIterator->second);
-		parameters->push_back(std::make_shared<Flows::Variable>(statusCode));
-		parameters->push_back(headers);
-		parameters->push_back(message->structValue->at("payload"));
-
-		Flows::PVariable result = invokeNodeMethod(_server, "send", parameters, true);
-		if(result->errorStruct) _out->printError("Error sending data: " + result->structValue->at("faultString")->stringValue);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    Flows::PVariable result = invokeNodeMethod(_server, "send", parameters, true);
+    if (result->errorStruct) _out->printError("Error sending data: " + result->structValue->at("faultString")->stringValue);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

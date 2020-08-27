@@ -36,78 +36,74 @@
 #include <mutex>
 #include <regex>
 
-namespace Switch
-{
+namespace Switch {
 
-class Switch : public Flows::INode
-{
-public:
-	enum class RuleType
-	{
-		tEq,
-		tNeq,
-		tLt,
-		tLte,
-		tGt,
-		tGte,
-		tBtwn,
-		tCont,
-		tRegex,
-		tTrue,
-		tFalse,
-		tNull,
-		tNnull,
-		tElse
-	};
+class Switch : public Flows::INode {
+ public:
+  enum class RuleType {
+    tEq,
+    tNeq,
+    tLt,
+    tLte,
+    tGt,
+    tGte,
+    tBtwn,
+    tCont,
+    tRegex,
+    tTrue,
+    tFalse,
+    tNull,
+    tNnull,
+    tElse
+  };
 
-	Switch(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~Switch();
+  Switch(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Switch() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	struct Rule
-	{
-		RuleType t;
-		Flows::PVariable v;
-		Flows::VariableType vt;
-		Flows::PVariable previousOutput;
-		bool previousValue = false;
-		bool secondInput = false;
-		std::string flowVariable;
-		std::string globalVariable;
-		std::string envVariable;
-		bool ignoreCase = false;
-		Flows::PVariable v2;
-		Flows::VariableType v2t;
-		bool previousValue2 = false;
-		bool secondInput2 = false;
-		std::string flowVariable2;
-		std::string globalVariable2;
-		std::string envVariable2;
-		std::regex regex;
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  struct Rule {
+    RuleType t;
+    Flows::PVariable v;
+    Flows::VariableType vt;
+    Flows::PVariable previousOutput;
+    bool previousValue = false;
+    bool secondInput = false;
+    std::string flowVariable;
+    std::string globalVariable;
+    std::string envVariable;
+    bool ignoreCase = false;
+    Flows::PVariable v2;
+    Flows::VariableType v2t;
+    bool previousValue2 = false;
+    bool secondInput2 = false;
+    std::string flowVariable2;
+    std::string globalVariable2;
+    std::string envVariable2;
+    std::regex regex;
+  };
 
-	typedef std::string Operator;
+  typedef std::string Operator;
 
-	Flows::MessageProperty _property;
-	Flows::PVariable _previousInputValue;
-	Flows::PVariable _previousInputValue2;
-	std::vector<Rule> _rules;
-	bool _changesOnly = false;
-	bool _outputTrue = false;
-	bool _outputFalse = false;
-	bool _checkAll = true;
-	bool _staticOnly = false;
+  Flows::MessageProperty _property;
+  Flows::PVariable _previousInputValue;
+  Flows::PVariable _previousInputValue2;
+  std::vector<Rule> _rules;
+  bool _changesOnly = false;
+  bool _outputTrue = false;
+  bool _outputFalse = false;
+  bool _checkAll = true;
+  bool _staticOnly = false;
 
-	Flows::PVariable _value;
-	std::string _payloadType;
+  Flows::PVariable _value;
+  std::string _payloadType;
 
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	static void convertType(Flows::PVariable& value, Flows::VariableType vt);
-	bool isTrue(Flows::PVariable& value);
-	bool match(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  RuleType getRuleTypeFromString(std::string &t);
+  Flows::VariableType getValueTypeFromString(std::string &vt);
+  static void convertType(Flows::PVariable &value, Flows::VariableType vt);
+  bool isTrue(Flows::PVariable &value);
+  bool match(const Flows::PNodeInfo &nodeInfo, Rule &rule, Flows::PVariable &value);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

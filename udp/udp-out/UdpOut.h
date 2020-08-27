@@ -33,29 +33,26 @@
 #include <homegear-node/INode.h>
 #include <unordered_map>
 
-namespace UdpOut
-{
+namespace UdpOut {
 
-class UdpOut : public Flows::INode
-{
-public:
-	UdpOut(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	~UdpOut() override = default;
+class UdpOut : public Flows::INode {
+ public:
+  UdpOut(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~UdpOut() override = default;
 
-	bool init(Flows::PNodeInfo info) override;
-private:
-    enum class PayloadType
-    {
-        raw,
-        hex,
-        json
-    };
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  enum class PayloadType {
+    raw,
+    hex,
+    json
+  };
 
-    std::string _hostname;
-    uint16_t _port = 0;
-    PayloadType _payloadType = PayloadType::hex;
+  std::string _hostname;
+  uint16_t _port = 0;
+  PayloadType _payloadType = PayloadType::hex;
 
-	void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

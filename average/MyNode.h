@@ -35,32 +35,30 @@
 #include <mutex>
 #include <queue>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	int64_t _interval = 60000;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  int64_t _interval = 60000;
 
-	std::atomic_bool _stopThread;
-	std::mutex _workerThreadMutex;
-	std::thread _workerThread;
+  std::atomic_bool _stopThread{true};
+  std::mutex _workerThreadMutex;
+  std::thread _workerThread;
 
-    std::atomic_bool _inputIsDouble;
-	std::mutex _valuesMutex;
-	std::list<double> _values;
+  std::atomic_bool _inputIsDouble{false};
+  std::mutex _valuesMutex;
+  std::list<double> _values;
 
-	void worker();
-	virtual void input(Flows::PNodeInfo info, uint32_t index, Flows::PVariable message);
+  void worker();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }
