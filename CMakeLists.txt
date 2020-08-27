@@ -14,8 +14,8 @@ set(SOURCE_FILES
         basic-logic/and/MyNode.h
 		basic-logic/change/Factory.cpp
 		basic-logic/change/Factory.h
-		basic-logic/change/MyNode.cpp
-		basic-logic/change/MyNode.h
+		basic-logic/change/Change.cpp
+		basic-logic/change/Change.h
         basic-logic/fallingedge/Factory.cpp
         basic-logic/fallingedge/Factory.h
         basic-logic/fallingedge/MyNode.cpp
@@ -38,8 +38,8 @@ set(SOURCE_FILES
 		basic-logic/srflipflop/MyNode.h
         basic-logic/switch/Factory.cpp
         basic-logic/switch/Factory.h
-        basic-logic/switch/MyNode.cpp
-        basic-logic/switch/MyNode.h
+        basic-logic/switch/Switch.cpp
+        basic-logic/switch/Switch.h
 		basic-logic/variable-switch/Factory.cpp
 		basic-logic/variable-switch/Factory.h
 		basic-logic/variable-switch/MyNode.cpp
@@ -122,8 +122,8 @@ set(SOURCE_FILES
         parsers/json/MyNode.h
 		parsers/xml/Factory.cpp
 		parsers/xml/Factory.h
-		parsers/xml/MyNode.cpp
-		parsers/xml/MyNode.h
+		parsers/xml/Xml.cpp
+		parsers/xml/Xml.h
         passthrough/Factory.cpp
         passthrough/Factory.h
         passthrough/MyNode.cpp
@@ -148,6 +148,10 @@ set(SOURCE_FILES
 		python/Factory.h
 		python/Python.cpp
 		python/Python.h
+		python-wrapper/Factory.cpp
+		python-wrapper/Factory.h
+		python-wrapper/Python.cpp
+		python-wrapper/Python.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -205,6 +209,10 @@ set(SOURCE_FILES
         timers/on-delay/Factory.h
         timers/on-delay/MyNode.cpp
         timers/on-delay/MyNode.h
+		timers/ramp-to/Factory.cpp
+		timers/ramp-to/Factory.h
+		timers/ramp-to/RampTo.cpp
+		timers/ramp-to/RampTo.h
 		timers/rate-limiter/Factory.cpp
 		timers/rate-limiter/Factory.h
 		timers/rate-limiter/MyNode.cpp
@@ -224,7 +232,13 @@ set(SOURCE_FILES
         timers/timer/MyNode.cpp
         timers/timer/MyNode.h
         timers/timer/SunTime.cpp
-        timers/timer/SunTime.h
+        timers/timer2/SunTime.h
+		timers/timer2/Factory.cpp
+		timers/timer2/Factory.h
+		timers/timer2/MyNode.cpp
+		timers/timer2/MyNode.h
+		timers/timer2/SunTime.cpp
+		timers/timer2/SunTime.h
 		timers/weekly-program/Factory.cpp
 		timers/weekly-program/Factory.h
 		timers/weekly-program/MyNode.cpp
@@ -239,6 +253,14 @@ set(SOURCE_FILES
         tls-server-config/Factory.h
         tls-server-config/MyNode.cpp
         tls-server-config/MyNode.h
+		udp/udp-in/Factory.cpp
+		udp/udp-in/Factory.h
+		udp/udp-in/UdpIn.cpp
+		udp/udp-in/UdpIn.h
+		udp/udp-out/Factory.cpp
+		udp/udp-out/Factory.h
+		udp/udp-out/UdpOut.cpp
+		udp/udp-out/UdpOut.h
         variable/constant/Factory.cpp
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
@@ -253,8 +275,8 @@ set(SOURCE_FILES
         variable/toggle/MyNode.h
         variable/variable-in/Factory.cpp
         variable/variable-in/Factory.h
-        variable/variable-in/MyNode.cpp
-        variable/variable-in/MyNode.h
+        variable/variable-in/VariableIn.cpp
+        variable/variable-in/VariableIn.h
         variable/variable-loop-prevention-group/Factory.cpp
         variable/variable-loop-prevention-group/Factory.h
         variable/variable-loop-prevention-group/MyNode.cpp
@@ -262,8 +284,7 @@ set(SOURCE_FILES
         variable/variable-out/Factory.cpp
         variable/variable-out/Factory.h
         variable/variable-out/MyNode.cpp
-        variable/variable-out/MyNode.h
-        config.h)
+        variable/variable-out/MyNode.h)
 
 add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
 

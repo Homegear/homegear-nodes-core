@@ -31,61 +31,37 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <thread>
+#include <mutex>
 
-namespace MyNode
-{
+namespace RampTo {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class RampTo : public Flows::INode {
+ public:
+  RampTo(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~RampTo() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void startUpComplete();
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  bool _intervalUpSet = false;
+  bool _intervalDownSet = false;
+  std::atomic<int32_t> _intervalUp{60000};
+  std::atomic<int32_t> _intervalDown{60000};
+  int32_t _stepInterval = 50;
 
-private:
-	enum class VariableType
-    {
-        device,
-        metadata,
-        system,
-        flow,
-        global
-    };
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::thread _timerThread;
 
-    enum class EventSource
-    {
-        all,
-        device,
-        homegear,
-        scriptEngine,
-        nodeBlue,
-        rpcClient,
-        ipcClient,
-        mqtt
-    };
+  std::atomic<double> _currentValue{0};
+  double _minimum = 0;
+  double _maximum = 100;
 
-    VariableType _variableType = VariableType::device;
-	int64_t _lastInput = 0;
-	uint32_t _refractionPeriod = 0;
-	Flows::PVariable _lastValue;
-	bool _outputChangesOnly = false;
-	bool _outputOnStartup = false;
-	uint64_t _peerId = 0;
-	int32_t _channel = -1;
-	std::string _variable;
-	EventSource _eventSource = EventSource::all;
-	std::string _name;
-
-	Flows::VariableType _type = Flows::VariableType::tVoid;
-	std::string _loopPreventionGroup;
-	bool _loopPrevention = false;
-
-	virtual void variableEvent(std::string source, uint64_t peerId, int32_t channel, std::string variable, Flows::PVariable value);
-    virtual void flowVariableEvent(std::string flowId, std::string variable, Flows::PVariable value);
-    virtual void globalVariableEvent(std::string variable, Flows::PVariable value);
-    virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void timer(double startValue, double rampTo, bool isInteger);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

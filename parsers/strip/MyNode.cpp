@@ -30,40 +30,31 @@
 #include <homegear-base/Variable.h>
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  return true;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-    return true;
-}
-
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-    try
-    {
-        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        Flows::PVariable payload  = std::make_shared<Flows::Variable>();
-        *payload = *(message->structValue->at("payload"));
-        outputMessage->structValue->emplace("payload", std::move(payload));
-        output(0, outputMessage);
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    Flows::PVariable payload = std::make_shared<Flows::Variable>();
+    *payload = *(message->structValue->at("payload"));
+    outputMessage->structValue->emplace("payload", std::move(payload));
+    output(0, outputMessage);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

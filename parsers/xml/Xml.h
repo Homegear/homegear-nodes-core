@@ -31,60 +31,25 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
+#include "RapidXml/rapidxml.hpp"
+#include "RapidXml/rapidxml_print.hpp"
 #include <mutex>
-#include <regex>
 
-namespace MyNode
-{
+using namespace rapidxml;
 
-class MyNode: public Flows::INode
-{
-public:
-	enum class RuleType
-	{
-		tSet,
-		tChange,
-		tMove,
-		tDelete
-	};
+namespace Parsers {
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class Xml : public Flows::INode {
+ public:
+  Xml(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Xml() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	struct Rule
-	{
-		RuleType t;
-		std::string messageProperty;
-		std::string flowVariable;
-		std::string globalVariable;
-        Flows::PVariable from;
-        Flows::VariableType fromt;
-        std::string messagePropertyFrom;
-        std::string flowVariableFrom;
-        std::string globalVariableFrom;
-        bool fromRegexSet = false;
-        std::regex fromRegex;
-		Flows::PVariable to;
-		Flows::VariableType tot;
-        std::string messagePropertyTo;
-		std::string flowVariableTo;
-		std::string globalVariableTo;
-        std::string envVariableTo;
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 
-	typedef std::string Operator;
-
-	std::vector<Rule> _rules;
-
-    std::string& stringReplace(std::string& haystack, const std::string& search, const std::string& replace);
-	RuleType getRuleTypeFromString(std::string& t);
-	Flows::VariableType getValueTypeFromString(std::string& vt);
-	void convertType(Flows::PVariable& value, Flows::VariableType vt);
-    void applyRule(const Flows::PNodeInfo& nodeInfo, Rule& rule, Flows::PVariable& value);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  Flows::PVariable parseXmlNode(xml_node<> *node, bool &isDataNode);
+  void parseVariable(xml_document<> *doc, xml_node<> *parentNode, const Flows::PVariable &variable);
 };
 
 }

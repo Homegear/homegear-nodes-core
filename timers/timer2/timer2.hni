@@ -1,0 +1,163 @@
+<script type="text/x-homegear">
+{
+    "name": "timer2",
+    "readableName": "Timer 2",
+    "version": "1.0.0",
+    "coreNode": true,
+    "maxThreadCount": 1
+}
+</script>
+<script type="text/x-red" data-template-name="timer2">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name"/>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-startup" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-startup" style="width: 65%;" data-i18n="timer2.label.startup"></label>
+    </div>
+    <div class="form-row">
+        <label style="width:16%" for="node-input-lat"><i class="fa fa-globe"></i> <span data-i18n="timer2.label.latitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lat" placeholder="54.32">
+
+        <label style="width:16%" for="node-input-lon"><i class="fa fa-globe"></i> <span data-i18n="timer2.label.longitude"></span></label>
+        <input style="width:26%" type="text" id="node-input-lon" placeholder="10.13">
+    </div>
+    <div class="form-row">
+        <label for="node-input-type"><i class="fa fa-clock-o"></i> <span data-i18n="timer2.label.type"></span></label>
+        <select type="text" id="node-input-type" style="display: inline-block; width: 70%;">
+            <option value="daily" data-i18n="timer2.label.daily"></option>
+            <option value="weekly" data-i18n="timer2.label.weekly"></option>
+            <option value="monthly" data-i18n="timer2.label.monthly"></option>
+            <option value="yearly" data-i18n="timer2.label.yearly"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-ontime"><i class="fa fa-clock-o"></i> <span data-i18n="timer2.label.ontime"></span></label>
+        <input type="text" id="node-input-ontime" style="width:70%"/>
+        <input type="hidden" id="node-input-ontimetype"/>
+    </div>
+    <div class="form-row">
+        <label for="node-input-offtime"><i class="fa fa-clock-o"></i> <span data-i18n="timer2.label.offtime"></span></label>
+        <input type="text" id="node-input-offtime" style="width:70%"/>
+        <input type="hidden" id="node-input-offtimetype"/>
+    </div>
+    <div class="form-row">
+        <label  style="width:16%" for="node-input-startoff"><i class="fa fa-clock-o"></i> <span data-i18n="timer2.label.onoffset"></span></label>
+        <input  style="width:26%" type="text" id="node-input-startoff" placeholder="0">
+    
+        <label  style="width:16%" for="node-input-endoff"><i class="fa fa-clock-o"></i> <span data-i18n="timer2.label.offoffset"></span></label>
+        <input  style="width:26%" type="text" id="node-input-endoff" placeholder="0">
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-mon"><span data-i18n="timer2.label.monday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-tue"><span data-i18n="timer2.label.tuesday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-wed"><span data-i18n="timer2.label.wednesday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-thu"><span data-i18n="timer2.label.thursday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-fri"><span data-i18n="timer2.label.friday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sat"><span data-i18n="timer2.label.saturday"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sun"><span data-i18n="timer2.label.sunday"></span></span>
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jan"><span data-i18n="timer2.label.january"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-feb"><span data-i18n="timer2.label.february"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-mar"><span data-i18n="timer2.label.march"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-apr"><span data-i18n="timer2.label.april"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-may"><span data-i18n="timer2.label.may"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jun"><span data-i18n="timer2.label.june"></span></span>
+    </div>
+    <div class="form-row">
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-jul"><span data-i18n="timer2.label.july"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-aug"><span data-i18n="timer2.label.august"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-sep"><span data-i18n="timer2.label.september"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-oct"><span data-i18n="timer2.label.october"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-nov"><span data-i18n="timer2.label.november"></span></span>
+        <span style="width: 50px; float: left; margin-left: 5px;"><input style="width:auto;" type="checkbox" id="node-input-dec"><span data-i18n="timer2.label.december"></span></span>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('timer2',{
+        category: 'time',
+        namespace: 'timers',
+        color:"#FFCC66",
+        defaults: {
+            name: {value:""},
+            startup: {value: false},
+            ontime: {value:"", validate: RED.validators.typedInput("ontime")},
+            ontimetype: {value:"suntime"},
+            offtime: {value:"1:15:30", validate: RED.validators.typedInput("offtime")},
+            offtimetype: {value:"time"},
+            lat: {value:"", required: true},
+            lon: {value:"", required: true},
+            startoff: {value:"0", validate:RED.validators.number() },
+            endoff: {value:"0", validate:RED.validators.number() },
+            sun: {value:true},
+            mon: {value:true},
+            tue: {value:true},
+            wed: {value:true},
+            thu: {value:true},
+            fri: {value:true},
+            sat: {value:true},
+            jan: {value:true},
+            feb: {value:true},
+            mar: {value:true},
+            apr: {value:true},
+            may: {value:true},
+            jun: {value:true},
+            jul: {value:true},
+            aug: {value:true},
+            sep: {value:true},
+            oct: {value:true},
+            nov: {value:true},
+            dec: {value:true}
+        },
+        inputs:3,
+        inputInfo: [
+            {
+                label: "EN",
+                types: ["boolean"]
+            },
+            {
+                label: "ON_T",
+                types: ["string"]
+            },
+            {
+                label: "OFF_T",
+                types: ["string"]
+            }
+        ],
+        outputs:1,
+        icon: "serial.svg",
+        label: function() {
+            if(this.name) return this.name;
+            return "timer2";
+        },
+        oneditprepare: function() {
+            if (($("#node-input-lat").val() === "") && ($("#node-input-lon").val() === "")) {
+                if ("geolocation" in navigator) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        $("#node-input-lat").val(Number(position.coords.latitude.toFixed(5)));
+                        $("#node-input-lon").val(Number(position.coords.longitude.toFixed(5)));
+                    });
+                }
+            }
+
+            $("#node-input-ontime").typedInput({
+                default: 'suntime',
+                typeField: $("#node-input-ontimetype"),
+                types:['suntime','time']
+            });
+
+            $("#node-input-ontime").typedInput('type',this.payloadType);
+
+            $("#node-input-offtime").typedInput({
+                default: 'time',
+                typeField: $("#node-input-offtimetype"),
+                types:['suntime','time']
+            });
+
+            $("#node-input-offtime").typedInput('type',this.payloadType);
+        }
+    });
+</script>

@@ -35,24 +35,22 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-private:
-	Flows::JsonEncoder _jsonEncoder;
-	std::string _measurement;
-	bool _first = true;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+ private:
+  Flows::JsonEncoder _jsonEncoder;
+  std::string _measurement;
+  bool _first = true;
 
-	std::string stripNonAlphaNumeric(const std::string& s);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  std::string stripNonAlphaNumeric(const std::string &s);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

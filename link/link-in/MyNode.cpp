@@ -32,35 +32,21 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_localRpcMethods.emplace("linkInput", std::bind(&MyNode::linkInput, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode()
+MyNode::~MyNode() = default;
+
+
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
+  return true;
 }
 
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-
-Flows::PVariable MyNode::linkInput(Flows::PArray parameters)
+Flows::PVariable MyNode::linkInput(const Flows::PArray& parameters)
 {
 	try
 	{

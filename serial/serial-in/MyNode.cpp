@@ -30,89 +30,72 @@
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+  _localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("serial");
+    if (settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("serial");
-		if(settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+void MyNode::configNodesStarted() {
+  try {
+    if (_server.empty()) {
+      _out->printError("Error: This node has no Modbus server assigned.");
+      return;
+    }
 
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->push_back(std::make_shared<Flows::Variable>(_id));
 
-void MyNode::configNodesStarted()
-{
-	try
-	{
-		if(_server.empty())
-		{
-			_out->printError("Error: This node has no Modbus server assigned.");
-			return;
-		}
-
-        Flows::PArray parameters = std::make_shared<Flows::Array>();
-        parameters->push_back(std::make_shared<Flows::Variable>(_id));
-
-        Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
-        if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
+    if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 //{{{ RPC methods
-	Flows::PVariable MyNode::packetReceived(Flows::PArray parameters)
-	{
-		try
-		{
-            if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-			if(parameters->at(0)->type != Flows::VariableType::tBinary && parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type String or Binary.");
+Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
+  try {
+    if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+    if (parameters->at(0)->type != Flows::VariableType::tBinary && parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type String or Binary.");
 
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("payload", parameters->at(0));
+    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    message->structValue->emplace("payload", parameters->at(0));
 
-            output(0, message);
+    output(0, message);
 
-			return std::make_shared<Flows::Variable>();
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-		return Flows::Variable::createError(-32500, "Unknown application error.");
-	}
+    return std::make_shared<Flows::Variable>();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return Flows::Variable::createError(-32500, "Unknown application error.");
+}
 //}}}
 
 }

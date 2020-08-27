@@ -33,43 +33,39 @@
 #include <homegear-node/INode.h>
 #include <unordered_map>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	enum class ModbusType
-	{
-		tHoldingRegister = 0,
-		tCoil = 1,
-		tDiscreteInput = 2,
-		tInputRegister = 3
-	};
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  enum class ModbusType {
+    tHoldingRegister = 0,
+    tCoil = 1,
+    tDiscreteInput = 2,
+    tInputRegister = 3
+  };
 
-	struct RegisterInfo
-	{
-		ModbusType modbusType = ModbusType::tHoldingRegister;
-		uint32_t inputIndex = 0;
-		uint32_t index = 0;
-		uint32_t count = 0;
-		bool invertBytes = false;
-		bool invertRegisters = false;
-	};
+  struct RegisterInfo {
+    ModbusType modbusType = ModbusType::tHoldingRegister;
+    uint32_t inputIndex = 0;
+    uint32_t index = 0;
+    uint32_t count = 0;
+    bool invertBytes = false;
+    bool invertRegisters = false;
+  };
 
-	std::string _server;
-	std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
+  std::string _server;
+  std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
 
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 
-	//{{{ RPC methods
-	Flows::PVariable setConnectionState(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

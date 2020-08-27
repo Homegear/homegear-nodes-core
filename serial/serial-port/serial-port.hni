@@ -111,6 +111,8 @@
             return this.serialport+":"+this.serialbaud+"-"+this.databits+this.parity.charAt(0).toUpperCase()+this.stopbits;
         },
         oneditprepare: function() {
+            var unitLabelText = this._("serial-port.label.unit");
+
             var previous = null;
             var blist = [
                 {value:"115200",label:"115200",hasValue:false},
@@ -169,7 +171,7 @@
                 else {
                     if (previous != "count") { $("#node-config-input-newline").val(""); }
                     $("#node-config-input-newline").show();
-                    $("#node-units").text("chars");
+                    $("#node-units").text(unitLabelText);
                     $("#node-config-addchar").hide();
                     $("#node-config-input-addchar").val("false");
                     $("#tip-split").hide();

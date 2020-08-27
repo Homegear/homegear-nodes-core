@@ -34,23 +34,21 @@
 #include <homegear-node/INode.h>
 #include <unordered_map>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual void configNodesStarted();
-private:
-    std::string _server;
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  std::string _server;
 
-	//{{{ RPC methods
-	Flows::PVariable packetReceived(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable packetReceived(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

@@ -23,7 +23,7 @@
         namespace: 'timers',
         color:"#FFCC66",
         defaults: {
-            "on-delay": {value:"10000",required:true,validate:RED.validators.number()},
+            "on-delay": {value:"10000",required:false,validate:RED.validators.number()},
             name: {value:""}
         },
         inputs:2,

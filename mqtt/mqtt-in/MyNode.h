@@ -38,11 +38,11 @@ namespace MyNode
 class MyNode: public Flows::INode
 {
 public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+	MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected);
+	~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
+	bool init(const Flows::PNodeInfo &info) override;
+	bool start() override;
 private:
 	std::string _broker;
 	std::string _topic;
@@ -50,8 +50,8 @@ private:
 	bool _loopPrevention = false;
 
 	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray parameters);
-	Flows::PVariable setConnectionState(Flows::PArray parameters);
+	Flows::PVariable publish(const Flows::PArray& parameters);
+	Flows::PVariable setConnectionState(const Flows::PArray& parameters);
 	//}}}
 };
 

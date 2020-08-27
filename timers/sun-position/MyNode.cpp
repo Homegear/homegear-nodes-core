@@ -29,158 +29,108 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_stopThread = true;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThread = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThread = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("lat");
+    if (settingsIterator != info->info->structValue->end()) _latitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("lat");
-		if(settingsIterator != info->info->structValue->end()) _latitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
+    settingsIterator = info->info->structValue->find("lon");
+    if (settingsIterator != info->info->structValue->end()) _longitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
 
-		settingsIterator = info->info->structValue->find("lon");
-		if(settingsIterator != info->info->structValue->end()) _longitude = Flows::Math::getDouble(settingsIterator->second->stringValue);
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+bool MyNode::start() {
+  return true;
 }
 
-void MyNode::startUpComplete()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = false;
-		if(_timerThread.joinable()) _timerThread.join();
-		_timerThread = std::thread(&MyNode::timer, this);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::startUpComplete() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = false;
+    if (_timerThread.joinable()) _timerThread.join();
+    _timerThread = std::thread(&MyNode::timer, this);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		_stopThread = true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::stop() {
+  _stopThread = true;
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerMutex);
-		_stopThread = true;
-		if(_timerThread.joinable()) _timerThread.join();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::timer()
-{
-	int32_t i = 0;
-	{
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_int_distribution<> dis(0, 60);
-		int32_t randomInterval = dis(gen);
-		for(i = 0; i < randomInterval; i++)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-			if(_stopThread) break;
-		}
-	}
+void MyNode::timer() {
+  int32_t i = 0;
+  {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, 60);
+    int32_t randomInterval = dis(gen);
+    for (i = 0; i < randomInterval; i++) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      if (_stopThread) break;
+    }
+  }
 
-	Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	Flows::PVariable sunPositionPayload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-	message->structValue->emplace("payload", sunPositionPayload);
-	while(!_stopThread)
-	{
-		try
-		{
-			for(i = 0; i < 60; i++)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				if(_stopThread) break;
-			}
-			if(_stopThread) break;
-			auto sunPosition = _sunTime.getPosition(Flows::HelperFunctions::getTime(), _latitude, _longitude);
-			sunPositionPayload->structValue->clear();
-			sunPositionPayload->structValue->emplace("azimuth", std::make_shared<Flows::Variable>((double)sunPosition.azimuth));
-			sunPositionPayload->structValue->emplace("altitude", std::make_shared<Flows::Variable>((double)sunPosition.altitude));
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  Flows::PVariable sunPositionPayload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  message->structValue->emplace("payload", sunPositionPayload);
+  while (!_stopThread) {
+    try {
+      for (i = 0; i < 60; i++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        if (_stopThread) break;
+      }
+      if (_stopThread) break;
+      auto sunPosition = _sunTime.getPosition(Flows::HelperFunctions::getTime(), _latitude, _longitude);
+      sunPositionPayload->structValue->clear();
+      sunPositionPayload->structValue->emplace("azimuth", std::make_shared<Flows::Variable>((double)sunPosition.azimuth));
+      sunPositionPayload->structValue->emplace("altitude", std::make_shared<Flows::Variable>((double)sunPosition.altitude));
 
-			output(0, message);
-		}
-		catch(const std::exception& ex)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-		}
-		catch(...)
-		{
-			_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-		}
-	}
+      output(0, message);
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+    catch (...) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+    }
+  }
 }
 
 }

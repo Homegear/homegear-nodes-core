@@ -32,33 +32,31 @@
 
 #include <homegear-node/INode.h>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
 
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
-private:
-	Flows::PNodeInfo _nodeInfo;
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
+ private:
+  Flows::PNodeInfo _nodeInfo;
 
-	uint32_t _refractoryPeriod = 1000;
+  uint32_t _refractoryPeriod = 1000;
 
-	std::mutex _lastEventMutex;
-	std::string _lastEventNode;
-	std::string _lastEventSource;
-	std::atomic<int64_t> _lastEvent;
+  std::mutex _lastEventMutex;
+  std::string _lastEventNode;
+  std::string _lastEventSource;
+  std::atomic<int64_t> _lastEvent{0};
 
-	//{{{ RPC methods
-	Flows::PVariable event(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable event(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

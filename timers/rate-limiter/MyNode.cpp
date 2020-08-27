@@ -30,212 +30,157 @@
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected)
-        : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() {
+  _stopThread = true;
+}
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("max-inputs");
+    if (settingsIterator != info->info->structValue->end()) _maxInputs = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
+    if (_maxInputs < 1) _maxInputs = 1;
+
+    settingsIterator = info->info->structValue->find("interval");
+    if (settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
+
+    settingsIterator = info->info->structValue->find("output-first");
+    if (settingsIterator != info->info->structValue->end()) _outputFirst = settingsIterator->second->booleanValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return false;
+}
+
+bool MyNode::start() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
     _stopThread = true;
-    waitForStop();
+    if (_timerThread.joinable()) _timerThread.join();
+    _stopThread = false;
+    _timerThread = std::thread(&MyNode::timer, this);
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return false;
 }
 
-
-bool MyNode::init(Flows::PNodeInfo info)
-{
-    try
-    {
-        auto settingsIterator = info->info->structValue->find("max-inputs");
-        if(settingsIterator != info->info->structValue->end()) _maxInputs = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
-        if(_maxInputs < 1) _maxInputs = 1;
-
-        settingsIterator = info->info->structValue->find("interval");
-        if(settingsIterator != info->info->structValue->end()) _interval = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
-
-        settingsIterator = info->info->structValue->find("output-first");
-        if(settingsIterator != info->info->structValue->end()) _outputFirst = settingsIterator->second->booleanValue;
-
-        return true;
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    return false;
+void MyNode::stop() {
+  std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+  _stopThread = true;
 }
 
-bool MyNode::start()
-{
-    try
-    {
-        std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-        _stopThread = true;
-        if(_timerThread.joinable()) _timerThread.join();
-        _stopThread = false;
-        _timerThread = std::thread(&MyNode::timer, this);
-
-        return true;
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    return false;
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::stop()
-{
-    try
-    {
-        std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-        _stopThread = true;
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-}
+void MyNode::timer() {
+  int32_t sleepingTime = _interval;
+  if (sleepingTime < 1) sleepingTime = 1;
 
-void MyNode::waitForStop()
-{
-    try
-    {
-        std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
-        _stopThread = true;
-        if(_timerThread.joinable()) _timerThread.join();
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch(...)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
-}
+  int64_t startTime = Flows::HelperFunctions::getTime();
 
-void MyNode::checkLastInput()
-{
-    if(_inputCount.load(std::memory_order_acquire) == 0)
-    {
-        _firstInterval.store(true, std::memory_order_release);
-
-        std::lock_guard<std::mutex> lastInputGuard(_lastInputMutex);
-        if(_lastInput)
-        {
-            output(0, _lastInput);
-            _lastInput.reset();
+  while (!_stopThread) {
+    try {
+      if (sleepingTime > 1000 && sleepingTime < 30000) {
+        int32_t iterations = sleepingTime / 100;
+        for (int32_t j = 0; j < iterations; j++) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          if (_stopThread) break;
         }
+        if (sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
+      } else if (sleepingTime >= 30000) {
+        int32_t iterations = sleepingTime / 1000;
+        for (int32_t j = 0; j < iterations; j++) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+          if (_stopThread) break;
+        }
+        if (sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
+        if (_stopThread) break;
+      }
+
+      std::lock_guard<std::mutex> dataGuard(_dataMutex);
+      if (_state == RateLimiterState::kFirst) {
+        //The timer runs continuously, so the interval between input and this code position is less than interval at most times. Add the offset and sleep again.
+        startTime = _firstInputTime;
+        sleepingTime = _interval - (Flows::HelperFunctions::getTime() - _firstInputTime);
+        if (sleepingTime < 1) sleepingTime = 1;
+        else if ((unsigned)sleepingTime > _interval) sleepingTime = _interval;
+        _state = RateLimiterState::kFirstOffset;
+        continue;
+      } else if(_state == RateLimiterState::kFirstOffset) {
+        _state = RateLimiterState::kReceiving;
+      } else if (_state == RateLimiterState::kReceiving) {
+        _state = RateLimiterState::kWaitingForInput;
+      } else if (_state == RateLimiterState::kWaitingForInput) {
+        if (_lastInput) {
+          output(0, _lastInput);
+          _lastInput.reset();
+        }
+        _state = RateLimiterState::kIdle;
+      }
+      _inputCount = 0;
+
+      int64_t diff = Flows::HelperFunctions::getTime() - startTime;
+      if (diff <= (int64_t)_interval) sleepingTime = _interval;
+      else sleepingTime = _interval - (diff - _interval);
+      if (sleepingTime < 1) sleepingTime = 1;
+      startTime = Flows::HelperFunctions::getTime();
     }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+  }
 }
 
-void MyNode::timer()
-{
-    int32_t sleepingTime = _interval;
-    if(sleepingTime < 1) sleepingTime = 1;
-
-    int64_t startTime = Flows::HelperFunctions::getTime();
-
-    while(!_stopThread)
-    {
-        try
-        {
-            if(sleepingTime > 1000 && sleepingTime < 30000)
-            {
-                int32_t iterations = sleepingTime / 100;
-                for(int32_t j = 0; j < iterations; j++)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    if(_stopThread) break;
-                    checkLastInput();
-                }
-                if(sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
-            }
-            else if(sleepingTime >= 30000)
-            {
-                int32_t iterations = sleepingTime / 1000;
-                for(int32_t j = 0; j < iterations; j++)
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-                    if(_stopThread) break;
-                    checkLastInput();
-                }
-                if(sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
-            }
-            else
-            {
-                std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-                if(_stopThread) break;
-                checkLastInput();
-            }
-
-            {
-                int64_t lastInputTime = _lastInputTime.load(std::memory_order_acquire);
-                if(lastInputTime != 0)
-                {
-                    _lastInputTime.store(0, std::memory_order_release);
-                    sleepingTime = _interval - (Flows::HelperFunctions::getTime() - lastInputTime);
-                    if(sleepingTime < 1) sleepingTime = 1;
-                    else if((unsigned)sleepingTime > _interval) sleepingTime = _interval;
-                    continue;
-                }
-            }
-
-            _inputCount.store(0, std::memory_order_release);
-
-            int64_t diff = Flows::HelperFunctions::getTime() - startTime;
-            if(diff <= _interval) sleepingTime = _interval;
-            else sleepingTime = _interval - (diff - _interval);
-            if(sleepingTime < 1) sleepingTime = 1;
-            startTime = Flows::HelperFunctions::getTime();
-        }
-        catch(const std::exception& ex)
-        {
-            _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-        }
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    std::lock_guard<std::mutex> dataGuard(_dataMutex);
+    if (_state == RateLimiterState::kIdle) {
+      _firstInputTime = Flows::HelperFunctions::getTime();
+      _state = RateLimiterState::kFirst;
     }
-}
+    if (_inputCount < _maxInputs) {
+      _lastInput.reset();
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-    try
-    {
-        if(_firstInterval.load(std::memory_order_acquire)) _lastInputTime.store(Flows::HelperFunctions::getTime(), std::memory_order_release);
-        if(_inputCount.load(std::memory_order_acquire) < _maxInputs)
-        {
-            {
-                std::lock_guard<std::mutex> lastInputGuard(_lastInputMutex);
-                _lastInput.reset();
-            }
+      if ((!_outputFirst && _state != RateLimiterState::kFirst && _state != RateLimiterState::kFirstOffset) || _outputFirst) {
+        _inputCount++;
+        output(0, message);
+      } else {
+        _inputCount++;
+        _lastInput = message;
+      }
 
-            if((!_outputFirst && !_firstInterval.load(std::memory_order_acquire)) || _outputFirst)
-            {
-                _inputCount.fetch_add(1, std::memory_order_acq_rel);
-                output(0, message);
-            }
-            else
-            {
-                std::lock_guard<std::mutex> lastInputGuard(_lastInputMutex);
-                _inputCount.fetch_add(1, std::memory_order_acq_rel);
-                _lastInput = message;
-            }
-
-            _firstInterval.store(false, std::memory_order_release);
-        }
-        else
-        {
-            std::lock_guard<std::mutex> lastInputGuard(_lastInputMutex);
-            _lastInput = message;
-        }
+      if (_state == RateLimiterState::kWaitingForInput) _state = RateLimiterState::kReceiving;
+    } else {
+      _lastInput = message;
     }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
 }
 
 }

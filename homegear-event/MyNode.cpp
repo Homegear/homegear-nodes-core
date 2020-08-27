@@ -29,49 +29,39 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    subscribeHomegearEvents();
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		subscribeHomegearEvents();
+void MyNode::homegearEvent(const std::string &type, const Flows::PArray &data) {
+  try {
+    auto payload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    payload->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
+    payload->structValue->emplace("data", std::make_shared<Flows::Variable>(data));
 
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	return false;
-}
+    auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    message->structValue->emplace("payload", payload);
 
-void MyNode::homegearEvent(const std::string& type, const Flows::PArray& data)
-{
-    try
-    {
-        auto payload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        payload->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
-        payload->structValue->emplace("data", std::make_shared<Flows::Variable>(data));
-
-        auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("payload", payload);
-
-        output(0, message);
-    }
-    catch(const std::exception& ex)
-    {
-        _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
 }
 
 }

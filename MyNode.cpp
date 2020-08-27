@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 	_stopThread = true;
 	_stopped = true;
@@ -46,7 +46,7 @@ MyNode::~MyNode()
 }
 
 
-bool MyNode::init(Flows::PNodeInfo info)
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
 	try
 	{
@@ -186,7 +186,7 @@ void MyNode::timer(int64_t delayTo)
 	}
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message)
 {
 	try
 	{

@@ -29,57 +29,43 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    _settings = info->info;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		_settings = info->info;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-
-Flows::PVariable MyNode::getConfigParameterIncoming(std::string name)
-{
-	try
-	{
-		if(name == "certdata.password" || name == "keydata.password" || name == "cadata.password") return getNodeData(name);
-		else
-		{
-			auto settingsIterator = _settings->structValue->find(name);
-			if(settingsIterator != _settings->structValue->end()) return settingsIterator->second;
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return std::make_shared<Flows::Variable>();
+Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
+  try {
+    if (name == "certdata.password" || name == "keydata.password" || name == "cadata.password") return getNodeData(name);
+    else {
+      auto settingsIterator = _settings->structValue->find(name);
+      if (settingsIterator != _settings->structValue->end()) return settingsIterator->second;
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return std::make_shared<Flows::Variable>();
 }
 
 }

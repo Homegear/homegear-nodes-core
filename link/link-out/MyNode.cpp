@@ -32,16 +32,13 @@
 namespace MyNode
 {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 }
 
-MyNode::~MyNode()
-{
-}
+MyNode::~MyNode() = default;
 
-
-bool MyNode::init(Flows::PNodeInfo info)
+bool MyNode::init(const Flows::PNodeInfo &info)
 {
 	try
 	{
@@ -73,7 +70,7 @@ bool MyNode::init(Flows::PNodeInfo info)
 	return false;
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message)
 {
 	try
 	{

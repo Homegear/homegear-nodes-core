@@ -34,57 +34,55 @@
 #include <mutex>
 #include <thread>
 
-namespace PresenceLight
-{
+namespace PresenceLight {
 
-class PresenceLight: public Flows::INode
-{
-public:
-	PresenceLight(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~PresenceLight();
+class PresenceLight : public Flows::INode {
+ public:
+  PresenceLight(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~PresenceLight() override;
 
-    virtual bool init(Flows::PNodeInfo info);
-    virtual bool start();
-    virtual void startUpComplete();
-    virtual void stop();
-    virtual void waitForStop();
-private:
-    //{{{ Only used by one thread / protected by input mutex of Homegear
-    uint32_t _onTime = 0;
-    uint32_t _alwaysOnTime = 21600000;
-    uint32_t _alwaysOffTime = 21600000;
-    int64_t _lastInput = -1;
-    bool _switchOffOnInFalse = false;
-    bool _keepOn = false;
-    uint32_t _refractionTime = 1000;
-    bool _outputChangesOnly = false;
-    //}}}
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  //{{{ Only used by one thread / protected by input mutex of Homegear
+  uint32_t _onTime = 0;
+  uint32_t _alwaysOnTime = 21600000;
+  uint32_t _alwaysOffTime = 21600000;
+  int64_t _lastInput = -1;
+  bool _switchOffOnInFalse = false;
+  bool _keepOn = false;
+  uint32_t _refractionTime = 1000;
+  bool _outputChangesOnly = false;
+  //}}}
 
-    std::atomic_bool _stopThread{true};
-    std::atomic_bool _stopped{true};
-    std::mutex _timerThreadMutex;
-    std::thread _timerThread;
-    std::atomic_bool _toggleProfile0Only{false};
-    std::atomic_bool _restoreProfile{false};
-    std::atomic_bool _booleanStateValue{true};
-    std::atomic<int64_t> _stateValue{1};
-    std::atomic<int64_t> _lastNonNullStateValue{1};
+  std::atomic_bool _stopThread{true};
+  std::atomic_bool _stopped{true};
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
+  std::atomic_bool _toggleProfile0Only{false};
+  std::atomic_bool _restoreProfile{false};
+  std::atomic_bool _booleanStateValue{true};
+  std::atomic<int64_t> _stateValue{1};
+  std::atomic<int64_t> _lastNonNullStateValue{1};
 
-    std::atomic_bool _enabled{true};
-    std::atomic_bool _manuallyEnabled{false};
-    std::atomic_bool _manuallyDisabled{false};
-    std::atomic<int64_t> _onTo{-1};
-    int64_t _inBlockedUntil = 0;
-    std::atomic<int64_t> _alwaysOnTo{-1};
-    std::atomic<int64_t> _alwaysOffTo{-1};
-    std::mutex _stateOutputMutex; //Used in method stateOutput
-    Flows::PVariable _lastOutput = std::make_shared<Flows::Variable>();
+  std::atomic_bool _enabled{true};
+  std::atomic_bool _manuallyEnabled{false};
+  std::atomic_bool _manuallyDisabled{false};
+  std::atomic<int64_t> _onTo{-1};
+  int64_t _inBlockedUntil = 0;
+  std::atomic<int64_t> _alwaysOnTo{-1};
+  std::atomic<int64_t> _alwaysOffTo{-1};
+  std::mutex _stateOutputMutex; //Used in method stateOutput
+  Flows::PVariable _lastOutput = std::make_shared<Flows::Variable>();
 
-    bool getLightState();
-	Flows::PVariable getLightStateVariable();
-    void timer();
-    void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message) override;
-    void stateOutput(const Flows::PVariable& value);
+  bool getLightState();
+  Flows::PVariable getLightStateVariable();
+  void timer();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void stateOutput(const Flows::PVariable &value);
 };
 
 }

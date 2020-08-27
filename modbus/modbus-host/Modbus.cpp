@@ -1174,7 +1174,7 @@ void Modbus::writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vec
                 element->newData = true;
                 for(uint32_t i = startCoil - element->start; i < (startCoil - element->start) + count; i++)
                 {
-                    BaseLib::BitReaderWriter::setPosition(startCoil - element->start, count, element->buffer1, value);
+                    BaseLib::BitReaderWriter::setPositionLE(startCoil - element->start, count, element->buffer1, value);
                 }
             }
         }

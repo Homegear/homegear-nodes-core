@@ -34,32 +34,30 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	uint32_t _delay = 10000;
-	bool _allowRetrigger = false;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  uint32_t _delay = 10000;
+  bool _allowRetrigger = false;
 
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::mutex _timerThreadMutex;
-	std::thread _timerThread;
+  std::atomic_bool _stopThread{true};
+  std::atomic_bool _stopped{true};
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
 
-	std::atomic_bool _lastInputState{false};
-	std::atomic<int64_t> _delayTo{0};
-	void timer(bool outputTrue);
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  std::atomic_bool _lastInputState{false};
+  std::atomic<int64_t> _delayTo{0};
+  void timer(bool outputTrue);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

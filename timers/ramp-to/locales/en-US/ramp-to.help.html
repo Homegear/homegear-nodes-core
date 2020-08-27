@@ -1,0 +1,32 @@
+<p>This node can be used to ramp to values. Both very short periods (milliseconds) and long periods (days) are supported. Please note that ramping is not resumed after a deploy or Homegear restart.</p>
+<h3>Configuration parameters</h3>
+<dl class="message-properties">
+	<dt>Interval up (optional)</dt>
+	<dd>The up ramping time. When empty, it can be passed in <code>$message['interval-up']</code>.</dd>
+	<dt>Interval down (optional)</dt>
+	<dd>The down ramping time. When empty, it can be passed in <code>$message['interval-down']</code>.</dd>
+	<dt>Step interval</dt>
+	<dd>The interval to update the value at.</dd>
+	<dt>Minimum</dt>
+	<dd>The minimum possible value.</dd>
+	<dt>Maximum</dt>
+	<dd>The maximum possible value. Ramping takes place between minimum and maximum. Values exceeding this range are clamped.</dd>
+</dl>
+<h3>Input description</h3>
+<dl class="message-properties">
+	<dt>R</dt>
+	<dd>The value to ramp to. The value can be an <code>integer</code> or <code>Float</code>. The output is generated with the same type.</dd>
+	<dt>FB</dt>
+	<dd>Can be used to set the current value. The next ramping then starts with this value. You don't need to worry about feedback loops here.</dd>
+	<dt>S</dt>
+	<dd>Stop ramping.</dd>
+</dl>
+<h3>Output description</h3>
+<dl class="message-properties">
+	<dt>V</dt>
+	<dd>The current value to set. The output is generated every <code>step interval</code>, but only when it has changed.</dd>
+	<dt>RU</dt>
+	<dd>Outputs <code>true</code> when ramping up starts and <code>false</code> when raming has stopped.</dd>
+	<dt>RD</dt>
+	<dd>Outputs <code>true</code> when ramping down starts and <code>false</code> when raming has stopped.</dd>
+</dl>

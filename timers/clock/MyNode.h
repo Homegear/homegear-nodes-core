@@ -34,49 +34,46 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	enum class Units
-	{
-		ms,
-		s,
-		m,
-		h,
-		dom,
-		dow,
-		doy,
-		w,
-		M,
-		Y
-	};
+class MyNode : public Flows::INode {
+ public:
+  enum class Units {
+    ms,
+    s,
+    m,
+    h,
+    dom,
+    dow,
+    doy,
+    w,
+    M,
+    Y
+  };
 
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void startUpComplete();
-	virtual void stop();
-	virtual void waitForStop();
-private:
-	bool _timestamp = true;
-	Units _unit = Units::s;
-	int32_t _lastWeek = 0;
-	int32_t _lastMonth = 0;
-	int32_t _lastYear = 0;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void startUpComplete() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  bool _timestamp = true;
+  Units _unit = Units::s;
+  int32_t _lastWeek = 0;
+  int32_t _lastMonth = 0;
+  int32_t _lastYear = 0;
 
-	std::mutex _timerMutex;
-	std::atomic_bool _stopThread;
-	std::thread _timerThread;
+  std::mutex _timerMutex;
+  std::atomic_bool _stopThread{true};
+  std::thread _timerThread;
 
-	void timer();
-	void outputMessage(int64_t localTime, int64_t utcTime);
-	std::pair<int64_t, int64_t> getLocalAndUtcTime(int64_t utcTime = 0);
-	void getTimeStruct(std::tm& timeStruct, int64_t utcTime = 0);
+  void timer();
+  void outputMessage(int64_t localTime, int64_t utcTime);
+  std::pair<int64_t, int64_t> getLocalAndUtcTime(int64_t utcTime = 0);
+  void getTimeStruct(std::tm &timeStruct, int64_t utcTime = 0);
 };
 
 }

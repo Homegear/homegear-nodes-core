@@ -29,69 +29,54 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("onboolean");
+    if (settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
+
+    bool resetOnStartup = false;
+    settingsIterator = info->info->structValue->find("resetonstartup");
+    if (settingsIterator != info->info->structValue->end()) resetOnStartup = settingsIterator->second->booleanValue;
+
+    _input1 = getNodeData("input1");
+    if (!resetOnStartup) _input2 = getNodeData("input2")->booleanValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("onboolean");
-		if(settingsIterator != info->info->structValue->end()) _onBoolean = settingsIterator->second->booleanValue;
-
-		bool resetOnStartup = false;
-        settingsIterator = info->info->structValue->find("resetonstartup");
-        if(settingsIterator != info->info->structValue->end()) resetOnStartup = settingsIterator->second->booleanValue;
-
-		_input1 = getNodeData("input1");
-		if(!resetOnStartup) _input2 = getNodeData("input2")->booleanValue;
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
-}
-
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		if(index == 0)
-		{
-			_input1 = message;
-			setNodeData("input1", _input1);
-			if(_input2) output(0, _input1);
-		}
-		else if(index == 1)
-		{
-			_input2 = message->structValue->at("payload")->booleanValue;
-			setNodeData("input2", message->structValue->at("payload"));
-			if(_input2 && _onBoolean) output(0, _input1);
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    if (index == 0) {
+      _input1 = message;
+      setNodeData("input1", _input1);
+      if (_input2) output(0, _input1);
+    } else if (index == 1) {
+      _input2 = message->structValue->at("payload")->booleanValue;
+      setNodeData("input2", message->structValue->at("payload"));
+      if (_input2 && _onBoolean) output(0, _input1);
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

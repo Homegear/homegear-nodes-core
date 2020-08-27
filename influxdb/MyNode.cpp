@@ -29,102 +29,84 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
+MyNode::~MyNode() = default;
+
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("measurement");
+    if (settingsIterator != info->info->structValue->end()) _measurement = stripNonAlphaNumeric(settingsIterator->second->stringValue);
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("measurement");
-		if(settingsIterator != info->info->structValue->end()) _measurement = stripNonAlphaNumeric(settingsIterator->second->stringValue);
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+bool MyNode::start() {
+  return true;
 }
 
-bool MyNode::start()
-{
-	return true;
+std::string MyNode::stripNonAlphaNumeric(const std::string &s) {
+  std::string strippedString;
+  strippedString.reserve(s.size());
+  for (char i : s) {
+    if (i == ' ') strippedString.push_back('_');
+    else if (isalpha(i) || isdigit(i) || (i == '_') || (i == '-') || (i == '.') || (i == ';')) strippedString.push_back(i);
+  }
+  return strippedString;
 }
 
-std::string MyNode::stripNonAlphaNumeric(const std::string& s)
-{
-    std::string strippedString;
-    strippedString.reserve(s.size());
-    for(std::string::const_iterator i = s.begin(); i != s.end(); ++i)
-    {
-        if(*i == ' ') strippedString.push_back('_');
-        else if(isalpha(*i) || isdigit(*i) || (*i == '_') || (*i == '-') || (*i == '.') || (*i == ';')) strippedString.push_back(*i);
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    auto measurementIterator = message->structValue->find("measurement");
+    std::string measurement = _measurement;
+    if (measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = stripNonAlphaNumeric(measurementIterator->second->stringValue);
+    if (measurement.empty()) return;
+
+    Flows::PVariable &input = message->structValue->at("payload");
+    if (input->type != Flows::VariableType::tBoolean && input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64 && input->type != Flows::VariableType::tString
+        && input->type != Flows::VariableType::tBase64) {
+      Flows::PVariable encodedValue = std::make_shared<Flows::Variable>(Flows::VariableType::tString);
+      encodedValue->stringValue = _jsonEncoder.getString(input);
+      input = encodedValue;
     }
-    return strippedString;
-}
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		auto measurementIterator = message->structValue->find("measurement");
-		std::string measurement = _measurement;
-		if(measurementIterator != message->structValue->end() && !measurementIterator->second->stringValue.empty()) measurement = stripNonAlphaNumeric(measurementIterator->second->stringValue);
-		if(measurement.empty()) return;
+    std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "")
+        + (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64 ? "i" : "");
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->reserve(2);
+    parameters->push_back(std::make_shared<Flows::Variable>(false));
+    parameters->push_back(std::make_shared<Flows::Variable>(query));
 
-		Flows::PVariable& input = message->structValue->at("payload");
-		if(input->type != Flows::VariableType::tBoolean && input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64 && input->type != Flows::VariableType::tString && input->type != Flows::VariableType::tBase64)
-		{
-			Flows::PVariable encodedValue = std::make_shared<Flows::Variable>(Flows::VariableType::tString);
-			encodedValue->stringValue = _jsonEncoder.getString(input);
-			input = encodedValue;
-		}
+    Flows::PVariable result = invoke("influxdbWrite", parameters);
 
-		std::string query = measurement + " value=" + (input->type == Flows::VariableType::tString ? "\"" : "") + input->toString() + (input->type == Flows::VariableType::tString ? "\"" : "") + (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64 ? "i" : "");
-		Flows::PArray parameters = std::make_shared<Flows::Array>();
-		parameters->reserve(2);
-		parameters->push_back(std::make_shared<Flows::Variable>(false));
-		parameters->push_back(std::make_shared<Flows::Variable>(query));
-
-		Flows::PVariable result = invoke("influxdbWrite", parameters);
-
-		if(input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64)
-		{
-			parameters->at(0)->booleanValue = true;
-			result = invoke("influxdbWrite", parameters);
-			if(result && result->errorStruct) _out->printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
-		}
-		else if(_first)
-		{
-			parameters = std::make_shared<Flows::Array>();
-			parameters->push_back(std::make_shared<Flows::Variable>(measurement));
-			result = invoke("influxdbCreateContinuousQuery", parameters);
-			if(!result->errorStruct) _first = false;
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    if (input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64) {
+      parameters->at(0)->booleanValue = true;
+      result = invoke("influxdbWrite", parameters);
+      if (result && result->errorStruct) _out->printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
+    } else if (_first) {
+      parameters = std::make_shared<Flows::Array>();
+      parameters->push_back(std::make_shared<Flows::Variable>(measurement));
+      result = invoke("influxdbCreateContinuousQuery", parameters);
+      if (!result->errorStruct) _first = false;
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

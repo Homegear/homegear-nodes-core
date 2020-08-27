@@ -27,29 +27,32 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef UDPOUT_H_
+#define UDPOUT_H_
 
 #include <homegear-node/INode.h>
-#include "RapidXml/rapidxml.hpp"
-#include <mutex>
+#include <unordered_map>
 
-using namespace rapidxml;
+namespace UdpOut {
 
-namespace MyNode
-{
+class UdpOut : public Flows::INode {
+ public:
+  UdpOut(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~UdpOut() override = default;
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+  bool init(const Flows::PNodeInfo &info) override;
+ private:
+  enum class PayloadType {
+    raw,
+    hex,
+    json
+  };
 
-	virtual bool init(Flows::PNodeInfo info);
-private:
-	virtual void input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message);
+  std::string _hostname;
+  uint16_t _port = 0;
+  PayloadType _payloadType = PayloadType::hex;
 
-	Flows::PVariable parseXmlNode(xml_node<>* node);
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

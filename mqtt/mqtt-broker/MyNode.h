@@ -33,32 +33,30 @@
 #include <homegear-node/INode.h>
 #include "Mqtt.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected);
-	virtual ~MyNode();
+class MyNode : public Flows::INode {
+ public:
+  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~MyNode() override;
 
-	virtual bool init(Flows::PNodeInfo info);
-	virtual bool start();
-	virtual void configNodesStarted();
-	virtual void stop();
-	virtual void waitForStop();
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void configNodesStarted() override;
+  void stop() override;
+  void waitForStop() override;
 
-	virtual Flows::PVariable getConfigParameterIncoming(std::string name);
-private:
-	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<Mqtt> _mqtt;
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
+ private:
+  Flows::PNodeInfo _nodeInfo;
+  std::unique_ptr<Mqtt> _mqtt;
 
-	//{{{ RPC methods
-	Flows::PVariable publish(Flows::PArray parameters);
-	Flows::PVariable registerNode(Flows::PArray parameters);
-	Flows::PVariable registerTopic(Flows::PArray parameters);
-	Flows::PVariable unregisterTopic(Flows::PArray parameters);
-	//}}}
+  //{{{ RPC methods
+  Flows::PVariable publish(const Flows::PArray& parameters);
+  Flows::PVariable registerNode(const Flows::PArray& parameters);
+  Flows::PVariable registerTopic(const Flows::PArray& parameters);
+  Flows::PVariable unregisterTopic(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

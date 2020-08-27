@@ -1,0 +1,17 @@
+{
+  "udp/udp-out.hni": {
+    "udp-out": {
+      "input1Description": "Data as raw binary data, hexadecimal string or JSON, depending on the selection in <code>Input is</code>.",
+      "label": {
+        "udp": "udp",
+        "hostname": "Hostname",
+        "port": "Port",
+        "input": "Input is",
+        "raw": "Raw binary",
+        "hex": "Hexadecimal string",
+        "json": "JSON"
+      },
+      "paletteHelp": "<p>Sends UDP packets.</p>"
+    }
+  }
+}

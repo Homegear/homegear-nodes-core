@@ -32,15 +32,13 @@
 namespace MyNode
 {
 
-HttpResponse::HttpResponse(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+HttpResponse::HttpResponse(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
 {
 }
 
-HttpResponse::~HttpResponse()
-{
-}
+HttpResponse::~HttpResponse() = default;
 
-bool HttpResponse::init(Flows::PNodeInfo info)
+bool HttpResponse::init(const Flows::PNodeInfo &info)
 {
 	try
 	{
@@ -96,7 +94,7 @@ void HttpResponse::configNodesStarted()
 	}
 }
 
-void HttpResponse::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
+void HttpResponse::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message)
 {
 	try
 	{

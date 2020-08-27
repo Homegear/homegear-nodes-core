@@ -29,178 +29,119 @@
 
 #include "MyNode.h"
 
-namespace MyNode
-{
+namespace MyNode {
 
-MyNode::MyNode(std::string path, std::string nodeNamespace, std::string type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
-{
-	_stopThreads = true;
-	_currentTimerThreadIndex = 0;
-	_currentTimerThreadCount = 0;
+MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
 }
 
-MyNode::~MyNode()
-{
-	_stopThreads = true;
-	waitForStop();
+MyNode::~MyNode() {
+  _stopThreads = true;
 }
 
+bool MyNode::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("delay");
+    if (settingsIterator != info->info->structValue->end()) _delay = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
-bool MyNode::init(Flows::PNodeInfo info)
-{
-	try
-	{
-		auto settingsIterator = info->info->structValue->find("delay");
-		if(settingsIterator != info->info->structValue->end()) _delay = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
-
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-bool MyNode::start()
-{
-	try
-	{
-		_stopThreads = false;
-		return true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return false;
+bool MyNode::start() {
+  _stopThreads = false;
+  return true;
 }
 
-void MyNode::stop()
-{
-	try
-	{
-		_stopThreads = true;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::stop() {
+  _stopThreads = true;
 }
 
-void MyNode::waitForStop()
-{
-	try
-	{
-		std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
-		_stopThreads = true;
-		for(auto& timerThread : _timerThreads)
-		{
-			if(timerThread.joinable()) timerThread.join();
-		}
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+void MyNode::waitForStop() {
+  try {
+    std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
+    _stopThreads = true;
+    for (auto &timerThread : _timerThreads) {
+      if (timerThread.joinable()) timerThread.join();
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
-void MyNode::timer(int64_t inputTime, Flows::PVariable message)
-{
-	int32_t sleepingTime = _delay - (Flows::HelperFunctions::getTime() - inputTime);
-	if(sleepingTime < 1) sleepingTime = 1;
-	else if(sleepingTime > (signed)_delay) sleepingTime = _delay;
+void MyNode::timer(int64_t inputTime, const Flows::PVariable &message) {
+  int32_t sleepingTime = _delay - (Flows::HelperFunctions::getTime() - inputTime);
+  if (sleepingTime < 1) sleepingTime = 1;
+  else if (sleepingTime > (signed)_delay) sleepingTime = _delay;
 
-	try
-	{
-		if(sleepingTime > 1000 && sleepingTime < 30000)
-		{
-			int32_t iterations = sleepingTime / 100;
-			for(int32_t j = 0; j < iterations; j++)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(100));
-				if(_stopThreads)
-				{
-					_currentTimerThreadCount--;
-					return;
-				}
-			}
-			if(sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
-		}
-		else if(sleepingTime >= 30000)
-		{
-			int32_t iterations = sleepingTime / 1000;
-			for(int32_t j = 0; j < iterations; j++)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-				if(_stopThreads)
-				{
-					_currentTimerThreadCount--;
-					return;
-				}
-			}
-			if(sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
-		}
-		else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-		if(_stopThreads)
-		{
-			_currentTimerThreadCount--;
-			return;
-		}
+  try {
+    if (sleepingTime > 1000 && sleepingTime < 30000) {
+      int32_t iterations = sleepingTime / 100;
+      for (int32_t j = 0; j < iterations; j++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        if (_stopThreads) {
+          _currentTimerThreadCount--;
+          return;
+        }
+      }
+      if (sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
+    } else if (sleepingTime >= 30000) {
+      int32_t iterations = sleepingTime / 1000;
+      for (int32_t j = 0; j < iterations; j++) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        if (_stopThreads) {
+          _currentTimerThreadCount--;
+          return;
+        }
+      }
+      if (sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
+    } else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
+    if (_stopThreads) {
+      _currentTimerThreadCount--;
+      return;
+    }
 
-		output(0, message);
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	_currentTimerThreadCount--;
+    output(0, message);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  _currentTimerThreadCount--;
 }
 
-void MyNode::input(const Flows::PNodeInfo info, uint32_t index, const Flows::PVariable message)
-{
-	try
-	{
-		int64_t inputTime = Flows::HelperFunctions::getTime();
-		std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
+void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    int64_t inputTime = Flows::HelperFunctions::getTime();
+    std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
 
-		if(_currentTimerThreadCount == 10) return;
+    if (_currentTimerThreadCount == 10) return;
 
-		_currentTimerThreadCount++;
-		if(_timerThreads.at(_currentTimerThreadIndex).joinable()) _timerThreads.at(_currentTimerThreadIndex).join();
-		_timerThreads.at(_currentTimerThreadIndex) = std::thread(&MyNode::timer, this, inputTime, message);
+    _currentTimerThreadCount++;
+    if (_timerThreads.at(_currentTimerThreadIndex).joinable()) _timerThreads.at(_currentTimerThreadIndex).join();
+    _timerThreads.at(_currentTimerThreadIndex) = std::thread(&MyNode::timer, this, inputTime, message);
 
-		_currentTimerThreadIndex++;
-		if((unsigned)_currentTimerThreadIndex >= _timerThreads.size()) _currentTimerThreadIndex = 0;
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
+    _currentTimerThreadIndex++;
+    if ((unsigned)_currentTimerThreadIndex >= _timerThreads.size()) _currentTimerThreadIndex = 0;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 }

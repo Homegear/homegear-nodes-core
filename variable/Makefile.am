@@ -17,7 +17,7 @@ round_robin_shift_la_LDFLAGS =-module -avoid-version -shared
 toggle_la_SOURCES = toggle/Factory.cpp toggle/MyNode.cpp
 toggle_la_LDFLAGS =-module -avoid-version -shared
 
-variable_in_la_SOURCES = variable-in/Factory.cpp variable-in/MyNode.cpp
+variable_in_la_SOURCES = variable-in/Factory.cpp variable-in/VariableIn.cpp
 variable_in_la_LDFLAGS =-module -avoid-version -shared
 
 variable_out_la_SOURCES = variable-out/Factory.cpp variable-out/MyNode.cpp
