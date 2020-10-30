@@ -77,7 +77,8 @@ std::string MyNode::stripNonPrintable(const std::string &s) {
   std::string strippedString;
   strippedString.reserve(s.size());
   for (char i : s) {
-    if (std::isprint(i, std::locale("en_US.UTF-8"))) strippedString.push_back(i);
+    if (std::isprint(i, std::locale())) strippedString.push_back(i);
+    else strippedString.append("\\" + Flows::HelperFunctions::getHexString(i, 2));
   }
   return strippedString;
 }
