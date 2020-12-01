@@ -286,6 +286,6 @@ set(SOURCE_FILES
         variable/variable-out/MyNode.cpp
         variable/variable-out/MyNode.h)
 
-add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
+add_custom_target(homegear COMMAND ../../devscripts/makeAll.sh SOURCES ${SOURCE_FILES})
 
 add_library(homegear_nodes_core ${SOURCE_FILES})

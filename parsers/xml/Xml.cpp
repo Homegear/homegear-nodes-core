@@ -121,21 +121,45 @@ Flows::PVariable Xml::parseXmlNode(xml_node<> *node, bool &isDataNode) {
 
       bool isDataNode2 = false;
       auto subNodeVariable = parseXmlNode(subNode, isDataNode2);
+      if (subNodeVariable->errorStruct) continue;
 
-      auto variableIterator = nodeVariable->structValue->find(nodeName);
-      if (variableIterator == nodeVariable->structValue->end()) {
-        if (isDataNode2) {
-          nodeVariable->structValue->emplace(nodeName, subNodeVariable);
-          continue;
+      bool changeTypeToArray = false;
+      if (nodeVariable->arrayValue->size() == nodeVariable->arrayValue->capacity()) nodeVariable->arrayValue->reserve(nodeVariable->arrayValue->size() + 100);
+
+      Flows::Struct::iterator variableIterator;
+      if (nodeVariable->type == Flows::VariableType::tStruct) {
+        variableIterator = nodeVariable->structValue->find(nodeName);
+        if (variableIterator == nodeVariable->structValue->end()) {
+          if (isDataNode2) {
+            auto valueStruct = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            valueStruct->structValue->emplace(nodeName, subNodeVariable);
+            nodeVariable->arrayValue->emplace_back(valueStruct);
+            nodeVariable->structValue->emplace(nodeName, subNodeVariable);
+          } else {
+            auto valueStruct = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            valueStruct->structValue->emplace(nodeName, subNodeVariable);
+            nodeVariable->arrayValue->emplace_back(valueStruct);
+            variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
+            variableIterator->second->arrayValue->reserve(100);
+            variableIterator->second->arrayValue->emplace_back(subNodeVariable);
+          }
+        } else if (!isDataNode2) {
+          if (variableIterator->second->arrayValue->size() == variableIterator->second->arrayValue->capacity()) variableIterator->second->arrayValue->reserve(variableIterator->second->arrayValue->size() + 100);
+          variableIterator->second->arrayValue->emplace_back(subNodeVariable);
         } else {
-          variableIterator = nodeVariable->structValue->emplace(nodeName, std::make_shared<Flows::Variable>(Flows::VariableType::tArray)).first;
-          variableIterator->second->arrayValue->reserve(100);
+          changeTypeToArray = true;
         }
       }
-
-      if (variableIterator->second->arrayValue->size() == variableIterator->second->arrayValue->capacity()) variableIterator->second->arrayValue->reserve(variableIterator->second->arrayValue->size() + 100);
-
-      if (!subNodeVariable->errorStruct) variableIterator->second->arrayValue->emplace_back(subNodeVariable);
+      if (nodeVariable->type == Flows::VariableType::tArray || changeTypeToArray) {
+        //Multiple data nodes with same name? => Create array
+        if (nodeVariable->type != Flows::VariableType::tArray) {
+          nodeVariable->structValue->clear();
+          nodeVariable->type = Flows::VariableType::tArray;
+        }
+        auto valueStruct = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        valueStruct->structValue->emplace(nodeName, subNodeVariable);
+        nodeVariable->arrayValue->emplace_back(valueStruct);
+      }
     }
 
     if (!hasElements) {
