@@ -7,7 +7,7 @@
     "date"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "clock": 1,
       "delay": 10,

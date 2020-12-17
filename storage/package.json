@@ -8,7 +8,7 @@
     "io"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "file": 0
     },

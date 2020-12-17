@@ -7,7 +7,7 @@
     "variable"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "constant": 0,
       "round-robin-shift": 0,

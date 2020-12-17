@@ -6,7 +6,7 @@
     "serial"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "serial-in": 0,
       "serial-out": 0,

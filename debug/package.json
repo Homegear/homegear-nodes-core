@@ -6,7 +6,7 @@
     "debug"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "debug": 0
     },

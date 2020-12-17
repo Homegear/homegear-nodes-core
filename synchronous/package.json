@@ -6,7 +6,7 @@
     "synchronous"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "synchronous": 0
     },

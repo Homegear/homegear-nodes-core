@@ -7,7 +7,7 @@
     "xmpp"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "xmpp-server": 0
     },

@@ -6,7 +6,7 @@
     "udp"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "udp-in": 1,
       "udp-out": 0

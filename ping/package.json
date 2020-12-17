@@ -6,7 +6,7 @@
     "ping"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "ping": 1
     },

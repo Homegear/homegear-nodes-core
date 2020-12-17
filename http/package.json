@@ -6,7 +6,7 @@
     "http"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "http-in": 0,
       "http-request": 0,

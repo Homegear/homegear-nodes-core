@@ -6,7 +6,7 @@
     "template"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "template": 0
     },

@@ -7,7 +7,7 @@
     "modbus"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "modbus-host": 1,
       "modbus-in": 0,

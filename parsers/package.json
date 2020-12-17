@@ -6,7 +6,7 @@
     "parsers"
   ],
   "node-blue": {
-    "local": true,
+    "local": false,
     "maxThreadCounts": {
       "json": 0,
       "strip": 0,
