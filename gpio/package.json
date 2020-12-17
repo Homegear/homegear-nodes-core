@@ -6,6 +6,7 @@
     "gpio"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "gpio-in": 1,
       "gpio-out": 0

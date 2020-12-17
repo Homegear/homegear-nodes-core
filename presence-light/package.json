@@ -6,6 +6,7 @@
     "light"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "presence-light": 1
     },

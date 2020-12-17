@@ -6,6 +6,7 @@
     "tls"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "tls-config": 0
     },

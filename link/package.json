@@ -6,6 +6,7 @@
     "link"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "link in": 0,
       "link out": 0

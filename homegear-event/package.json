@@ -6,6 +6,7 @@
     "event"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "homegear-event": 0
     },

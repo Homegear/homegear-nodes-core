@@ -7,13 +7,13 @@
     "xmpp"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
-      "xmpp-server": 0,
-      "xmpp": 0
+      "xmpp-server": 0
     },
     "nodes": {
-      "xmpp-server": "xmpp-server.so",
-      "xmpp": "xmpp.so"
+      "xmpp-server": "xmpp-server.s.php",
+      "xmpp": "xmpp.php"
     }
   },
   "version": "1.0.0"

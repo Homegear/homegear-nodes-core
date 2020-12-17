@@ -6,6 +6,7 @@
     "mqtt"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "mqtt-broker": 6,
       "mqtt-in": 0,

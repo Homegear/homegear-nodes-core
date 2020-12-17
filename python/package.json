@@ -6,6 +6,7 @@
     "python"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "python": 2
     },

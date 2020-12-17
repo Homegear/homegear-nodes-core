@@ -6,6 +6,7 @@
     "comment"
   ],
   "node-blue": {
+    "local": true,
     "nodes": {
       "comment": "comment.hni"
     }

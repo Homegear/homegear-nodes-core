@@ -6,6 +6,7 @@
     "function"
   ],
   "node-blue": {
+    "local": true,
     "nodes": {
       "function": "function.php"
     }

@@ -6,6 +6,7 @@
     "exec"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "exec": 2
     },

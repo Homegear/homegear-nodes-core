@@ -6,6 +6,7 @@
     "passthrough"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "passthrough": 0
     },

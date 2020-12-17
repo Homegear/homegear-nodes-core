@@ -6,6 +6,7 @@
     "counter"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "pulsecounter": 0
     },

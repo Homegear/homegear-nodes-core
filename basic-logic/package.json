@@ -6,6 +6,7 @@
     "logic"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "and": 0,
       "change": 0,

@@ -6,6 +6,7 @@
     "influxdb"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "influxdb": 0
     },

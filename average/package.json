@@ -6,6 +6,7 @@
     "average"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "average": 0
     },

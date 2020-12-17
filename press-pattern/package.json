@@ -7,6 +7,7 @@
     "switch"
   ],
   "node-blue": {
+    "local": true,
     "maxThreadCounts": {
       "press-pattern": 1
     },
