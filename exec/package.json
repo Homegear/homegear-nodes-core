@@ -1,0 +1,17 @@
+{
+  "name": "exec",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "exec"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "exec": 2
+    },
+    "nodes": {
+      "exec": "exec.so"
+    }
+  },
+  "version": "1.0.0"
+}

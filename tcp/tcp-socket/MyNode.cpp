@@ -34,7 +34,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _bl.reset(new BaseLib::SharedObjects(false));
 
   _localRpcMethods.emplace("send", std::bind(&MyNode::send, this, std::placeholders::_1));

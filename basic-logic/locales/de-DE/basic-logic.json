@@ -1,0 +1,195 @@
+{
+  "and": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Nur Änderungen ausgeben",
+      "output-false": "Auch \"false\" ausgeben",
+      "inputs": "Eingaben"
+    },
+    "paletteHelp": "<p>Dieser Knoten führt für alle Eingaben ein boolesches <code>und</code> aus.</p>",
+    "help": "<p>Dieser Knoten führt an allen Eingängen ein booleschee <code>und</code> aus.</p><p>Alle Zustände werden beim Neustart von Homegear gespeichert und wiederhergestellt.</p>",
+    "input1Description": "Der erste boolesche Wert.",
+    "input2Description": "Der zweite boolesche Wert.",
+    "input3Description": "Der dritte boolesche Wert.",
+    "input4Description": "Der vierte boolesche Wert.",
+    "input5Description": "Der fünfte boolesche Wert.",
+    "input6Description": "Der sechste boolesche Wert.",
+    "input7Description": "Der siebte boolesche Wert.",
+    "input8Description": "Der achte boolesche Wert.",
+    "input9Description": "Der neunte boolesche Wert.",
+    "input10Description": "Der zehnte boolesche Wert.",
+    "output1Description": "Gibt das Ergebnis des Booleschen Vergleichs aus."
+  },
+  "change": {
+    "label": {
+        "rules": "Regeln",
+        "rule": "Regel",
+        "set": "setze __property__",
+        "change": "ändere __property__",
+        "delete": "lösche __property__",
+        "move": "verschiebe __property__",
+        "changeCount": "ändere: __count__ Regeln",
+        "regex": "Benutze reguläre Ausdrücke"
+    },
+    "action": {
+        "set": "Setze",
+        "change": "Ändere",
+        "delete": "Lösche",
+        "move": "Verschiebe",
+        "to": "auf",
+        "to2": "nach",
+        "search": "Suche nach",
+        "replace": "Ersetze mit"
+    },
+    "errors": {
+        "invalid-from": "Ungültige 'von' Eigenschaft: __error__",
+        "invalid-json": "Ungültige 'nach' JSON Eigenschaft",
+        "invalid-expr": "Ungültiger JSONata Ausdruck: __error__"
+    },
+    "message": "message.",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Setzen, Ändern, Löschen oder Verschieben von Eigenschaften einer Nachricht, eines Flow-Kontexts oder eines globalen Kontexts.</p>",
+    "help": "<p>Setzen, Ändern, Löschen oder Verschieben von Eigenschaften einer Nachricht, eines Flow-Kontexts oder eines globalen Kontexts.</p><p>Der Knoten kann mehrere Regeln beinhalten, die in der Reihenfolge angewendet werden, in der sie definiert sind.</p><h3>Details</h3><p>Die verfügbaren Operationen sind:</p><dl class=\"message-properties\"><dt>Setzen</dt><dd>eine Eigenschaft festlegen. Der Wert kann eine Vielzahl verschiedener Typen sein oder aus einer vorhandenen Nachricht oder Kontexteigenschaft entnommen werden.</dd><dt>Ändern</dt><dd>Teile der Eigenschaft suchen und ersetzen. Wenn reguläre Ausdrücke aktiviert sind, kann die Eigenschaft \"Ersetzen durch\" Gruppen enthalten, z. B. <code>$1</code>. Ersetzen ändert den Typ nur, wenn eine vollständige Übereinstimmung vorliegt.</dd><dt>Löschen</dt><dd>eine Eigenschaft löschen.</dd><dt>Verschieben</dt><dd>eine Eigenschaft verschieben oder umbenennen.</dd></dl>"
+  },
+  "fallingedge": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Die Eingabenachricht wird weitergeleitet, wenn die Eingabe als <code>false</code> ausgewertet wird. Eine mit <code>true</code> bewertete Eingabe wird ignoriert.</p>",
+    "help": "<p>Die Eingabenachricht wird weitergeleitet, wenn die Eingabe als <code>false</code> ausgewertet wird.</p><p>Eine mit <code>true</code> ausgewertete Eingabe wird ignoriert.</p>",
+    "input1Description": "Der zu überprüfende Wert.",
+    "output1Description": "Die Ausgabenachricht, wenn die Eingabe als <code>false</code> ausgewertet wird."
+  },
+  "not": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Konvertiert eine Eingabe in ein Boolean und negiert sie.</p>",
+    "help": "<p>Dieser Knoten konvertiert eine Eingabe in ein Boolean und negiert sie.</p>",
+    "input1Description": "Die zu negierende Eingabe.",
+    "output1Description": "Gibt das Ergebnis der Booleschen Operation aus."
+  },
+  "or": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Nur Änderungen ausgeben",
+      "output-false": "Auch \"false\" ausgeben",
+      "inputs": "Eingaben"
+    },
+    "paletteHelp": "<p>Dieser Knoten führt für alle Eingaben ein boolesches Wert <code>oder</code> aus.</p>",
+    "help": "<p>Dieser Knoten führt an allen Eingängen ein boolesches <code>oder</code> aus.</p><p>Alle Zustände werden beim Neustart von Homegear gespeichert oder wiederhergestellt.</p>",
+    "input1Description": "Der erste boolesche Wert.",
+    "input2Description": "Der zweite boolesche Wert.",
+    "input3Description": "Der dritte boolesche Wert.",
+    "input4Description": "Der vierte boolesche Wert.",
+    "input5Description": "Der fünfte boolesche Wert.",
+    "input6Description": "Der sechste boolesche Wert.",
+    "input7Description": "Der siebte boolesche Wert.",
+    "input8Description": "Der achte boolesche Wert.",
+    "input9Description": "Der neunte boolesche Wert.",
+    "input10Description": "Der zehnte boolesche Wert.",
+    "output1Description": "Gibt das Ergebnis des Booleschen Vergleichs aus."
+  },
+  "risingedge": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Die Eingabenachricht wird weitergeleitet, wenn die Eingabe als <code>true</code> ausgewertet wird. Eine mit <code>false</code> bewertete Eingabe wird ignoriert.</p>",
+    "help": "<p>Die Eingabenachricht wird weitergeleitet, wenn die Eingabe als <code>true</code> ausgewertet wird.</p><p>Eine mit <code>false</code> bewertete Eingabe wird ignoriert.</p>",
+    "input1Description": "Der zu überprüfende Wert.",
+    "output1Description": "Die Ausgabenachricht, wenn die Eingabe als <code>true</code> ausgewertet wird."
+  },
+  "srflipflop": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Nur Änderungen ausgeben"
+    },
+    "paletteHelp": "<p>Setze Reset Flip Flop</p>",
+    "help": "<p>Dieser Knoten gibt <code>true</code> aus, wenn der Eingang S auf <code>true</code> gesetzt ist. Er gibt ferner <code>false</code> aus, wenn der Eingang R auf <code>true</code> gesetzt ist. Eine Eingabe von <code>false</code> wird bei beiden Eingaben ignoriert.</p>",
+    "input1Description": "Der setzende boolesche Wert.",
+    "input2Description": "Der zurücksetzende boolesche Wert.",
+    "output1Description": "Gibt das Ergebnis des SR Flip Flops aus."
+  },
+  "switch": {
+    "label": {
+      "property": "Eigenschaft",
+      "static-value": "Fester Wert",
+      "static-only": "Festen Wert an Ausgabe weiterleiten",
+      "changes-only": "Nur Änderungen der Ausgabe weiterleiten",
+      "output-true": "\"true\" ausgeben, anstatt die Eingabe weiterzuleiten",
+      "output-false": "Auch \"false\" ausgeben",
+      "rule": "Regel"
+    },
+    "and": "und",
+    "checkall": "Alle Regeln prüfen",
+    "stopfirst": "Nach der ersten Übereinstimmung stoppen",
+    "ignorecase": "ignore case",
+    "rules": {
+        "btwn":"ist zwischen",
+        "cont":"beinhaltet",
+        "regex":"passt zum regulärem Ausdruck",
+        "true":"ist true",
+        "false":"ist false",
+        "null":"ist null",
+        "nnull":"ist nicht null",
+        "else":"andernfalls"
+    },
+    "previous": "vorheriger Wert",
+    "input2": "2ter Eingang",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Leitet Nachrichten basierend auf ihren Eigenschaftswerten oder dem Wert einer zweiten Eingabe weiter.</p>",
+    "help": "<p>Leitet Nachrichten basierend auf ihren Eigenschaftswerten oder dem Wert einer zweiten Eingabe weiter.</p><h3>Details</h3><p>Wenn eine Nachricht eintrifft, wertet der Knoten jede der definierten Regeln aus und leitet die Nachricht an die entsprechenden Ausgaben aller übereinstimmenden Regeln weiter.</p><p>Optional kann der Knoten so eingestellt werden, dass er die Auswertung von Regeln beendet, sobald er eine Übereinstimmung gefunden hat.</p><p>Weiterhin kann der Knoten auch optional <code>true</code> und <code>false</code> ausgeben, anstatt die eingegebenen Nutzdaten weiterzuleiten.</p>",
+    "input1Description": "Der zu vergleichende Eingang."
+  },
+  "variable-switch": {
+    "label": {
+      "name": "Name",
+      "variabletype": "Variablentyp",
+      "devicevariable": "Gerätevariable",
+      "metadata": "Metadaten",
+      "systemvariable": "Systemvariable",
+      "flowvariable": "Flow Variable",
+      "globalvariable": "Globale Variable",
+      "family": "Familie",
+      "peerid": "Peer ID",
+      "channel": "Kanal",
+      "variable": "Variable",
+      "createvariable": "Variable erstellen",
+      "typeandvalue": "Wert",
+      "create": "Erstellen",
+      "createnewvariable": "Neue Variable erstellen",
+      "changes-only": "Nur Änderungen ausgeben",
+      "output-true": "\"true\" ausgeben, anstatt die Nachricht weiterzuleiten",
+      "output-false": "Auch \"false\" ausgeben",
+      "rule": "Regel",
+      "static-value": "Fester Wert",
+      "static-only": "Festen Wert ausgeben"
+    },
+    "and": "und",
+    "checkall": "alle Regeln prüfen",
+    "stopfirst": "nach der ersten Übereinstimmung stoppen",
+    "ignorecase": "ignore case",
+    "rules": {
+        "btwn":"ist zwischen",
+        "cont":"beinhaltet",
+        "regex":"passt zum regulärem Ausdruck",
+        "true":"ist true",
+        "false":"ist false",
+        "null":"ist null",
+        "nnull":"ist nicht null",
+        "else":"andernfalls"
+    },
+    "previous": "vorheriger Wert",
+    "input": "Eingang",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p>",
+    "help": "<p>Leitet Nachrichten basierend auf dem Wert einer Variablen weiter.</p><h3>Details</h3><p><p>Wenn eine Nachricht eintrifft, liest der Knoten den Wert der angegebenen Varialben. Der Wert wird anschließend anhand jeder der definierten Regeln analysiert und die Nachricht an die entsprechenden Ausgaben aller übereinstimmenden Regeln weitergeleitet.</p><p>Optional kann der Knoten so eingestellt werden, dass er die Auswertung von Regeln beendet, sobald er eine Übereinstimmung gefunden hat.</p><p>Weiterhin kann der Knoten auch optional <code>true</code>, <code>false</code> oder einen festern Fert ausgeben, anstatt die eingegebenen Nutzdaten weiterzuleiten.</p>",
+    "input1Description": "Der zu vergleichende Eingang."
+  }
+}

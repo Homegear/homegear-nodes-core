@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "serial-port",
-    "readableName": "Serial port",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 1
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -91,7 +82,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('serial-port',{
         category: 'config',
-        namespace: 'serial',
         defaults: {
             serialport: {value:"",required:true},
             serialbaud: {value:"57600",required:true,validate:RED.validators.number()},

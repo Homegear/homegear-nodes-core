@@ -1,0 +1,14 @@
+{
+  "name": "function",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "function"
+  ],
+  "node-blue": {
+    "nodes": {
+      "function": "function.php"
+    }
+  },
+  "version": "1.0.0"
+}

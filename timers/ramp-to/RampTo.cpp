@@ -31,7 +31,7 @@
 
 namespace RampTo {
 
-RampTo::RampTo(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+RampTo::RampTo(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 RampTo::~RampTo() {

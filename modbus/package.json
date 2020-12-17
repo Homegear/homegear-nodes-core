@@ -1,0 +1,22 @@
+{
+  "name": "modbus",
+  "description": "Node-BLUE nodes to connect to Modbus devices.",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "modbus"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "modbus-host": 1,
+      "modbus-in": 0,
+      "modbus-out": 0
+    },
+    "nodes": {
+      "modbus-host": "modbus-host.so",
+      "modbus-in": "modbus-in.so",
+      "modbus-out": "modbus-out.so"
+    }
+  },
+  "version": "1.0.0"
+}

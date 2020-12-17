@@ -1,0 +1,13 @@
+{
+  "ping": {
+    "label": {
+      "ping": "ping",
+      "host": "Host address",
+      "interval": "Interval",
+      "name": "Name"
+    },
+    "input1Description": "Enables or disables pinging.",
+    "output1Description": "Outputs <code>true</code> when the target is reachable and <code>false</code> when it is not.",
+    "help": "<p>Checks if a host is reachable.</p>"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "average": {
+    "label": {
+      "average": "average",
+      "interval": "Interval to average in seconds",
+      "name": "Name"
+    },
+    "input1Description": "Input values to average.",
+    "output1Description": "Outputs the average over the given interval. The type is set to the input type.",
+    "help": "<p>Averages values over a given interval.</p>"
+  }
+}

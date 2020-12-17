@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "udp-in",
-    "readableName": "UDP input",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 1
-}
-</script>
 <script type="text/x-red" data-template-name="udp-in">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="node-red:common.label.name"></span></label>
@@ -31,7 +22,6 @@
 (function() {
     RED.nodes.registerType('udp-in',{
         category: 'network',
-        namespace: 'udp',
         defaults: {
             name: {name:""},
             listenaddress: {value:"::",validate: function(v) { return v != ""; }},

@@ -1,0 +1,50 @@
+{
+  "modbus-host": {
+    "help": "<p>A Modbus connection requires a Modbus server address to be added to the default configuration and at least one register range to read. You can add as many ranges as possible. \"Invert bytes\" changes the order of the two bytes of each register. Set \"Min. delay\" to the amount of time to wait between reads or writes if the device can't be read or written immediately again after being read or written. The node tries to poll all specified registers every interval. \"ROC\" (read on connect) makes the node read the registers once after the connection to the Modbus host has been established. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4). \"Slave ID\" should normally be 255 for Modbus over TCP. Some devices require a specific ID though.</p>",
+    "label": {
+      "server": "Server",
+      "port": "Port",
+      "interval": "Interval",
+      "delay": "Min. delay",
+      "slaveid": "Slave ID",
+      "debug": "Write debug info to flows log",
+      "read-registers": "Holding registers to read (Func. 3)",
+      "write-registers": "Registers to write (Func. 16)",
+      "read-input-registers": "Input registers to read (Func. 4)",
+      "read-coils": "Coils to read (Func. 1)",
+      "write-coils": "Coils to write (Func. 15)",
+      "read-discrete-inputs": "Discrete inputs to read (Func. 2)",
+      "first": "First",
+      "last": "Last",
+      "invert": "Invert bytes",
+      "readonconnect": "ROC"
+    }
+  },
+  "modbus-in": {
+    "paletteHelp": "<p>Connects to a Modbus server and subscribes to the specified registers.</p>",
+    "help": "<p>Connects to a Modbus server and subscribes to the specified registers.</p><p>Outputs a message with the properties:</p><ul><li><code>$message['holdingRegister'] (for holding registers only)</code></li><li><code>$message['inputRegister'] (for input registers only)</code></li><li><code>$message['coil'] (for coils only)</code></li><li><code>$message['discreteInput'] (for discrete inputs only)</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> can either output the raw binary or can be converted to <code>boolean</code>, <code>integer</code>, <code>float</code> or <code>string</code>. \"IB\" inverts the order of the two bytes within each register. \"IR\" inverts the order of the registers returned. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4).</p>",
+    "output1Description": "The payload received from the Modbus server.",
+    "label": {
+      "server": "Server",
+      "registers": "Input/holding registers, coils and discrete inputs",
+      "index": "Index",
+      "count": "Count",
+      "type": "Type",
+      "invertbytes": "IB",
+      "invertregisters": "IR"
+    }
+  },
+  "modbus-out": {
+    "paletteHelp": "<p>Connects to a Modbus server and writes to the specified registers.</p>",
+    "help": "<p>Connects to a Modbus server and writes to the specified registers.</p><p>\"IB\" inverts the order of the two bytes within each register. \"IR\" inverts the order of the registers. <code>boolean</code>, <code>integer</code>, <code>float</code> and <code>string</code> are automatically converted to binary. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4).</p>",
+    "output1Description": "The payload received from the Modbus server.",
+    "label": {
+      "server": "Server",
+      "registers": "Registers and coils",
+      "index": "Index",
+      "count": "Count",
+      "invertbytes": "IB",
+      "invertregisters": "IR"
+    }
+  }
+}

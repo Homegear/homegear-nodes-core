@@ -1,0 +1,22 @@
+{
+  "xmpp": {
+    "label": {
+      "name": "Name",
+      "server": "Server",
+      "recipient": "Empfänger",
+      "message": "Nachricht"
+    },
+    "tip": "Tip: See the Info tab for help writing functions.",
+    "paletteHelp": "<p>Sendet eine Benachrichtigung per XMPP.</p>",
+    "help": "<p>Dieser Knoten sendet eine Benachrichtigung per XMPP.</p><p>Der Empfänger und die Nachricht kann manuell direkt im Knoten eingegeben werden, oder alternativ per <br><code>$message['xmpp-recipient']</code><br><code>$message['xmpp-message']</code><br>programmatisch (z.B. durch einen Funktions-Knoten) übergeben werden.</p>"
+  },
+  "xmpp-server": {
+    "help": "<p>Die XMPP (Jabber) Verbidung benötigt die Eingabe der Server-Addresse (den Domainnamen oder eine IP-Addresse ohne http(s)://), des Ports, einen Benutzernamen (nur den 'Localpart') und ein Passwort.</p>",
+    "label": {
+      "server": "Server",
+      "port": "Port",
+      "user": "Benutzername",
+      "pwd": "Passwort"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "variable",
+  "description": "Node-BLUE nodes to work with Homegear variables.",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "variable"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "constant": 0,
+      "round-robin-shift": 0,
+      "toggle": 0,
+      "variable-in": 0,
+      "variable-loop-prevention-group": 0,
+      "variable-out": 0
+    },
+    "nodes": {
+      "constant": "constant.so",
+      "round-robin-shift": "round-robin-shift.so",
+      "toggle": "toggle.so",
+      "variable-in": "variable-in.so",
+      "variable-loop-prevention-group": "variable-loop-prevention-group.so",
+      "variable-out": "variable-out.so"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -9,10 +9,10 @@ lib_LTLIBRARIES = synchronous.la
 synchronous_la_SOURCES = Factory.cpp MyNode.cpp
 synchronous_la_LDFLAGS =-module -avoid-version -shared
 synchronous_ladir = $(libdir)
-synchronous_la_DATA = synchronous.hni
+synchronous_la_DATA = package.json synchronous.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/synchronous
+locale_en_us_DATA = locales/en-US/synchronous.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/synchronous
+locale_de_de_DATA = locales/de-DE/synchronous.json
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/synchronous.la

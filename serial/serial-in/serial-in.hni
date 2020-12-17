@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "serial-in",
-    "readableName": "Serial input",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -33,7 +24,6 @@
 (function() {
     RED.nodes.registerType('serial-in',{
         category: 'io',
-        namespace: 'serial',
         defaults: {
             name: {name:""},
             serial: {type:"serial-port",required:true}

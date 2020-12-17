@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "strip",
-    "readableName": "Strip",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="strip">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="strip.label.name"></span></label>
@@ -16,7 +7,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('strip', {
         category: 'parsers',
-        namespace: 'parsers',
         color:"#DEBD5C",
         defaults: {
             name: {value:""}

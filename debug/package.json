@@ -1,0 +1,17 @@
+{
+  "name": "debug",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "debug"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "debug": 0
+    },
+    "nodes": {
+      "debug": "debug.so"
+    }
+  },
+  "version": "1.0.0"
+}

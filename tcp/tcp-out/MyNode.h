@@ -37,7 +37,7 @@ namespace MyNode {
 
 class HttpResponse : public Flows::INode {
  public:
-  HttpResponse(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  HttpResponse(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~HttpResponse() override;
 
   bool init(const Flows::PNodeInfo &info) override;

@@ -1,0 +1,17 @@
+{
+  "name": "tls-config",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "tls"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "tls-config": 0
+    },
+    "nodes": {
+      "tls-config": "tls-config.so"
+    }
+  },
+  "version": "1.0.0"
+}

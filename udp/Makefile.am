@@ -15,11 +15,11 @@ udp_out_la_SOURCES = udp-out/Factory.cpp udp-out/UdpOut.cpp
 udp_out_la_LDFLAGS =-module -avoid-version -shared
 
 udp_ladir = $(libdir)
-udp_la_DATA = udp-in/udp-in.hni udp-out/udp-out.hni
+udp_la_DATA = package.json udp-in/udp-in.hni udp-out/udp-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = udp-in/locales/en-US/udp-in udp-in/locales/en-US/udp-in.help.html udp-out/locales/en-US/udp-out udp-out/locales/en-US/udp-out.help.html
+locale_en_us_DATA = locales/en-US/udp.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = udp-in/locales/de-DE/udp-in udp-in/locales/de-DE/udp-in.help.html udp-out/locales/de-DE/udp-out udp-out/locales/de-DE/udp-out.help.html
+locale_de_de_DATA = locales/de-DE/udp.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/udp-in.la

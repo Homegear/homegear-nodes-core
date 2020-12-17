@@ -40,7 +40,7 @@ namespace MyNode {
 
 class Template : public Flows::INode {
  public:
-  Template(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Template(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Template() override;
 
   bool init(const Flows::PNodeInfo &info) override;

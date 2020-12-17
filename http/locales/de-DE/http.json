@@ -1,0 +1,115 @@
+{
+  "http-in": {
+    "paletteHelp": "<p>Erstellt einen HTTP-Endpunkt zum Erstellen von Webdiensten.</p>",
+    "help": "<p>Erstellt einen HTTP-Endpunkt zum Erstellen von Webdiensten.</p><h3>Ausgaben</h3><dl class=\"message-properties\"><dt>payload</dt><dd>Enthält für eine GET-Anforderung ein Objekt mit beliebigen Abfragezeichenfolge-Parametern. Für Dateiuploads (<code>multipart/form-data</code>) ein Objekt die Formulardaten (Dateiname steht in <code>[&lt;index&gt;]['filename']</code>, Inhalt in <code>[&lt;index&gt;]['file']</code>). Andernfalls enthält er den Body der HTTP-Anfrage.</dd><dt>req<span class=\"property-type\">object</span></dt><dd>Ein HTTP-Anforderungsobjekt. Dieses Objekt enthält mehrere Eigenschaften, die Informationen zur Anforderung bereitstellen.<ul><li><code>method</code> - Die HTTP-Methode der eingehenden Anforderung (z. B. <code>GET</code>).</li><li><code>headers</code> - Ein Objekt, das die HTTP-Anforderungsheader enthält.</li><li><code>query</code> - Ein Objekt, das beliebige Parameter für Abfragezeichenfolgen enthält.</li><li><code>params</code> - Ein Objekt, das Routenparameter enthält.</li><li><code>cookies</code> - Ein Objekt, das die Cookies für die Anfrage enthält.</li></ul></dd></dl><h3>Details</h3><p>Der Knoten überwacht den konfigurierten Pfad auf Anforderungen eines bestimmten Typs. Der Pfad kann vollständig angegeben werden, z. B. <code>/user</code>, oder benannte Parameter enthalten, die einen beliebigen Wert akzeptieren, z. B. <code>/user/:name/:info</code> (einstufiger Platzhalter) oder <code>/user/#name</code> (mehrstufiger Platzhalter). Wenn benannte Parameter verwendet werden, kann auf deren tatsächlichen Wert in einer Anfrage unter `$['message']['req']['params']` zugegriffen werden. Bei mehrstufigen Platzhaltern können alle Ebenen, die auf das <code>#</code> folgen, folgendermaßen benannt werden: <code>/user/#name/nameLevel2/nameLevel3</code>. Wird kein Name angegeben (z. B. <code>/user/:/:</code> oder <code>/user/#</code>), werden die Ebenen nach ihrem Index benannt.</p><p>Für Anforderungen, die einen Body enthalten, z. B. einen POST oder einen PUT, werden die Inhalte der Anforderung als <code>$message['payload']</code> verfügbar gemacht.</p><p>Wenn der Inhaltstyp der Anforderung bestimmt werden kann, wird der Body auf einen geeigneten Typ analysiert. Beispiel: <code>application/json</code> wird in der Darstellung des JavaScript-Objekts analysiert.</p><p><b>Hinweis:</b> Dieser Knoten sendet keine Antwort auf die Anforderung. Der Ablauf muss einen HTTP-Antwortknoten enthalten, um die Anforderung abzuschließen.</p>",
+    "output1Description": "Bei einer GET-Anforderung enthält <code>payload</code> ein Objekt mit beliebigen Abfragezeichenfolgenparametern. Andernfalls enthält er den Body der HTTP-Anfrage.",
+    "label": {
+      "server": "Server",
+      "method": "Methode",
+      "url": "URL",
+      "doc": "Docs",
+      "return": "Rückgabe",
+      "upload": "Akzeptiere Datei-Uploads?",
+      "status": "Status Code",
+      "headers": "Header"
+    },
+    "server": "Server",
+    "setby": "- gesetzt durch $message['method'] -",
+    "basicauth": "Benutze basic authentication",
+    "use-tls": "Sichere Verbindung (SSL/TLS) benutzen",
+    "tls-config": "TLS Konfiguration",
+    "utf8": "eins UTF-8 Zeichenfolge",
+    "binary": "ein binärer Puffer",
+    "json": "ein geparstes JSON-Objekt",
+    "tip": {
+      "in": "Die URL wird relativ zu ",
+      "res": "Die an diesen Knoten gesendeten Nachrichten <b>müssen</b> von einem <i>http-Eingabeknoten</i> stammen",
+      "req": "Tipp: Wenn die JSON-Analyse fehlschlägt, wird die abgerufene Zeichenfolge unverändert zurückgegeben."
+    },
+    "httpreq": "http Anfrage",
+    "errors": {
+      "not-created": "Der http-in-Knoten kann nicht erstellt werden, wenn httpNodeRoot auf false festgelegt ist",
+      "missing-path": "fehlender Pfad",
+      "no-response": "Kein Antwortobjekt",
+      "json-error": "JSON-Analysefehler",
+      "no-url": "Keine URL angegeben",
+      "deprecated-call": "Veralteter Anruf an __method__",
+      "invalid-transport": "Nicht-http-Transport angefordert"
+    }
+  },
+  "http-request": {
+    "paletteHelp": "<p>Sendet HTTP-Anforderungen und gibt die Antwort zurück.</p>",
+    "help": "<p>Sendet HTTP-Anforderungen und gibt die Antwort zurück.</p><h3>Eingaben</h3><dl class=\"message-properties\"><dt class=\"optional\">URL <span class=\"property-type\">Zeichenfolge</span></dt><dd>Wenn nicht im Knoten konfiguriert, legt diese optionale Eigenschaft die URL der Anforderung fest.</dd><dt class=\"optional\">Methode <span class=\"property-type\">Zeichenfolge</span></dt><dd>Wenn nicht im Knoten konfiguriert, legt diese optionale Eigenschaft die HTTP-Methode der Anforderung fest. Muss entweder <code>GET</code>, <code>PUT</code>, <code>POST</code>, <code>PATCH</code> oder <code>DELETE</code> sein.</dd> <dt class=\"optional\">Header <span class=\"property-type\">Objekt</span></dt><dd>Legt die HTTP-Header der Anforderung fest.</dd><dt class=\"optional\">payload</dt><dd>Wird als Body der Anforderung gesendet.</dd></dl><h3>Ausgaben</h3><dl class=\"message-properties\"><dt>payload <span class=\"property-type\">Zeichenfolge | Objekt | Puffer</span></dt><dd>Der Body der Antwort. Der Knoten kann so konfiguriert werden, dass er den Text als Zeichenfolge zurückgibt, ihn als JSON-Zeichenfolge zu analysieren versucht oder ihn als Binärpuffer zu belassen.</dd><dt>statusCode <span class=\"property-type\">Nummer</span></dt><dd>Der Statuscode der Antwort oder der Fehlercode, falls die Anforderung nicht abgeschlossen werden konnte.</dd><dt>headers <span class=\"property-type\">Objekt</span></dt><dd>Ein Objekt, das die Antwortheader enthält.</dd></dl></p>",
+    "input1Description": "Der Eingang, der die Anforderung auslöst.",
+    "output1Description": "Die vom Webserver empfangene Antwort.",
+    "label": {
+      "method": "Methode",
+      "url": "URL",
+      "return": "Rückgabe"
+    },
+    "setby": "- gesendet von $message['method'] -",
+    "basicauth": "Benutze Basic Authentication",
+    "use-tls": "Sichere Verbindung (SSL/TLS) benutzen",
+    "tls-config": "TLS Konfiguration",
+    "utf8": "eine Zeichenfolge",
+    "binary": "ein binärer Puffer",
+    "json": "ein geparstes JSON-Objekt",
+    "tip": {
+      "req": "Tipp: Wenn die JSON-Analyse fehlschlägt, wird die abgerufene Zeichenfolge unverändert zurückgegeben."
+    }
+  },
+  "http-response": {
+    "paletteHelp": "<p>Sendet Antworten zurück an Anforderungen, die von einem HTTP-Eingabeknoten empfangen wurden.</p>",
+    "help": "<p>Sendet Antworten zurück an Anforderungen, die von einem HTTP-Eingabeknoten empfangen wurden.</p><h3>Eingänge</h3><dl class=\"message-properties\"><dt>payload <span class=\"property-type\">Zeichenfolge</span></dt><dd>Der Body der Antwort.</dd><dt class=\"optional\">statusCode <span class=\"property-type\">Nummer</span></dt><dd>Wenn festgelegt, wird dies als Antwortstatuscode verwendet. Standardeinstellung: 200.</dd><dt class=\"optional\">headers <span class=\"property-type\">Objekt</span></dt><dd>Wenn festgelegt, werden HTTP-Header bereitgestellt, die in die Antwort einbezogen werden sollen.</dd><dt class=\"optional\">cookies <span class=\"property-type\">Objekt</span></dt><dd>Wenn gesetzt, können damit Cookies gesetzt oder gelöscht werden.</dd></dl><h3>Details</h3><p>Der <code>statusCode</code> und <code>header</code> können auch innerhalb des Knotens selbst festgelegt werden. Wenn eine Eigenschaft innerhalb des Knotens festgelegt ist, kann sie nicht von der entsprechenden Nachrichteneigenschaft überschrieben werden.</p><h4>Cookie-Behandlung</h4><p>Die Eigenschaft <code>cookies</ code> muss ein Objekt mit Name/Wert-Paaren sein. Der Wert kann entweder eine Zeichenfolge sein um den Wert des Cookies mit Standardoptionen festzulegen, oder er kann ein Objekt von Optionen sein.<p><p>Im folgenden Beispiel werden zwei Cookies festgelegt - einer mit dem Namen <code>name</code> und einem Wert von <code>nick</code>, ein anderer mit dem Namen <code>session</code> und einem Wert von <code>1234</code> mit einem Ablaufdatum von 15 Minuten.</p><pre>$message['cookies'] = {\n    name: 'nick',\n    session: {\n        value: '1234',\n        maxAge: '900000'\n    }\n}</pre><p>Der <code>statusCode</code> und <code>header</code> können auch innerhalb des Knotens selbst festgelegt werden. Wenn eine Eigenschaft innerhalb des Knotens festgelegt ist, kann sie nicht von der entsprechenden Nachrichteneigenschaft überschrieben werden.</p><h4>Cookie-Behandlung</h4><p>Die Eigenschaft <code>cookies</code> muss ein Objekt mit Name/Wert-Paaren sein. Der Wert kann entweder eine Zeichenfolge sein, um den Wert des Cookies mit Standardoptionen festzulegen, oder ein Objekt von Optionen.<p><p>Im folgenden Beispiel werden zwei Cookies festgelegt - eines mit dem Namen <code>name</code> und dem Wert <code>nick</code> und ein anderer mit dem Namen <code>session</code> und dem Wert <code>1234</code> und einem Ablaufdatum von 15 Minuten.</p><pre>$message['cookies'] = {\n    name: 'nick',\n    session: {\n        value: '1234',\n        maxAge: '900000'\n    }\n}</pre><p>Alle Cookie-Attribute sind verfügbar, einschließlich:</p><ul><li><code>domain</code> - (Zeichenfolge) Domainname für den Cookie</li><li><code>expires</code> - (Datum) Verfallsdatum in GMT. Wenn nicht angegeben oder auf 0 gesetzt, wird ein Sitzungscookie erstellt</li><li><code>maxAge</code> - (Zeichenfolge) Ablaufdatum relativ zur aktuellen Zeit in Millisekunden</li><li><code>path</code> - (Zeichenfolge) Pfad für den Cookie. Standardmäßig /</li><li><code>value</code> - (Zeichenfolge) der Wert, der für den Cookie verwendet werden soll.</li></ul><p>Um ein Cookie zu löschen muss dessen <code>value</code> auf <code>null</code> gesetzt werden.</p>",
+    "input1Description": "Die zu sendende Antwort.",
+    "label": {
+      "method": "Methode",
+      "url": "URL",
+      "doc": "Docs",
+      "return": "Rückgabe",
+      "upload": "Akzeptiere Datei-Uploads?",
+      "status": "Statuscode",
+      "headers": "Header",
+      "server": "Server"
+    },
+    "setby": "- gesetzt von msg.method -",
+    "basicauth": "Benutze Basic Authentication",
+    "use-tls": "Sichere Verbindung (SSL/TLS) benutzen",
+    "tls-config": "TLS Konfiguration",
+    "utf8": "eine UTF-8 Zeichenfolge",
+    "binary": "ein binärer Puffer",
+    "json": "ein geparstes JSON-Objekt",
+    "tip": {
+      "in": "Die URL wird relativ zu ",
+      "res": "Die an diesen Knoten gesendeten Nachrichten <b>müssen</b> von einem <i>http-Eingabeknoten</i> stammen",
+      "req": "Tipp: Wenn die JSON-Analyse fehlschlägt, wird die abgerufene Zeichenfolge unverändert zurückgegeben."
+    },
+    "httpreq": "http Anfrage",
+    "errors": {
+      "not-created": "Der http-in-Knoten kann nicht erstellt werden, wenn httpNodeRoot auf false festgelegt ist",
+      "missing-path": "fehlender Pfad",
+      "no-response": "Kein Antwortobjekt",
+      "json-error": "JSON-Analysefehler",
+      "no-url": "Kein URL angegeben",
+      "deprecated-call": "Veralteter Anruf an __method__",
+      "invalid-transport": "Nicht-http-Transport angefordert"
+    }
+  },
+  "http-server": {
+    "help": "<p>Für eine minimale HTTP-Serververbindung muss nur eine Abhöradresse zur Standardkonfiguration hinzugefügt werden.</p><p>Um die Verbindung mit SSL / TLS zu sichern, muss auch eine TLS-Konfiguration konfiguriert und ausgewählt werden.</p>",
+    "label": {
+      "listenaddress": "Abhöradresse",
+      "port": "Port",
+      "use-tls": "Sichere Verbindung (SSL/TLS) aktivieren",
+      "tls-config": "TLS Konfiguration",
+      "username": "Benutzername",
+      "password": "Passwort"
+    },
+    "tabs-label": {
+      "connection": "Verbindung",
+      "security": "Sicherheit"
+    },
+    "true": "wahr",
+    "false": "falsch"
+  }
+}

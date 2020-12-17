@@ -1,0 +1,19 @@
+{
+  "name": "link",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "link"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "link in": 0,
+      "link out": 0
+    },
+    "nodes": {
+      "link in": "link-in.so",
+      "link out": "link-out.so"
+    }
+  },
+  "version": "1.0.0"
+}

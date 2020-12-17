@@ -1,0 +1,17 @@
+{
+  "name": "template",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "template"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "template": 0
+    },
+    "nodes": {
+      "template": "template.so"
+    }
+  },
+  "version": "1.0.0"
+}

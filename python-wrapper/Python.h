@@ -38,7 +38,7 @@ namespace PythonWrapper {
 
 class Python : public Flows::INode {
  public:
-  Python(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Python(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Python() override;
 
   bool init(const Flows::PNodeInfo &info) override;

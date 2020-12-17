@@ -1,0 +1,19 @@
+{
+  "name": "storage",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "storage",
+    "file",
+    "io"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "file": 0
+    },
+    "nodes": {
+      "file": "file.so"
+    }
+  },
+  "version": "1.0.0"
+}

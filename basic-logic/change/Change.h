@@ -47,7 +47,7 @@ class Change : public Flows::INode {
     tDelete
   };
 
-  Change(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Change(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Change() override;
 
   bool init(const Flows::PNodeInfo &info) override;

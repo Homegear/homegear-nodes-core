@@ -18,11 +18,11 @@ modbus_out_la_SOURCES = modbus-out/Factory.cpp modbus-out/MyNode.cpp
 modbus_out_la_LDFLAGS =-module -avoid-version -shared
 
 modbus_ladir = $(libdir)
-modbus_la_DATA = modbus-host/modbus-host.hni modbus-in/modbus-in.hni modbus-out/modbus-out.hni
+modbus_la_DATA = package.json modbus-host/modbus-host.hni modbus-in/modbus-in.hni modbus-out/modbus-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = modbus-host/locales/en-US/modbus-host modbus-in/locales/en-US/modbus-in modbus-out/locales/en-US/modbus-out
+locale_en_us_DATA = locales/en-US/modbus.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = modbus-host/locales/de-DE/modbus-host modbus-in/locales/de-DE/modbus-in modbus-out/locales/de-DE/modbus-out
+locale_de_de_DATA = locales/de-DE/modbus.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/modbus-host.la

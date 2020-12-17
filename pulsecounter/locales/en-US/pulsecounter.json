@@ -1,0 +1,12 @@
+{
+  "pulsecounter": {
+    "label": {
+      "pulsecounter": "pulsecounter",
+      "maxgap": "Max gap in ms",
+      "name": "Name"
+    },
+    "input1Description": "A boolean input. When input is set to <code>true</code> the calculation starts.",
+    "output1Description": "Outputs the counts per minute. If the gap between two inputs is higher than <code>Max gap</code>, the output ist set to <code>0</code>.",
+    "help": "<p>Outputs the counts per minute. If the gap between two inputs is higher than <code>Max gap</code>, the output ist set to <code>0</code>.</p>"
+  }
+}

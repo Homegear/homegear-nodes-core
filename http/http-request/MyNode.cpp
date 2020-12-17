@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _bl = std::unique_ptr<BaseLib::SharedObjects>(new BaseLib::SharedObjects());
   _jsonDecoder = std::unique_ptr<Flows::JsonDecoder>(new Flows::JsonDecoder());
 }

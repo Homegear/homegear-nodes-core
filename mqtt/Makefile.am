@@ -18,11 +18,11 @@ mqtt_out_la_SOURCES = mqtt-out/Factory.cpp mqtt-out/MyNode.cpp
 mqtt_out_la_LDFLAGS =-module -avoid-version -shared
 
 mqtt_ladir = $(libdir)
-mqtt_la_DATA = mqtt-broker/mqtt-broker.hni mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
+mqtt_la_DATA = package.json mqtt-broker/mqtt-broker.hni mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = mqtt-broker/locales/en-US/mqtt-broker mqtt-in/locales/en-US/mqtt-in mqtt-out/locales/en-US/mqtt-out
+locale_en_us_DATA = locales/en-US/mqtt.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = mqtt-broker/locales/de-DE/mqtt-broker mqtt-in/locales/de-DE/mqtt-in mqtt-out/locales/de-DE/mqtt-out
+locale_de_de_DATA = locales/de-DE/mqtt.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/mqtt-broker.la

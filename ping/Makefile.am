@@ -9,10 +9,10 @@ lib_LTLIBRARIES = ping.la
 ping_la_SOURCES = Factory.cpp MyNode.cpp
 ping_la_LDFLAGS =-module -avoid-version -shared
 ping_ladir = $(libdir)
-ping_la_DATA = ping.hni
+ping_la_DATA = package.json ping.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/ping
+locale_en_us_DATA = locales/en-US/ping.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/ping
+locale_de_de_DATA = locales/de-DE/ping.json
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/ping.la

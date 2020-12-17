@@ -38,7 +38,7 @@ namespace PresenceLight {
 
 class PresenceLight : public Flows::INode {
  public:
-  PresenceLight(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  PresenceLight(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~PresenceLight() override;
 
   bool init(const Flows::PNodeInfo &info) override;

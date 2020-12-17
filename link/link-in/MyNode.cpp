@@ -32,7 +32,7 @@
 namespace MyNode
 {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, type, frontendConnected)
 {
 	_localRpcMethods.emplace("linkInput", std::bind(&MyNode::linkInput, this, std::placeholders::_1));
 }

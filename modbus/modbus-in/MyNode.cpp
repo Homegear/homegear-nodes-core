@@ -32,7 +32,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
   _localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
@@ -88,8 +88,8 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         if (type == "bool") registerInfo->type = RegisterType::tBool;
         else if (type == "int") registerInfo->type = RegisterType::tInt;
         else if (type == "uint") registerInfo->type = RegisterType::tUInt;
-        else if (type == "float") registerInfo->type = RegisterType::tFloat;
-        else if (type == "string") registerInfo->type = RegisterType::tString;
+        else if (type == "float" || type == "num") registerInfo->type = RegisterType::tFloat;
+        else if (type == "string" || type == "str") registerInfo->type = RegisterType::tString;
         else registerInfo->type = RegisterType::tBin;
 
         registerInfo->invertBytes = ibIterator->second->booleanValue;

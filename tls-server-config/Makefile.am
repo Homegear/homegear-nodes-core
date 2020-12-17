@@ -9,10 +9,10 @@ lib_LTLIBRARIES = tls-server-config.la
 tls_server_config_la_SOURCES = Factory.cpp MyNode.cpp
 tls_server_config_la_LDFLAGS =-module -avoid-version -shared
 tls_server_config_ladir = $(libdir)
-tls_server_config_la_DATA = tls-server-config.hni
+tls_server_config_la_DATA = package.json tls-server-config.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/tls-server-config
+locale_en_us_DATA = locales/en-US/tls-server-config.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/tls-server-config
+locale_de_de_DATA = locales/de-DE/tls-server-config.json
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/tls-server-config.la

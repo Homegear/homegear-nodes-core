@@ -7,6 +7,8 @@ case $1 in
 		rm -Rf /var/lib/homegear/node-blue/nodes/variable-in
 		rm -Rf /var/lib/homegear/node-blue/nodes/variable-out
 		rm -Rf /var/lib/homegear/node-blue/nodes/greater-than
+		rm -Rf /var/lib/homegear/node-blue/nodes/link/link-in.hni
+		rm -Rf /var/lib/homegear/node-blue/nodes/link/link-out.hni
 		rm -Rf /var/lib/homegear/node-blue/nodes/mqtt-broker
 		rm -Rf /var/lib/homegear/node-blue/nodes/mqtt-in
 		rm -Rf /var/lib/homegear/node-blue/nodes/php-test

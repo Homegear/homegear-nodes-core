@@ -12,11 +12,11 @@ file_la_SOURCES = file/Factory.cpp file/MyNode.cpp
 file_la_LDFLAGS =-module -avoid-version -shared
 
 file_ladir = $(libdir)
-file_la_DATA = file/file.hni
+file_la_DATA = package.json file/file.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = file/locales/en-US/file
+locale_en_us_DATA = locales/en-US/storage.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = file/locales/de-DE/file
+locale_de_de_DATA = locales/de-DE/storage.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/file.la

@@ -1,0 +1,17 @@
+{
+  "template": {
+    "label": {
+      "template": "Vorlage",
+      "property": "Eigenschaft festlegen",
+      "format": "Syntax Hervorhebung",
+      "syntax": "Format",
+      "output": "Ausgabe als",
+      "mustache": "Mustache template",
+      "plain": "Nur Text",
+      "json": "Analysiertes JSON"
+    },
+    "templatevalue": "Dies ist der Payload: {{payload}} !",
+    "paletteHelp": "<p>Legt eine Eigenschaft basierend auf der bereitgestellten Vorlage fest.</p>",
+    "help": "<p>Legt eine Eigenschaft basierend auf der bereitgestellten Vorlage fest.</p><h3>Eingaben</h3><dl class=\"message-properties\"><dt>$message <span class=\"property-type\">Struct</span></dt><dd>Ein $message-Objekt, das Informationen zum Auffüllen der Vorlage enthält.</dd></dl><p>Hinweis: Wenn Sie Mustache nicht verwenden, wählen Sie <code>Nur Text</code> in <code>Format</code>, um Ressourcen zu speichern.</p><h3>Ausgaben</h3><p>Wenn Sie <code>Ausgabe als</code> auf <code>Nur Text</code> setzen, wird immer eine <code>Zeichenfolge</code> ausgegeben. Wenn Sie <code>Analysiertes JSON</code> festlegen, wird die Vorlage analysiert und gemäß den JSON-Regeln konvertiert (z.B. wird <code>20</code> in ein <code>integer</code>, <code>20.1</code> zu einem <code>float</code>, <code>\"My text\"</code> zu einem <code>string</code>, <code>[0, 2, 3]</code> in ein <code>array</code> und so weiter analysiert).</p><dl class=\"message-properties\"><dt>$message <span class=\"property-type\">struct</span></dt><dd>eine $message mit einer festgelegten Eigenschaft, welches die konfigurierte Vorlage mit Eigenschaften aus der eingehenden $message gefüllt wird.</dd></dl><h3>Details</h3><p>Standardmäßig wird das <i><a href=\"http://mustache.github.io/mustache.5.html\" target=\"_blank\">mustache</a></i> Format verwendet, dies kann jedoch bei Bedarf deaktiviert werden.</p><p>Zum Beispiel, wenn eine Vorlage mit: <pre>Hallo {{name}}. Heute ist {{date}}</pre><p>eine Nachricht mit: <pre>{\n  name: \"Fred\",\n  date: \"Montag\"\n  payload: ...\n}</pre></p><p>empfängt.</p><p>Das Resultat wäre wie folgt: <pre>Hallo Fred. Heute ist Montag</pre></p><p>Es ist möglich, eine Eigenschaft aus dem Flow-Kontext oder dem globalen Kontext zu verwenden. Verwenden Sie einfach <code>{{flow.name}}</code> oder <code>{{global.name}}</code>.</p><p>Zudem ist es mit <code>{{env.name}}</code> möglich, auf Umgebungsvariablen zuzugreifen.</p><p><b>Hinweis: </b>Standardmäßig wird <i>mustache</i> alle HTML-Entitäten in den von ihm ersetzten Werten maskieren. Um dies zu verhindern, verwenden Sie <code>{{{dreifach}}}</code> geschweifte Klammern.</p>"
+  }
+}

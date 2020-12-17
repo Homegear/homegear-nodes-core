@@ -9,10 +9,10 @@ lib_LTLIBRARIES = exec.la
 exec_la_SOURCES = Factory.cpp Exec.cpp
 exec_la_LDFLAGS =-module -avoid-version -shared
 exec_ladir = $(libdir)
-exec_la_DATA = exec.hni
+exec_la_DATA = package.json exec.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/exec
+locale_en_us_DATA = locales/en-US/exec.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/exec
+locale_de_de_DATA = locales/de-DE/exec.json
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/exec.la

@@ -1,0 +1,17 @@
+{
+  "name": "influxdb",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "influxdb"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "influxdb": 0
+    },
+    "nodes": {
+      "influxdb": "influxdb.so"
+    }
+  },
+  "version": "1.0.0"
+}

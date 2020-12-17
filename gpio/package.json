@@ -1,0 +1,19 @@
+{
+  "name": "gpio",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "gpio"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "gpio-in": 1,
+      "gpio-out": 0
+    },
+    "nodes": {
+      "gpio-in": "gpio-in.s.php",
+      "gpio-out": "gpio-out.s.php"
+    }
+  },
+  "version": "1.0.0"
+}

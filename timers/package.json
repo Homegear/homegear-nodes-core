@@ -1,0 +1,40 @@
+{
+  "name": "timers",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "timer",
+    "date"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "clock": 1,
+      "delay": 10,
+      "impulse": 1,
+      "interval": 1,
+      "off-delay": 1,
+      "on-delay": 1,
+      "ramp-to": 1,
+      "rate-limiter": 1,
+      "slow-pwm": 1,
+      "sun-position": 1,
+      "timer": 1,
+      "weekly-program": 1
+    },
+    "nodes": {
+      "clock": "clock.so",
+      "delay": "delay.so",
+      "impulse": "impulse.so",
+      "interval": "interval.so",
+      "off-delay": "off-delay.so",
+      "on-delay": "on-delay.so",
+      "ramp-to": "ramp-to.so",
+      "rate-limiter": "rate-limiter.so",
+      "slow-pwm": "slow-pwm.so",
+      "sun-position": "sun-position.so",
+      "timer": "timer.so",
+      "weekly-program": "weekly-program.so"
+    }
+  },
+  "version": "1.0.0"
+}

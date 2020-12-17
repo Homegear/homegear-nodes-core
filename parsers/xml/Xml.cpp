@@ -32,7 +32,7 @@
 
 namespace Parsers {
 
-Xml::Xml(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+Xml::Xml(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 Xml::~Xml() = default;

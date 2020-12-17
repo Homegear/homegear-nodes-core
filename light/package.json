@@ -1,0 +1,17 @@
+{
+  "name": "light",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "light"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "light": 1
+    },
+    "nodes": {
+      "light": "light.so"
+    }
+  },
+  "version": "1.0.0"
+}

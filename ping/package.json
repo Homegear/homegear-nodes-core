@@ -1,0 +1,17 @@
+{
+  "name": "ping",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "ping"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "ping": 1
+    },
+    "nodes": {
+      "ping": "ping.so"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,23 @@
+{
+  "gpio-in": {
+    "label": {
+      "name": "Name",
+      "index": "GPIO",
+      "trueonly": "Output \"true\" only",
+      "debounce": "Debounce input"
+    },
+    "paletteHelp": "<p>Generates events on GPIO input changes.</p>",
+    "help": "<p>This node generates events on GPIO input changes. Make sure, Homegear has enough permissions to export the GPIO. If that's not the case, you can define GPIOs to export in Homegear's <code>main.conf</code>. These GPIOs are exported as root before Homegear drops privileges.</p>",
+    "output1Description": "The state of the GPIO."
+  },
+  "gpio-out": {
+    "label": {
+      "name": "Name",
+      "index": "GPIO",
+      "initialtrue": "Set to \"true\" on startup"
+    },
+    "paletteHelp": "<p>Sets the value of a GPIO.</p>",
+    "help": "<p>This node can be used to set the value of a GPIO. Make sure, Homegear has enough permissions to export the GPIO. If that's not the case, you can define GPIOs to export in Homegear's <code>main.conf</code>. These GPIOs are exported as root before Homegear drops privileges.</p>",
+    "input1Description": "The state to set the GPIO to."
+  }
+}

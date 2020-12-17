@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "or",
-    "readableName": "Or",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="or">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="or.label.name"></span></label>
@@ -30,7 +21,6 @@
 <script type="text/javascript">
 	RED.nodes.registerType('or',{
         category: 'logic',
-        namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
             name: {value:""},

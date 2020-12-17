@@ -27,11 +27,11 @@ variable_loop_prevention_group_la_SOURCES = variable-loop-prevention-group/Facto
 variable_loop_prevention_group_la_LDFLAGS =-module -avoid-version -shared
 
 variable_ladir = $(libdir)
-variable_la_DATA = constant/constant.hni round-robin-shift/round-robin-shift.hni toggle/toggle.hni variable-in/variable-in.hni variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
+variable_la_DATA = package.json constant/constant.hni round-robin-shift/round-robin-shift.hni toggle/toggle.hni variable-in/variable-in.hni variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = constant/locales/en-US/constant round-robin-shift/locales/en-US/round-robin-shift toggle/locales/en-US/toggle variable-in/locales/en-US/variable-in variable-loop-prevention-group/locales/en-US/variable-loop-prevention-group variable-out/locales/en-US/variable-out
+locale_en_us_DATA = locales/en-US/variable.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = constant/locales/de-DE/constant round-robin-shift/locales/de-DE/round-robin-shift toggle/locales/de-DE/toggle variable-in/locales/de-DE/variable-in variable-loop-prevention-group/locales/de-DE/variable-loop-prevention-group variable-out/locales/de-DE/variable-out
+locale_de_de_DATA = locales/de-DE/variable.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/constant.la

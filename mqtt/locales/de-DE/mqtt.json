@@ -1,0 +1,76 @@
+{
+  "mqtt-broker": {
+    "help": "<p>Für eine minimale MQTT-Broker-Verbindung muss nur eine Broker-Server-Adresse zur Standardkonfiguration hinzugefügt werden.</p><p>Um die Verbindung mit SSL/TLS zu sichern, muss auch eine TLS-Konfiguration konfiguriert und ausgewählt werden.</p><p>Wenn Sie eine Client-ID erstellen, muss diese für den Broker, zu dem Sie eine Verbindung herstellen, eindeutig sein.</p><p>Weitere Informationen zu MQTT finden Sie auf der <a href=\"http://www.eclipse.org/paho/\" \"target=_blank\">Eclipse-Paho Seite</a>.</p>",
+    "label": {
+      "broker": "Server",
+      "qos": "QoS",
+      "clientid": "Client ID",
+      "port": "Port",
+      "use-tls": "Sichere (SSL/TLS) Verbindung aktivieren",
+      "tls-config": "TLS Konfiguration",
+      "verify-server-cert": "Serverzertifikat überprüfen"
+    },
+    "tabs-label": {
+      "connection": "Verbindung",
+      "security": "Sicherheit"
+    },
+    "placeholder": {
+      "clientid": "Leer lassen für automatische Generierung"
+    },
+    "state": {
+      "connected": "Verbunden zum Broker: __broker__",
+      "disconnected": "Getrennt vom Broker: __broker__",
+      "connect-failed": "Verbindung fehlgeschlagen zum Broker: __broker__"
+    },
+    "true": "wahr",
+    "false": "falsch"
+  },
+  "mqtt-in": {
+    "paletteHelp": "<p>Stellt eine Verbindung zu einem MQTT-Broker her und abonniert das angegebene Thema.</p>",
+    "help": "<p>Stellt eine Verbindung zu einem MQTT-Broker her und abonniert das angegebene Thema.</p><p>Gibt eine Nachricht mit den folgenden Eigenschaften aus:</p><ul><li><code>$message['topic']</code></li><li><code>$message['payload']</code></li><li><code>$message['retain']</code></li></ul><p><code>$message['payload']</code> ist eine Zeichenfolge.</p>",
+    "output1Description": "Der vom MQTT-Broker empfangene Payload.",
+    "label": {
+      "broker": "Server",
+      "qos": "QoS",
+      "topic": "Thema",
+      "loopprevention": "Verhinderung von Rückkopplungsschleifen aktivieren",
+      "looppreventiongroup": "Loop-Gruppe"
+    },
+    "state": {
+      "connected": "Verbunden zum Broker: __broker__",
+      "disconnected": "Getrennt vom Broker: __broker__",
+      "connect-failed": "Verbindung fehlgeschlagen zum Broker: __broker__"
+    },
+    "errors": {
+      "not-defined": "Thema nicht definiert",
+      "missing-config": "fehlende Brokerkonfiguration",
+      "invalid-topic": "Ungültiges Thema angegeben",
+      "nonclean-missingclientid": "Keine Client-ID festgelegt, verwende neue Session"
+    },
+    "tip": "Tipp: Lassen Sie Thema, QoS oder Retain leer, wenn Sie diese über msg-Eigenschaften festlegen möchten."
+  },
+  "mqtt-out": {
+    "paletteHelp": "<p>Stellt eine Verbindung zu einem MQTT-Broker her und veröffentlicht Nachrichten.</p>",
+    "help": "<p>Stellt eine Verbindung zu einem MQTT-Broker her und veröffentlicht Nachrichten.</p><h3>Eingänge</h3><dl class=\"message-properties\"><dt>payload <span class=\"property-type\">alles</span></dt><dd> Die meisten Benutzer bevorzugen einfachen Text-Payload.</dd><dt class=\"optional\">topic <span class=\"property-type\">Zeichenkette</span></dt><dd> Das MQTT-Thema, in dem veröffentlicht werden soll.</dd><dt class=\"optional\">retain <span class=\"property-type\">boolean</span></dt><dd>Diesen Wert auf true setzen, um die Nachricht auf dem Broker beizubehalten. Standardwert ist false.</dd></dl><h3>Details</h3><code>$message['payload']</code> wird als Payload der veröffentlichten Nachricht verwendet. Wenn es eine Struktur oder ein Array enthält, wird es vor dem Senden in eine JSON-Zeichenfolge konvertiert.</p><p>Das verwendete Thema kann im Knoten konfiguriert oder, wenn es leer gelassen wird, mit <code>$message['topic']</code> festgelegt werden.</p><p>Ebenso kann der Retain-Wert im Knoten konfiguriert oder mit <code>$message['retain']</code> gesetzt werden. Um ein zuvor beibehaltenes Thema vom Broker zu löschen, senden Sie eine leere Nachricht mit gesetztem retain-Flag an dieses Thema.</p><p>Für diesen Knoten muss eine Verbindung zu einem MQTT-Broker konfiguriert werden. Diese wird durch Klicken auf das Stiftsymbol konfiguriert.</p><p>Mehrere MQTT-Knoten (ein- oder ausgehend) können bei Bedarf dieselbe Brokerverbindung gemeinsam nutzen.</p>",
+    "input1Description": "Der Payload und optional das zu veröffentlichende Thema.",
+    "label": {
+      "broker": "Server",
+      "topic": "Thema",
+      "qos": "QoS"
+    },
+    "state": {
+      "connected": "Verbunden zum Broker: __broker__",
+      "disconnected": "Getrennt vom Broker: __broker__",
+      "connect-failed": "erbindung fehlgeschlagen zum Broker: __broker__"
+    },
+    "errors": {
+      "not-defined": "Thema nicht definiert",
+      "missing-config": "fehlende Brokerkonfiguration",
+      "invalid-topic": "Ungültiges Thema angegeben",
+      "nonclean-missingclientid": "Keine Client-ID festgelegt, verwende neue Session"
+    },
+    "true": "true",
+    "false": "false",
+    "tip": "Tipp: Lassen Sie Thema oder Retain leer, wenn Sie diese über msg-Eigenschaften festlegen möchten."
+  }
+}

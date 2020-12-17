@@ -9,10 +9,10 @@ lib_LTLIBRARIES = python.la
 python_la_SOURCES = Factory.cpp Python.cpp
 python_la_LDFLAGS =-module -avoid-version -shared
 python_ladir = $(libdir)
-python_la_DATA = python.hni
+python_la_DATA = package.json python.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/python
+locale_en_us_DATA = locales/en-US/python.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/python
+locale_de_de_DATA = locales/de-DE/python.json
 install-python-hook:
 	rm -f $(DESTDIR)$(libdir)/python.la

@@ -32,7 +32,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 MyNode::~MyNode() = default;
@@ -60,8 +60,8 @@ Flows::VariableType MyNode::getValueTypeFromString(std::string &vt) {
   Flows::VariableType variableType = Flows::VariableType::tVoid;
   if (vt == "bool") variableType = Flows::VariableType::tBoolean;
   else if (vt == "int") variableType = Flows::VariableType::tInteger64;
-  else if (vt == "float") variableType = Flows::VariableType::tFloat;
-  else if (vt == "string") variableType = Flows::VariableType::tString;
+  else if (vt == "float" || vt == "num") variableType = Flows::VariableType::tFloat;
+  else if (vt == "string" || vt == "str") variableType = Flows::VariableType::tString;
   else if (vt == "array") variableType = Flows::VariableType::tArray;
   else if (vt == "struct") variableType = Flows::VariableType::tStruct;
   return variableType;

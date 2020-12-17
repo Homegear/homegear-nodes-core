@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "variable-switch",
-    "readableName": "Variable switch",
-    "version": "1.1.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!-- Source was modified from original by Sathya Laufer -->
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
@@ -136,7 +127,6 @@
     RED.nodes.registerType('variable-switch', {
         color: "#E2D96E",
         category: 'logic',
-        namespace: 'basic-logic',
         defaults: {
             name: {value:""},
             "static-value":{value:""},

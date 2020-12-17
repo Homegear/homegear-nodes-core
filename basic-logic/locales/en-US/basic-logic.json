@@ -1,0 +1,195 @@
+{
+  "and": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Output changes only",
+      "output-false": "Output \"false\", too",
+      "inputs": "Inputs"
+    },
+    "paletteHelp": "<p>This node does a boolean <code>and</code> on all inputs.</p>",
+    "help": "<p>This node does a boolean <code>and</code> on all inputs.</p><p>All states are saved and restored upon restart of Homegear.</p>",
+    "input1Description": "The first boolean value.",
+    "input2Description": "The second boolean value.",
+    "input3Description": "The third boolean value.",
+    "input4Description": "The third boolean value.",
+    "input5Description": "The third boolean value.",
+    "input6Description": "The third boolean value.",
+    "input7Description": "The third boolean value.",
+    "input8Description": "The third boolean value.",
+    "input9Description": "The third boolean value.",
+    "input10Description": "The third boolean value.",
+    "output1Description": "Outputs the result of the boolean comparison."
+  },
+  "change": {
+    "label": {
+        "rules": "Rules",
+        "rule": "rule",
+        "set": "set __property__",
+        "change": "change __property__",
+        "delete": "delete __property__",
+        "move": "move __property__",
+        "changeCount": "change: __count__ rules",
+        "regex": "Use regular expressions"
+    },
+    "action": {
+        "set": "Set",
+        "change": "Change",
+        "delete": "Delete",
+        "move": "Move",
+        "to": "to",
+        "to2": "to",
+        "search": "Search for",
+        "replace": "Replace with"
+    },
+    "errors": {
+        "invalid-from": "Invalid 'from' property: __error__",
+        "invalid-json": "Invalid 'to' JSON property",
+        "invalid-expr": "Invalid JSONata expression: __error__"
+    },
+    "message": "message.",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Set, change, delete or move properties of a message, flow context or global context.</p>",
+    "help": "<p>Set, change, delete or move properties of a message, flow context or global context.</p><p>The node can specify multiple rules that will be applied in the order they are defined.</p><h3>Details</h3><p>The available operations are:</p><dl class=\"message-properties\"><dt>Set</dt><dd>set a property. The value can be a variety of different types, or can be taken from an existing message or context property.</dd><dt>Change</dt><dd>search &amp; replace parts of the property. If regular expressions are enabled, the \"replace with\" property can include capture groups, for example <code>$1</code>. Replace will only change the type if there is a complete match.</dd><dt>Delete</dt><dd>delete a property.</dd><dt>Move</dt><dd>move or rename a property.</dd></dl>"
+  },
+  "fallingedge": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>The input message is forwarded when the input is evaluated to <code>false</code>. An input evaluated to <code>true</code> is ignored.</p>",
+    "help": "<p>The input message is forwarded when the input is evaluated to <code>false</code>.</p><p>An input evaluated to <code>true</code> is ignored.</p>",
+    "input1Description": "The value to check.",
+    "output1Description": "The input message when the input is evaluated to <code>false</code>."
+  },
+  "not": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Converts an input to bool and negates it.</p>",
+    "help": "<p>This node converts an input to bool and negates it.</p>",
+    "input1Description": "The input to negate.",
+    "output1Description": "Outputs the result of the boolean operation."
+  },
+  "or": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Output changes only",
+      "output-false": "Output \"false\", too",
+      "inputs": "Inputs"
+    },
+    "paletteHelp": "<p>This node does a boolean <code>or</code> on all inputs.</p>",
+    "help": "<p>This node does a boolean <code>or</code> on all inputs.</p><p>All states are saved or restored upon restart of Homegear.</p>",
+    "input1Description": "The first boolean value.",
+    "input2Description": "The second boolean value.",
+    "input3Description": "The third boolean value.",
+    "input4Description": "The third boolean value.",
+    "input5Description": "The third boolean value.",
+    "input6Description": "The third boolean value.",
+    "input7Description": "The third boolean value.",
+    "input8Description": "The third boolean value.",
+    "input9Description": "The third boolean value.",
+    "input10Description": "The third boolean value.",
+    "output1Description": "Outputs the result of the boolean comparison."
+  },
+  "risingedge": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>The input message is forwarded when the input is evaluated to <code>true</code>. An input evaluated to <code>false</code> is ignored.</p>",
+    "help": "<p>The input message is forwarded when the input is evaluated to <code>true</code>.</p><p>An input evaluated to <code>false</code> is ignored.</p>",
+    "input1Description": "The value to check.",
+    "output1Description": "The input message when the input is evaluated to <code>true</code>."
+  },
+  "srflipflop": {
+    "label": {
+      "name": "Name",
+      "changes-only": "Output changes only"
+    },
+    "paletteHelp": "<p>Set reset flip flop</p>",
+    "help": "<p>This node outputs <code>true</code> when the S input is set to <code>true</code>. It also outputs <code>false</code> when the R input is set to <code>true</code>. An input of <code>false</code> is ignored on both inputs.</p>",
+    "input1Description": "The set boolean value.",
+    "input2Description": "The reset boolean value.",
+    "output1Description": "Outputs the result of the SR flip flop."
+  },
+  "switch": {
+    "label": {
+      "property": "msg property",
+      "static-value":"static value",
+      "static-only": "static value of output only",
+      "changes-only": "Forward changes of output only",
+      "output-true": "Output \"true\" instead of forwarding the message",
+      "output-false": "Output \"false\", too",
+      "rule": "rule"
+    },
+    "and": "and",
+    "checkall": "checking all rules",
+    "stopfirst": "stopping after first match",
+    "ignorecase": "ignore case",
+    "rules": {
+        "btwn":"is between",
+        "cont":"contains",
+        "regex":"matches regex",
+        "true":"is true",
+        "false":"is false",
+        "null":"is null",
+        "nnull":"is not null",
+        "else":"otherwise"
+    },
+    "previous": "previous value",
+    "input2": "2nd input",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Route messages based on their property values or the value of a second input.</p>",
+    "help": "<p>Route messages based on their property values or the value of a second input.</p><h3>Details</h3><p>When a message arrives, the node will evaluate each of the defined rules and forward the message to the corresponding outputs of any matching rules.</p><p>Optionally, the node can be set to stop evaluating rules once it finds one that matches.</p><p>Also optionally the node can output <code>true</code> and <code>false</code> instead of forwarding the input payload.</p>",
+    "input1Description": "The input to compare."
+  },
+  "variable-switch": {
+    "label": {
+      "name": "Name",
+      "variabletype": "Variable type",
+      "devicevariable": "Device variable",
+      "metadata": "Metadata",
+      "systemvariable": "System variable",
+      "flowvariable": "Flow variable",
+      "globalvariable": "Global variable",
+      "family": "Family",
+      "peerid": "Peer ID",
+      "channel": "Channel",
+      "variable": "Variable",
+      "createvariable": "Create variable",
+      "typeandvalue": "Value",
+      "create": "Create",
+      "createnewvariable": "Create new variable",
+      "changes-only": "Forward changes of output only",
+      "output-true": "Output \"true\" instead of forwarding the message",
+      "output-false": "Output \"false\", too",
+      "rule": "rule",
+      "static-only": "Output static value",
+      "static-value":"Static value"
+    },
+    "and": "and",
+    "checkall": "checking all rules",
+    "stopfirst": "stopping after first match",
+    "ignorecase": "ignore case",
+    "rules": {
+        "btwn":"is between",
+        "cont":"contains",
+        "regex":"matches regex",
+        "true":"is true",
+        "false":"is false",
+        "null":"is null",
+        "nnull":"is not null",
+        "else":"otherwise"
+    },
+    "previous": "previous value",
+    "input": "input",
+    "flow": "flow.",
+    "global": "global.",
+    "env": "env.",
+    "paletteHelp": "<p>Route messages based on the value of a variable.</p>",
+    "help": "<p>Route messages based on the value of a variable.</p><h3>Details</h3><p>When a message arrives, the node reads the value of the specified variable. It then evaluates this value using each of the defined rules and forward the message to the corresponding outputs of any matching rules.</p><p>Optionally, the node can be set to stop evaluating rules once it finds one that matches.</p><p>Also optionally the node can output <code>true</code>, <code>false</code> or a static value instead of forwarding the input payload.</p>",
+    "input1Description": "The input triggering the comparison."
+  }
+}

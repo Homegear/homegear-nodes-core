@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "comment",
-    "readableName": "Comment",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="comment">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-comment"></i> <span data-i18n="comment.label.title"></span></label>

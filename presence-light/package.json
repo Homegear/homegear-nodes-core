@@ -1,0 +1,17 @@
+{
+  "name": "presence-light",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "light"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "presence-light": 1
+    },
+    "nodes": {
+      "presence-light": "presence-light.so"
+    }
+  },
+  "version": "1.0.0"
+}

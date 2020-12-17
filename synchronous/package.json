@@ -1,0 +1,17 @@
+{
+  "name": "synchronous",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "synchronous"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "synchronous": 0
+    },
+    "nodes": {
+      "synchronous": "synchronous.so"
+    }
+  },
+  "version": "1.0.0"
+}

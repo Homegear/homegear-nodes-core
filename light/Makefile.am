@@ -9,10 +9,10 @@ lib_LTLIBRARIES = light.la
 light_la_SOURCES = Factory.cpp MyNode.cpp
 light_la_LDFLAGS =-module -avoid-version -shared
 light_ladir = $(libdir)
-light_la_DATA = light.hni
+light_la_DATA = package.json light.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/light
+locale_en_us_DATA = locales/en-US/light.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/light
+locale_de_de_DATA = locales/de-DE/light.json
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/light.la

@@ -37,7 +37,7 @@ namespace MyNode {
 
 class MyNode : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~MyNode() override;
  private:
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;

@@ -1,0 +1,17 @@
+{
+  "name": "homegear-event",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "event"
+  ],
+  "node-blue": {
+    "maxThreadCounts": {
+      "homegear-event": 0
+    },
+    "nodes": {
+      "homegear-event": "homegear-event.so"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "xmpp",
-    "readableName": "XMPP",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="xmpp">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="xmpp.label.name"></span></label>
@@ -32,7 +23,6 @@
     RED.nodes.registerType('xmpp',{
         color:"#C0DEED",
         category: 'notification',
-        namespace: 'notification',
         defaults: {
             name: {value:""},
             server: {type:"xmpp-server", required:true},

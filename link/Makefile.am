@@ -15,11 +15,11 @@ link_out_la_SOURCES = link-out/Factory.cpp link-out/MyNode.cpp
 link_out_la_LDFLAGS =-module -avoid-version -shared
 
 link_ladir = $(libdir)
-link_la_DATA = link-in/link-in.hni link-out/link-out.hni
+link_la_DATA = package.json link.hni
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = link-in/locales/en-US/link-in link-out/locales/en-US/link-out
+locale_en_us_DATA = locales/en-US/link.json
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = link-in/locales/de-DE/link-in link-out/locales/de-DE/link-out
+locale_de_de_DATA = locales/de-DE/link.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/link-in.la

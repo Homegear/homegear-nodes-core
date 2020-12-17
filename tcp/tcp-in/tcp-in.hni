@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "tcp-in",
-    "readableName": "TCP input",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
 
@@ -36,7 +27,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('tcp-in',{
         category: 'network',
-        namespace: 'tcp',
         color:"#c0c0c0",
         defaults: {
             name: {value:""},

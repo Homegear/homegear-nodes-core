@@ -1,0 +1,79 @@
+{
+  "constant": {
+    "label": {
+      "name": "Name",
+      "payload": "Payload",
+      "outputonstartup": "Output value on startup"
+    },
+    "paletteHelp": "<p>Provides a constant value.</p>",
+    "help": "This node provices a constant value which is transmitted once on each reload.",
+    "output1Description": "Outputs the configured constant value."
+  },
+  "round-robin-shift": {
+    "label": {
+      "true-only": "Only toggle on \"true\"",
+      "outputs": "Outputs",
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Sends <code>true</code> round robin on one output after the other incrementing or decrementing the output index on every input.</p>",
+    "help": "<p>Sends <code>true</code> round robin on one output after the other. <code>TGF</code> (\"trigger forward\") increments the output index. <code>TGB</code> (\"trigger backward\") decrements the output index.</p><p><code>RES</code> resets the output index so the next input triggers the specified output.</p>",
+    "input1Description": "Every input triggers an output of <code>true</code> on the currently selected output and increments the output index by one.",
+    "input2Description": "Every input triggers an output of <code>true</code> on the currently selected output and decrements the output index by one.",
+    "input3Description": "Resets the output index to the specified value so the next input triggers the specified output."
+  },
+  "toggle": {
+    "label": {
+      "true-only": "Only toggle on \"true\"",
+      "use-feedback": "Use feedback input",
+      "variabletype": "Variable type",
+      "devicevariable": "Device variable",
+      "metadata": "Metadata",
+      "novariable": "None",
+      "systemvariable": "System variable",
+      "flowvariable": "Flow variable",
+      "globalvariable": "Global variable",
+      "family": "Family",
+      "peerid": "Peer ID",
+      "channel": "Channel",
+      "variable": "Variable",
+      "name": "Name",
+      "createnewvariable": "Create new variable"
+    },
+    "tip": "Tip: See help tab for usage information.",
+    "paletteHelp": "<p>Toggles a variable.</p>",
+    "help": "Use this node to toggle a variable in Homegear. It outputs the new value. When no variable is specified, the node just outputs the toggled value. When a variable is specified, Node-BLUE tries to get the current value and inverts it's state. <code>Use feedback input</code> enables a second input which can be used to update the current variable value. When enabled, the current value of the variable is ignored and only this feedback value is inverted and written to the specified variable.",
+    "input1Description": "Every input toggles the specified variable.",
+    "output1Description": "Outputs the new value of the variable."
+  },
+  "variable-loop-prevention-group": {
+    "label": {
+      "uniqueid": "Unique ID",
+      "refractoryperiod": "Refractory period"
+    },
+    "help": "<p>To inhibit feedback loops (variable 1 sets variable 2 which causes variable 2 to set variable 1) you can enable the feedback loop prevention. Add all variables causing the loop to the same loop prevention group and set a group refractory period long enough to catch all feedback events.</p>"
+  },
+  "variable-out": {
+    "label": {
+      "variabletype": "Variable type",
+      "devicevariable": "Device variable",
+      "metadata": "Metadata",
+      "systemvariable": "System variable",
+      "flowvariable": "Flow variable",
+      "globalvariable": "Global variable",
+      "family": "Family",
+      "peerid": "Peer ID",
+      "channel": "Channel",
+      "variable": "Variable",
+      "name": "Name",
+      "createvariable": "Create variable",
+      "typeandvalue": "Value",
+      "create": "Create",
+      "createnewvariable": "Create new variable"
+    },
+    "tip": "Tip: See help tab for usage information.",
+    "paletteHelp": "<p>Sets a variable.</p>",
+    "help": "Use this node to set a variable in Homegear. When the variable was successfully set, the node outputs <code>true</code>. On error it outputs <code>false</code>. Please beware that not all errors are handled and this doesn't work for all device families. So make sure, you test all relevant error conditions.",
+    "input1Description": "The value to set the referenced variable to.",
+    "output1Description": "Outputs <code>true</code> on success and <code>false</code> on error."
+  }
+}

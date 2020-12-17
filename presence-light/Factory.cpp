@@ -30,9 +30,9 @@
 #include "Factory.h"
 #include "../config.h"
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected)
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
 {
-	return new PresenceLight::PresenceLight(path, nodeNamespace, type, frontendConnected);
+	return new PresenceLight::PresenceLight(path, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()
