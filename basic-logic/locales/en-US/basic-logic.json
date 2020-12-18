@@ -116,7 +116,7 @@
     "label": {
       "property": "msg property",
       "static-value":"static value",
-      "static-only": "static value of output only",
+      "static-only": "Output static value",
       "changes-only": "Forward changes of output only",
       "output-true": "Output \"true\" instead of forwarding the message",
       "output-false": "Output \"false\", too",
