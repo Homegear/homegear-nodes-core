@@ -25,6 +25,10 @@ case $1 in
 		rm -Rf /var/lib/homegear/node-blue/nodes/basic-logic/locales/en-US/less-than
 		rm -Rf /var/lib/homegear/node-blue/nodes/runscript
 		rm -Rf /var/lib/homegear/node-blue/nodes/sequence
+		sed -i 's/"type":"link-in"/"type":"link in"/g' /data/homegear-data/node-blue/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-in"/"type":"link in"/g' /var/lib/homegear/node-blue/data/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-out"/"type":"link out"/g' /data/homegear-data/node-blue/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-out"/"type":"link out"/g' /var/lib/homegear/node-blue/data/flows.json > /dev/null 2>&1
 		chown -R homegear:homegear /var/lib/homegear/node-blue/nodes
 		chmod -R 550 /var/lib/homegear/node-blue/nodes
 		homegear -e mls > /dev/null 2>&1
