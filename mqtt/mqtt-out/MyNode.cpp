@@ -136,7 +136,7 @@ Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters) {
       status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
       status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
     }
-    nodeEvent("statusBottom/" + _id, status);
+    nodeEvent("statusBottom/" + _id, status, true);
 
     return std::make_shared<Flows::Variable>();
   }

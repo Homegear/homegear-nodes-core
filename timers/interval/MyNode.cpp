@@ -152,7 +152,7 @@ void MyNode::timer() {
         setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
         Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         status->structValue->emplace("text", std::make_shared<Flows::Variable>("disabled"));
-        nodeEvent("statusTop/" + _id, status);
+        nodeEvent("statusTop/" + _id, status, false);
         break;
       }
       output(0, message);
@@ -179,7 +179,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       setNodeData("enabled", std::make_shared<Flows::Variable>(_enabled));
       Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       status->structValue->emplace("text", std::make_shared<Flows::Variable>(_enabled ? "enabled" : "disabled"));
-      nodeEvent("statusTop/" + _id, status);
+      nodeEvent("statusTop/" + _id, status, false);
       std::lock_guard<std::mutex> timerGuard(_timerMutex);
       _stopThread = true;
       if (_timerThread.joinable()) _timerThread.join();

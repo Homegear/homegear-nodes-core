@@ -268,25 +268,20 @@ void Python::execThread() {
         auto result = invoke("invokeIpcProcessMethod", parameters);
         if (!result->errorStruct) break; //Process started and responding
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
       if (_pid == -1) _startUpError = true;
       else _processStartUpComplete = true;
       if (_startUpComplete) callStartUpComplete();
 
       std::array<uint8_t, 4096> buffer{};
-      std::string bufferOut;
+      ssize_t bytesRead = 0;
       while (_stdOut != -1) {
-        auto bytesRead = 0;
-        bufferOut.clear();
-        do {
-          bytesRead = read(_stdOut, buffer.data(), buffer.size());
-          if (bytesRead > 0) {
-            bufferOut.insert(bufferOut.end(), buffer.begin(), buffer.begin() + bytesRead);
-          }
-        } while (bytesRead > 0);
-
-        if (!bufferOut.empty()) _out->printInfo("Python process output: " + bufferOut);
+        bytesRead = read(_stdOut, buffer.data(), buffer.size());
+        if (bytesRead > 0) {
+          auto output = std::string(buffer.begin(), buffer.begin() + bytesRead);
+          _out->printInfo("Python process output: " + BaseLib::HelperFunctions::trim(output));
+        }
       }
 
       std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -300,18 +295,13 @@ void Python::execThread() {
 void Python::errorThread() {
   try {
     std::array<uint8_t, 4096> buffer{};
-    std::string bufferErr;
+    ssize_t bytesRead = 0;
     while (_stdErr != -1) {
-      int32_t bytesRead = 0;
-      bufferErr.clear();
-      do {
-        bytesRead = read(_stdErr, buffer.data(), buffer.size());
-        if (bytesRead > 0) {
-          bufferErr.insert(bufferErr.end(), buffer.begin(), buffer.begin() + bytesRead);
-        }
-      } while (bytesRead > 0);
-
-      if (!bufferErr.empty()) _out->printError("Python process error output: " + bufferErr);
+      bytesRead = read(_stdErr, buffer.data(), buffer.size());
+      if (bytesRead > 0) {
+        auto output = std::string(buffer.begin(), buffer.begin() + bytesRead);
+        _out->printError("Python process error output: " + BaseLib::HelperFunctions::trim(output));
+      }
     }
   }
   catch (const std::exception &ex) {

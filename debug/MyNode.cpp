@@ -163,7 +163,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
 
       if (!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
       if (!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
-      nodeEvent("debug", object);
+      nodeEvent("debug", object, false);
     }
   }
   catch (const std::exception &ex) {

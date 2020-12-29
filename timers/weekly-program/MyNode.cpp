@@ -321,7 +321,7 @@ void MyNode::printNext(int64_t timestamp)
         if(timestamp == -1)
         {
             status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Unknown"));
-            nodeEvent("statusBottom/" + _id, status);
+            nodeEvent("statusBottom/" + _id, status, true);
             return;
         }
 
@@ -344,7 +344,7 @@ void MyNode::printNext(int64_t timestamp)
         }
 
         status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str()));
-        nodeEvent("statusBottom/" + _id, status);
+        nodeEvent("statusBottom/" + _id, status, true);
     }
     catch(const std::exception& ex)
     {
