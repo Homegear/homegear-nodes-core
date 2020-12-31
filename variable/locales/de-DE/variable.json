@@ -37,6 +37,9 @@
       "channel": "Kanal",
       "variable": "Variable",
       "name": "Name",
+      "createvariable": "Variable erstellen",
+      "typeandvalue": "Wert",
+      "create": "Erstellen",
       "createnewvariable": "Neue Variable erstellen"
     },
     "tip": "Tipp: Informationen zur Verwendung finden Sie auf der Registerkarte Hilfe.",

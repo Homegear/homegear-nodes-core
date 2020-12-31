@@ -494,7 +494,7 @@
                                 {
                                     id: "create-variable-dialog-set",
                                     class: "primary",
-                                    text: RED._("variable-in.label.create"),
+                                    text: RED._("variable/toggle:toggle.label.create"),
                                     click: function() {
                                         var variableName = $("#create-variable-name").val().trim();
                                         var variableValueType = $("#create-variable-valueType").val();
@@ -527,8 +527,8 @@
                             open: function(e) {
                                 $(this).parent().find(".ui-dialog-titlebar-close").hide();
 
-                                $("#create-variable-dialog-label-name").text(RED._("variable-in.label.name") + ":");
-                                $("#create-variable-dialog-label-type").text(RED._("variable-in.label.typeandvalue") + ":");
+                                $("#create-variable-dialog-label-name").text(RED._("variable/toggle:toggle.label.name") + ":");
+                                $("#create-variable-dialog-label-type").text(RED._("variable/toggle:toggle.label.typeandvalue") + ":");
 
                                 $("#create-variable-value").typedInput({
                                     default: 'int',
@@ -547,7 +547,7 @@
                                 else if(variableType == "global") updateGlobalVariableOptions();
                             }
                         });
-                    createVariableDialog.dialog("option", "title", RED._("variable-in.label.createvariable")).dialog("open");
+                    createVariableDialog.dialog("option", "title", RED._("variable/toggle:toggle.label.createvariable")).dialog("open");
                 });
             //}}}
 

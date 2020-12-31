@@ -483,7 +483,7 @@
             delete RED._debug;
         },
         oneditprepare: function() {
-            $("#node-input-typed-complete").typedInput({types:[{value:"msg",label:"$message."}, {value:"full",label:RED._("debug/debug.hni:debug.msgobj"),hasValue:false}]});
+            $("#node-input-typed-complete").typedInput({types:[{value:"msg",label:"$message."}, {value:"full",label:RED._("debug/debug:debug.msgobj"),hasValue:false}]});
             if (this.complete === "true" || this.complete === true) {
                 // show complete message object
                 $("#node-input-typed-complete").typedInput('type','full');

@@ -549,7 +549,7 @@
                                 {
                                     id: "create-variable-dialog-set",
                                     class: "primary",
-                                    text: RED._("variable/variable-in.hni:variable-in.label.create"),
+                                    text: RED._("basic-logic/variable-switch:variable-switch.label.create"),
                                     click: function() {
                                         var variableName = $("#create-variable-name").val().trim();
                                         var variableValueType = $("#create-variable-valueType").val();
@@ -582,8 +582,8 @@
                             open: function(e) {
                                 $(this).parent().find(".ui-dialog-titlebar-close").hide();
 
-                                $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
-                                $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+                                $("#create-variable-dialog-label-name").text(RED._("basic-logic/variable-switch:variable-switch.label.name") + ":");
+                                $("#create-variable-dialog-label-type").text(RED._("basic-logic/variable-switch:variable-switch.label.typeandvalue") + ":");
 
                                 $("#create-variable-value").typedInput({
                                     default: 'int',
@@ -602,7 +602,7 @@
                                 else if(variableType == "global") updateGlobalVariableOptions();
                             }
                         });
-                    createVariableDialog.dialog("option", "title", RED._("variable/variable-in.hni:variable-in.label.createvariable")).dialog("open");
+                    createVariableDialog.dialog("option", "title", RED._("basic-logic/variable-switch:variable-switch.label.createvariable")).dialog("open");
                 });
             //}}}
 
