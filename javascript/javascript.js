@@ -14,24 +14,24 @@
  * limitations under the License.
  **/
 
-module.exports = function(RED) {
+module.exports = function (RED) {
     "use strict";
     var util = require("util");
     var vm = require("vm");
 
-    function sendResults(node,send,_msgid,msgs,cloneFirstMessage) {
+    function sendResults(node, send, _msgid, msgs, cloneFirstMessage) {
         if (msgs == null) {
             return;
         } else if (!util.isArray(msgs)) {
             msgs = [msgs];
         }
         var msgCount = 0;
-        for (var m=0; m<msgs.length; m++) {
+        for (var m = 0; m < msgs.length; m++) {
             if (msgs[m]) {
                 if (!util.isArray(msgs[m])) {
                     msgs[m] = [msgs[m]];
                 }
-                for (var n=0; n < msgs[m].length; n++) {
+                for (var n = 0; n < msgs[m].length; n++) {
                     var msg = msgs[m][n];
                     if (msg !== null && msg !== undefined) {
                         if (typeof msg === 'object' && !Buffer.isBuffer(msg) && !util.isArray(msg)) {
@@ -44,22 +44,22 @@ module.exports = function(RED) {
                         } else {
                             var type = typeof msg;
                             if (type === 'object') {
-                                type = Buffer.isBuffer(msg)?'Buffer':(util.isArray(msg)?'Array':'Date');
+                                type = Buffer.isBuffer(msg) ? 'Buffer' : (util.isArray(msg) ? 'Array' : 'Date');
                             }
-                            node.error(RED._("javascript.error.non-message-returned",{ type: type }));
+                            node.error(RED._("javascript.error.non-message-returned", {type: type}));
                         }
                     }
                 }
             }
         }
-        if (msgCount>0) {
+        if (msgCount > 0) {
             send(msgs);
         }
     }
 
     function createVMOpt(node, kind) {
         var opt = {
-            filename: 'JavaScript node'+kind+':'+node.id+(node.name?' ['+node.name+']':''), // filename for stack traces
+            filename: 'JavaScript node' + kind + ':' + node.id + (node.name ? ' [' + node.name + ']' : ''), // filename for stack traces
             displayErrors: true
             // Using the following options causes node 4/6 to not include the line number
             // in the stack output. So don't use them.
@@ -74,7 +74,7 @@ module.exports = function(RED) {
             var stack = err.stack.toString();
             var m = /^([^:]+):([^:]+):(\d+).*/.exec(stack);
             if (m) {
-                var line = parseInt(m[3]) -1;
+                var line = parseInt(m[3]) - 1;
                 var kind = "body:";
                 if (/setup/.exec(m[1])) {
                     kind = "setup:";
@@ -82,13 +82,13 @@ module.exports = function(RED) {
                 if (/cleanup/.exec(m[1])) {
                     kind = "cleanup:";
                 }
-                err.message += " ("+kind+"line "+line+")";
+                err.message += " (" + kind + "line " + line + ")";
             }
         }
     }
 
     function FunctionNode(n) {
-        RED.nodes.createNode(this,n);
+        RED.nodes.createNode(this, n);
         var node = this;
         node.name = n.name;
         node.func = n.func;
@@ -104,24 +104,24 @@ module.exports = function(RED) {
             handleNodeDoneCall = false;
         }
 
-        var functionText = "var results = null;"+
-                           "results = (async function(msg,__send__,__done__){ "+
-                              "var __msgid__ = msg._msgid;"+
-                              "var node = {"+
-                                 "id:__node__.id,"+
-                                 "name:__node__.name,"+
-                                 "log:__node__.log,"+
-                                 "error:__node__.error,"+
-                                 "warn:__node__.warn,"+
-                                 "debug:__node__.debug,"+
-                                 "trace:__node__.trace,"+
-                                 "on:__node__.on,"+
-                                 "status:__node__.status,"+
-                                 "send:function(msgs,cloneMsg){ __node__.send(__send__,__msgid__,msgs,cloneMsg);},"+
-                                 "done:__done__"+
-                              "};\n"+
-                              node.func+"\n"+
-                           "})(msg,__send__,__done__);";
+        var functionText = "var results = null;" +
+            "results = (async function(msg,__send__,__done__){ " +
+            "var __msgid__ = msg._msgid;" +
+            "var node = {" +
+            "id:__node__.id," +
+            "name:__node__.name," +
+            "log:__node__.log," +
+            "error:__node__.error," +
+            "warn:__node__.warn," +
+            "debug:__node__.debug," +
+            "trace:__node__.trace," +
+            "on:__node__.on," +
+            "status:__node__.status," +
+            "send:function(msgs,cloneMsg){ __node__.send(__send__,__msgid__,msgs,cloneMsg);}," +
+            "done:__done__" +
+            "};\n" +
+            node.func + "\n" +
+            "})(msg,__send__,__done__);";
         var finScript = null;
         var finOpt = null;
         node.topic = n.topic;
@@ -130,54 +130,101 @@ module.exports = function(RED) {
         node.clearStatus = false;
 
         var sandbox = {
-            console:console,
-            util:util,
-            Buffer:Buffer,
+            console: console,
+            util: util,
+            Buffer: Buffer,
             Date: Date,
             RED: {
                 util: RED.util
             },
             __node__: {
                 id: node.id,
+                z: node.z,
                 name: node.name,
-                log: function() {
+                log: function () {
                     node.log.apply(node, arguments);
                 },
-                error: function() {
+                error: function () {
                     node.error.apply(node, arguments);
                 },
-                warn: function() {
+                warn: function () {
                     node.warn.apply(node, arguments);
                 },
-                debug: function() {
+                debug: function () {
                     node.debug.apply(node, arguments);
                 },
-                trace: function() {
+                trace: function () {
                     node.trace.apply(node, arguments);
                 },
-                send: function(send, id, msgs, cloneMsg) {
+                send: function (send, id, msgs, cloneMsg) {
                     sendResults(node, send, id, msgs, cloneMsg);
                 },
-                on: function() {
+                on: function () {
                     if (arguments[0] === "input") {
                         throw new Error(RED._("javascript.error.inputListener"));
                     }
                     node.on.apply(node, arguments);
                 },
-                status: function() {
+                status: function () {
                     node.clearStatus = true;
                     node.status.apply(node, arguments);
                 }
             },
+            hg: node.homegear,
+            getNodeData: function (key) {
+                try {
+                    return node.homegear.invoke("getNodeData", [node.id, key]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+                return null;
+            },
+            getFlowData: function (key) {
+                try {
+                    return node.homegear.invoke("getFlowData", [node.z, key]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+                return null;
+            },
+            getGlobalData: function (key) {
+                try {
+                    return node.homegear.invoke("getGlobalData", [key]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+                return null;
+            },
+            setNodeData: function (key, value) {
+                try {
+                    node.homegear.invoke("setNodeData", [node.id, key, value]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+            },
+            setFlowData: function (key, value) {
+                try {
+                    node.homegear.invoke("setFlowData", [node.z, key, value]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+            },
+            setGlobalData: function (key, value) {
+                try {
+                    node.homegear.invoke("setGlobalData", [key, value]);
+                } catch (e) {
+                    node.warn.apply(node, [e]);
+                }
+            },
             context: {
-                set: function() {
-                    node.context().set.apply(node,arguments);
+                set: function () {
+                    node.context().set.apply(node, arguments);
                 },
-                get: function() {
-                    return node.context().get.apply(node,arguments);
+                get: function () {
+                    return node.context().get.apply(node, arguments);
                 },
-                keys: function() {
-                    return node.context().keys.apply(node,arguments);
+                keys: function () {
+                    return node.context().keys.apply(node, arguments);
                 },
                 get global() {
                     return node.context().global;
@@ -187,29 +234,29 @@ module.exports = function(RED) {
                 }
             },
             flow: {
-                set: function() {
-                    node.context().flow.set.apply(node,arguments);
+                set: function () {
+                    node.context().flow.set.apply(node, arguments);
                 },
-                get: function() {
-                    return node.context().flow.get.apply(node,arguments);
+                get: function () {
+                    return node.context().flow.get.apply(node, arguments);
                 },
-                keys: function() {
-                    return node.context().flow.keys.apply(node,arguments);
+                keys: function () {
+                    return node.context().flow.keys.apply(node, arguments);
                 }
             },
             global: {
-                set: function() {
-                    node.context().global.set.apply(node,arguments);
+                set: function () {
+                    node.context().global.set.apply(node, arguments);
                 },
-                get: function() {
-                    return node.context().global.get.apply(node,arguments);
+                get: function () {
+                    return node.context().global.get.apply(node, arguments);
                 },
-                keys: function() {
-                    return node.context().global.keys.apply(node,arguments);
+                keys: function () {
+                    return node.context().global.keys.apply(node, arguments);
                 }
             },
             env: {
-                get: function(envVar) {
+                get: function (envVar) {
                     var flow = node._flow;
                     return flow.getSetting(envVar);
                 }
@@ -217,51 +264,53 @@ module.exports = function(RED) {
             setTimeout: function () {
                 var func = arguments[0];
                 var timerId;
-                arguments[0] = function() {
+                arguments[0] = function () {
                     sandbox.clearTimeout(timerId);
                     try {
-                        func.apply(node,arguments);
-                    } catch(err) {
-                        node.error(err,{});
+                        func.apply(node, arguments);
+                    } catch (err) {
+                        node.error(err, {});
                     }
                 };
-                timerId = setTimeout.apply(node,arguments);
+                timerId = setTimeout.apply(node, arguments);
                 node.outstandingTimers.push(timerId);
                 return timerId;
             },
-            clearTimeout: function(id) {
+            clearTimeout: function (id) {
                 clearTimeout(id);
                 var index = node.outstandingTimers.indexOf(id);
                 if (index > -1) {
-                    node.outstandingTimers.splice(index,1);
+                    node.outstandingTimers.splice(index, 1);
                 }
             },
-            setInterval: function() {
+            setInterval: function () {
                 var func = arguments[0];
                 var timerId;
-                arguments[0] = function() {
+                arguments[0] = function () {
                     try {
-                        func.apply(node,arguments);
-                    } catch(err) {
-                        node.error(err,{});
+                        func.apply(node, arguments);
+                    } catch (err) {
+                        node.error(err, {});
                     }
                 };
-                timerId = setInterval.apply(node,arguments);
+                timerId = setInterval.apply(node, arguments);
                 node.outstandingIntervals.push(timerId);
                 return timerId;
             },
-            clearInterval: function(id) {
+            clearInterval: function (id) {
                 clearInterval(id);
                 var index = node.outstandingIntervals.indexOf(id);
                 if (index > -1) {
-                    node.outstandingIntervals.splice(index,1);
+                    node.outstandingIntervals.splice(index, 1);
                 }
             }
         };
         if (util.hasOwnProperty('promisify')) {
-            sandbox.setTimeout[util.promisify.custom] = function(after, value) {
-                return new Promise(function(resolve, reject) {
-                    sandbox.setTimeout(function(){ resolve(value); }, after);
+            sandbox.setTimeout[util.promisify.custom] = function (after, value) {
+                return new Promise(function (resolve, reject) {
+                    sandbox.setTimeout(function () {
+                        resolve(value);
+                    }, after);
                 });
             };
             sandbox.promisify = util.promisify;
@@ -286,20 +335,22 @@ module.exports = function(RED) {
                                 __node__.send(__send__, RED.util.generateId(), msgs, cloneMsg);
                             }
                         };
-                        `+ node.ini +`
+                        ` + node.ini + `
                     })(__initSend__);`;
                 iniOpt = createVMOpt(node, " setup");
                 iniScript = new vm.Script(iniText, iniOpt);
             }
             node.script = vm.createScript(functionText, createVMOpt(node, ""));
             if (node.fin && (node.fin !== "")) {
-                var finText = "(function () {\n"+node.fin +"\n})();";
+                var finText = "(function () {\n" + node.fin + "\n})();";
                 finOpt = createVMOpt(node, " cleanup");
                 finScript = new vm.Script(finText, finOpt);
             }
             var promise = Promise.resolve();
             if (iniScript) {
-                context.__initSend__ = function(msgs) { node.send(msgs); };
+                context.__initSend__ = function (msgs) {
+                    node.send(msgs);
+                };
                 promise = iniScript.runInContext(context, iniOpt);
             }
 
@@ -310,23 +361,23 @@ module.exports = function(RED) {
                 context.__done__ = done;
 
                 node.script.runInContext(context);
-                context.results.then(function(results) {
-                    sendResults(node,send,msg._msgid,results,false);
+                context.results.then(function (results) {
+                    sendResults(node, send, msg._msgid, results, false);
                     if (handleNodeDoneCall) {
                         done();
                     }
 
                     var duration = process.hrtime(start);
-                    var converted = Math.floor((duration[0] * 1e9 + duration[1])/10000)/100;
+                    var converted = Math.floor((duration[0] * 1e9 + duration[1]) / 10000) / 100;
                     node.metric("duration", msg, converted);
                     if (process.env.NODE_RED_FUNCTION_TIME) {
-                        node.status({fill:"yellow",shape:"dot",text:""+converted});
+                        node.status({fill: "yellow", shape: "dot", text: "" + converted});
                     }
                 }).catch(err => {
                     if ((typeof err === "object") && err.hasOwnProperty("stack")) {
                         //remove unwanted part
                         var index = err.stack.search(/\n\s*at ContextifyScript.Script.runInContext/);
-                        err.stack = err.stack.slice(0, index).split('\n').slice(0,-1).join('\n');
+                        err.stack = err.stack.slice(0, index).split('\n').slice(0, -1).join('\n');
                         var stack = err.stack.split(/\r?\n/);
 
                         //store the error in msg to be used in flows
@@ -341,11 +392,11 @@ module.exports = function(RED) {
 
                             if (line < stack.length) {
                                 errorMessage = stack[line];
-                                var m = /:(\d+):(\d+)$/.exec(stack[line+1]);
+                                var m = /:(\d+):(\d+)$/.exec(stack[line + 1]);
                                 if (m) {
-                                    var lineno = Number(m[1])-1;
+                                    var lineno = Number(m[1]) - 1;
                                     var cha = m[2];
-                                    errorMessage += " (line "+lineno+", col "+cha+")";
+                                    errorMessage += " (line " + lineno + ", col " + cha + ")";
                                 }
                             }
                         }
@@ -353,11 +404,9 @@ module.exports = function(RED) {
                             errorMessage = err.toString();
                         }
                         done(errorMessage);
-                    }
-                    else if (typeof err === "string") {
+                    } else if (typeof err === "string") {
                         done(err);
-                    }
-                    else {
+                    } else {
                         done(JSON.stringify(err));
                     }
                 });
@@ -369,20 +418,18 @@ module.exports = function(RED) {
             var state = RESOLVING;
             var messages = [];
 
-            node.on("input", function(msg,send,done) {
-                if(state === RESOLVING) {
-                    messages.push({msg:msg, send:send, done:done});
-                }
-                else if(state === RESOLVED) {
+            node.on("input", function (msg, send, done) {
+                if (state === RESOLVING) {
+                    messages.push({msg: msg, send: send, done: done});
+                } else if (state === RESOLVED) {
                     processMessage(msg, send, done);
                 }
             });
-            node.on("close", function() {
+            node.on("close", function () {
                 if (finScript) {
                     try {
                         finScript.runInContext(context, finOpt);
-                    }
-                    catch (err) {
+                    } catch (err) {
                         node.error(err);
                     }
                 }
@@ -414,15 +461,15 @@ module.exports = function(RED) {
                 node.error(error);
             });
 
-        }
-        catch(err) {
+        } catch (err) {
             // eg SyntaxError - which v8 doesn't include line number information
             // so we can't do better than this
             updateErrorInfo(err);
             node.error(err);
         }
     }
-    RED.nodes.registerType("javascript",FunctionNode);
+
+    RED.nodes.registerType("javascript", FunctionNode);
     RED.library.register("functions");
 };
 

@@ -42,7 +42,8 @@ enum class DataSource
 {
     flow,
     global,
-    environment
+    environment,
+    variable
 };
 
 template <typename string_type>
@@ -449,7 +450,7 @@ private:
             if (names.size() == 0) {
                 names.resize(1);
             }
-            if(names.at(0) == "flow" || names.at(0) == "global" || names.at(0) == "env") {
+            if(names.at(0) == "flow" || names.at(0) == "global" || names.at(0) == "env" || names.at(0) == "variable") {
             	for (const auto& item : items_) {
 					auto var = item;
 					var = var->get(names.at(0));
@@ -460,7 +461,8 @@ private:
 					DataSource dataSource;
 					if(names.at(0) == "global") dataSource = DataSource::global;
                     else if(names.at(0) == "flow") dataSource = DataSource::flow;
-                    else dataSource = DataSource::environment;
+                    else if(names.at(0) == "env") dataSource = DataSource::environment;
+                    else dataSource = DataSource::variable;
 
 					if(_addData) _addData(dataSource, names.at(1));
 				}
