@@ -91,6 +91,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, n);
         var node = this;
         node.name = n.name;
+        node.environment = n.env;
         node.func = n.func;
         node.ini = n.initialize ? n.initialize.trim() : "";
         node.fin = n.finalize ? n.finalize.trim() : "";
@@ -257,8 +258,7 @@ module.exports = function (RED) {
             },
             env: {
                 get: function (envVar) {
-                    var flow = node._flow;
-                    return flow.getSetting(envVar);
+                    return node.environment[envVar] || null;
                 }
             },
             setTimeout: function () {
