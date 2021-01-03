@@ -31,6 +31,8 @@ case $1 in
 		sed -i 's/"type":"link-out"/"type":"link out"/g' /var/lib/homegear/node-blue/data/flows.json > /dev/null 2>&1
 		chown -R homegear:homegear /var/lib/homegear/node-blue/nodes
 		chmod -R 750 /var/lib/homegear/node-blue/nodes
+		rm -f /var/lib/homegear/node-blue/nodes/javascript
+		rm -f /var/lib/homegear/node-blue/nodes/node-red-nodes/javascript/javascript #Remove wrong link
 		ln -s node-red-nodes/javascript /var/lib/homegear/node-blue/nodes/javascript
 		homegear -e mls > /dev/null 2>&1
 		if [ $? -eq 0 ]; then

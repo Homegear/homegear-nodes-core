@@ -257,7 +257,7 @@
 	        } else {
 	            $('<span class="debug-message-topic">'+
 	                (o.topic?topic+' : ':'')+
-	                (o.property?'$message[\''+property+'\']':'$message')+" : "+format+
+	                (o.property?'msg[\''+property+'\']':'msg')+" : "+format+
 	                '</span>').appendTo(metaRow);
 	        }
 	        if (format === 'Object' || /^array/.test(format) || format === 'boolean' || format === 'number' ) {

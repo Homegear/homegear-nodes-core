@@ -118,7 +118,8 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     if (_debTabHg) {
       Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
-      object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
+      object->structValue->emplace("z", std::make_shared<Flows::Variable>(_flowId));
+      object->structValue->emplace("name", std::make_shared<Flows::Variable>(_name));
       object->structValue->emplace("msg", myMessage);
 
       std::string format;
