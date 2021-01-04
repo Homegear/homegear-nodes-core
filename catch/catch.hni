@@ -12,9 +12,9 @@
         <label for="node-input-uncaught" style="width: auto" data-i18n="catch.label.uncaught"></label>
     </div>
     <div class="form-row node-input-global-row">
-            <input type="checkbox" id="node-input-global" style="display: inline-block; width: auto; vertical-align: top; margin-left: 30px; margin-right: 5px;">
-            <label for="node-input-global" style="width: auto" data-i18n="catch.label.global"></label>
-        </div>
+        <input type="checkbox" id="node-input-global" style="display: inline-block; width: auto; vertical-align: top; margin-left: 30px; margin-right: 5px;">
+        <label for="node-input-global" style="width: auto" data-i18n="catch.label.global"></label>
+    </div>
     <div class="form-row node-input-target-row">
         <button id="node-input-catch-target-select" class="red-ui-button" data-i18n="common.label.selectNodes"></button>
     </div>

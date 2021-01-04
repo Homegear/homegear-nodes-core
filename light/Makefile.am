@@ -6,7 +6,7 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/node-blue/nodes/light
 lib_LTLIBRARIES = light.la
-light_la_SOURCES = Factory.cpp MyNode.cpp
+light_la_SOURCES = Factory.cpp Light.cpp
 light_la_LDFLAGS =-module -avoid-version -shared
 light_ladir = $(libdir)
 light_la_DATA = package.json light.hni

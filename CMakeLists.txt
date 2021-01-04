@@ -82,8 +82,8 @@ set(SOURCE_FILES
         influxdb/MyNode.h
         light/Factory.cpp
         light/Factory.h
-        light/MyNode.cpp
-        light/MyNode.h
+        light/Light.cpp
+        light/Light.h
         link/link-in/Factory.cpp
         link/link-in/Factory.h
         link/link-in/MyNode.cpp

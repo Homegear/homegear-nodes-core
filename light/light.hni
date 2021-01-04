@@ -51,6 +51,10 @@
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-interval"><span data-i18n="light.label.interval"></span></label>
             <input style="width: 65%;" type="text" id="node-input-interval">
         </div>
+        <div class="form-row">
+            <input type="checkbox" id="node-input-onmaxvalue" style="display: inline-block; width: auto; vertical-align: top; margin-left: 30px; margin-right: 5px;">
+            <label for="node-input-onmaxvalue" style="width: auto" data-i18n="light.label.onmaxvalue"></label>
+        </div>
     </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="light.label.variabletype"></span></label>
@@ -107,6 +111,7 @@
             factor: {value:"0.03",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
             interval: {value:"100",validate: function(v) { if(this.lighttype == "switch" || this.lighttype == "dimmerstate") return true; else return $.isNumeric(v); }},
             twoinputs: {value:false},
+            onmaxvalue: {value:true},
             inputs: {value:1},
             name: {value:""}
         },

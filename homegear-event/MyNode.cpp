@@ -38,6 +38,19 @@ MyNode::~MyNode() = default;
 
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
+    auto settingsIterator = info->info->structValue->find("eventtype");
+    if (settingsIterator != info->info->structValue->end()) {
+      auto typeString = settingsIterator->second->stringValue;
+      if (typeString == "devicevariables") _eventType = EventTypes::kDeviceVariables;
+      else if (typeString == "metadata") _eventType = EventTypes::kMetadataVariables;
+      else if (typeString == "system") _eventType = EventTypes::kSystemVariables;
+      else if (typeString == "flowvariables") _eventType = EventTypes::kFlowVariables;
+      else if (typeString == "globalvariables") _eventType = EventTypes::kGlobalVariables;
+      else if (typeString == "variableprofileevents") _eventType = EventTypes::kVariableProfile;
+      else if (typeString == "uinotificationevents") _eventType = EventTypes::kUiNotification;
+      else if (typeString == "deviceevents") _eventType = EventTypes::kDevice;
+    }
+
     subscribeHomegearEvents();
 
     return true;
@@ -50,6 +63,15 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 void MyNode::homegearEvent(const std::string &type, const Flows::PArray &data) {
   try {
+    if (_eventType == EventTypes::kDeviceVariables && type != "deviceVariableEvent") return;
+    else if (_eventType == EventTypes::kMetadataVariables && type != "metadataVariableEvent") return;
+    else if (_eventType == EventTypes::kSystemVariables && type != "systemVariableEvent") return;
+    else if (_eventType == EventTypes::kFlowVariables && type != "flowVariableEvent") return;
+    else if (_eventType == EventTypes::kGlobalVariables && type != "globalVariableEvent") return;
+    else if (_eventType == EventTypes::kVariableProfile && type != "variableProfileStateChanged") return;
+    else if (_eventType == EventTypes::kUiNotification && type != "uiNotificationCreated" && type != "uiNotificationRemoved" && type != "uiNotificationAction") return;
+    else if (_eventType == EventTypes::kDevice && type != "newDevices" && type != "deleteDevices" && type != "updateDevice") return;
+
     auto payload = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
     payload->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
     payload->structValue->emplace("data", std::make_shared<Flows::Variable>(data));

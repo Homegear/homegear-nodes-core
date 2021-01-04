@@ -27,18 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#include "MyNode.h"
+#include "Light.h"
 
 #include <cmath>
 
-namespace MyNode {
+namespace Light {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+Light::Light(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
-MyNode::~MyNode() = default;
+Light::~Light() = default;
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool Light::init(const Flows::PNodeInfo &info) {
   try {
     std::string variableType = "device";
     auto settingsIterator = info->info->structValue->find("variabletype");
@@ -66,6 +66,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
     settingsIterator = info->info->structValue->find("twoinputs");
     if (settingsIterator != info->info->structValue->end()) _twoInputs = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("onmaxvalue");
+    if (settingsIterator != info->info->structValue->end()) _onMaxValue = settingsIterator->second->booleanValue;
 
     if (_lightType == LightType::dimmerState) {
       std::string offValue = "0";
@@ -121,7 +124,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _maxValue->floatValue = _maxValue->integerValue;
       }
 
-      _onValue = getNodeData("currentvalue");
+      if (!_onMaxValue) _onValue = getNodeData("currentvalue");
       if (!(*_onValue)) _onValue = _maxValue;
     } else {
       _onValue = std::make_shared<Flows::Variable>(true);
@@ -139,11 +142,11 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-void MyNode::stop() {
+void Light::stop() {
   _stopThread = true;
 }
 
-void MyNode::waitForStop() {
+void Light::waitForStop() {
   try {
     std::lock_guard<std::mutex> timerGuard(_timerMutex);
     if (_timerThread.joinable()) _timerThread.join();
@@ -156,7 +159,7 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::dim(bool up) {
+void Light::dim(bool up) {
   try {
     Flows::PArray parameters = std::make_shared<Flows::Array>();
     parameters->reserve(4);
@@ -190,8 +193,10 @@ void MyNode::dim(bool up) {
       if ((up && currentValue == _maxValue->floatValue) || (!up && currentValue == _minValue->floatValue)) break;
     }
 
-    setNodeData("currentvalue", startValue);
-    _onValue = startValue;
+    if (currentValue >= _minValue->floatValue) {
+      setNodeData("currentvalue", currentValue);
+      if (!_onMaxValue) _onValue = currentValue;
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -201,7 +206,7 @@ void MyNode::dim(bool up) {
   }
 }
 
-void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
     bool value = *(message->structValue->at("payload"));
 
@@ -211,7 +216,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       if (value) {
         if (_timerThread.joinable()) _timerThread.join();
         _stopThread = false;
-        _timerThread = std::thread(&MyNode::dim, this, index == 1);
+        _timerThread = std::thread(&Light::dim, this, index == 1);
       } else {
         if (_timerThread.joinable()) _timerThread.join();
       }

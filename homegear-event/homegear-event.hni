@@ -18,13 +18,28 @@
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
+    <div class="form-row">
+        <label style="width: 130px;" for="node-input-eventtype"><i class="fa fa-random"></i> <span data-i18n="homegear-event.label.type"></span></label>
+        <select type="text" id="node-input-eventtype" style="display: inline-block; width: 65%;">
+            <option value="all" data-i18n="homegear-event.label.all"></option>
+            <option value="devicevariables" data-i18n="homegear-event.label.devicevariables"></option>
+            <option value="metadata" data-i18n="homegear-event.label.metadata"></option>
+            <option value="system" data-i18n="homegear-event.label.systemvariables"></option>
+            <option value="flowvariables" data-i18n="homegear-event.label.flowvariables"></option>
+            <option value="globalvariables" data-i18n="homegear-event.label.globalvariables"></option>
+            <option value="variableprofileevents" data-i18n="homegear-event.label.variableprofileevents"></option>
+            <option value="uinotificationevents" data-i18n="homegear-event.label.uinotificationevents"></option>
+            <option value="deviceevents" data-i18n="homegear-event.label.deviceevents"></option>
+        </select>
+    </div>
 </script>
 <script type="text/javascript">
 	RED.nodes.registerType('homegear-event',{
         category: 'homegear',
         color:"#a6bbcf",
         defaults: {
-            name: {value:""}
+            name: {value:""},
+            eventtype: {value:"all"}
         },
         inputs:0,
         outputs:1,

@@ -33,9 +33,9 @@
 #include <homegear-node/INode.h>
 #include <thread>
 
-namespace MyNode {
+namespace Light {
 
-class MyNode : public Flows::INode {
+class Light : public Flows::INode {
  public:
   enum class LightType {
     switchState,
@@ -43,8 +43,8 @@ class MyNode : public Flows::INode {
     dimmer
   };
 
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  Light(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Light() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   void stop() override;
@@ -54,6 +54,7 @@ class MyNode : public Flows::INode {
   int32_t _channel = -1;
   std::string _variable;
   bool _twoInputs = false;
+  bool _onMaxValue = true;
   LightType _lightType = LightType::switchState;
   double _step = 1.0;
   double _factor = 0.0;

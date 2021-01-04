@@ -42,6 +42,19 @@ class MyNode : public Flows::INode {
   bool init(const Flows::PNodeInfo &info) override;
   void homegearEvent(const std::string &type, const Flows::PArray &data) override;
  private:
+  enum class EventTypes {
+    kAll,
+    kDeviceVariables,
+    kMetadataVariables,
+    kSystemVariables,
+    kFlowVariables,
+    kGlobalVariables,
+    kVariableProfile,
+    kUiNotification,
+    kDevice
+  };
+
+  EventTypes _eventType = EventTypes::kAll;
 };
 
 }
