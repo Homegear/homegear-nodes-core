@@ -88,6 +88,17 @@ public function executeCode(int $inputIndex, array $msg)
 	return NULL;
 }
 
+public function start() : bool
+{
+    $this->log(4, "In start()");
+    return true;
+}
+
+public function stop()
+{
+    $this->log(4, "In stop()");
+}
+
 public function input(array $nodeInfoLocal, int $inputIndex, array $msg)
 {
 	$this->nodeInfo = $nodeInfoLocal;

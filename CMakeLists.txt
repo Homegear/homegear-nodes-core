@@ -164,6 +164,10 @@ set(SOURCE_FILES
 		serial/serial-out/Factory.h
 		serial/serial-out/MyNode.cpp
 		serial/serial-out/MyNode.h
+		status/Factory.cpp
+		status/Factory.h
+		status/Status.cpp
+		status/Status.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp
