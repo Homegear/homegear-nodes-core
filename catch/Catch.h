@@ -27,45 +27,26 @@
  * files in the program, then also delete it here.
  */
 
-#include "Status.h"
+#ifndef MYNODE_H_
+#define MYNODE_H_
 
-namespace Status {
+#include <homegear-node/INode.h>
 
-Status::Status(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
-}
+#include <unordered_set>
 
-Status::~Status() = default;
+namespace Catch {
 
-bool Status::init(const Flows::PNodeInfo &info) {
-  try {
-    auto settingsIterator = info->info->structValue->find("scope");
-    if (settingsIterator != info->info->structValue->end()) {
-      for (auto &element : *settingsIterator->second->arrayValue) {
-        if (!element->stringValue.empty()) _scope.emplace(element->stringValue);
-      }
-    }
+class Catch : public Flows::INode {
+ public:
+  Catch(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Catch() override;
 
-    subscribeStatusEvents();
-
-    return true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  return false;
-}
-
-void Status::statusEvent(const std::string &nodeId, const Flows::PVariable &status) {
-  try {
-    if (_scope.empty() || _scope.find(nodeId) != _scope.end()) {
-      auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload", status);
-      output(0, message);
-    }
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-}
+  bool init(const Flows::PNodeInfo &info) override;
+  bool errorEvent(const std::string &nodeId, int32_t level, const Flows::PVariable &error) override;
+ private:
+  std::unordered_set<std::string> _scope;
+};
 
 }
+
+#endif

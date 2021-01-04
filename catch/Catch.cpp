@@ -27,16 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#include "Status.h"
+#include "Catch.h"
 
-namespace Status {
+namespace Catch {
 
-Status::Status(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+Catch::Catch(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
-Status::~Status() = default;
+Catch::~Catch() = default;
 
-bool Status::init(const Flows::PNodeInfo &info) {
+bool Catch::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("scope");
     if (settingsIterator != info->info->structValue->end()) {
@@ -45,7 +45,15 @@ bool Status::init(const Flows::PNodeInfo &info) {
       }
     }
 
-    subscribeStatusEvents();
+    bool global = false;
+    settingsIterator = info->info->structValue->find("global");
+    if (settingsIterator != info->info->structValue->end()) global = settingsIterator->second->booleanValue;
+
+    bool uncaught = false;
+    settingsIterator = info->info->structValue->find("uncaught");
+    if (settingsIterator != info->info->structValue->end()) uncaught = settingsIterator->second->booleanValue;
+
+    subscribeErrorEvents(global, !_scope.empty(), uncaught);
 
     return true;
   }
@@ -55,17 +63,22 @@ bool Status::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-void Status::statusEvent(const std::string &nodeId, const Flows::PVariable &status) {
+bool Catch::errorEvent(const std::string &nodeId, int32_t level, const Flows::PVariable &error) {
   try {
     if (_scope.empty() || _scope.find(nodeId) != _scope.end()) {
+      auto errorStruct = std::make_shared<Flows::Variable>();
+      *errorStruct = *error->structValue->at("error");
+      errorStruct->structValue->emplace("level", std::make_shared<Flows::Variable>(level));
       auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload", status);
+      message->structValue->emplace("payload", errorStruct);
       output(0, message);
+      return true;
     }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
   }
+  return false;
 }
 
 }

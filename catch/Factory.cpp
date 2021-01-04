@@ -27,45 +27,16 @@
  * files in the program, then also delete it here.
  */
 
-#include "Status.h"
+#include "Factory.h"
+#include "Catch.h"
+#include "../config.h"
 
-namespace Status {
-
-Status::Status(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
+{
+	return new Catch::Catch(path, type, frontendConnected);
 }
 
-Status::~Status() = default;
-
-bool Status::init(const Flows::PNodeInfo &info) {
-  try {
-    auto settingsIterator = info->info->structValue->find("scope");
-    if (settingsIterator != info->info->structValue->end()) {
-      for (auto &element : *settingsIterator->second->arrayValue) {
-        if (!element->stringValue.empty()) _scope.emplace(element->stringValue);
-      }
-    }
-
-    subscribeStatusEvents();
-
-    return true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  return false;
-}
-
-void Status::statusEvent(const std::string &nodeId, const Flows::PVariable &status) {
-  try {
-    if (_scope.empty() || _scope.find(nodeId) != _scope.end()) {
-      auto message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload", status);
-      output(0, message);
-    }
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-}
-
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
 }

@@ -10,6 +10,7 @@
     "scope": {
       "all": "all nodes",
       "selected": "selected nodes"
-    }
+    },
+    "paletteHelp": "<p>Report status messages from other nodes on the same tab.</p>"
   }
 }

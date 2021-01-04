@@ -1,38 +1,54 @@
 
-<script type="text/html" data-template-name="status">
+<script type="text/html" data-template-name="catch">
     <div class="form-row">
-        <label style="width: auto" for="node-input-scope" data-i18n="status.label.source"></label>
+        <label style="width: auto" for="node-input-scope" data-i18n="catch.label.source"></label>
         <select id="node-input-scope-select">
-            <option value="all" data-i18n="status.scope.all"></option>
-            <option value="target" data-i18n="status.scope.selected"></options>
+            <option value="all" data-i18n="catch.scope.all"></option>
+            <option value="target" data-i18n="catch.scope.selected"></options>
         </select>
     </div>
+    <div class="form-row node-input-uncaught-row">
+        <input type="checkbox" id="node-input-uncaught" style="display: inline-block; width: auto; vertical-align: top; margin-left: 30px; margin-right: 5px;">
+        <label for="node-input-uncaught" style="width: auto" data-i18n="catch.label.uncaught"></label>
+    </div>
+    <div class="form-row node-input-global-row">
+            <input type="checkbox" id="node-input-global" style="display: inline-block; width: auto; vertical-align: top; margin-left: 30px; margin-right: 5px;">
+            <label for="node-input-global" style="width: auto" data-i18n="catch.label.global"></label>
+        </div>
     <div class="form-row node-input-target-row">
-        <button id="node-input-status-target-select" class="red-ui-button" data-i18n="status.label.selectNodes"></button>
+        <button id="node-input-catch-target-select" class="red-ui-button" data-i18n="common.label.selectNodes"></button>
     </div>
     <div class="form-row node-input-target-row node-input-target-list-row" style="position: relative; min-height: 100px">
-        <div style="position: absolute; top: -30px; right: 0;"><input type="text" id="node-input-status-target-filter"></div>
-        <div id="node-input-status-target-container-div"></div>
+        <div style="position: absolute; top: -30px; right: 0;"><input type="text" id="node-input-catch-target-filter"></div>
+        <div id="node-input-catch-target-container-div"></div>
     </div>
+
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
 </script>
-
 <script type="text/javascript">
-    RED.nodes.registerType('status',{
+    RED.nodes.registerType('catch',{
         category: 'general',
-        color:"#94c1d0",
+        color:"#e49191",
         defaults: {
             name: {value:""},
-            scope: {value:null}
+            scope: {value:null},
+            uncaught: {value:false},
+            global: {value:false}
         },
         inputs:0,
         outputs:1,
-        icon: "status.svg",
+        icon: "alert.svg",
         label: function() {
-            return this.name||(this.scope?this._("status.statusNodes",{number:this.scope.length}):this._("status.status"));
+            if (this.name) {
+                return this.name;
+            }
+            if (this.scope) {
+                return this._("catch.catchNodes",{number:this.scope.length});
+            }
+            return this.uncaught?this._("catch.catchUncaught"):this._("catch.catch")
         },
         labelStyle: function() {
             return this.name?"node_label_italic":"";
@@ -40,6 +56,7 @@
         oneditprepare: function() {
             var node = this;
             var scope = node.scope || [];
+
             this._resize = function() {
                 var rows = $("#dialog-form>div:not(.node-input-target-list-row)");
                 var height = $("#dialog-form").height();
@@ -49,7 +66,7 @@
                 var editorRow = $("#dialog-form>div.node-input-target-list-row");
                 editorRow.css("height",height+"px");
             };
-            var search = $("#node-input-status-target-filter").searchBox({
+            var search = $("#node-input-catch-target-filter").searchBox({
                 style: "compact",
                 delay: 300,
                 change: function() {
@@ -65,8 +82,7 @@
                     }
                 }
             });
-
-            var dirList = $("#node-input-status-target-container-div").css({width: "100%", height: "100%"})
+            var dirList = $("#node-input-catch-target-container-div").css({width: "100%", height: "100%"})
                 .treeList({multi:true}).on("treelistitemmouseover", function(e, item) {
                     item.node.highlighted = true;
                     item.node.dirty = true;
@@ -116,7 +132,7 @@
             });
             dirList.treeList('data',items);
 
-            $("#node-input-status-target-select").on("click", function(e) {
+            $("#node-input-catch-target-select").on("click", function(e) {
                 e.preventDefault();
                 var preselected = dirList.treeList('selected').map(function(n) {return n.node.id});
                 RED.tray.hide();
@@ -150,8 +166,10 @@
                 var scope = $(this).val();
                 if (scope === "target") {
                     $(".node-input-target-row").show();
+                    $(".node-input-uncaught-row").hide();
                 } else {
                     $(".node-input-target-row").hide();
+                    $(".node-input-uncaught-row").show();
                 }
                 node._resize();
             });
@@ -167,7 +185,8 @@
             if (scope === 'all') {
                 this.scope = null;
             } else {
-                this.scope = $("#node-input-status-target-container-div").treeList('selected').map(function(i) { return i.node.id})
+                $("#node-input-uncaught").prop("checked",false);
+                this.scope = $("#node-input-catch-target-container-div").treeList('selected').map(function(i) { return i.node.id})
             }
         },
         oneditresize: function(size) {
