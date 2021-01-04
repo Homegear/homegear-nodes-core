@@ -194,8 +194,13 @@ void Light::dim(bool up) {
     }
 
     if (currentValue >= _minValue->floatValue) {
-      setNodeData("currentvalue", currentValue);
-      if (!_onMaxValue) _onValue = currentValue;
+      auto currentValue2 = std::make_shared<Flows::Variable>(startValue->type);
+      if (startValue->type == Flows::VariableType::tInteger) currentValue2->integerValue = std::lround(currentValue);
+      else if (startValue->type == Flows::VariableType::tInteger64) currentValue2->integerValue64 = std::lround(currentValue);
+      else currentValue2->floatValue = currentValue;
+
+      setNodeData("currentvalue", currentValue2);
+      if (!_onMaxValue) _onValue = currentValue2;
     }
   }
   catch (const std::exception &ex) {
