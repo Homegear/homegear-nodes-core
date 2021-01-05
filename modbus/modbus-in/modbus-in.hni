@@ -109,7 +109,7 @@
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     modbusTypeField.append($("<option></option>").val("DiscI").text("DiscI"));
                     var nameLabel = $('<span/>',{class:"node-input-register-name-label"}).text(" "+nameLabelText+" ").appendTo(row);
-                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"5",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
                     var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
