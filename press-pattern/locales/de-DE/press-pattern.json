@@ -6,7 +6,6 @@
       "outputs": "Ausgänge"
     },
     "paletteHelp": "<p>Erkennt Einzel-, Doppel-, Dreifach- oder langen Tastendruck.</p>",
-    "help": "<p>Erkennt Einzel-, Doppel-, Dreifach- oder langen Tastendruck.</p>",
     "input1Description": "<code>true</code> für das Drücken der Taste, <code>false</code> für das Loslassen der Taste.",
     "output1Description": "Langer Tastendruck.",
     "output2Description": "Einfacher kurzer Tastendruck.",

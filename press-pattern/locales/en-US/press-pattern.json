@@ -6,7 +6,6 @@
       "outputs": "Outputs"
     },
     "paletteHelp": "<p>Detects single, double, triple, ... or long presses.</p>",
-    "help": "<p>Detects single, double, triple, ... or long presses.</p>",
     "input1Description": "<code>true</code> for button down, <code>false</code> for button up.",
     "output1Description": "Long press.",
     "output2Description": "Single short press.",
