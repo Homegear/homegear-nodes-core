@@ -269,6 +269,10 @@ set(SOURCE_FILES
 		udp/udp-out/Factory.h
 		udp/udp-out/UdpOut.cpp
 		udp/udp-out/UdpOut.h
+		unit-test-helper/Factory.cpp
+		unit-test-helper/Factory.h
+		unit-test-helper/UnitTestHelper.cpp
+		unit-test-helper/UnitTestHelper.h
         variable/constant/Factory.cpp
         variable/constant/Factory.h
         variable/constant/MyNode.cpp

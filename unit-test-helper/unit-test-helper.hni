@@ -1,0 +1,36 @@
+<script type="text/html" data-template-name="unit-test-helper">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="unit-test-helper.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;" value="1">
+    </div>
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('unit-test-helper',{
+        category: 'general',
+        color:"#94c1d0",
+        defaults: {
+            name: {value:""},
+            inputs: {value:1}
+        },
+        inputs:1,
+        outputs:0,
+        icon: "status.svg",
+        label: function() {
+            return this.name || 'unit-test-helper';
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        },
+        oneditprepare: function() {
+            var that = this;
+            $( "#node-input-inputs" ).spinner({
+                min:1
+            });
+        }
+    });
+</script>
