@@ -232,6 +232,7 @@
                             variableSelect.append($("<option />").val(name).text(name));
                         });
                         variableSelect.val(node.variable);
+                        variableSelect.select2({ placeholder: 'Select an option' });
                         updateVariableInfo();
                     });
                 }

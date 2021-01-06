@@ -125,7 +125,7 @@ bool Light::init(const Flows::PNodeInfo &info) {
       }
 
       if (!_onMaxValue) _onValue = getNodeData("currentvalue");
-      if (!(*_onValue)) _onValue = _maxValue;
+      if (!_onValue || !(*_onValue)) _onValue = _maxValue;
     } else {
       _onValue = std::make_shared<Flows::Variable>(true);
       _offValue = std::make_shared<Flows::Variable>(false);
