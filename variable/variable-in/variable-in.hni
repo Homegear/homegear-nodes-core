@@ -5,33 +5,28 @@
     </div>
     <div class="form-row">
         <label style="width: 130px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="variable-in.label.variabletype"></span></label>
-        <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
-            <option value="device" data-i18n="variable-in.label.devicevariable"></option>
-            <option value="metadata" data-i18n="variable-in.label.metadata"></option>
-            <option value="system" data-i18n="variable-in.label.systemvariable"></option>
-            <option value="flow" data-i18n="variable-in.label.flowvariable"></option>
-            <option value="global" data-i18n="variable-in.label.globalvariable"></option>
+        <select type="text" id="node-input-variabletype" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-family"><i class="fa fa-id-badge"></i> <span data-i18n="variable-in.label.family"></span></label>
-        <select type="text" id="node-input-family" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-family" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-peerid-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable-in.label.peerid"></span></label>
-        <select type="text" id="node-input-peerid" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-peerid" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-channel-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable-in.label.channel"></span></label>
-        <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-channel" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-variable-container" class="hide">
         <div class="form-row">
             <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-in.label.variable"></span></label>
-            <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
+            <select type="text" id="node-input-variable" class="node-input-select2" style="display: inline-block; width: 65%;">
             </select>
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
@@ -43,16 +38,7 @@
     <div id="node-input-eventsource-container" class="hide">
         <div class="form-row">
             <label style="width: 130px;" for="node-input-eventsource"><i class="fa fa-random"></i> <span data-i18n="variable-in.label.eventsource"></span></label>
-            <select type="text" id="node-input-eventsource" style="display: inline-block; width: 65%;">
-                <option value="all" data-i18n="variable-in.label.all"></option>
-                <option value="device" data-i18n="variable-in.label.device"></option>
-                <option value="homegear" data-i18n="variable-in.label.homegear"></option>
-                <option value="nodeblue" data-i18n="variable-in.label.nodeblue"></option>
-                <option value="scriptengine" data-i18n="variable-in.label.scriptengine"></option>
-                <option value="profilemanager" data-i18n="variable-in.label.profilemanager"></option>
-                <option value="rpcclient" data-i18n="variable-in.label.rpcclient"></option>
-                <option value="ipcclient" data-i18n="variable-in.label.ipcclient"></option>
-                <option value="mqtt" data-i18n="variable-in.label.mqtt"></option>
+            <select type="text" id="node-input-eventsource" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
             </select>
         </div>
     </div>
@@ -128,6 +114,34 @@
             var devices = {};
             var currentDevice = {};
             var variables = {};
+
+            //{{{ Fill variable types - this needs to be done here so the label is loaded before initializing select2.
+            var variableTypeSelect = $("#node-input-variabletype");
+            variableTypeSelect.append($("<option />").val("device").text(RED._("variable/variable-in:variable-in.label.devicevariable")));
+            variableTypeSelect.append($("<option />").val("metadata").text(RED._("variable/variable-in:variable-in.label.metadata")));
+            variableTypeSelect.append($("<option />").val("system").text(RED._("variable/variable-in:variable-in.label.systemvariable")));
+            variableTypeSelect.append($("<option />").val("flow").text(RED._("variable/variable-in:variable-in.label.flowvariable")));
+            variableTypeSelect.append($("<option />").val("global").text(RED._("variable/variable-in:variable-in.label.globalvariable")));
+            variableTypeSelect.val(node.variabletype);
+            //}}}
+
+            //{{{ Fill event sources - this needs to be done here so the label is loaded before initializing select2.
+            var eventSourcesSelect = $("#node-input-eventsource");
+            eventSourcesSelect.append($("<option />").val("all").text(RED._("variable/variable-in:variable-in.label.all")));
+            eventSourcesSelect.append($("<option />").val("device").text(RED._("variable/variable-in:variable-in.label.device")));
+            eventSourcesSelect.append($("<option />").val("homegear").text(RED._("variable/variable-in:variable-in.label.homegear")));
+            eventSourcesSelect.append($("<option />").val("nodeblue").text(RED._("variable/variable-in:variable-in.label.nodeblue")));
+            eventSourcesSelect.append($("<option />").val("scriptengine").text(RED._("variable/variable-in:variable-in.label.scriptengine")));
+            eventSourcesSelect.append($("<option />").val("profilemanager").text(RED._("variable/variable-in:variable-in.label.profilemanager")));
+            eventSourcesSelect.append($("<option />").val("rpcclient").text(RED._("variable/variable-in:variable-in.label.rpcclient")));
+            eventSourcesSelect.append($("<option />").val("ipcclient").text(RED._("variable/variable-in:variable-in.label.ipcclient")));
+            eventSourcesSelect.append($("<option />").val("mqtt").text(RED._("variable/variable-in:variable-in.label.mqtt")));
+            eventSourcesSelect.val(node.eventsource);
+            //}}}
+
+            //Initialize select2
+            $('.node-input-select2').select2();
+            $('.node-input-select2-nosearch').select2({minimumResultsForSearch: Infinity});
 
             function getVariableType(variable)
             {
@@ -232,7 +246,6 @@
                             variableSelect.append($("<option />").val(name).text(name));
                         });
                         variableSelect.val(node.variable);
-                        variableSelect.select2({ placeholder: 'Select an option' });
                         updateVariableInfo();
                     });
                 }

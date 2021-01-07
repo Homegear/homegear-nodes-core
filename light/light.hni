@@ -5,10 +5,7 @@
     </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-lighttype"><i class="fa fa-random"></i> <span data-i18n="light.label.lighttype"></span></label>
-        <select type="text" id="node-input-lighttype" style="display: inline-block; width: 65%;">
-            <option value="switch" data-i18n="light.label.switch"></option>
-            <option value="dimmerstate" data-i18n="light.label.dimmerstate"></option>
-            <option value="dimmer" data-i18n="light.label.dimmer"></option>
+        <select type="text" id="node-input-lighttype" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-twoinputs-container" class="form-row hide">
@@ -58,31 +55,28 @@
     </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="light.label.variabletype"></span></label>
-        <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
-            <option value="device" data-i18n="light.label.devicevariable"></option>
-            <option value="metadata" data-i18n="light.label.metadata"></option>
-            <option value="system" data-i18n="light.label.systemvariable"></option>
+        <select type="text" id="node-input-variabletype" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-family"><i class="fa fa-id-badge"></i> <span data-i18n="light.label.family"></span></label>
-        <select type="text" id="node-input-family" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-family" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-peerid-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="light.label.peerid"></span></label>
-        <select type="text" id="node-input-peerid" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-peerid" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-channel-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="light.label.channel"></span></label>
-        <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-channel" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-variable-container" clsee="hide">
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="light.label.variable"></span></label>
-            <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
+            <select type="text" id="node-input-variable" class="node-input-select2" style="display: inline-block; width: 65%;">
             </select>
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
@@ -138,10 +132,30 @@
             return "light";
         },
         oneditprepare: function() {
-            var that = this;
+            var node = this;
             var devices = {};
             var currentDevice = {};
             var variables = {};
+
+            //{{{ Fill light type - this needs to be done here so the label is loaded before initializing select2.
+            var lightTypeSelect = $("#node-input-lighttype");
+            lightTypeSelect.append($("<option />").val("switch").text(RED._("light/light:light.label.switch")));
+            lightTypeSelect.append($("<option />").val("dimmerstate").text(RED._("light/light:light.label.dimmerstate")));
+            lightTypeSelect.append($("<option />").val("dimmer").text(RED._("light/light:light.label.dimmer")));
+            lightTypeSelect.val(node.variabletype);
+            //}}}
+
+            //{{{ Fill variable types - this needs to be done here so the label is loaded before initializing select2.
+            var variableTypeSelect = $("#node-input-variabletype");
+            variableTypeSelect.append($("<option />").val("device").text(RED._("light/light:light.label.devicevariable")));
+            variableTypeSelect.append($("<option />").val("metadata").text(RED._("light/light:light.label.metadata")));
+            variableTypeSelect.append($("<option />").val("system").text(RED._("light/light:light.label.systemvariable")));
+            variableTypeSelect.val(node.variabletype);
+            //}}}
+
+            //Initialize select2
+            $('.node-input-select2').select2();
+            $('.node-input-select2-nosearch').select2({minimumResultsForSearch: Infinity});
 
             function getVariableType(variable)
             {
@@ -208,7 +222,7 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
                     });
                 }
@@ -229,7 +243,7 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
                     }, currentPeerId);
                 }
@@ -271,7 +285,7 @@
                     $.each(message.result, function() {
                         familySelect.append($("<option />").val(this.ID).text(this.NAME));
                     });
-                    familySelect.val(that.family);
+                    familySelect.val(node.family);
                 });
             //}}}
 
@@ -300,7 +314,7 @@
                                 if(this.DESCRIPTION) variables[this.ID].label = this.DESCRIPTION;
                                 variableSelect.append($("<option />").val(this.ID).text(this.ID));
                             });
-                            variableSelect.val(that.variable);
+                            variableSelect.val(node.variable);
                             updateVariableInfo();
                         }, currentPeerId, currentChannel, "VALUES");
                     }
@@ -318,16 +332,16 @@
 
             //{{{ Channels
                 function updateName() {
-                    that.peername = null;
+                    node.peername = null;
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var currentChannel = parseInt($("#node-input-channel").val());
                     if(currentPeerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
                         RED.comms.homegear().invoke("getName", function(message) {
                             if(message.result !== "") {
-                                that.peername = message.result;
+                                node.peername = message.result;
                             } else {
                                 RED.comms.homegear().invoke("getName", function(message) {
-                                    if(message.result !== "") that.peername = message.result;
+                                    if(message.result !== "") node.peername = message.result;
                                 }, currentPeerId);
                             }
                         }, currentPeerId, currentChannel);
@@ -358,7 +372,7 @@
                                         $.each(currentDevice, function() {
                                             channelSelect.append($("<option />").val(this.channel).text(this.channel + (this.type ? " (" + this.type + ")" : "")));
                                         });
-                                        channelSelect.val(that.channel);
+                                        channelSelect.val(node.channel);
                                         if(channelSelect.val()) channelSelect.removeClass("input-error");
                                         updateVariableOptions();
                                         updateName();
@@ -390,7 +404,7 @@
                     $.each(devices, function() {
                        if(this.family == currentFamily) peerSelect.append($("<option />").val(this.id).text(this.id + (this.name ? " (" + this.name + ")" : (this.type ? " (" + this.type + ")" : "")))); 
                     });
-                    peerSelect.val(that.peerid);
+                    peerSelect.val(node.peerid);
                     if(peerSelect.val()) peerSelect.removeClass("input-error");
                     if (variableType == "device") {
                         updateChannelOptions();

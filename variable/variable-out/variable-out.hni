@@ -5,33 +5,28 @@
     </div>
     <div class="form-row">
         <label style="width: 110px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="variable-out.label.variabletype"></span></label>
-        <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
-            <option value="device" data-i18n="variable-out.label.devicevariable"></option>
-            <option value="metadata" data-i18n="variable-out.label.metadata"></option>
-            <option value="system" data-i18n="variable-out.label.systemvariable"></option>
-            <option value="flow" data-i18n="variable-out.label.flowvariable"></option>
-            <option value="global" data-i18n="variable-out.label.globalvariable"></option>
+        <select type="text" id="node-input-variabletype" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-family"><i class="fa fa-id-badge"></i> <span data-i18n="variable-out.label.family"></span></label>
-        <select type="text" id="node-input-family" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-family" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-peerid-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable-out.label.peerid"></span></label>
-        <select type="text" id="node-input-peerid" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-peerid" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-channel-container" class="form-row hide">
         <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable-out.label.channel"></span></label>
-        <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-channel" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-variable-container" clsee="hide">
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-out.label.variable"></span></label>
-            <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
+            <select type="text" id="node-input-variable" class="node-input-select2" style="display: inline-block; width: 65%;">
             </select>
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
@@ -81,10 +76,24 @@
             return "variable-out";
         },
         oneditprepare: function() {
-            var that = this;
+            var node = this;
             var devices = {};
             var currentDevice = {};
             var variables = {};
+
+            //{{{ Fill variable types - this needs to be done here so the label is loaded before initializing select2.
+            var variableTypeSelect = $("#node-input-variabletype");
+            variableTypeSelect.append($("<option />").val("device").text(RED._("variable/variable-out:variable-out.label.devicevariable")));
+            variableTypeSelect.append($("<option />").val("metadata").text(RED._("variable/variable-out:variable-out.label.metadata")));
+            variableTypeSelect.append($("<option />").val("system").text(RED._("variable/variable-out:variable-out.label.systemvariable")));
+            variableTypeSelect.append($("<option />").val("flow").text(RED._("variable/variable-out:variable-out.label.flowvariable")));
+            variableTypeSelect.append($("<option />").val("global").text(RED._("variable/variable-out:variable-out.label.globalvariable")));
+            variableTypeSelect.val(node.variabletype);
+            //}}}
+
+            //Initialize select2
+            $('.node-input-select2').select2();
+            $('.node-input-select2-nosearch').select2({minimumResultsForSearch: Infinity});
 
             function getVariableType(variable)
             {
@@ -108,7 +117,7 @@
                         var text = $('<div/>').text(JSON.stringify(message.result)).html();
                         if(text.length > 40) text = text.substring(0, 40) + "...";
                         $("#node-variable-value-cell").text(text);
-                    }, that.z, currentVariable);
+                    }, node.z, currentVariable);
                 } else if(variableType == "global") {
                     RED.comms.homegear().invoke("getGlobalData", function(message) {
                         if(!message.hasOwnProperty("result")) return;
@@ -188,7 +197,7 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
                     });
                 }
@@ -208,9 +217,9 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
-                    }, that.z);
+                    }, node.z);
                 }
             //}}}
 
@@ -228,7 +237,7 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
                     });
                 }
@@ -249,7 +258,7 @@
                             variables[name].type = getVariableType(value);
                             variableSelect.append($("<option />").val(name).text(name));
                         });
-                        variableSelect.val(that.variable);
+                        variableSelect.val(node.variable);
                         updateVariableInfo();
                     }, currentPeerId);
                 }
@@ -296,7 +305,7 @@
                     $.each(message.result, function() {
                         familySelect.append($("<option />").val(this.ID).text(this.NAME));
                     });
-                    familySelect.val(that.family);
+                    familySelect.val(node.family);
                 });
             //}}}
 
@@ -325,7 +334,7 @@
                                 if(this.DESCRIPTION) variables[this.ID].label = this.DESCRIPTION;
                                 variableSelect.append($("<option />").val(this.ID).text(this.ID));
                             });
-                            variableSelect.val(that.variable);
+                            variableSelect.val(node.variable);
                             updateVariableInfo();
                         }, currentPeerId, currentChannel, "VALUES");
                     }
@@ -343,16 +352,16 @@
 
             //{{{ Channels
                 function updateName() {
-                    that.peername = null;
+                    node.peername = null;
                     var currentPeerId = parseInt($("#node-input-peerid").val());
                     var currentChannel = parseInt($("#node-input-channel").val());
                     if(currentPeerId != 0 && (currentChannel === 0 || currentChannel >= 1)) {
                         RED.comms.homegear().invoke("getName", function(message) {
                             if(message.result !== "") {
-                                that.peername = message.result;
+                                node.peername = message.result;
                             } else {
                                 RED.comms.homegear().invoke("getName", function(message) {
-                                    if(message.result !== "") that.peername = message.result;
+                                    if(message.result !== "") node.peername = message.result;
                                 }, currentPeerId);
                             }
                         }, currentPeerId, currentChannel);
@@ -383,7 +392,7 @@
                                         $.each(currentDevice, function() {
                                             channelSelect.append($("<option />").val(this.channel).text(this.channel + (this.type ? " (" + this.type + ")" : "")));
                                         });
-                                        channelSelect.val(that.channel);
+                                        channelSelect.val(node.channel);
                                         if(channelSelect.val()) channelSelect.removeClass("input-error");
                                         updateVariableOptions();
                                         updateName();
@@ -415,7 +424,7 @@
                     $.each(devices, function() {
                        if(this.family == currentFamily) peerSelect.append($("<option />").val(this.id).text(this.id + (this.name ? " (" + this.name + ")" : (this.type ? " (" + this.type + ")" : "")))); 
                     });
-                    peerSelect.val(that.peerid);
+                    peerSelect.val(node.peerid);
                     if(peerSelect.val()) peerSelect.removeClass("input-error");
                     if (variableType == "device") {
                         updateChannelOptions();
@@ -488,10 +497,10 @@
                                     else if(variableType == "metadata") {
                                         if(peerId == 0) return false;
                                         RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setMetadata", "id": ' + counter + ', "params": [' + JSON.stringify(peerId) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
-                                    } else if(variableType == "flow") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setFlowData", "id": ' + counter + ', "params": [' + JSON.stringify(that.z) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
+                                    } else if(variableType == "flow") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setFlowData", "id": ' + counter + ', "params": [' + JSON.stringify(node.z) + ', ' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
                                     else if(variableType == "global") RED.comms.homegear().invokeRaw('{"jsonrpc": "2.0", "method": "setGlobalData", "id": ' + counter + ', "params": [' + JSON.stringify(variableName) + ', ' + variableValue + ']}', counter);
 
-                                    that.variable = variableName;
+                                    node.variable = variableName;
 
                                     $( this ).dialog( "close" );
                                 }
