@@ -142,7 +142,7 @@
             lightTypeSelect.append($("<option />").val("switch").text(RED._("light/light:light.label.switch")));
             lightTypeSelect.append($("<option />").val("dimmerstate").text(RED._("light/light:light.label.dimmerstate")));
             lightTypeSelect.append($("<option />").val("dimmer").text(RED._("light/light:light.label.dimmer")));
-            lightTypeSelect.val(node.variabletype);
+            lightTypeSelect.val(node.lighttype);
             //}}}
 
             //{{{ Fill variable types - this needs to be done here so the label is loaded before initializing select2.
