@@ -16,8 +16,16 @@ udp_out_la_LDFLAGS =-module -avoid-version -shared
 
 udp_ladir = $(libdir)
 udp_la_DATA = package.json udp-in/udp-in.hni udp-out/udp-out.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/udp.json
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/udp.json
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/udp.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/udp.json
 

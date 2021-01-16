@@ -10,7 +10,12 @@ status_la_SOURCES = Factory.cpp Status.cpp
 status_la_LDFLAGS =-module -avoid-version -shared
 status_ladir = $(libdir)
 status_la_DATA = package.json status.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/status.json locales/en-US/status.help.html
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/status.json locales/en-US/status.help.html
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/status.la

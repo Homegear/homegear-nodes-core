@@ -16,8 +16,16 @@ link_out_la_LDFLAGS =-module -avoid-version -shared
 
 link_ladir = $(libdir)
 link_la_DATA = package.json link.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/link.json
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/link.json
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/link.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/link.json
 

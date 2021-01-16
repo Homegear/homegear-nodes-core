@@ -10,7 +10,12 @@ unit_test_helper_la_SOURCES = Factory.cpp UnitTestHelper.cpp
 unit_test_helper_la_LDFLAGS =-module -avoid-version -shared
 unit_test_helper_ladir = $(libdir)
 unit_test_helper_la_DATA = package.json unit-test-helper.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/unit-test-helper.json locales/en-US/unit-test-helper.help.html
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/unit-test-helper.json locales/en-US/unit-test-helper.help.html
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/unit-test-helper.la

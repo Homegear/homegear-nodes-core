@@ -49,8 +49,16 @@ weekly_program_la_LDFLAGS =-module -avoid-version -shared
 
 timers_ladir = $(libdir)
 timers_la_DATA = package.json clock/clock.hni delay/delay.hni impulse/impulse.hni interval/interval.hni off-delay/off-delay.hni on-delay/on-delay.hni ramp-to/ramp-to.hni rate-limiter/rate-limiter.hni timer/timer.hni timer2/timer2.hni slow-pwm/slow-pwm.hni sun-position/sun-position.hni weekly-program/weekly-program.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/timers.json
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/timers.json
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/timers.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/timers.json
 

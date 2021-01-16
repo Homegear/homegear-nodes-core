@@ -10,9 +10,18 @@ homegear_event_la_SOURCES = Factory.cpp MyNode.cpp
 homegear_event_la_LDFLAGS =-module -avoid-version -shared
 homegear_event_ladir = $(libdir)
 homegear_event_la_DATA = package.json homegear-event.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/homegear-event.json
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/homegear-event.json
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/homegear-event.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/homegear-event.json
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/homegear-event.la

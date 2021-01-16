@@ -58,6 +58,7 @@ class Light : public Flows::INode {
   LightType _lightType = LightType::switchState;
   double _step = 1.0;
   double _factor = 0.0;
+  Flows::PVariable _currentValue;
   int32_t _interval = 0;
 
   std::mutex _timerMutex;

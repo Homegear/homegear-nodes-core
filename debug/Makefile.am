@@ -10,9 +10,18 @@ debug_la_SOURCES = Factory.cpp MyNode.cpp
 debug_la_LDFLAGS =-module -avoid-version -shared
 debug_ladir = $(libdir)
 debug_la_DATA = package.json debug.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/debug.json
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/debug.json
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/debug.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/debug.json
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/debug.la

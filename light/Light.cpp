@@ -167,6 +167,10 @@ void Light::dim(bool up) {
     parameters->push_back(std::make_shared<Flows::Variable>(_channel));
     parameters->push_back(std::make_shared<Flows::Variable>(_variable));
     Flows::PVariable startValue = invoke("getValue", parameters);
+    if (startValue->errorStruct) {
+      _out->printWarning("For the light node to work correctly the selected device variable should be readable.");
+      if (_currentValue) startValue = _currentValue;
+    }
 
     double currentValue = NAN;
     if (startValue->type == Flows::VariableType::tInteger) currentValue = startValue->integerValue;
@@ -193,21 +197,18 @@ void Light::dim(bool up) {
       if ((up && currentValue == _maxValue->floatValue) || (!up && currentValue == _minValue->floatValue)) break;
     }
 
+    auto currentValue2 = std::make_shared<Flows::Variable>(startValue->type);
+    if (startValue->type == Flows::VariableType::tInteger) currentValue2->integerValue = std::lround(currentValue);
+    else if (startValue->type == Flows::VariableType::tInteger64) currentValue2->integerValue64 = std::lround(currentValue);
+    else currentValue2->floatValue = currentValue;
+    _currentValue = currentValue2;
     if (currentValue >= _minValue->floatValue) {
-      auto currentValue2 = std::make_shared<Flows::Variable>(startValue->type);
-      if (startValue->type == Flows::VariableType::tInteger) currentValue2->integerValue = std::lround(currentValue);
-      else if (startValue->type == Flows::VariableType::tInteger64) currentValue2->integerValue64 = std::lround(currentValue);
-      else currentValue2->floatValue = currentValue;
-
       setNodeData("currentvalue", currentValue2);
       if (!_onMaxValue) _onValue = currentValue2;
     }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
 }
 

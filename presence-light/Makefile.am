@@ -10,9 +10,18 @@ presence_light_la_SOURCES = Factory.cpp PresenceLight.cpp
 presence_light_la_LDFLAGS =-module -avoid-version -shared
 presence_light_ladir = $(libdir)
 presence_light_la_DATA = package.json presence-light.hni
+
+locale_endir = $(libdir)/locales/en-US
+locale_en_DATA = locales/en-US/presence-light.json locales/en-US/presence-light.help.html
+
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/presence-light.json locales/en-US/presence-light.help.html
+
+locale_dedir = $(libdir)/locales/de-DE
+locale_de_DATA = locales/de-DE/presence-light.json locales/de-DE/presence-light.help.html
+
 locale_de_dedir = $(libdir)/locales/de-DE
 locale_de_de_DATA = locales/de-DE/presence-light.json locales/de-DE/presence-light.help.html
+
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/presence-light.la
