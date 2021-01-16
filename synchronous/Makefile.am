@@ -11,13 +11,13 @@ synchronous_la_LDFLAGS =-module -avoid-version -shared
 synchronous_ladir = $(libdir)
 synchronous_la_DATA = package.json synchronous.hni
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/synchronous.json
 
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/synchronous.json
 
-locale_dedir = $(libdir)/locales/de-DE
+locale_dedir = $(libdir)/locales/de
 locale_de_DATA = locales/de-DE/synchronous.json
 
 locale_de_dedir = $(libdir)/locales/de-DE

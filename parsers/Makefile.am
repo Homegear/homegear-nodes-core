@@ -18,13 +18,13 @@ xml_la_LDFLAGS =-module -avoid-version -shared
 parsers_ladir = $(libdir)
 parsers_la_DATA = package.json json/json.hni strip/strip.hni xml/xml.hni
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/parsers.json
 
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/parsers.json
 
-locale_dedir = $(libdir)/locales/de-DE
+locale_dedir = $(libdir)/locales/de
 locale_de_DATA = locales/de-DE/parsers.json
 
 locale_de_dedir = $(libdir)/locales/de-DE

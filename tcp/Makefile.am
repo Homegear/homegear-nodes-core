@@ -20,7 +20,7 @@ tcp_out_la_LDFLAGS =-module -avoid-version -shared
 tcp_ladir = $(libdir)
 tcp_la_DATA = tcp-socket/tcp-socket.hni tcp-in/tcp-in.hni tcp-out/tcp-out.hni
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/tcp.json
 
 locale_en_usdir = $(libdir)/locales/en-US

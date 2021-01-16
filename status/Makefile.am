@@ -11,7 +11,7 @@ status_la_LDFLAGS =-module -avoid-version -shared
 status_ladir = $(libdir)
 status_la_DATA = package.json status.hni
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/status.json locales/en-US/status.help.html
 
 locale_en_usdir = $(libdir)/locales/en-US

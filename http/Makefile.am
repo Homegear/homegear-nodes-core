@@ -23,13 +23,13 @@ http_request_la_LDFLAGS =-module -avoid-version -shared
 http_ladir = $(libdir)
 http_la_DATA = package.json http-server/http-server.hni http-in/http-in.hni http-response/http-response.hni http-request/http-request.hni
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/http.json
 
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/http.json
 
-locale_dedir = $(libdir)/locales/de-DE
+locale_dedir = $(libdir)/locales/de
 locale_de_DATA = locales/de-DE/http.json
 
 locale_de_dedir = $(libdir)/locales/de-DE

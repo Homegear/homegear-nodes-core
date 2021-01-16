@@ -43,13 +43,13 @@ vendor21_DATA = vendor-libs/psr/log/Psr/Log/Test/LoggerInterfaceTest.php
 notificationdir = $(libdir)
 notification_DATA = package.json xmpp.hni xmpp.php xmpp-server.hni xmpp-server.s.php
 
-locale_endir = $(libdir)/locales/en-US
+locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/notification.json
 
 locale_en_usdir = $(libdir)/locales/en-US
 locale_en_us_DATA = locales/en-US/notification.json
 
-locale_dedir = $(libdir)/locales/de-DE
+locale_dedir = $(libdir)/locales/de
 locale_de_DATA = locales/de-DE/notification.json
 
 locale_de_dedir = $(libdir)/locales/de-DE
