@@ -7,6 +7,6 @@
     },
     "input1Description": "The data to store in InfluxDB.",
     "paletteHelp": "<p>Writes data to InfluxDB.</p>",
-    "help": "This node can be used to write any data to InfluxDB. This only works if Homegear InfluxDB is up and running. The input can be of any type. Just make sure, the type doesn't change! You need to specify a unique measurement name under which all values are stored or pass the it to the node as <code>$payload['measurement']</code>. Only alpha-numeric characters including \"-\" and \"_\" are allowed (no space)."
+    "help": "This node can be used to write any data to InfluxDB. This only works if Homegear InfluxDB is up and running. The input can be of any type. Just make sure, the type doesn't change! You need to specify a unique measurement name under which all values are stored or pass it to the node as <code>$payload['measurement']</code>. Only alpha-numeric characters including \"-\" and \"_\" are allowed (no space)."
   }
 }

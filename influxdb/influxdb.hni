@@ -23,11 +23,10 @@
         	}
         ],
         outputs:0,
-        icon: "db.svg",
-        align: "right",
         label: function() {
-            if(this.name) return this.name;
-            return "influxdb";
-        }
+        	return this.name || this.measurement || "influxdb";
+        },
+        icon: "db.svg",
+        align: "right"
     });
 </script>

@@ -4,6 +4,7 @@
     "catchNodes": "catch: __number__",
     "catchUncaught": "catch: uncaught",
     "label": {
+      "selectNodes": "Select nodes...",
       "source": "Catch errors from",
       "selectAll": "select all",
       "uncaught": "Ignore errors handled by other Catch nodes",
