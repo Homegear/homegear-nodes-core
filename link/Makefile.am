@@ -11,7 +11,7 @@ lib_LTLIBRARIES = link-in.la link-out.la
 link_in_la_SOURCES = link-in/Factory.cpp link-in/MyNode.cpp
 link_in_la_LDFLAGS =-module -avoid-version -shared
 
-link_out_la_SOURCES = link-out/Factory.cpp link-out/MyNode.cpp
+link_out_la_SOURCES = link-out/Factory.cpp link-out/LinkOut.cpp
 link_out_la_LDFLAGS =-module -avoid-version -shared
 
 link_ladir = $(libdir)

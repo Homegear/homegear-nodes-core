@@ -34,20 +34,20 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode
-{
+namespace Link {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected);
-	~MyNode() override;
+class LinkOut : public Flows::INode {
+ public:
+  LinkOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~LinkOut() override;
 
-	bool init(const Flows::PNodeInfo &info) override;
-private:
-	std::vector<std::string> _links;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+ private:
+  std::atomic_bool _started{false};
+  std::vector<std::string> _links;
 
-	void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

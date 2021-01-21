@@ -90,8 +90,8 @@ set(SOURCE_FILES
         link/link-in/MyNode.h
         link/link-out/Factory.cpp
         link/link-out/Factory.h
-        link/link-out/MyNode.cpp
-        link/link-out/MyNode.h
+        link/link-out/LinkOut.cpp
+        link/link-out/LinkOut.h
         modbus/modbus-host/Factory.cpp
         modbus/modbus-host/Factory.h
         modbus/modbus-host/Modbus.cpp
