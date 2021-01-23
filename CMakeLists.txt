@@ -86,8 +86,8 @@ set(SOURCE_FILES
         light/Light.h
         link/link-in/Factory.cpp
         link/link-in/Factory.h
-        link/link-in/MyNode.cpp
-        link/link-in/MyNode.h
+		link/link-in/LinkIn.cpp
+		link/link-in/LinkIn.h
         link/link-out/Factory.cpp
         link/link-out/Factory.h
         link/link-out/LinkOut.cpp

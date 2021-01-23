@@ -27,45 +27,36 @@
  * files in the program, then also delete it here.
  */
 
-#include "MyNode.h"
+#include "LinkIn.h"
 
-namespace MyNode
-{
+namespace Link {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, type, frontendConnected)
-{
-	_localRpcMethods.emplace("linkInput", std::bind(&MyNode::linkInput, this, std::placeholders::_1));
+LinkIn::LinkIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+  _localRpcMethods.emplace("linkInput", std::bind(&LinkIn::linkInput, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode() = default;
+LinkIn::~LinkIn() = default;
 
-
-bool MyNode::init(const Flows::PNodeInfo &info)
-{
+bool LinkIn::init(const Flows::PNodeInfo &info) {
   return true;
 }
 
+Flows::PVariable LinkIn::linkInput(const Flows::PArray &parameters) {
+  try {
+    if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+    if (parameters->at(0)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter is not of type struct.");
 
-Flows::PVariable MyNode::linkInput(const Flows::PArray& parameters)
-{
-	try
-	{
-		if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-		if(parameters->at(0)->type != Flows::VariableType::tStruct) return Flows::Variable::createError(-1, "Parameter is not of type struct.");
+    output(0, parameters->at(0));
 
-		output(0, parameters->at(0));
-
-		return std::make_shared<Flows::Variable>();
-	}
-	catch(const std::exception& ex)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-	}
-	catch(...)
-	{
-		_out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-	}
-	return Flows::Variable::createError(-32500, "Unknown application error.");
+    return std::make_shared<Flows::Variable>();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
 }

@@ -18,7 +18,7 @@ mqtt_out_la_SOURCES = mqtt-out/Factory.cpp mqtt-out/MyNode.cpp
 mqtt_out_la_LDFLAGS =-module -avoid-version -shared
 
 mqtt_ladir = $(libdir)
-mqtt_la_DATA = package.json mqtt-broker/mqtt-broker.hni mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
+mqtt_la_DATA = package.json mqtt-broker/mqtt-broker.hni mqtt-broker/mqtt-broker.cred.json mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
 
 locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/mqtt.json

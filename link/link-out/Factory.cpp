@@ -30,12 +30,10 @@
 #include "Factory.h"
 #include "LinkOut.h"
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
-{
-	return new Link::LinkOut(path, type, frontendConnected);
+Flows::INode *MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) {
+  return new Link::LinkOut(path, type, frontendConnected);
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
+Flows::NodeFactory *getFactory() {
+  return (Flows::NodeFactory *)(new MyFactory);
 }

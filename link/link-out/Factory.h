@@ -33,12 +33,11 @@
 #include <homegear-node/NodeFactory.h>
 #include "LinkOut.h"
 
-class MyFactory : Flows::NodeFactory
-{
-public:
-	Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
+class MyFactory : Flows::NodeFactory {
+ public:
+  Flows::INode *createNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) override;
 };
 
-extern "C" Flows::NodeFactory* getFactory();
+extern "C" Flows::NodeFactory *getFactory();
 
 #endif

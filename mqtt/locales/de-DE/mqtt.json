@@ -6,6 +6,8 @@
       "qos": "QoS",
       "clientid": "Client ID",
       "port": "Port",
+      "username": "Benutzername",
+      "password": "Kennwort",
       "use-tls": "Sichere (SSL/TLS) Verbindung aktivieren",
       "tls-config": "TLS Konfiguration",
       "verify-server-cert": "Serverzertifikat überprüfen"

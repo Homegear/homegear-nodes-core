@@ -7,7 +7,6 @@
       "inputs": "Eingaben"
     },
     "paletteHelp": "<p>Dieser Knoten führt für alle Eingaben ein boolesches <code>und</code> aus.</p>",
-    "help": "<p>Dieser Knoten führt an allen Eingängen ein booleschee <code>und</code> aus.</p><p>Alle Zustände werden beim Neustart von Homegear gespeichert und wiederhergestellt.</p>",
     "input1Description": "Der erste boolesche Wert.",
     "input2Description": "Der zweite boolesche Wert.",
     "input3Description": "Der dritte boolesche Wert.",
