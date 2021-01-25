@@ -10,7 +10,8 @@
       "globalvariables": "Global variables",
       "variableprofileevents": "Variable profile events",
       "uinotificationevents": "UI notification events",
-      "deviceevents": "Device events"
+      "deviceevents": "Device events",
+      "rawpacketevents": "Raw packet events"
     },
     "paletteHelp": "Outputs all events transmitted from Homegear to Node-BLUE.",
     "help": "<p>This node outputs all events transmitted from Homegear to Node-BLUE. The output payload is of type <code>Struct</code> and has two keys: <code>type</code> and <code>data</code>. Possible values for <code>type</code> are: <code>deviceVariableEvent</code>, <code>flowVariableEvent</code>, <code>globalVariableEvent</code>, <code>newDevices</code>, <code>deleteDevices</code> and <code>updateDevice</code>. The value of <code>data</code> depends on <code>type</code>. It is always an <code>Array</code>.</p>"

@@ -51,7 +51,8 @@ class MyNode : public Flows::INode {
     kGlobalVariables,
     kVariableProfile,
     kUiNotification,
-    kDevice
+    kDevice,
+    kRawPacket
   };
 
   EventTypes _eventType = EventTypes::kAll;

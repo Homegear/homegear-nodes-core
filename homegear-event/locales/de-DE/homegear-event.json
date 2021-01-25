@@ -10,7 +10,8 @@
       "globalvariables": "Globale variablen",
       "variableprofileevents": "Variablenprofil-Ereignisse",
       "uinotificationevents": "UI-Benachrichtigungs-Ereignisse",
-      "deviceevents": "Geräteereignisse"
+      "deviceevents": "Geräteereignisse",
+      "rawpacketevents": "Rohtelegramm-Ereignisse"
     },
     "paletteHelp": "<p>Gibt alle Ereignisse aus, welche von Homegear an Node-BLUE gesendet werden.</p>",
     "help": "<p>Dieser Knoten gibt alle Ereignisse aus, welche von Homegear an Node-BLUE gesendet werden. Ausgegeben wird ein Nachrichtenobjekt vom Typ <code>Struct</code> mit zwei Schlüsseln: <code>type</code> und <code>data</code>. Mögliche Werte für <code>type</code> sind: <code>deviceVariableEvent</code>, <code>flowVariableEvent</code>, <code>globalVariableEvent</code>, <code>newDevices</code>, <code>deleteDevices</code> und <code>updateDevice</code>. Der Wert von <code>data</code> hängt von <code>type</code> ab, ist aber in jedem Fall ein <code>Array</code>.</p>"

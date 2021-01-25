@@ -30,6 +30,7 @@
             <option value="variableprofileevents" data-i18n="homegear-event.label.variableprofileevents"></option>
             <option value="uinotificationevents" data-i18n="homegear-event.label.uinotificationevents"></option>
             <option value="deviceevents" data-i18n="homegear-event.label.deviceevents"></option>
+            <option value="rawpacketevents" data-i18n="homegear-event.label.rawpacketevents"></option>
         </select>
     </div>
 </script>
