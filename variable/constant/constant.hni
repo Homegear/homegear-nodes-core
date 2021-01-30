@@ -49,15 +49,16 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
-            if (this.payloadType == null) {
-                this.payloadType = "int";
+            if (this.payloadType == null) this.payloadType = "int";
+            else if (this.payloadType == "array" || this.payloadType == "struct") {
+            	this.payloadType = "json";
             }
             $("#node-input-payloadType").val(this.payloadType);
 
             $("#node-input-payload").typedInput({
                 default: 'int',
                 typeField: $("#node-input-payloadType"),
-                types:['bool','int','float','string','arraySimple','structSimple']
+                types:['bool','int','float','string','json']
             });
 
             $("#node-input-payload").typedInput('type',this.payloadType);
@@ -74,7 +75,8 @@
                 if (this.payloadType == 'bool') value = this.payload == 'true';
                 else if (this.payloadType == 'int') value = parseInt(this.payload);
                 else if (this.payloadType == 'float') value = parseFloat(this.payload);
-                else if (this.payloadType == 'array' || this.payloadType == 'struct') value = JSON.parse(this.payload);
+                //Don't remove array and struct here for backwards compatibility
+                else if (this.payloadType == 'array' || this.payloadType == 'struct' || this.payloadType == 'json') value = JSON.parse(this.payload);
                 else value = this.payload;
                 RED.comms.homegear().invoke('setNodeVariable', null, this.id, "nodeOutput", value);
             }
