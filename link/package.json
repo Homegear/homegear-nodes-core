@@ -8,12 +8,12 @@
   "node-blue": {
     "local": false,
     "maxThreadCounts": {
-      "link in": 0,
-      "link out": 0
+      "link-in": 0,
+      "link-out": 0
     },
     "nodes": {
-      "link in": "link-in.so",
-      "link out": "link-out.so"
+      "link-in": "link-in.so",
+      "link-out": "link-out.so"
     }
   },
   "version": "1.0.0"

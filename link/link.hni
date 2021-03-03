@@ -1,11 +1,11 @@
-<script type="text/x-red" data-template-name="link in">
+<script type="text/x-red" data-template-name="link-in">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row node-input-link-row"></div>
 </script>
-<script type="text/x-red" data-template-name="link out">
+<script type="text/x-red" data-template-name="link-out">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
@@ -45,7 +45,7 @@
 }
 </style>
 <script type="text/javascript">
-    RED.nodes.registerType('link in',{
+    RED.nodes.registerType('link-in',{
         category: 'general',
         color:"#ddd",//"#87D8CF",
         defaults: {
@@ -108,7 +108,7 @@
             }
 
             var node = this;
-            var targetType = "link out"
+            var targetType = "link-out"
             if (!node.links) {
                 node.links = [];
             }
@@ -254,7 +254,7 @@
         }
     });
 
-    RED.nodes.registerType('link out',{
+    RED.nodes.registerType('link-out',{
         category: 'general',
         namespace: 'link',
         color:"#ddd",//"#87D8CF",
@@ -319,7 +319,7 @@
             }
 
             var node = this;
-            var targetType = "link in"
+            var targetType = "link-in"
             if (!node.links) {
                 node.links = [];
             }
