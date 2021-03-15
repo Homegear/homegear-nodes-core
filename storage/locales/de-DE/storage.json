@@ -4,8 +4,8 @@
       "name": "Name",
       "filename": "Dateiname",
       "action": "Aktion",
-      "addnewline": "Einen Zeilenumbruch (\\n) jedem Payload hinzufügen?",
-      "createdir": "Verzeichniss erstellen wenn es nicht existiert?",
+      "addnewline": "Der Nutzlast einen Zeilenumbruch (\\n) hinzufügen?",
+      "createdir": "Verzeichnis erstellen wenn es nicht existiert?",
       "outputas": "Ausgabe als",
       "filelabel": "Datei",
       "deletelabel": "Lösche __file__"

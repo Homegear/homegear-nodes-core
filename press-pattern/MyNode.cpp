@@ -137,7 +137,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         _counter = 1;
         _timerThread = std::thread(&MyNode::timer, this);
       } else _counter++;
-    } else {
+    } else if (_state) {
       _state = false;
       if (_longPress) {
         _longPress = false;
