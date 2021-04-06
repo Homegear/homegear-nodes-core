@@ -260,4 +260,3 @@ if test_average_random() == 1:
     print("test passed")
 else:
     print("test failed")
-add
