@@ -2,11 +2,15 @@
   "average": {
     "label": {
       "average": "Durchschnitt",
-      "interval": "Intervall bis Durchschnitt in Sekunden",
-      "name": "Name"
+      "interval": "Intervall bis der Durchschnitt gebildet wird in Sekunden",
+      "name": "Name",
+      "buildAverage": "Bilde den Durchschnitt über",
+      "time": "Bilde den Durchschnitt über alle Eingaben in einem Zeitintervall",
+      "currentValue": "Bilde den Durchschnitt über die aktuellsten Eingaben von jeder Node",
+      "deleteAfter": "Werte löschen nachdem keine neuen Werte kommen"
     },
     "input1Description": "Eingabewerte für Durchschnitt.",
     "output1Description": "Gibt den Durchschnitt über das angegebene Intervall aus. Der Typ wird auf den Eingabetyp gesetzt.",
-    "help": "<p>Mittelwerte über ein bestimmtes Intervall.</p>"
+    "help": "<p><b>Version Interval:</b>Sammelt alle Eingaben in dem spezifizierten Intervall und bildet den Durchschnitt darüber. Löscht alle Werte, nachdem der Durschnitt gebildet wurde.<b>Version aktuelle Werte:</b> Sammelt von jeder Eingangs Node einen Wert und bildet sofort den Durchschnitt. Löscht Werte einer Node, nachdem keine neuen Werte dieser Node registriert wurden.</p>"
   }
 }

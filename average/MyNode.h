@@ -33,7 +33,7 @@
 #include <homegear-node/INode.h>
 #include <thread>
 #include <mutex>
-#include <queue>
+#include <map>
 
 namespace MyNode {
 
@@ -47,7 +47,9 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
+  int8_t _type = 0;
   int64_t _interval = 60000;
+  int64_t _deleteAfter = 60000;
 
   std::atomic_bool _stopThread{true};
   std::mutex _workerThreadMutex;
@@ -55,9 +57,15 @@ class MyNode : public Flows::INode {
 
   std::atomic_bool _inputIsDouble{false};
   std::mutex _valuesMutex;
-  std::list<double> _values;
+  struct valueWithTime {
+    double value;
+    int64_t time;
+  };
+  std::map<std::string, valueWithTime> _currentValues;
+  std::list<double> _timeValues;
 
-  void worker();
+  void averageOverTime();
+  void averageOverCurrentValues();
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 

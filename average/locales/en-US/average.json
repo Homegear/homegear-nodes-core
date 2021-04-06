@@ -3,10 +3,14 @@
     "label": {
       "average": "average",
       "interval": "Interval to average in seconds",
-      "name": "Name"
+      "name": "Name",
+      "buildAverage": "Build the average over",
+      "time": "Build the average in interval",
+      "currentValue": "Average over current values",
+      "deleteAfter": "Delete values after no new value was received"
     },
     "input1Description": "Input values to average.",
     "output1Description": "Outputs the average over the given interval. The type is set to the input type.",
-    "help": "<p>Averages values over a given interval.</p>"
+    "help": "<p><b>Version interval:</b> Collects all inputs in the specified time interval and builds the average. Deletes all values collected.<br><b>Version current:</b> Collects from each input node one value and builds immediately the average. Deletes the values after the specified time.</p>"
   }
 }

@@ -1,11 +1,22 @@
 <script type="text/x-red" data-template-name="average">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <label for="node-input-name"><i class="fa fa-tag"></i><span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
+        <label for="node-input-averageOver"><i class="fa fa-pencil-square-o"></i><span data-i18n="average.label.buildAverage"></span></label>
+        <select id="node-input-averageOver" style="display: inline-block; width: 70%;">
+            <option value="time" data-i18n="average.label.time"></option>
+            <option value="currentValues" data-i18n="average.label.currentValue"></option>
+        </select><br/>
+    </div>
+    <div class="form-row" id="timeValue">
         <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.interval"></span></label>
         <input type="text" id="node-input-interval" data-i18n="[placeholder]average.label.interval">
+    </div>
+    <div class="form-row" id="currentValue">
+        <label for="node-input-deleteAfter"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.deleteAfter"></span></label>
+        <input type="text" id="node-input-deleteAfter" data-i18n="[placeholder]average.label.deleteAfter">
     </div>
 </script>
 <script type="text/javascript">
@@ -14,7 +25,9 @@
         category: 'function',
         defaults: {
             name: {value:""},
-            "interval": {value:"60",required:true,validate:RED.validators.number()}
+            averageOver: {value:"time", required: true},
+            interval: {value:"60", validate:function(v){new Promise(r => setTimeout(r,10)); if(this.averageOver == "time" && isNaN(v)){return false;} return true;}},
+            deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}}
         },
         inputs:1,
         inputInfo: [
@@ -32,6 +45,32 @@
         label: function() {
             if(this.name) return this.name;
             return "average";
+        },
+        oneditprepare: function(){
+            var node = this;
+            function setAverageOver(averageOver){
+                this.averageOver = averageOver;
+            }
+
+            if(node.averageOver == "time"){
+                document.getElementById("timeValue").style.display = "block";
+                document.getElementById("currentValue").style.display = "none";
+            }else if(node.averageOver == "currentValues"){
+                document.getElementById("timeValue").style.display = "none";
+                document.getElementById("currentValue").style.display = "block";
+            }
+
+            document.getElementById("node-input-averageOver").addEventListener("change", function(){
+                node.averageOver = document.getElementById("node-input-averageOver").value;
+                setAverageOver(node.averageOver);
+                if(node.averageOver == "time"){
+                    document.getElementById("timeValue").style.display = "block";
+                    document.getElementById("currentValue").style.display = "none";
+                }else if(node.averageOver == "currentValues"){
+                    document.getElementById("timeValue").style.display = "none";
+                    document.getElementById("currentValue").style.display = "block";
+                }
+            });
         }
     });
 </script>
