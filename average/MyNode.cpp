@@ -75,7 +75,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
       auto values = getNodeData((const std::string) Flows::NodeInfo().id);
       for (auto value : *values->arrayValue) {
-        valueWithTime val = {.value = value->structValue->extract("value").mapped()->floatValue, .time = Flows::HelperFunctions::getTime()};
+        ValueWithTime val = {.value = value->structValue->extract("value").mapped()->floatValue, .time = Flows::HelperFunctions::getTime()};
         _currentValues.insert_or_assign(value->structValue->extract("node").mapped()->stringValue, val);
       }
     }
@@ -283,7 +283,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           _timeValues.emplace_back(input->integerValue64);
           break;
         case 1:
-          valueWithTime val = {.value = (double) input->integerValue64, .time = Flows::HelperFunctions::getTime()};
+          ValueWithTime val = {.value = (double) input->integerValue64, .time = Flows::HelperFunctions::getTime()};
           _currentValues.insert_or_assign(nodeId->stringValue, val);
           averageOverCurrentValues();
           break;
@@ -296,7 +296,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           _timeValues.emplace_back(input->floatValue);
           break;
         case 1:
-          valueWithTime val = {.value = input->floatValue, .time = Flows::HelperFunctions::getTime()};
+          ValueWithTime val = {.value = input->floatValue, .time = Flows::HelperFunctions::getTime()};
           _currentValues.insert_or_assign(nodeId->stringValue, val);
           averageOverCurrentValues();
           break;

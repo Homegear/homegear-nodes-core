@@ -57,11 +57,11 @@ class MyNode : public Flows::INode {
 
   std::atomic_bool _inputIsDouble{false};
   std::mutex _valuesMutex;
-  struct valueWithTime {
+  struct ValueWithTime {
     double value;
     int64_t time;
   };
-  std::map<std::string, valueWithTime> _currentValues;
+  std::map<std::string, ValueWithTime> _currentValues;
   std::list<double> _timeValues;
 
   void averageOverTime();
