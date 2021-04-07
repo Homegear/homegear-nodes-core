@@ -18,6 +18,13 @@
         <label for="node-input-deleteAfter"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.deleteAfter"></span></label>
         <input type="text" id="node-input-deleteAfter" data-i18n="[placeholder]average.label.deleteAfter">
     </div>
+    <div class="form-row" id="round">
+        <label for="node-input-round"><i class =""></i><span data-i18n="average.label.round"></span></label>
+        <select id="node-input-round" style="display: inline-block; width: 70%;">
+            <option value="integer" data-i18n="average.label.integer"></option>
+            <option value="double" data-i18n="average.label.double"></option>
+        </select>
+    </div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('average',{
@@ -27,7 +34,8 @@
             name: {value:""},
             averageOver: {value:"time", required: true},
             interval: {value:"60", validate:function(v){new Promise(r => setTimeout(r,10)); if(this.averageOver == "time" && isNaN(v)){return false;} return true;}},
-            deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}}
+            deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
+            round:{value:"integer", required: true}
         },
         inputs:1,
         inputInfo: [

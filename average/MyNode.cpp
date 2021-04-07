@@ -50,6 +50,14 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _type = 1;
     }
 
+    settingsIterator = info->info->structValue->find("round");
+    if (settingsIterator != info->info->structValue->end()){
+      if (settingsIterator->second->stringValue.compare("integer") == 0)
+        _inputIsDouble = false;
+      if (settingsIterator->second->stringValue.compare("double") == 0)
+        _inputIsDouble = true;
+    }
+
     if (_type == 0) {
       settingsIterator = info->info->structValue->find("interval");
       if (settingsIterator != info->info->structValue->end())
@@ -91,11 +99,8 @@ bool MyNode::start() {
       _workerThread.join();
 
     _stopThread = false;
-    switch (_type) {
-      case 0:_workerThread = std::thread(&MyNode::averageOverTime, this);
-        break;
-      case 1:_workerThread = std::thread(&MyNode::averageOverCurrentValues, this);
-        break;
+    if (_type == 0){
+      _workerThread = std::thread(&MyNode::averageOverTime, this);
     }
 
     return true;
@@ -229,40 +234,37 @@ void MyNode::averageOverTime() {
 }
 
 void MyNode::averageOverCurrentValues() {
-  while (!_stopThread) {
-    try {
-      if (!_currentValues.empty()) {
-        double average = 0.0;
-        {
-          std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
-          std::list<std::string> del;
-          int64_t time = Flows::HelperFunctions::getTime();
-          for (auto value : _currentValues) {
-            if ( time - value.second.time >= _deleteAfter)
-              del.emplace_back(value.first);
-            else
-              average += value.second.value;
-          }
-          for (auto key : del) {
-            _currentValues.erase(key);
-          }
-
-          if (!_currentValues.empty())
-            average /= _currentValues.size();
+  try {
+    if (!_currentValues.empty()) {
+      double average = 0.0;
+      {
+        std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
+        std::list<std::string> del;
+        int64_t time = Flows::HelperFunctions::getTime();
+        for (auto value : _currentValues) {
+          if ( time - value.second.time >= _deleteAfter)
+            del.emplace_back(value.first);
+          else
+            average += value.second.value;
+        }
+        for (auto key : del) {
+          _currentValues.erase(key);
         }
 
-        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
-        output(0, message);
+        if (!_currentValues.empty())
+          average /= _currentValues.size();
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+      Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
+      output(0, message);
     }
-    catch (const std::exception &ex) {
-      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-    }
-    catch (...) {
-      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
 }
 
@@ -283,6 +285,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
         case 1:
           valueWithTime val = {.value = (double) input->integerValue64, .time = Flows::HelperFunctions::getTime()};
           _currentValues.insert_or_assign(nodeId->stringValue, val);
+          averageOverCurrentValues();
           break;
       }
       if (!_inputIsDouble)
@@ -295,9 +298,9 @@ void MyNode::input(const Flows::PNodeInfo &info,
         case 1:
           valueWithTime val = {.value = input->floatValue, .time = Flows::HelperFunctions::getTime()};
           _currentValues.insert_or_assign(nodeId->stringValue, val);
+          averageOverCurrentValues();
           break;
       }
-      _inputIsDouble = true;
     }
   }
   catch (const std::exception &ex) {
