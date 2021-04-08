@@ -35,14 +35,13 @@ def test_average_integers():
         source += 1
         hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value), "source": str(source)})
         values.append(int(value))
-
     average = buildAverage(values)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 0) == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -58,14 +57,13 @@ def test_average_double():
     for value in testValues:
         source += 1
         hg.setNodeVariable(n1, "fixedInput0", {"payload": float(value), "source": str(source)})
-
     average = buildAverage(testValues)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -81,14 +79,13 @@ def test_average():
     for value in testValues:
         source += 1
         hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
-
     average = buildAverage(testValues)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -105,14 +102,13 @@ def test_average_zero():
     for value in values:
         source += 1
         hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
-
     average = buildAverage(values)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -122,42 +118,26 @@ def test_average_zero():
         return -1
 
 
-def test_average_override():
+def test_average_append():
     n1, n2 = setup()
     source = 0
-    for value in testValues:
+    values = testValues
+    for value in values:
         source += 1
         hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
-    average = buildAverage(testValues)
     time.sleep(1)
-
-    inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-    try:
-        assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
-
-        hg.removeNodesFromFlow("Average Unit test", "unit-test")
-    except AssertionError as e:
-        print(e)
-        hg.removeNodesFromFlow("Average Unit test", "unit-test")
-        return -1
-
-    values = []
     for i in range(len(testValues)):
-        if source % 2 == 0:
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": (testValues[i] * 2), "source": str(source)})
-            values.append(testValues[i] * 2)
-        else:
+        if i % 2 == 0:
+            source += 1
             hg.setNodeVariable(n1, "fixedInput0", {"payload": testValues[i], "source": str(source)})
             values.append(testValues[i])
-        source -= 1
     average = buildAverage(values)
-    time.sleep(1)
+    time.sleep(5)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -176,12 +156,12 @@ def test_average_negative():
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * (-1)), "source": str(source)})
         values.append(value * (-1))
     average = buildAverage(values)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -195,18 +175,17 @@ def test_average_random():
     n1, n2 = setup()
     source = 0
     values = []
-    for i in range(random.randint(20, 1000)):
-        source += 1
+    for i in range(random.randint(20, 100)):
         value = random.random() * random.random() * random.randint(0, 100)
-        values.append(value)
         hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        values.append(value)
     average = buildAverage(values)
-    time.sleep(1)
+    time.sleep(6)
 
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert inputHistory[0][1]['payload'] == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -225,8 +204,9 @@ testFlow = [
     {
         "id": "n1",
         "type": "average",
-        "averageOver": "currentValues",
-        "deleteAfter": "20",
+        "averageOver": "time",
+        "interval": "5",
+        "round": "integer",
         "wires": [
             [{"id": "n2", "port": 0}]
         ]
@@ -238,7 +218,7 @@ testFlow = [
     }
 ]
 
-testValues = [5, 10, 42, 20, 37, 2, 4, 0.2, 4.2, 42.42]
+testValues = [5, 10, 42, 20, 2, 37, 4, 0.2, 4.2, 42.42]
 
 print("test 1: testing with integers")
 if test_average_integers() == 1:
@@ -270,8 +250,8 @@ if test_average_negative() == 1:
 else:
     print("test failed")
 
-print("test 6: testing override")
-if test_average_override() == 1:
+print("test 6: testing add in the interval")
+if test_average_append() == 1:
     print("test passed")
 else:
     print("test failed")

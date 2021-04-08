@@ -41,7 +41,7 @@ def test_average_integers():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 0) == round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 0), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -63,7 +63,7 @@ def test_average_double():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -85,7 +85,7 @@ def test_average():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -108,7 +108,7 @@ def test_average_zero():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -137,7 +137,7 @@ def test_average_append():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -161,7 +161,7 @@ def test_average_negative():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -185,7 +185,7 @@ def test_average_random():
     inputHistory = hg.getNodeVariable(n2, "inputHistory0")
     try:
         assert len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}"
-        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 7)}"
+        assert round(inputHistory[0][1]['payload'], 7) == round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}"
 
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
         return 1
@@ -206,6 +206,7 @@ testFlow = [
         "type": "average",
         "averageOver": "time",
         "interval": "5",
+        "round": "double",
         "wires": [
             [{"id": "n2", "port": 0}]
         ]
