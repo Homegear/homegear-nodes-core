@@ -14,6 +14,6 @@
     },
     "input1Description": "Input values to average.",
     "output1Description": "Outputs the average over the given interval. The type is set to the input type.",
-    "help": "<p><b>Version interval:</b>Collects all inputs in the specified time interval and builds the average. Deletes all values collected.<br><b>Version current:</b>Collects from each input node one value and builds immediately the average. Deletes the values after the specified time.</p>"
+    "paletteHelp": "<p>Builds the average</p>"
   }
 }

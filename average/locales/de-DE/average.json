@@ -14,6 +14,6 @@
     },
     "input1Description": "Eingabewerte für Durchschnitt.",
     "output1Description": "Gibt den Durchschnitt über das angegebene Intervall aus. Der Typ wird auf den Eingabetyp gesetzt.",
-    "help": "<p><b>Version Interval:</b>Sammelt alle Eingaben in dem spezifizierten Intervall und bildet den Durchschnitt darüber. Löscht alle Werte, nachdem der Durschnitt gebildet wurde.<br><b>Version aktuelle Werte:</b>Sammelt von jeder Eingangs Node einen Wert und bildet sofort den Durchschnitt. Löscht Werte einer Node, nachdem keine neuen Werte dieser Node registriert wurden.</p>"
+    "paletteHelp": "<p>Berechnet den Durchschnitt</p>"
   }
 }
