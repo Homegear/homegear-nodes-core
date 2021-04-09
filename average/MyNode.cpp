@@ -249,7 +249,6 @@ void MyNode::averageOverCurrentValues() {
         int8_t size = 0;
         int64_t time = Flows::HelperFunctions::getTime();
         for (auto value : _currentValues) {
-          Flows::INode::_out->printInfo("value: " + std::to_string(value.second.value) + ", doubleValue: " + std::to_string(value.second.doubleValue) + ", ignore: " + std::to_string(value.second.ignore));
           if ( time - value.second.time >= _deleteAfter)
             del.emplace_back(value.first);
           else if(!value.second.ignore) {
