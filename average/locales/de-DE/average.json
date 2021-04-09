@@ -10,7 +10,8 @@
       "deleteAfter": "Werte löschen nachdem keine neuen Werte kommen",
       "round": "Format des Ergebnisses",
       "integer": "Ganzzahl",
-      "double": "Fließkomma"
+      "double": "Fließkomma",
+      "inputs": "Eingaben"
     },
     "input1Description": "Eingabewerte für Durchschnitt.",
     "output1Description": "Gibt den Durchschnitt über das angegebene Intervall aus. Der Typ wird auf den Eingabetyp gesetzt.",

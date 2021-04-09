@@ -73,10 +73,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       if (settingsIterator != info->info->structValue->end())
         _deleteAfter = Flows::Math::getNumber(settingsIterator->second->stringValue) * 1000;
 
+      _inputs = 2;
+      settingsIterator = info->info->structValue->find("inputs");
+      if (settingsIterator != info->info->structValue->end())
+        _inputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
+
+      Flows::INode::_out->printInfo("inputs: " + std::to_string(_inputs));
+
       auto values = getNodeData((const std::string) Flows::NodeInfo().id);
       for (auto value : *values->arrayValue) {
-        ValueWithTime val = {.value = value->structValue->extract("value").mapped()->floatValue, .time = Flows::HelperFunctions::getTime()};
-        _currentValues.insert_or_assign(value->structValue->extract("node").mapped()->stringValue, val);
+        Value val = {.value = value->structValue->extract("value").mapped()->floatValue, .time = Flows::HelperFunctions::getTime()};
+        _currentValues.insert_or_assign(value->structValue->extract("node").mapped()->integerValue, val);
       }
     }
 
@@ -238,21 +245,26 @@ void MyNode::averageOverCurrentValues() {
     if (!_currentValues.empty()) {
       double average = 0.0;
       {
-        std::list<std::string> del;
+        std::list<uint32_t> del;
+        int8_t size = 0;
         int64_t time = Flows::HelperFunctions::getTime();
         for (auto value : _currentValues) {
+          Flows::INode::_out->printInfo("value: " + std::to_string(value.second.value) + ", doubleValue: " + std::to_string(value.second.doubleValue) + ", ignore: " + std::to_string(value.second.ignore));
           if ( time - value.second.time >= _deleteAfter)
             del.emplace_back(value.first);
-          else
+          else if(!value.second.ignore) {
             average += value.second.value;
+            size++;
+          }
         }
         for (auto key : del) {
           _currentValues.erase(key);
         }
 
         if (!_currentValues.empty())
-          average /= _currentValues.size();
+          average /= size;
       }
+      Flows::INode::_out->printInfo("average: " + std::to_string(average));
 
       Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
@@ -272,7 +284,6 @@ void MyNode::input(const Flows::PNodeInfo &info,
                    const Flows::PVariable &message) { //is executed, when a new message arrives
   try {
     Flows::PVariable &input = message->structValue->at("payload");
-    Flows::PVariable &nodeId = message->structValue->at("source");
 
     std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
     if (input->type == Flows::VariableType::tInteger
@@ -282,21 +293,35 @@ void MyNode::input(const Flows::PNodeInfo &info,
           _timeValues.emplace_back(input->integerValue64);
           break;
         case 1:
-          ValueWithTime val = {.value = (double) input->integerValue64, .time = Flows::HelperFunctions::getTime()};
-          _currentValues.insert_or_assign(nodeId->stringValue, val);
+          Value val {.value = (double)(input->integerValue64), .time = Flows::HelperFunctions::getTime()};
+          if(val.value == _currentValues[index].value) {
+            if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
+              val.doubleValue = _currentValues[index].doubleValue;
+              val.ignore = true;
+            } else {
+              val.doubleValue = _currentValues[index].doubleValue + 1;
+            }
+          }
+          _currentValues.insert_or_assign(index, val);
           averageOverCurrentValues();
           break;
       }
-      if (!_inputIsDouble)
-        _inputIsDouble = false;
     } else if (input->type == Flows::VariableType::tFloat) {
       switch (_type) {
         case 0:
           _timeValues.emplace_back(input->floatValue);
           break;
         case 1:
-          ValueWithTime val = {.value = input->floatValue, .time = Flows::HelperFunctions::getTime()};
-          _currentValues.insert_or_assign(nodeId->stringValue, val);
+          Value val {.value = (double)(input->floatValue), .time = Flows::HelperFunctions::getTime()};
+          if(val.value == _currentValues[index].value) {
+            if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
+              val.doubleValue = _currentValues[index].doubleValue;
+              val.ignore = true;
+            } else {
+              val.doubleValue = _currentValues[index].doubleValue + 1;
+            }
+          }
+          _currentValues.insert_or_assign(index, val);
           averageOverCurrentValues();
           break;
       }

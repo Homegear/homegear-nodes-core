@@ -10,7 +10,8 @@
       "deleteAfter": "Delete values after no new value was received",
       "round": "Format of output",
       "integer": "Integer",
-      "double": "Floating point"
+      "double": "Floating point",
+      "inputs": "Inputs"
     },
     "input1Description": "Input values to average.",
     "output1Description": "Outputs the average over the given interval. The type is set to the input type.",

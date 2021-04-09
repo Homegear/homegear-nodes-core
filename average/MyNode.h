@@ -50,18 +50,22 @@ class MyNode : public Flows::INode {
   int8_t _type = 0;
   int64_t _interval = 60000;
   int64_t _deleteAfter = 60000;
+  int16_t _ignoreDoubleValuesAfter = 20;
 
   std::atomic_bool _stopThread{true};
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
   std::atomic_bool _inputIsDouble{false};
+  int8_t _inputs;
   std::mutex _valuesMutex;
-  struct ValueWithTime {
+  struct Value {
     double value;
     int64_t time;
+    int16_t doubleValue = 0;
+    bool ignore = false;
   };
-  std::map<std::string, ValueWithTime> _currentValues;
+  std::map<uint32_t, Value> _currentValues;
   std::list<double> _timeValues;
 
   void averageOverTime();

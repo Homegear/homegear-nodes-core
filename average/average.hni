@@ -18,6 +18,10 @@
         <label for="node-input-deleteAfter"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.deleteAfter"></span></label>
         <input type="text" id="node-input-deleteAfter" data-i18n="[placeholder]average.label.deleteAfter">
     </div>
+    <div class="form-row" id="in">
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="average.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;" value="2">
+    </div>
     <div class="form-row" id="round">
         <label for="node-input-round"><i class =""></i><span data-i18n="average.label.round"></span></label>
         <select id="node-input-round" style="display: inline-block; width: 70%;">
@@ -32,10 +36,11 @@
         category: 'function',
         defaults: {
             name: {value:""},
-            averageOver: {value:"time", required: true},
+            averageOver: {value:"time", required: true, validate:function(v){new Promise(r => setTimeout(r,10)); if(v == "time"){this.inputs = 1; return true;} if(v == "currentValues"){if(this.inputs < 2){this.inputs = 2;} return true;} return false;}},
             interval: {value:"60", validate:function(v){new Promise(r => setTimeout(r,10)); if(this.averageOver == "time" && isNaN(v)){return false;} return true;}},
             deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
-            round:{value:"integer", required: true}
+            round: {value:"integer", required: true},
+            inputs: {value:1}
         },
         inputs:1,
         inputInfo: [
@@ -55,28 +60,32 @@
             return "average";
         },
         oneditprepare: function(){
+            $( "#node-input-inputs" ).spinner({
+                min:2,
+                max:10
+            });
             var node = this;
-            function setAverageOver(averageOver){
-                this.averageOver = averageOver;
-            }
 
             if(node.averageOver == "time"){
                 document.getElementById("timeValue").style.display = "block";
                 document.getElementById("currentValue").style.display = "none";
+                document.getElementById("in").style.display = "none";
             }else if(node.averageOver == "currentValues"){
                 document.getElementById("timeValue").style.display = "none";
                 document.getElementById("currentValue").style.display = "block";
+                document.getElementById("in").style.display = "block";
             }
 
             document.getElementById("node-input-averageOver").addEventListener("change", function(){
                 node.averageOver = document.getElementById("node-input-averageOver").value;
-                setAverageOver(node.averageOver);
                 if(node.averageOver == "time"){
                     document.getElementById("timeValue").style.display = "block";
                     document.getElementById("currentValue").style.display = "none";
+                    document.getElementById("in").style.display = "none";
                 }else if(node.averageOver == "currentValues"){
                     document.getElementById("timeValue").style.display = "none";
                     document.getElementById("currentValue").style.display = "block";
+                    document.getElementById("in").style.display = "block";
                 }
             });
         }
