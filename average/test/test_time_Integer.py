@@ -29,11 +29,9 @@ def setup():
 
 def test_average_integers():
     n1, n2 = setup()
-    source = 0
     values = []
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value), "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value)})
         values.append(int(value))
     average = buildAverage(values)
     time.sleep(6)
@@ -53,10 +51,8 @@ def test_average_integers():
 
 def test_average_double():
     n1, n2 = setup()
-    source = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": float(value), "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": float(value)})
     average = buildAverage(testValues)
     time.sleep(6)
 
@@ -75,10 +71,8 @@ def test_average_double():
 
 def test_average():
     n1, n2 = setup()
-    source = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
     average = buildAverage(testValues)
     time.sleep(6)
 
@@ -97,11 +91,9 @@ def test_average():
 
 def test_average_zero():
     n1, n2 = setup()
-    source = 0
     values = [0, 0, 0, 0, 0, 0, 0]
     for value in values:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
     average = buildAverage(values)
     time.sleep(6)
 
@@ -120,16 +112,13 @@ def test_average_zero():
 
 def test_average_append():
     n1, n2 = setup()
-    source = 0
     values = testValues
     for value in values:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
     time.sleep(1)
     for i in range(len(testValues)):
         if i % 2 == 0:
-            source += 1
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": testValues[i], "source": str(source)})
+            hg.setNodeVariable(n1, "fixedInput0", {"payload": testValues[i]})
             values.append(testValues[i])
     average = buildAverage(values)
     time.sleep(5)
@@ -149,11 +138,9 @@ def test_average_append():
 
 def test_average_negative():
     n1, n2 = setup()
-    source = 0
     values = []
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * (-1)), "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * (-1))})
         values.append(value * (-1))
     average = buildAverage(values)
     time.sleep(6)
@@ -173,11 +160,10 @@ def test_average_negative():
 
 def test_average_random():
     n1, n2 = setup()
-    source = 0
     values = []
     for i in range(random.randint(20, 100)):
         value = random.random() * random.random() * random.randint(0, 100)
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
         values.append(value)
     average = buildAverage(values)
     time.sleep(6)
