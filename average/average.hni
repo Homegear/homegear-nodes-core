@@ -60,32 +60,34 @@
             return "average";
         },
         oneditprepare: function(){
-            $( "#node-input-inputs" ).spinner({
+            $("#node-input-inputs").spinner({
                 min:2,
                 max:10
             });
             var node = this;
 
             if(node.averageOver == "time"){
-                document.getElementById("timeValue").style.display = "block";
-                document.getElementById("currentValue").style.display = "none";
-                document.getElementById("in").style.display = "none";
+                $("#timeValue").show();
+                $("#currentValue").hide();
+                $("#in").hide();
             }else if(node.averageOver == "currentValues"){
-                document.getElementById("timeValue").style.display = "none";
-                document.getElementById("currentValue").style.display = "block";
-                document.getElementById("in").style.display = "block";
+                $("#timeValue").hide();
+                $("#currentValue").show();
+                $("#in").show();
+                $("#node-input-inputs").spinner("value", 2);
             }
 
             document.getElementById("node-input-averageOver").addEventListener("change", function(){
                 node.averageOver = document.getElementById("node-input-averageOver").value;
                 if(node.averageOver == "time"){
-                    document.getElementById("timeValue").style.display = "block";
-                    document.getElementById("currentValue").style.display = "none";
-                    document.getElementById("in").style.display = "none";
+                    $("#timeValue").show();
+                    $("#currentValue").hide();
+                    $("#in").hide();
                 }else if(node.averageOver == "currentValues"){
-                    document.getElementById("timeValue").style.display = "none";
-                    document.getElementById("currentValue").style.display = "block";
-                    document.getElementById("in").style.display = "block";
+                    $("#timeValue").hide();
+                    $("#currentValue").show();
+                    $("#in").show();
+                    $("#node-input-inputs").spinner("value", 2);
                 }
             });
         }
