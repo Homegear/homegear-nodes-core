@@ -238,7 +238,6 @@ void MyNode::averageOverCurrentValues() {
     if (!_currentValues.empty()) {
       double average = 0.0;
       {
-        std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
         std::list<std::string> del;
         int64_t time = Flows::HelperFunctions::getTime();
         for (auto value : _currentValues) {
