@@ -282,13 +282,18 @@ void MyNode::input(const Flows::PNodeInfo &info,
     Flows::PVariable &input = message->structValue->at("payload");
 
     std::lock_guard<std::mutex> valuesGuard(_valuesMutex);
-    if (input->type == Flows::VariableType::tInteger
-        || input->type == Flows::VariableType::tInteger64) {
-      switch (_type) {
-        case TIME:
+    switch(_type){
+      case TIME:
+        if (input->type == Flows::VariableType::tInteger
+            || input->type == Flows::VariableType::tInteger64){
           _timeValues.emplace_back(input->integerValue64);
-          break;
-        case CURRENT_VALUES:
+        } else if (input->type == Flows::VariableType::tFloat){
+          _timeValues.emplace_back(input->floatValue);
+        }
+        break;
+      case CURRENT_VALUES:
+        if (input->type == Flows::VariableType::tInteger
+            || input->type == Flows::VariableType::tInteger64){
           Value val {.value = (double)(input->integerValue64), .time = Flows::HelperFunctions::getTime()};
           if(val.value == _currentValues[index].value) {
             if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
@@ -300,14 +305,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           }
           _currentValues.insert_or_assign(index, val);
           averageOverCurrentValues();
-          break;
-      }
-    } else if (input->type == Flows::VariableType::tFloat) {
-      switch (_type) {
-        case TIME:
-          _timeValues.emplace_back(input->floatValue);
-          break;
-        case CURRENT_VALUES:
+        } else if (input->type == Flows::VariableType::tFloat){
           Value val {.value = (double)(input->floatValue), .time = Flows::HelperFunctions::getTime()};
           if(val.value == _currentValues[index].value) {
             if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
@@ -319,8 +317,8 @@ void MyNode::input(const Flows::PNodeInfo &info,
           }
           _currentValues.insert_or_assign(index, val);
           averageOverCurrentValues();
-          break;
-      }
+        }
+        break;
     }
   }
   catch (const std::exception &ex) {
