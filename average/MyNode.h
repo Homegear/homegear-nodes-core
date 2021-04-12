@@ -47,7 +47,11 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
-  int8_t _type = 0;
+  enum Type{
+    TIME,
+    CURRENT_VALUES
+  };
+  Type _type = TIME;
   int64_t _interval = 60000;
   int64_t _deleteAfter = 60000;
   int16_t _ignoreDoubleValuesAfter = 20;

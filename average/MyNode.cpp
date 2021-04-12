@@ -45,9 +45,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     auto settingsIterator = info->info->structValue->find("averageOver");
     if (settingsIterator != info->info->structValue->end()) {
       if (settingsIterator->second->stringValue.compare("time") == 0)
-        _type = 0;
+        _type = TIME;
       if (settingsIterator->second->stringValue.compare("currentValues") == 0)
-        _type = 1;
+        _type = CURRENT_VALUES;
     }
 
     settingsIterator = info->info->structValue->find("round");
@@ -58,7 +58,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _inputIsDouble = true;
     }
 
-    if (_type == 0) {
+    if (_type == TIME) {
       settingsIterator = info->info->structValue->find("interval");
       if (settingsIterator != info->info->structValue->end())
         _interval = Flows::Math::getNumber(settingsIterator->second->stringValue) * 1000;
@@ -68,7 +68,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _timeValues.emplace_back(value->floatValue);
       }
     }
-    if (_type == 1) {
+    if (_type == CURRENT_VALUES) {
       settingsIterator = info->info->structValue->find("deleteAfter");
       if (settingsIterator != info->info->structValue->end())
         _deleteAfter = Flows::Math::getNumber(settingsIterator->second->stringValue) * 1000;
@@ -77,8 +77,6 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       settingsIterator = info->info->structValue->find("inputs");
       if (settingsIterator != info->info->structValue->end())
         _inputs = settingsIterator->second->integerValue == 0 ? Flows::Math::getNumber(settingsIterator->second->stringValue) : settingsIterator->second->integerValue;
-
-      Flows::INode::_out->printInfo("inputs: " + std::to_string(_inputs));
 
       auto values = getNodeData((const std::string) Flows::NodeInfo().id);
       for (auto value : *values->arrayValue) {
@@ -106,7 +104,7 @@ bool MyNode::start() {
       _workerThread.join();
 
     _stopThread = false;
-    if (_type == 0){
+    if (_type == TIME){
       _workerThread = std::thread(&MyNode::averageOverTime, this);
     }
 
@@ -124,7 +122,7 @@ bool MyNode::start() {
 void MyNode::stop() {
   std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
   switch (_type) {
-    case 0:
+    case TIME:
       if (!_timeValues.empty()) {
         auto values = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
         values->arrayValue->reserve(_timeValues.size());
@@ -134,7 +132,7 @@ void MyNode::stop() {
         setNodeData((const std::string) Flows::NodeInfo().id, values);
       }
       break;
-    case 1:
+    case CURRENT_VALUES:
       if (!_currentValues.empty()) {
         auto values = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
         values->arrayValue->reserve(_currentValues.size());
@@ -215,7 +213,7 @@ void MyNode::averageOverTime() {
         }
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
+        message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::llround(average)));
         output(0, message);
       }
 
@@ -260,13 +258,12 @@ void MyNode::averageOverCurrentValues() {
           _currentValues.erase(key);
         }
 
-        if (!_currentValues.empty())
+        if (size > 0)
           average /= size;
       }
-      Flows::INode::_out->printInfo("average: " + std::to_string(average));
 
       Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::lround(average)));
+      message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_inputIsDouble ? average : std::llround(average)));
       output(0, message);
     }
   }
@@ -288,10 +285,10 @@ void MyNode::input(const Flows::PNodeInfo &info,
     if (input->type == Flows::VariableType::tInteger
         || input->type == Flows::VariableType::tInteger64) {
       switch (_type) {
-        case 0:
+        case TIME:
           _timeValues.emplace_back(input->integerValue64);
           break;
-        case 1:
+        case CURRENT_VALUES:
           Value val {.value = (double)(input->integerValue64), .time = Flows::HelperFunctions::getTime()};
           if(val.value == _currentValues[index].value) {
             if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
@@ -307,10 +304,10 @@ void MyNode::input(const Flows::PNodeInfo &info,
       }
     } else if (input->type == Flows::VariableType::tFloat) {
       switch (_type) {
-        case 0:
+        case TIME:
           _timeValues.emplace_back(input->floatValue);
           break;
-        case 1:
+        case CURRENT_VALUES:
           Value val {.value = (double)(input->floatValue), .time = Flows::HelperFunctions::getTime()};
           if(val.value == _currentValues[index].value) {
             if (_currentValues[index].doubleValue > _ignoreDoubleValuesAfter) {
