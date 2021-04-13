@@ -29,13 +29,12 @@ def setup():
 
 def test_average_integers():
     n1, n2 = setup()
-    source = 0
     values = []
+    i = 0
     for value in testValues:
-        source += 1
-        print(source)
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value), "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": int(value)})
         values.append(int(value))
+        i += 1
 
     average = buildAverage(values)
     time.sleep(1)
@@ -55,10 +54,10 @@ def test_average_integers():
 
 def test_average_double():
     n1, n2 = setup()
-    source = 0
+    i = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": float(value), "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": float(value)})
+        i += 1
 
     average = buildAverage(testValues)
     time.sleep(1)
@@ -78,10 +77,10 @@ def test_average_double():
 
 def test_average():
     n1, n2 = setup()
-    source = 0
+    i = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
+        i += 1
 
     average = buildAverage(testValues)
     time.sleep(1)
@@ -101,11 +100,11 @@ def test_average():
 
 def test_average_zero():
     n1, n2 = setup()
-    source = 0
-    values = [0, 0, 0, 0, 0, 0, 0]
+    values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
+    i = 0
     for value in values:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
+        i += 1
 
     average = buildAverage(values)
     time.sleep(1)
@@ -125,10 +124,10 @@ def test_average_zero():
 
 def test_average_override():
     n1, n2 = setup()
-    source = 0
+    i = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
+        i += 1
     average = buildAverage(testValues)
     time.sleep(1)
 
@@ -144,14 +143,13 @@ def test_average_override():
         return -1
 
     values = []
-    for i in range(len(testValues)):
-        if source % 2 == 0:
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": (testValues[i] * 2), "source": str(source)})
-            values.append(testValues[i] * 2)
+    for j in range(len(testValues)):
+        if j % 2 == 0:
+            hg.setNodeVariable(n1, (input + str(j)), {"payload": (testValues[j] * 2)})
+            values.append(testValues[j] * 2)
         else:
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": testValues[i], "source": str(source)})
-            values.append(testValues[i])
-        source -= 1
+            hg.setNodeVariable(n1, (input + str(j)), {"payload": testValues[j]})
+            values.append(testValues[j])
     average = buildAverage(values)
     time.sleep(1)
 
@@ -170,12 +168,12 @@ def test_average_override():
 
 def test_average_negative():
     n1, n2 = setup()
-    source = 0
     values = []
+    i = 0
     for value in testValues:
-        source += 1
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * (-1)), "source": str(source)})
+        hg.setNodeVariable(n1, (input + str(i)), {"payload": (value * (-1))})
         values.append(value * (-1))
+        i += 1
     average = buildAverage(values)
     time.sleep(1)
 
@@ -194,13 +192,11 @@ def test_average_negative():
 
 def test_average_random():
     n1, n2 = setup()
-    source = 0
-    values = []
+    values = [None] * 10
     for i in range(random.randint(20, 1000)):
-        source += 1
         value = random.random() * random.random() * random.randint(0, 100)
-        values.append(value)
-        hg.setNodeVariable(n1, "fixedInput0", {"payload": value, "source": str(source)})
+        values[i % 10] = value
+        hg.setNodeVariable(n1, (input + str(i % 10)), {"payload": value})
     average = buildAverage(values)
     time.sleep(1)
 
@@ -228,7 +224,9 @@ testFlow = [
         "type": "average",
         "averageOver": "currentValues",
         "deleteAfter": "20",
+        "deleteAfterCheck": "true",
         "round": "integer",
+        "inputs": "10",
         "wires": [
             [{"id": "n2", "port": 0}]
         ]
@@ -241,7 +239,9 @@ testFlow = [
 ]
 
 testValues = [5, 10, 42, 20, 37, 2, 4, 0.2, 4.2, 42.42]
+input = "fixedInput"
 
+print("testing version currentValue with integers")
 print("test 1: testing with integers")
 if test_average_integers() == 1:
     print("test passed")
