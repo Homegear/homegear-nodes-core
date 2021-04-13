@@ -176,6 +176,10 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		storage/watch/Factory.cpp
+		storage/watch/Factory.h
+		storage/watch/MyNode.cpp
+		storage/watch/MyNode.h
 		tcp/tcp-in/Factory.cpp
 		tcp/tcp-in/Factory.h
 		tcp/tcp-in/MyNode.cpp

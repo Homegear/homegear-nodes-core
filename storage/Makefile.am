@@ -6,13 +6,16 @@ LIBS += -Wl,-Bdynamic -lhomegear-node
 
 libdir = $(localstatedir)/lib/homegear/node-blue/nodes/storage
 
-lib_LTLIBRARIES = file.la
+lib_LTLIBRARIES = file.la watch.la
 
 file_la_SOURCES = file/Factory.cpp file/MyNode.cpp
 file_la_LDFLAGS =-module -avoid-version -shared
 
+watch_la_SOURCES = watch/Factory.cpp watch/MyNode.cpp
+watch_la_LDFLAGS =-module -avoid-version -shared
+
 file_ladir = $(libdir)
-file_la_DATA = package.json file/file.hni
+file_la_DATA = package.json file/file.hni watch/watch.hni
 
 locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/storage.json
@@ -28,3 +31,4 @@ locale_de_de_DATA = locales/de-DE/storage.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/file.la
+	rm -f $(DESTDIR)$(libdir)/watch.la

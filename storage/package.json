@@ -5,15 +5,18 @@
     "homegear",
     "storage",
     "file",
-    "io"
+    "io",
+    "directory"
   ],
   "node-blue": {
     "local": false,
     "maxThreadCounts": {
-      "file": 0
+      "file": 0,
+      "watch": 0
     },
     "nodes": {
-      "file": "file.so"
+      "file": "file.so",
+      "watch": "watch.so"
     }
   },
   "version": "1.0.0"
