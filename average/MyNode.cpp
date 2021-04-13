@@ -79,14 +79,6 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _deleteAfter = Flows::Math::getNumber(settingsIterator->second->stringValue) * 1000;
       }
 
-      _inputs = 2;
-      settingsIterator = info->info->structValue->find("inputs");
-      if (settingsIterator != info->info->structValue->end()) {
-        _inputs =
-            settingsIterator->second->integerValue == 0 ? Flows::Math::getNumber(settingsIterator->second->stringValue)
-                                                        : settingsIterator->second->integerValue;
-      }
-
       settingsIterator = info->info->structValue->find("deleteAfterCheck");
       if (settingsIterator != info->info->structValue->end()) {
         _deleteAfterCheck = settingsIterator->second->booleanValue;

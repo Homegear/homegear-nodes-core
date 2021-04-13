@@ -62,7 +62,6 @@ class MyNode : public Flows::INode {
   std::thread _workerThread;
 
   std::atomic_bool _round{false};
-  int8_t _inputs;
   std::mutex _valuesMutex;
   struct Value {
     double value;
