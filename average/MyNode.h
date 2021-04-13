@@ -54,19 +54,20 @@ class MyNode : public Flows::INode {
   Type _type = TIME;
   int64_t _interval = 60000;
   int64_t _deleteAfter = 60000;
-  int16_t _ignoreDoubleValuesAfter = 20;
+  std::atomic_bool _deleteAfterCheck {false};
+  int64_t _ignoreDoubleValuesAfter = 86400000; //one day in ms
 
   std::atomic_bool _stopThread{true};
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
-  std::atomic_bool _inputIsDouble{false};
+  std::atomic_bool _round{false};
   int8_t _inputs;
   std::mutex _valuesMutex;
   struct Value {
     double value;
     int64_t time;
-    int16_t doubleValue = 0;
+    int64_t doubleValueTime;
     bool ignore = false;
   };
   std::map<uint32_t, Value> _currentValues;

@@ -8,6 +8,8 @@
       "time": "Bilde den Durchschnitt über alle Eingaben in einem Zeitintervall",
       "currentValue": "Bilde den Durchschnitt über die aktuellsten Eingaben von jeder Node",
       "deleteAfter": "Werte löschen nachdem keine neuen Werte kommen",
+      "deleteAfterCheck": "Lösche Werte",
+      "ignoreValue": "Ignoriere den Wert einer Node nachdem der gleiche Wert gesendet wurde",
       "round": "Format des Ergebnisses",
       "integer": "Ganzzahl",
       "double": "Fließkomma",

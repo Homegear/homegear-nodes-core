@@ -8,6 +8,8 @@
       "time": "Build the average in interval",
       "currentValue": "Average over current values",
       "deleteAfter": "Delete values after no new value was received",
+      "deleteAfterCheck": "Delete values",
+      "ignoreValue": "Ignore value after node sent same value for",
       "round": "Format of output",
       "integer": "Integer",
       "double": "Floating point",
