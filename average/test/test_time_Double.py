@@ -91,7 +91,7 @@ def test_average():
 
 def test_average_zero():
     n1, n2 = setup()
-    values = [0, 0, 0, 0, 0, 0, 0]
+    values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
     for value in values:
         hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
     average = buildAverage(values)
@@ -206,6 +206,7 @@ testFlow = [
 
 testValues = [5, 10, 42, 20, 2, 37, 4, 0.2, 4.2, 42.42]
 
+print("testing version time with doubles")
 print("test 1: testing with integers")
 if test_average_integers() == 1:
     print("test passed")
