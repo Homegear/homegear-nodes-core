@@ -31,10 +31,9 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
 #include <homegear-base/BaseLib.h>
-
-#include <cstdio>
+#include <thread>
+#include <sys/inotify.h>
 
 namespace MyNode {
 
@@ -48,7 +47,13 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
+  std::atomic_bool _stopThread {true};
+  std::mutex _workerThreadMutex;
+  std::thread _workerThread;
+
   std::string _path;
+
+  void monitor();
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
