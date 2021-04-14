@@ -43,9 +43,9 @@ MyNode::~MyNode() {
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("path");
-    if (settingsIterator != info->info->structValue->end()){
+    if (settingsIterator != info->info->structValue->end()) {
       _path = settingsIterator->second->stringValue;
-      if(!BaseLib::Io::directoryExists(_path)){
+      if (!BaseLib::Io::directoryExists(_path)) {
         _out->printError("Path does not exist");
         return false;
       }
@@ -64,15 +64,6 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 bool MyNode::start() {
   try {
-    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-    _stopThread = true;
-    if (_workerThread.joinable()){
-      _workerThread.join();
-    }
-
-    _stopThread = false;
-    _workerThread = std::thread(&MyNode::monitor, this);
-
     return true;
   }
   catch (const std::exception &ex) {
@@ -84,16 +75,42 @@ bool MyNode::start() {
   return false;
 }
 
+void MyNode::startUpComplete() {
+  try {
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable()) {
+      _workerThread.join();
+    }
+
+    _stopThread = false;
+    _workerThread = std::thread(&MyNode::monitor, this);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
 void MyNode::stop() {
-  std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-  _stopThread = true;
+  try {
+    _stopThread = true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
 }
 
 void MyNode::waitForStop() {
   try {
     std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
     _stopThread = true;
-    if (_workerThread.joinable()){
+    if (_workerThread.joinable()) {
       _workerThread.join();
     }
   }
@@ -107,40 +124,41 @@ void MyNode::waitForStop() {
 
 void MyNode::monitor() {
   int fd = inotify_init1(IN_NONBLOCK);
-  if (fd == -1){
+  if (fd == -1) {
     throw errno;
   }
   uint32_t mask = IN_CREATE | IN_DELETE | IN_OPEN | IN_CLOSE;
   const char *path = _path.c_str();
   int wd = inotify_add_watch(fd, path, mask);
-  if (wd == -1){
+  if (wd == -1) {
     throw errno;
   }
 
   char buffer[sizeof(struct inotify_event) + NAME_MAX + 1] __attribute__ ((aligned(alignof(struct inotify_event))));
   const struct inotify_event *event_ptr;
 
-  while(!_stopThread){
+  while (!_stopThread) {
     ssize_t len = read(fd, buffer, sizeof(buffer));
-    if (len == -1 && errno != EAGAIN){
+    if (len == -1 && errno != EAGAIN) {
       throw errno;
     }
-    for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len){
+    for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
       event_ptr = (const struct inotify_event *) ptr;
 
-      if (event_ptr->mask & IN_CREATE){
+      if (event_ptr->mask & IN_CREATE) {
         _out->printInfo("Create");
       }
-      if (event_ptr->mask & IN_DELETE){
+      if (event_ptr->mask & IN_DELETE) {
         _out->printInfo("Delete");
       }
-      if (event_ptr->mask & IN_OPEN){
+      if (event_ptr->mask & IN_OPEN) {
         _out->printInfo("Open");
       }
-      if (event_ptr->mask & IN_CLOSE){
+      if (event_ptr->mask & IN_CLOSE) {
         _out->printInfo("Close");
       }
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
 
   close(fd);
