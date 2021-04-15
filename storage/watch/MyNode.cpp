@@ -64,6 +64,14 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 bool MyNode::start() {
   try {
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable()) {
+      _workerThread.join();
+    }
+
+    _stopThread = false;
+    _workerThread = std::thread(&MyNode::monitor, this);
     return true;
   }
   catch (const std::exception &ex) {
@@ -73,25 +81,6 @@ bool MyNode::start() {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
   return false;
-}
-
-void MyNode::startUpComplete() {
-  try {
-    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
-    _stopThread = true;
-    if (_workerThread.joinable()) {
-      _workerThread.join();
-    }
-
-    _stopThread = false;
-    _workerThread = std::thread(&MyNode::monitor, this);
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-  }
 }
 
 void MyNode::stop() {

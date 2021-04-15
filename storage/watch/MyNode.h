@@ -44,7 +44,6 @@ class MyNode : public Flows::INode {
 
   bool init(const Flows::PNodeInfo &info) override;
   bool start() override;
-  void startUpComplete() override;
   void stop() override;
   void waitForStop() override;
  private:
