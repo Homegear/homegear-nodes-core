@@ -1,6 +1,5 @@
 from homegear import Homegear
 import unittest
-import sys
 import time
 import random
 
