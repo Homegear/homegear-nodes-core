@@ -39,7 +39,8 @@
   "watch": {
     "label": {
       "name": "Name",
-      "path": "Path to directory"
+      "path": "Path to directory",
+      "recursive": "Watch sub-directories recursively"
     }
   }
 }

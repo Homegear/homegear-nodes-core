@@ -51,7 +51,8 @@ class MyNode : public Flows::INode {
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
-  std::string _path;
+  std::vector<std::string> _path;
+  std::atomic_bool _recursive {false};
 
   void monitor();
 };

@@ -39,7 +39,8 @@
   "watch": {
     "label": {
       "name": "Name",
-      "path": "Pfad zum Ordner"
+      "path": "Pfad zum Ordner",
+      "recursive": "Unterverzeichnisse rekursiv überwachen"
     }
   }
 }

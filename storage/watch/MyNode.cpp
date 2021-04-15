@@ -44,11 +44,16 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("path");
     if (settingsIterator != info->info->structValue->end()) {
-      _path = settingsIterator->second->stringValue;
-      if (!BaseLib::Io::directoryExists(_path)) {
+      _path.emplace(_path.cbegin(), settingsIterator->second->stringValue);
+      if (!BaseLib::Io::directoryExists(_path[0])) {
         _out->printError("Path does not exist");
         return false;
       }
+    }
+
+    settingsIterator = info->info->structValue->find("recursive");
+    if (settingsIterator != info->info->structValue->end()){
+      _recursive = settingsIterator->second->booleanValue;
     }
 
     return true;
@@ -116,11 +121,25 @@ void MyNode::monitor() {
   if (fd == -1) {
     throw errno;
   }
-  uint32_t mask = IN_CREATE | IN_DELETE | IN_OPEN | IN_CLOSE;
-  const char *path = _path.c_str();
-  int wd = inotify_add_watch(fd, path, mask);
-  if (wd == -1) {
+
+  if(_recursive){
+    std::vector<std::string> path = BaseLib::Io::getDirectories(_path[0], true);
+    for (auto p : path){
+      _path.emplace_back(_path[0] + "/" + p);
+    }
+  }
+
+  int *wd = (int*) calloc(_path.size(), sizeof(int));
+  if (wd == NULL){
     throw errno;
+  }
+
+  for (size_t i = 0; i < _path.size(); i++){
+    const char *path = _path[i].c_str();
+    wd[i] = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+    if (wd[i] == -1) {
+      throw errno;
+    }
   }
 
   char buffer[sizeof(struct inotify_event) + NAME_MAX + 1] __attribute__ ((aligned(alignof(struct inotify_event))));
@@ -133,19 +152,69 @@ void MyNode::monitor() {
     }
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
       event_ptr = (const struct inotify_event *) ptr;
+      std::string msg;
+      for (size_t i = 0; i < _path.size(); i++){
+        if (wd[i] == event_ptr->wd){
+          msg += "path: " + _path[i];
+          break;
+        }
+      }
 
+      if (event_ptr->len){
+        msg += ", name: " + std::string(event_ptr->name);
+      }
+
+      msg += ", operation: ";
+
+      if (event_ptr->mask & IN_ACCESS){
+        msg += "Access";
+      }
+      if (event_ptr->mask & IN_ATTRIB){
+        msg += "Attribute";
+      }
+      if (event_ptr->mask & IN_CLOSE_WRITE){
+        msg += "File opened for writing closed";
+      }
+      if (event_ptr->mask & IN_CLOSE_NOWRITE){
+        msg += "File or directory not opened for writing was closed.";
+      }
       if (event_ptr->mask & IN_CREATE) {
-        _out->printInfo("Create");
+        msg += "Create";
       }
       if (event_ptr->mask & IN_DELETE) {
-        _out->printInfo("Delete");
+        msg += "Delete";
+      }
+      if (event_ptr->mask & IN_DELETE_SELF){
+        msg += "Watched File/directory deleted";
+      }
+      if (event_ptr->mask & IN_MODIFY){
+        msg += "File modified";
+      }
+      if (event_ptr->mask & IN_MOVE_SELF){
+        msg += "watched directory moved";
+      }
+      if (event_ptr->mask & IN_MOVED_FROM){
+        msg += "renamed file in old directory";
+      }
+      if (event_ptr->mask & IN_MOVED_TO){
+        msg += "renamed file in new directory";
       }
       if (event_ptr->mask & IN_OPEN) {
-        _out->printInfo("Open");
+        msg += "Open";
       }
-      if (event_ptr->mask & IN_CLOSE) {
-        _out->printInfo("Close");
+      if (event_ptr->mask & IN_ISDIR){
+        msg += ", directory";
       }
+      else{
+        msg += ", file";
+      }
+
+      _out->printInfo(msg);
+      /*
+      Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(msg));
+      output(0, message, true);
+       */
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
