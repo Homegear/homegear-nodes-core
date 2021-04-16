@@ -52,6 +52,7 @@ class MyNode : public Flows::INode {
   std::thread _workerThread;
 
   std::vector<std::string> _path;
+  std::vector<std::string> _inputPath;
   std::atomic_bool _recursive {false};
 
   void monitor();

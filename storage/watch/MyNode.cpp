@@ -44,16 +44,47 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("path");
     if (settingsIterator != info->info->structValue->end()) {
-      _path.emplace(_path.cbegin(), settingsIterator->second->stringValue);
-      if (!BaseLib::Io::directoryExists(_path[0])) {
-        _out->printError("Path does not exist");
+      std::string p = settingsIterator->second->stringValue;
+      std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(p, ',');
+      for (size_t i = 0; i < path.size(); ++i) {
+        if (path[i].empty()) {
+          _out->printInfo("empty");
+        } else if (!BaseLib::Io::directoryExists(path[i])) {
+          path[i] = BaseLib::HelperFunctions::ltrim(path[i]);
+          if (!BaseLib::Io::directoryExists(path[i])) {
+            _out->printError("Path does not exist: " + path[i]);
+          } else {
+            _path.emplace_back(path[i]);
+            _out->printInfo("path found: " + path[i]);
+          }
+        } else {
+          _path.emplace_back(path[i]);
+          _out->printInfo("path found: " + path[i]);
+        }
+      }
+
+      if (_path.size() == 0) {
         return false;
       }
     }
 
     settingsIterator = info->info->structValue->find("recursive");
-    if (settingsIterator != info->info->structValue->end()){
+    if (settingsIterator != info->info->structValue->end()) {
       _recursive = settingsIterator->second->booleanValue;
+      if (_recursive) {
+        _out->printInfo("recursive start");
+        _inputPath.reserve(_path.size());
+        for (auto path : _path) {
+          _inputPath.emplace_back(path);
+          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
+          for (auto p : directories) {
+            _path.emplace_back(path + "/" + p);
+            _out->printInfo("path found: " + path + "/" + p);
+          }
+        }
+        _out->printInfo("_path size: " + std::to_string(_path.size()));
+      }
+      _out->printInfo("recursive done");
     }
 
     return true;
@@ -117,30 +148,27 @@ void MyNode::waitForStop() {
 }
 
 void MyNode::monitor() {
+  _out->printInfo("started");
   int fd = inotify_init1(IN_NONBLOCK);
   if (fd == -1) {
     throw errno;
   }
+  _out->printInfo("notify");
 
-  if(_recursive){
-    std::vector<std::string> path = BaseLib::Io::getDirectories(_path[0], true);
-    for (auto p : path){
-      _path.emplace_back(_path[0] + "/" + p);
-    }
-  }
-
-  int *wd = (int*) calloc(_path.size(), sizeof(int));
-  if (wd == NULL){
+  int *wd = (int *) calloc(_path.size(), sizeof(int));
+  if (wd == NULL) {
     throw errno;
   }
+  _out->printInfo("mem alloc");
 
-  for (size_t i = 0; i < _path.size(); i++){
+  for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
     wd[i] = inotify_add_watch(fd, path, IN_ALL_EVENTS);
     if (wd[i] == -1) {
       throw errno;
     }
   }
+  _out->printInfo("notify set");
 
   char buffer[sizeof(struct inotify_event) + NAME_MAX + 1] __attribute__ ((aligned(alignof(struct inotify_event))));
   const struct inotify_event *event_ptr;
@@ -151,31 +179,20 @@ void MyNode::monitor() {
       throw errno;
     }
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
+      _out->printInfo("for");
       event_ptr = (const struct inotify_event *) ptr;
       std::string msg;
-      for (size_t i = 0; i < _path.size(); i++){
-        if (wd[i] == event_ptr->wd){
-          msg += "path: " + _path[i];
-          break;
-        }
-      }
 
-      if (event_ptr->len){
-        msg += ", name: " + std::string(event_ptr->name);
-      }
-
-      msg += ", operation: ";
-
-      if (event_ptr->mask & IN_ACCESS){
+      if (event_ptr->mask & IN_ACCESS) {
         msg += "Access";
       }
-      if (event_ptr->mask & IN_ATTRIB){
+      if (event_ptr->mask & IN_ATTRIB) {
         msg += "Attribute";
       }
-      if (event_ptr->mask & IN_CLOSE_WRITE){
+      if (event_ptr->mask & IN_CLOSE_WRITE) {
         msg += "File opened for writing closed";
       }
-      if (event_ptr->mask & IN_CLOSE_NOWRITE){
+      if (event_ptr->mask & IN_CLOSE_NOWRITE) {
         msg += "File or directory not opened for writing was closed.";
       }
       if (event_ptr->mask & IN_CREATE) {
@@ -184,42 +201,82 @@ void MyNode::monitor() {
       if (event_ptr->mask & IN_DELETE) {
         msg += "Delete";
       }
-      if (event_ptr->mask & IN_DELETE_SELF){
+      if (event_ptr->mask & IN_DELETE_SELF) {
         msg += "Watched File/directory deleted";
       }
-      if (event_ptr->mask & IN_MODIFY){
+      if (event_ptr->mask & IN_MODIFY) {
         msg += "File modified";
       }
-      if (event_ptr->mask & IN_MOVE_SELF){
+      if (event_ptr->mask & IN_MOVE_SELF) {
         msg += "watched directory moved";
       }
-      if (event_ptr->mask & IN_MOVED_FROM){
+      if (event_ptr->mask & IN_MOVED_FROM) {
         msg += "renamed file in old directory";
       }
-      if (event_ptr->mask & IN_MOVED_TO){
+      if (event_ptr->mask & IN_MOVED_TO) {
         msg += "renamed file in new directory";
       }
       if (event_ptr->mask & IN_OPEN) {
         msg += "Open";
       }
-      if (event_ptr->mask & IN_ISDIR){
-        msg += ", directory";
+      if (event_ptr->mask & IN_ISDIR) {
+        msg += " directory";
+      } else {
+        msg += " file";
       }
-      else{
-        msg += ", file";
+
+      for (size_t i = 0; i < _path.size(); i++) {
+        if (wd[i] == event_ptr->wd) {
+          msg += " at path " + _path[i];
+          break;
+        }
+      }
+
+      if (event_ptr->len) {
+        msg += "/" + std::string(event_ptr->name);
       }
 
       _out->printInfo(msg);
-      /*
+
       Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       message->structValue->emplace("payload", std::make_shared<Flows::Variable>(msg));
       output(0, message, true);
-       */
+
+      if (_recursive) {
+        _out->printInfo("check recursive");/*
+        for (auto path : _inputPath) {
+          _path.clear();
+          if (!BaseLib::Io::directoryExists(path)) {
+            break;
+          }
+          _path.emplace_back(path);
+          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
+          for (auto p : directories) {
+            _path.emplace_back(p);
+          }
+        }
+        _out->printInfo("_path size: " + std::to_string(_path.size()));
+
+        free(wd);
+        int *wd = (int *) calloc(_path.size(), sizeof(int));
+        if (wd == NULL) {
+          throw errno;
+        }
+
+        for (size_t i = 0; i < _path.size(); i++) {
+          const char *path = _path[i].c_str();
+          wd[i] = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+          if (wd[i] == -1) {
+            throw errno;
+          }
+        }*/
+      }
     }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
-
   close(fd);
 }
 }
+
 
