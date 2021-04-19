@@ -72,21 +72,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
-        _out->printInfo("recursive start");
         _inputPath.reserve(_path.size());
-        for (auto path : _path) {
-          _inputPath.emplace_back(path);
-          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
-          for (auto p : directories) {
-            _path.emplace_back(path + "/" + p);
-            _out->printInfo("path found: " + path + "/" + p);
+        for (size_t i = 0; i < _path.size(); ++i) {
+          std::vector<std::string> directories = BaseLib::Io::getDirectories(_path[i], true);
+          for (size_t j = 0; j < directories.size(); ++j) {
+            _path.emplace_back(_path[i] + "/" + directories[j]);
+            _out->printInfo("path found: " + _path[i] + "/" + directories[j]);
           }
         }
-        _out->printInfo("_path size: " + std::to_string(_path.size()));
       }
       _out->printInfo("recursive done");
     }
-
     return true;
   }
   catch (const std::exception &ex) {
