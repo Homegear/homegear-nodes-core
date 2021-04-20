@@ -55,11 +55,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
             _out->printError("Path does not exist: " + path[i]);
           } else {
             _path.emplace_back(path[i]);
-            _out->printInfo("path found: " + path[i]);
           }
         } else {
           _path.emplace_back(path[i]);
-          _out->printInfo("path found: " + path[i]);
         }
       }
 
@@ -72,16 +70,13 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
-        _inputPath.reserve(_path.size());
         for (size_t i = 0; i < _path.size(); ++i) {
           std::vector<std::string> directories = BaseLib::Io::getDirectories(_path[i], true);
           for (size_t j = 0; j < directories.size(); ++j) {
             _path.emplace_back(_path[i] + "/" + directories[j]);
-            _out->printInfo("path found: " + _path[i] + "/" + directories[j]);
           }
         }
       }
-      _out->printInfo("recursive done");
     }
     return true;
   }
@@ -144,27 +139,19 @@ void MyNode::waitForStop() {
 }
 
 void MyNode::monitor() {
-  _out->printInfo("started");
   int fd = inotify_init1(IN_NONBLOCK);
   if (fd == -1) {
     throw errno;
   }
-  _out->printInfo("notify");
-
-  int *wd = (int *) calloc(_path.size(), sizeof(int));
-  if (wd == NULL) {
-    throw errno;
-  }
-  _out->printInfo("mem alloc");
-
+  std::map<int, std::string> wd;
   for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
-    wd[i] = inotify_add_watch(fd, path, IN_ALL_EVENTS);
-    if (wd[i] == -1) {
+    int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+    if (w == -1){
       throw errno;
     }
+    wd.insert_or_assign(w, _path[i]);
   }
-  _out->printInfo("notify set");
 
   char buffer[sizeof(struct inotify_event) + NAME_MAX + 1] __attribute__ ((aligned(alignof(struct inotify_event))));
   const struct inotify_event *event_ptr;
@@ -175,9 +162,10 @@ void MyNode::monitor() {
       throw errno;
     }
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
-      _out->printInfo("for");
       event_ptr = (const struct inotify_event *) ptr;
       std::string msg;
+      std::atomic_bool del = false;
+      std::atomic_bool create = false;
 
       if (event_ptr->mask & IN_ACCESS) {
         msg += "Access";
@@ -193,9 +181,11 @@ void MyNode::monitor() {
       }
       if (event_ptr->mask & IN_CREATE) {
         msg += "Create";
+        create = true;
       }
       if (event_ptr->mask & IN_DELETE) {
         msg += "Delete";
+        del = true;
       }
       if (event_ptr->mask & IN_DELETE_SELF) {
         msg += "Watched File/directory deleted";
@@ -217,14 +207,32 @@ void MyNode::monitor() {
       }
       if (event_ptr->mask & IN_ISDIR) {
         msg += " directory";
+        if (_recursive && create){
+          std::string p = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
+          const char *path = p.c_str();
+          int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+          if (w == -1){
+            throw errno;
+          }
+          wd.insert_or_assign(w, (wd.find(event_ptr->wd)->second + "/" + event_ptr->name));
+        }
       } else {
         msg += " file";
       }
 
-      for (size_t i = 0; i < _path.size(); i++) {
-        if (wd[i] == event_ptr->wd) {
-          msg += " at path " + _path[i];
-          break;
+      msg += " at path " + wd.find(event_ptr->wd)->second;
+
+      if(del){
+        std::string path = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
+        int key = -1;
+        for (auto w : wd){
+          if (path.compare(w.second) == 0){
+            key = w.first;
+            break;
+          }
+        }
+        if (key != -1){
+          wd.erase(key);
         }
       }
 
@@ -237,38 +245,7 @@ void MyNode::monitor() {
       Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       message->structValue->emplace("payload", std::make_shared<Flows::Variable>(msg));
       output(0, message, true);
-
-      if (_recursive) {
-        _out->printInfo("check recursive");/*
-        for (auto path : _inputPath) {
-          _path.clear();
-          if (!BaseLib::Io::directoryExists(path)) {
-            break;
-          }
-          _path.emplace_back(path);
-          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
-          for (auto p : directories) {
-            _path.emplace_back(p);
-          }
-        }
-        _out->printInfo("_path size: " + std::to_string(_path.size()));
-
-        free(wd);
-        int *wd = (int *) calloc(_path.size(), sizeof(int));
-        if (wd == NULL) {
-          throw errno;
-        }
-
-        for (size_t i = 0; i < _path.size(); i++) {
-          const char *path = _path[i].c_str();
-          wd[i] = inotify_add_watch(fd, path, IN_ALL_EVENTS);
-          if (wd[i] == -1) {
-            throw errno;
-          }
-        }*/
-      }
     }
-
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   close(fd);
