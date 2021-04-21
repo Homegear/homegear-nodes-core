@@ -163,50 +163,50 @@ void MyNode::monitor() {
     }
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
       event_ptr = (const struct inotify_event *) ptr;
-      std::string msg;
+      std::string payload, topic, type, action;
       std::atomic_bool del = false;
       std::atomic_bool create = false;
 
       if (event_ptr->mask & IN_ACCESS) {
-        msg += "Access";
+        action = "Access";
       }
       if (event_ptr->mask & IN_ATTRIB) {
-        msg += "Attribute";
+        action = "Attribute";
       }
       if (event_ptr->mask & IN_CLOSE_WRITE) {
-        msg += "File opened for writing closed";
+        action = "File opened for writing closed";
       }
       if (event_ptr->mask & IN_CLOSE_NOWRITE) {
-        msg += "File or directory not opened for writing was closed.";
+        action = "File or directory not opened for writing was closed.";
       }
       if (event_ptr->mask & IN_CREATE) {
-        msg += "Create";
+        action = "Create";
         create = true;
       }
       if (event_ptr->mask & IN_DELETE) {
-        msg += "Delete";
+        action = "Delete";
         del = true;
       }
       if (event_ptr->mask & IN_DELETE_SELF) {
-        msg += "Watched File/directory deleted";
+        action = "Watched file/directory deleted";
       }
       if (event_ptr->mask & IN_MODIFY) {
-        msg += "File modified";
+        action = "File modified";
       }
       if (event_ptr->mask & IN_MOVE_SELF) {
-        msg += "watched directory moved";
+        action = "watched directory moved";
       }
       if (event_ptr->mask & IN_MOVED_FROM) {
-        msg += "renamed file in old directory";
+        action = "renamed file in old directory";
       }
       if (event_ptr->mask & IN_MOVED_TO) {
-        msg += "renamed file in new directory";
+        action = "renamed file in new directory";
       }
       if (event_ptr->mask & IN_OPEN) {
-        msg += "Open";
+        action = "Open";
       }
       if (event_ptr->mask & IN_ISDIR) {
-        msg += " directory";
+        type = "directory";
         if (_recursive && create){
           std::string p = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
           const char *path = p.c_str();
@@ -217,10 +217,10 @@ void MyNode::monitor() {
           wd.insert_or_assign(w, (wd.find(event_ptr->wd)->second + "/" + event_ptr->name));
         }
       } else {
-        msg += " file";
+        type = "file";
       }
 
-      msg += " at path " + wd.find(event_ptr->wd)->second;
+      topic = wd.find(event_ptr->wd)->second;
 
       if(del){
         std::string path = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
@@ -236,15 +236,18 @@ void MyNode::monitor() {
         }
       }
 
-      if (event_ptr->len) {
-        msg += "/" + std::string(event_ptr->name);
+      if(event_ptr->len){
+        payload = topic + "/" + event_ptr->name;
       }
 
-      _out->printInfo(msg);
-
-      Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(msg));
-      output(0, message, true);
+      if (!payload.empty() && !topic.empty() && !action.empty() && !type.empty()){
+        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
+        message->structValue->emplace("topic", std::make_shared<Flows::Variable>(topic));
+        message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
+        message->structValue->emplace("action", std::make_shared<Flows::Variable>(action));
+        output(0, message, true);
+      }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
