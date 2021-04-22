@@ -239,9 +239,9 @@ void MyNode::monitor() {
       if(event_ptr->len){
         payload = topic + "/" + event_ptr->name;
       }
-      _out->printInfo(action);
+      _out->printInfo("payload: " + payload + ", topic: " + topic + ", type: " + type + ", action: " + action);
 
-      if (!payload.empty() && !topic.empty() && !action.empty() && !type.empty()){
+      if (!action.empty()){
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
         message->structValue->emplace("topic", std::make_shared<Flows::Variable>(topic));
