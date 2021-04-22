@@ -243,10 +243,16 @@ void MyNode::monitor() {
 
       if (!action.empty()){
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
-        message->structValue->emplace("topic", std::make_shared<Flows::Variable>(topic));
-        message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
         message->structValue->emplace("action", std::make_shared<Flows::Variable>(action));
+        if (!payload.empty()){
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
+        }
+        if (!topic.empty()){
+          message->structValue->emplace("topic", std::make_shared<Flows::Variable>(topic));
+        }
+        if (!type.empty()){
+          message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
+        }
         output(0, message, true);
       }
     }
