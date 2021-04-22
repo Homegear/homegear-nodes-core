@@ -171,7 +171,7 @@ void MyNode::monitor() {
         action = "Access";
       }
       if (event_ptr->mask & IN_ATTRIB) {
-        action = "Attribute";
+        action = "File attribute change";
       }
       if (event_ptr->mask & IN_CLOSE_WRITE) {
         action = "File opened for writing closed";
@@ -194,13 +194,13 @@ void MyNode::monitor() {
         action = "File modified";
       }
       if (event_ptr->mask & IN_MOVE_SELF) {
-        action = "watched directory moved";
+        action = "Watched directory moved";
       }
       if (event_ptr->mask & IN_MOVED_FROM) {
-        action = "renamed file in old directory";
+        action = "Renamed directory/file in old directory";
       }
       if (event_ptr->mask & IN_MOVED_TO) {
-        action = "renamed file in new directory";
+        action = "Renamed directory/file in new directory";
       }
       if (event_ptr->mask & IN_OPEN) {
         action = "Open";
@@ -239,6 +239,7 @@ void MyNode::monitor() {
       if(event_ptr->len){
         payload = topic + "/" + event_ptr->name;
       }
+      _out->printInfo(action);
 
       if (!payload.empty() && !topic.empty() && !action.empty() && !type.empty()){
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
