@@ -3,14 +3,34 @@
 <p>Path to one or more directories. If there are more directories, seperate them by <code>,</code></p>
 <p>e.g. <code>/home, /var</code></p>
 <h3>Output</h3>
-<h4>action</h4>
-<p>Specifies the action</p>
 <h4>payload</h4>
+<p>Specifies the action</p>
+<h4>file path</h4>
 <p>Specifies the path of a file, where the action was performed</p>
 <p>Can be empty</p>
-<h4>topic</h4>
+<h4>path</h4>
 <p>Specifies the path of the directory, where the action was performed</p>
 <p>Can be empty</p>
 <h4>type</h4>
 <p>Specifies the type, on which the action was performed</p>
 <p>Can be empty</p>
+<h3>Details</h3>
+<p>Description for the payloads</p>
+<ul>
+    <li><code>IN_ACCESS</code> File was accessed</li>
+    <li><code>IN_ATTRIB</code> Metadata changed</li>
+    <li><code>IN_CLOSE_WRITE</code> File opend for writing was closed</li>
+    <li><code>IN_CLOSE_NOWRITE</code> File or directory not opened for writing was closed</li>
+    <li><code>IN_CREATE</code> File or directory in watched directory created</li>
+    <li><code>IN_DELETE</code> File or directory in watched directory deleted</li>
+    <li><code>IN_DELETE_SELF</code> Watched file or directory deleted</li>
+    <li><code>IN_MODIFY</code> File was modified</li>
+    <li><code>IN_MOVE_SELF</code> Watched file or directory was moved</li>
+    <li><code>IN_MOVE_FROM</code> Generated for the directory containing the old filename when a file is renamed. Is also generated, when a file is moved</li>
+    <li><code>IN_MOVE_TO</code> Generated for the directory containing the new filename when a file is renamed. Is also generated, when a file is moved</li>
+    <li><code>IN_OPEN</code> File or directory was opened</li>
+</ul>
+<h3>References</h3>
+<ul>
+    <li><a href="https://man7.org/linux/man-pages/man7/inotify.7.html">inotify</a> - For more information on the output</li>
+</ul>
