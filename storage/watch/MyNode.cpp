@@ -147,7 +147,7 @@ void MyNode::monitor() {
   for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
     int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
-    if (w == -1){
+    if (w == -1) {
       throw errno;
     }
     wd.insert_or_assign(w, _path[i]);
@@ -207,11 +207,11 @@ void MyNode::monitor() {
       }
       if (event_ptr->mask & IN_ISDIR) {
         type = "directory";
-        if (_recursive && create){
+        if (_recursive && create) {
           std::string p = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
           const char *path = p.c_str();
           int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
-          if (w == -1){
+          if (w == -1) {
             throw errno;
           }
           wd.insert_or_assign(w, (wd.find(event_ptr->wd)->second + "/" + event_ptr->name));
@@ -222,35 +222,35 @@ void MyNode::monitor() {
 
       topic = wd.find(event_ptr->wd)->second;
 
-      if(del){
+      if (del) {
         std::string path = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
         int key = -1;
-        for (auto w : wd){
-          if (path.compare(w.second) == 0){
+        for (auto w : wd) {
+          if (path.compare(w.second) == 0) {
             key = w.first;
             break;
           }
         }
-        if (key != -1){
+        if (key != -1) {
           wd.erase(key);
         }
       }
 
-      if(event_ptr->len){
+      if (event_ptr->len) {
         payload = topic + "/" + event_ptr->name;
       }
       _out->printInfo("payload: " + payload + ", topic: " + topic + ", type: " + type + ", action: " + action);
 
-      if (!action.empty()){
+      if (!action.empty()) {
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         message->structValue->emplace("action", std::make_shared<Flows::Variable>(action));
-        if (!payload.empty()){
+        if (!payload.empty()) {
           message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
         }
-        if (!topic.empty()){
+        if (!topic.empty()) {
           message->structValue->emplace("topic", std::make_shared<Flows::Variable>(topic));
         }
-        if (!type.empty()){
+        if (!type.empty()) {
           message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
         }
         output(0, message, true);

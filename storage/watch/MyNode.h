@@ -47,12 +47,12 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
-  std::atomic_bool _stopThread {true};
+  std::atomic_bool _stopThread{true};
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
   std::vector<std::string> _path;
-  std::atomic_bool _recursive {false};
+  std::atomic_bool _recursive{false};
 
   void monitor();
 };
