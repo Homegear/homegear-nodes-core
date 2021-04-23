@@ -164,8 +164,8 @@ void MyNode::monitor() {
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
       event_ptr = (const struct inotify_event *) ptr;
       std::string payload, topic, type, action;
-      std::atomic_bool del = false;
-      std::atomic_bool create = false;
+      bool del = false;
+      bool create = false;
 
       if (event_ptr->mask & IN_ACCESS) {
         action = "Access";
@@ -253,7 +253,7 @@ void MyNode::monitor() {
         if (!type.empty()) {
           message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
         }
-        output(0, message, true);
+        output(0, message, false); //for synchronous output set to true
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
