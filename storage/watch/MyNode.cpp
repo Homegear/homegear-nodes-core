@@ -246,6 +246,7 @@ void MyNode::monitor() {
       std::string payload, topic, type, filePath = "";
       bool del = false;
       bool create = false;
+      auto it = wd.find(event_ptr->wd);
 
       if (event_ptr->mask & IN_ACCESS) {
         payload = "IN_ACCESS";
@@ -288,31 +289,37 @@ void MyNode::monitor() {
       if (event_ptr->mask & IN_ISDIR) {
         type = "directory";
         if (_recursive && create) {
-          std::string p = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
-          const char *path = p.c_str();
-          int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
-          if (w == -1) {
-            throw errno;
+          if (it != wd.end()) {
+            std::string p = it->second + "/" + event_ptr->name;
+            const char *path = p.c_str();
+            int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+            if (w == -1) {
+              throw errno;
+            }
+            wd.insert_or_assign(w, it->second + "/" + event_ptr->name);
           }
-          wd.insert_or_assign(w, (wd.find(event_ptr->wd)->second + "/" + event_ptr->name));
         }
       } else {
         type = "file";
       }
 
-      topic = wd.find(event_ptr->wd)->second;
+      if (it != wd.end()) {
+        topic = it->second;
+      }
 
       if (del) {
-        std::string path = wd.find(event_ptr->wd)->second + "/" + event_ptr->name;
-        int key = -1;
-        for (auto w : wd) {
-          if (path.compare(w.second) == 0) {
-            key = w.first;
-            break;
+        if (it != wd.end()) {
+          std::string path = it->second + "/" + event_ptr->name;
+          int key = -1;
+          for (auto w : wd) {
+            if (path.compare(w.second) == 0) {
+              key = w.first;
+              break;
+            }
           }
-        }
-        if (key != -1) {
-          wd.erase(key);
+          if (key != -1) {
+            wd.erase(key);
+          }
         }
       }
 
