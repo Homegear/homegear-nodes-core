@@ -44,20 +44,20 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("path");
     if (settingsIterator != info->info->structValue->end()) {
-      std::string p = settingsIterator->second->stringValue;
-      std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(p, ',');
-      for (size_t i = 0; i < path.size(); ++i) {
-        if (path[i].empty()) {
+      std::string inputPath = settingsIterator->second->stringValue;
+      std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(inputPath, ',');
+      for (auto &p : path){
+        if (p.empty()){
           _out->printInfo("empty");
-        } else if (!BaseLib::Io::directoryExists(path[i])) {
-          path[i] = BaseLib::HelperFunctions::ltrim(path[i]);
-          if (!BaseLib::Io::directoryExists(path[i])) {
-            _out->printError("Path does not exist: " + path[i]);
+        } else if (!BaseLib::Io::directoryExists(p)){
+          p = BaseLib::HelperFunctions::ltrim(p);
+          if (!BaseLib::Io::directoryExists(p)) {
+            _out->printError("Path does not exist: " + p);
           } else {
-            _path.emplace_back(path[i]);
+            _path.emplace_back(p);
           }
         } else {
-          _path.emplace_back(path[i]);
+          _path.emplace_back(p);
         }
       }
 
@@ -70,10 +70,10 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
-        for (size_t i = 0; i < _path.size(); ++i) {
-          std::vector<std::string> directories = BaseLib::Io::getDirectories(_path[i], true);
-          for (size_t j = 0; j < directories.size(); ++j) {
-            _path.emplace_back(_path[i] + "/" + directories[j]);
+        for (auto &path : _path){
+          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
+          for (auto &directory : directories){
+            _path.emplace_back(path + "/" + directory);
           }
         }
       }
