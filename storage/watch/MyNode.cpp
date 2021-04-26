@@ -46,10 +46,10 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       std::string inputPath = settingsIterator->second->stringValue;
       std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(inputPath, ',');
-      for (auto &p : path){
-        if (p.empty()){
+      for (auto &p : path) {
+        if (p.empty()) {
           _out->printInfo("empty");
-        } else if (!BaseLib::Io::directoryExists(p)){
+        } else if (!BaseLib::Io::directoryExists(p)) {
           p = BaseLib::HelperFunctions::ltrim(p);
           if (!BaseLib::Io::directoryExists(p)) {
             _out->printError("Path does not exist: " + p);
@@ -70,9 +70,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
-        for (auto &path : _path){
+        for (auto &path : _path) {
           std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
-          for (auto &directory : directories){
+          for (auto &directory : directories) {
             _path.emplace_back(path + "/" + directory);
           }
         }
@@ -80,79 +80,79 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     }
 
     settingsIterator = info->info->structValue->find("allEvents");
-    if(settingsIterator != info->info->structValue->end()){
-      if(settingsIterator->second->booleanValue){
+    if (settingsIterator != info->info->structValue->end()) {
+      if (settingsIterator->second->booleanValue) {
         mask = IN_ALL_EVENTS;
-      }else{
+      } else {
         settingsIterator = info->info->structValue->find("accessEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_ACCESS;
           }
         }
         settingsIterator = info->info->structValue->find("attributeEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_ATTRIB;
           }
         }
         settingsIterator = info->info->structValue->find("closeWriteEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_CLOSE_WRITE;
           }
         }
         settingsIterator = info->info->structValue->find("closeNoWriteEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_CLOSE_NOWRITE;
           }
         }
         settingsIterator = info->info->structValue->find("createEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_CREATE;
           }
         }
         settingsIterator = info->info->structValue->find("deleteEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_DELETE;
           }
         }
         settingsIterator = info->info->structValue->find("selfDeleteEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_DELETE_SELF;
           }
         }
         settingsIterator = info->info->structValue->find("modifyEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_MODIFY;
           }
         }
         settingsIterator = info->info->structValue->find("selfMoveEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_MOVE_SELF;
           }
         }
         settingsIterator = info->info->structValue->find("moveFromEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_MOVED_FROM;
           }
         }
         settingsIterator = info->info->structValue->find("moveToEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_MOVED_TO;
           }
         }
         settingsIterator = info->info->structValue->find("openEvent");
-        if (settingsIterator != info->info->structValue->end()){
-          if(settingsIterator->second->booleanValue){
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->booleanValue) {
             mask = mask & IN_OPEN;
           }
         }
