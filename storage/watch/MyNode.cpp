@@ -87,73 +87,73 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         settingsIterator = info->info->structValue->find("accessEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_ACCESS;
+            mask = mask | IN_ACCESS;
           }
         }
         settingsIterator = info->info->structValue->find("attributeEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_ATTRIB;
+            mask = mask | IN_ATTRIB;
           }
         }
         settingsIterator = info->info->structValue->find("closeWriteEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_CLOSE_WRITE;
+            mask = mask | IN_CLOSE_WRITE;
           }
         }
         settingsIterator = info->info->structValue->find("closeNoWriteEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_CLOSE_NOWRITE;
+            mask = mask | IN_CLOSE_NOWRITE;
           }
         }
         settingsIterator = info->info->structValue->find("createEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_CREATE;
+            mask = mask | IN_CREATE;
           }
         }
         settingsIterator = info->info->structValue->find("deleteEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_DELETE;
+            mask = mask | IN_DELETE;
           }
         }
         settingsIterator = info->info->structValue->find("selfDeleteEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_DELETE_SELF;
+            mask = mask | IN_DELETE_SELF;
           }
         }
         settingsIterator = info->info->structValue->find("modifyEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_MODIFY;
+            mask = mask | IN_MODIFY;
           }
         }
         settingsIterator = info->info->structValue->find("selfMoveEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_MOVE_SELF;
+            mask = mask | IN_MOVE_SELF;
           }
         }
         settingsIterator = info->info->structValue->find("moveFromEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_MOVED_FROM;
+            mask = mask | IN_MOVED_FROM;
           }
         }
         settingsIterator = info->info->structValue->find("moveToEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_MOVED_TO;
+            mask = mask | IN_MOVED_TO;
           }
         }
         settingsIterator = info->info->structValue->find("openEvent");
         if (settingsIterator != info->info->structValue->end()) {
           if (settingsIterator->second->booleanValue) {
-            mask = mask & IN_OPEN;
+            mask = mask | IN_OPEN;
           }
         }
       }
