@@ -78,6 +78,86 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         }
       }
     }
+
+    settingsIterator = info->info->structValue->find("allEvents");
+    if(settingsIterator != info->info->structValue->end()){
+      if(settingsIterator->second->booleanValue){
+        mask = IN_ALL_EVENTS;
+      }else{
+        settingsIterator = info->info->structValue->find("accessEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_ACCESS;
+          }
+        }
+        settingsIterator = info->info->structValue->find("attributeEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_ATTRIB;
+          }
+        }
+        settingsIterator = info->info->structValue->find("closeWriteEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_CLOSE_WRITE;
+          }
+        }
+        settingsIterator = info->info->structValue->find("closeNoWriteEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_CLOSE_NOWRITE;
+          }
+        }
+        settingsIterator = info->info->structValue->find("createEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_CREATE;
+          }
+        }
+        settingsIterator = info->info->structValue->find("deleteEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_DELETE;
+          }
+        }
+        settingsIterator = info->info->structValue->find("selfDeleteEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_DELETE_SELF;
+          }
+        }
+        settingsIterator = info->info->structValue->find("modifyEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_MODIFY;
+          }
+        }
+        settingsIterator = info->info->structValue->find("selfMoveEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_MOVE_SELF;
+          }
+        }
+        settingsIterator = info->info->structValue->find("moveFromEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_MOVED_FROM;
+          }
+        }
+        settingsIterator = info->info->structValue->find("moveToEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_MOVED_TO;
+          }
+        }
+        settingsIterator = info->info->structValue->find("openEvent");
+        if (settingsIterator != info->info->structValue->end()){
+          if(settingsIterator->second->booleanValue){
+            mask = mask & IN_OPEN;
+          }
+        }
+      }
+    }
     return true;
   }
   catch (const std::exception &ex) {
@@ -146,7 +226,7 @@ void MyNode::monitor() {
   std::map<int, std::string> wd;
   for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
-    int w = inotify_add_watch(fd, path, IN_ALL_EVENTS);
+    int w = inotify_add_watch(fd, path, mask);
     if (w == -1) {
       throw errno;
     }

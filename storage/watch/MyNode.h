@@ -53,6 +53,7 @@ class MyNode : public Flows::INode {
 
   std::vector<std::string> _path;
   std::atomic_bool _recursive{false};
+  uint32_t mask = 0;
 
   void monitor();
 };

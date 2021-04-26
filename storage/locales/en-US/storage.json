@@ -40,7 +40,20 @@
     "label": {
       "name": "Name",
       "path": "Path to directory",
-      "recursive": "Watch sub-directories recursively"
+      "recursive": "Watch sub-directories recursively",
+      "allEvents": "All events",
+      "accessEvent": "Access Events",
+      "attributeEvent": "Attribute events",
+      "closeWriteEvent": "Not opened for writing closed",
+      "closeNoWriteEvent": "Opened for writing closed",
+      "createEvent": "Create event",
+      "deleteEvent": "Delete event",
+      "selfDeleteEvent": "Self delete event",
+      "modifyEvent": "Modify event",
+      "selfMoveEvent": "Self move event",
+      "moveFromEvent": "Move from event",
+      "moveToEvent": "Move to event",
+      "openEvent": "Open event"
     }
   }
 }

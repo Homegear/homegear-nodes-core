@@ -40,7 +40,20 @@
     "label": {
       "name": "Name",
       "path": "Pfad zum Verzeichnis",
-      "recursive": "Unterverzeichnisse rekursiv überwachen"
+      "recursive": "Unterverzeichnisse rekursiv überwachen",
+      "allEvents": "Alle Events",
+      "accessEvent": "Zugriff Event",
+      "attributeEvent": "Attribut Event",
+      "closeWriteEvent": "Geschlossen zum Schreiben geschlossen",
+      "closeNoWriteEvent": "Geschlossen nicht zum Schreiben geschlossen",
+      "createEvent": "Erstellen",
+      "deleteEvent": "Löschen",
+      "selfDeleteEvent": "Überwachtes Verzeichnis gelöscht",
+      "modifyEvent": "Bearbeitet",
+      "selfMoveEvent": "Überwachtes Verzeichnis verschoben",
+      "moveFromEvent": "Verschoben, altes Verzeichnis",
+      "moveToEvent": "Verschoben, neues Verzeichnis",
+      "openEvent": "Öffnen"
     }
   }
 }
