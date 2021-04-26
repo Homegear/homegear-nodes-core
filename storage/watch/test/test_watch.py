@@ -29,6 +29,7 @@ class CreateNotRecursiveTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "false",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -117,6 +118,7 @@ class CreateRecursiveTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -215,6 +217,7 @@ class DeleteNotRecursiveTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "false",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -315,6 +318,7 @@ class DeleteRecursiveTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -430,6 +434,7 @@ class OpenFileTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -516,6 +521,7 @@ class WriteFileTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -590,6 +596,7 @@ class ModifyTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
@@ -741,6 +748,7 @@ class DeleteWatchedDirectoryTestCase(unittest.TestCase):
                 "type": "watch",
                 "path": path,
                 "recursive": "true",
+                "allEvents": "true",
                 "wires": [
                     [{"id": "n2", "port": 0}]
                 ]
