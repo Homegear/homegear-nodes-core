@@ -36,6 +36,12 @@
     "paletteHelp": "<p>Schreibt <code>$message['payload']</code> in eine Datei.</p>",
     "help": "<p>Schreibt <code>$message['payload']</code> in eine Datei. Dabei wird der Inhalt entweder an das Ende angehangen, oder der bisherige Inhalt der Datei überschrieben. Alternativ kann die Datei gelöscht werden.</p><h3>Eingaben</h3><dl class=\"message-properties\"><dt class=\"optional\">Dateiname <span class=\"property-type\">Zeichenkette</span></dt><dd>Wenn im Knoten nicht konfiguriert, legt diese optionale Eigenschaft den Namen der zu aktualisierenden Datei fest.</dd></dl><h3>Details</h3><p>Jeder Nachrichten-payload wird am Ende der Datei hinzugefügt, wobei optional kann ein Zeilenvorschub (\n) zwischen den einzelnen Zeichen eingefügt werden.</p><p>Es kann so konfiguriert werden, dass die gesamte Datei überschrieben und nicht angehängt wird. Wenn Sie beispielsweise Binärdaten in eine Datei schreiben, z. B. ein Bild, sollte diese Option verwendet und das Anhängen einer neuen Zeile deaktiviert werden.</p><p>Alternativ kann dieser Knoten so konfiguriert werden, dass die Datei gelöscht wird.</p>"
   },
+  "tail": {
+    "label": {
+      "name": "Name",
+      "path": "Pfad"
+    }
+  },
   "watch": {
     "label": {
       "name": "Name",

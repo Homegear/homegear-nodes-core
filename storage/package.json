@@ -12,10 +12,12 @@
     "local": false,
     "maxThreadCounts": {
       "file": 0,
+      "tail": 0,
       "watch": 0
     },
     "nodes": {
       "file": "file.so",
+      "tail": "tail.so",
       "watch": "watch.so"
     }
   },

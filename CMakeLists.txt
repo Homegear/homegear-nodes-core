@@ -176,6 +176,10 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		storage/tail/Factory.cpp
+		storage/tail/Factory.h
+		storage/tail/MyNode.cpp
+		storage/tail/MyNode.h
 		storage/watch/Factory.cpp
 		storage/watch/Factory.h
 		storage/watch/MyNode.cpp
