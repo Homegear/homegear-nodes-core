@@ -342,7 +342,7 @@ void MyNode::monitor() {
         if (!type.empty()) {
           message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
         }
-        output(0, message, true); //for synchronous output set to true //TODO
+        output(0, message, false); //for synchronous output set to true
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
