@@ -40,6 +40,29 @@ MyNode::~MyNode() = default;
 
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
+    auto settingsIterator = info->info->structValue->find("path");
+    if (settingsIterator != info->info->structValue->end()) {
+      std::string inputPath = settingsIterator->second->stringValue;
+      std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(inputPath, ',');
+      for (auto &p : path) {
+        if (!p.empty()) {
+          if (!BaseLib::Io::fileExists(p)) {
+            p = BaseLib::HelperFunctions::ltrim(p);
+            if (!BaseLib::Io::fileExists(p)) {
+              _out->printError("Path does not exist or is not a file: " + p);
+            } else {
+              _path.emplace_back(p);
+            }
+          } else {
+            _path.emplace_back(p);
+          }
+        }
+      }
+
+      if (_path.size() == 0) {
+        return false;
+      }
+    }
     return true;
   }
   catch (const std::exception &ex) {

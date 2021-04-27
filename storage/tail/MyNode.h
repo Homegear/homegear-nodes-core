@@ -45,6 +45,8 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
+  std::vector<std::string> _path;
+
   void tail();
 };
 
