@@ -47,17 +47,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       std::string inputPath = settingsIterator->second->stringValue;
       std::vector<std::string> path = BaseLib::HelperFunctions::splitAll(inputPath, ',');
       for (auto &p : path) {
-        if (p.empty()) {
-          _out->printInfo("empty");
-        } else if (!BaseLib::Io::directoryExists(p)) {
-          p = BaseLib::HelperFunctions::ltrim(p);
-          if (!BaseLib::Io::directoryExists(p)) {
-            _out->printError("Path does not exist: " + p);
+        if (!p.empty()) {
+          if (!(BaseLib::Io::directoryExists(p) || BaseLib::Io::fileExists(p))) {
+            p = BaseLib::HelperFunctions::ltrim(p);
+            if (!(BaseLib::Io::directoryExists(p) || BaseLib::Io::fileExists(p))) {
+              _out->printError("Path does not exist: " + p);
+            } else {
+              _path.emplace_back(p);
+            }
           } else {
             _path.emplace_back(p);
           }
-        } else {
-          _path.emplace_back(p);
         }
       }
 
@@ -71,9 +71,11 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
         for (auto &path : _path) {
-          std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
-          for (auto &directory : directories) {
-            _path.emplace_back(path + "/" + directory);
+          if (BaseLib::Io::directoryExists(path)){
+            std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
+            for (auto &directory : directories) {
+              _path.emplace_back(path + "/" + directory);
+            }
           }
         }
       }
@@ -340,7 +342,7 @@ void MyNode::monitor() {
         if (!type.empty()) {
           message->structValue->emplace("type", std::make_shared<Flows::Variable>(type));
         }
-        output(0, message, false); //for synchronous output set to true
+        output(0, message, true); //for synchronous output set to true //TODO
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
