@@ -195,6 +195,82 @@ class CreateRecursiveTestCase(unittest.TestCase):
             self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
 
 
+class WatchFileTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+
+        global path
+        path = os.getcwd() + "/testingDirectory"
+        if not os.path.exists(path):
+            os.mkdir(path)
+
+    @classmethod
+    def tearDownClass(cls):
+        os.rmdir(path)
+
+    def setUp(self):
+        file = open(path + "/foo.txt", "x")
+        file.close()
+        testFlow = [
+            {
+                "id": "n1",
+                "type": "watch",
+                "path": path + "/foo.txt",
+                "recursive": "true",
+                "allEvents": "true",
+                "wires": [
+                    [{"id": "n2", "port": 0}]
+                ]
+            },
+            {
+                "id": "n2",
+                "type": "unit-test-helper",
+                "inputs": 1
+            }
+        ]
+        nodeIds = hg.addNodesToFlow("Watch Unit test", "unit-test", testFlow)
+
+        if not nodeIds:
+            raise SystemError('Error =>  Could not create flow.')
+
+        global n1, n2
+        n1 = nodeIds["n1"]
+        n2 = nodeIds["n2"]
+
+        if not hg.restartFlows():
+            raise SystemError("Error => Could not restart flows.")
+
+        while not hg.nodeBlueIsReady():
+            time.sleep(1)
+
+    def tearDown(self):
+        hg.removeNodesFromFlow("Watch Unit test", "unit-test")
+        for root, dirs, files in os.walk(path, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+
+    def test_openWatchedFile(self):
+        file = open(path + "/foo.txt", "r")
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[1][1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_OPEN'")
+
+    def test_writeWatchedFile(self):
+        file = open(path + "/foo.txt", "a")
+        file.write("This is a test")
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[1][1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
+
+
 class DeleteNotRecursiveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
