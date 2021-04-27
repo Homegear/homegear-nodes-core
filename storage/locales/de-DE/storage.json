@@ -39,7 +39,7 @@
   "watch": {
     "label": {
       "name": "Name",
-      "path": "Pfad zum Verzeichnis",
+      "path": "Pfad",
       "recursive": "Unterverzeichnisse rekursiv überwachen",
       "allEvents": "Alle Events",
       "accessEvent": "Zugriff Event",
