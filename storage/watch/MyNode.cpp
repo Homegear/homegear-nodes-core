@@ -272,6 +272,7 @@ void MyNode::monitor() {
       }
       if (event_ptr->mask & IN_DELETE_SELF) {
         payload = "IN_DELETE_SELF";
+        del = true;
       }
       if (event_ptr->mask & IN_MODIFY) {
         payload = "IN_MODIFY";
@@ -311,7 +312,12 @@ void MyNode::monitor() {
 
       if (del) {
         if (it != wd.end()) {
-          std::string path = it->second + "/" + event_ptr->name;
+          std::string path;
+          if (event_ptr->len){
+            path = it->second + "/" + event_ptr->name;
+          } else{
+            path = it->second;
+          }
           int key = -1;
           for (auto w : wd) {
             if (path.compare(w.second) == 0) {
