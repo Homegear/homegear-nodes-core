@@ -76,7 +76,14 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 bool MyNode::start() {
   try {
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable()) {
+      _workerThread.join();
+    }
 
+    _stopThread = false;
+    _workerThread = std::thread(&MyNode::tail, this);
     return true;
   }
   catch (const std::exception &ex) {
@@ -90,7 +97,7 @@ bool MyNode::start() {
 
 void MyNode::stop() {
   try {
-
+    _stopThread = true;
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -102,7 +109,11 @@ void MyNode::stop() {
 
 void MyNode::waitForStop() {
   try {
-
+    std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
+    _stopThread = true;
+    if (_workerThread.joinable()) {
+      _workerThread.join();
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -113,6 +124,61 @@ void MyNode::waitForStop() {
 }
 
 void MyNode::tail() {
+  int fd = inotify_init1(IN_NONBLOCK);
+  if (fd == -1) {
+    throw errno;
+  }
 
+  std::map<int, std::string> wd;
+  for (size_t i = 0; i < _path.size(); i++) {
+    const char *path = _path[i].c_str();
+    int w = inotify_add_watch(fd, path, IN_CLOSE_WRITE | IN_DELETE_SELF);
+    if (w == -1) {
+      throw errno;
+    }
+    wd.insert_or_assign(w, _path[i]);
+  }
+
+  char buffer[sizeof(struct inotify_event) + NAME_MAX + 1] __attribute__ ((aligned(alignof(struct inotify_event))));
+  const struct inotify_event *event_ptr;
+
+  while (!_stopThread) {
+    ssize_t len = read(fd, buffer, sizeof(buffer));
+    if (len == -1 && errno != EAGAIN) {
+      throw errno;
+    }
+
+    for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
+      event_ptr = (const struct inotify_event *) ptr;
+      auto wdIt = wd.find(event_ptr->wd);
+
+      if (event_ptr->mask & IN_CLOSE_WRITE) {
+        if (wdIt != wd.end()) {
+          std::ifstream fs(wdIt->second);
+
+          int count = std::count(std::istreambuf_iterator<char>(fs), std::istreambuf_iterator<char>(), '\n');
+          _out->printInfo("count: " + std::to_string(count));
+          auto lcIt = _lineCount.find(event_ptr->wd);
+          if (lcIt != _lineCount.end()){
+            if (count > lcIt->second){
+              lcIt->second = count;
+            }
+          } else {
+            _lineCount.insert_or_assign(event_ptr->wd, count);
+          }
+
+          Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(count));
+          output(0, message, true);
+        }
+      } else if (event_ptr->mask & IN_DELETE_SELF) {
+        if (wdIt != wd.end()) {
+          wd.erase(wdIt);
+        }
+      }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  }
+  close(fd);
 }
 }
