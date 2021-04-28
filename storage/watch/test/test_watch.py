@@ -10,10 +10,9 @@ import stat
 class CreateNotRecursiveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -99,10 +98,9 @@ class CreateNotRecursiveTestCase(unittest.TestCase):
 class CreateRecursiveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -198,10 +196,9 @@ class CreateRecursiveTestCase(unittest.TestCase):
 class WatchFileTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -274,10 +271,9 @@ class WatchFileTestCase(unittest.TestCase):
 class DeleteNotRecursiveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -375,10 +371,9 @@ class DeleteNotRecursiveTestCase(unittest.TestCase):
 class DeleteRecursiveTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -491,10 +486,9 @@ class DeleteRecursiveTestCase(unittest.TestCase):
 class OpenFileTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -578,10 +572,9 @@ class OpenFileTestCase(unittest.TestCase):
 class WriteFileTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -653,10 +646,9 @@ class WriteFileTestCase(unittest.TestCase):
 class ModifyTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -805,10 +797,9 @@ class ModifyTestCase(unittest.TestCase):
 class DeleteWatchedDirectoryTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
@@ -891,10 +882,9 @@ class DeleteWatchedDirectoryTestCase(unittest.TestCase):
 class SelectorTestCase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
+        global hg, path
         hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
-        global path
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
             os.mkdir(path)
