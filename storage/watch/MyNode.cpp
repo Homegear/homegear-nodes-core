@@ -71,7 +71,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       _recursive = settingsIterator->second->booleanValue;
       if (_recursive) {
         for (auto &path : _path) {
-          if (BaseLib::Io::directoryExists(path)){
+          if (BaseLib::Io::directoryExists(path)) {
             std::vector<std::string> directories = BaseLib::Io::getDirectories(path, true);
             for (auto &directory : directories) {
               _path.emplace_back(path + "/" + directory);
@@ -313,9 +313,9 @@ void MyNode::monitor() {
       if (del) {
         if (it != wd.end()) {
           std::string path;
-          if (event_ptr->len){
+          if (event_ptr->len) {
             path = it->second + "/" + event_ptr->name;
-          } else{
+          } else {
             path = it->second;
           }
           int key = -1;
@@ -334,7 +334,6 @@ void MyNode::monitor() {
       if (event_ptr->len) {
         filePath = topic + "/" + event_ptr->name;
       }
-      _out->printInfo("payload: " + payload + ", path: " + topic + ", type: " + type + ", filepath: " + filePath);
 
       if (!payload.empty()) {
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
