@@ -150,30 +150,41 @@ void MyNode::tail() {
 
     for (char *ptr = buffer; ptr < buffer + len; ptr += sizeof(struct inotify_event) + event_ptr->len) {
       event_ptr = (const struct inotify_event *) ptr;
-      auto wdIt = wd.find(event_ptr->wd);
+      auto it = wd.find(event_ptr->wd);
 
       if (event_ptr->mask & IN_CLOSE_WRITE) {
-        if (wdIt != wd.end()) {
-          std::ifstream fs(wdIt->second);
+        if (it != wd.end()) {
+          std::ifstream fs(it->second, std::ifstream::in);
+          if (fs) {
+            fs.seekg(0, fs.end);
+            int length = fs.tellg();
 
-          int count = std::count(std::istreambuf_iterator<char>(fs), std::istreambuf_iterator<char>(), '\n');
-          _out->printInfo("count: " + std::to_string(count));
-          auto lcIt = _lineCount.find(event_ptr->wd);
-          if (lcIt != _lineCount.end()){
-            if (count > lcIt->second){
-              lcIt->second = count;
+            int n = 2;
+            while (fs.tellg() != 0 && n) {
+              fs.seekg(-1, fs.cur);
+              if (fs.peek() == '\n') {
+                n--;
+              }
             }
-          } else {
-            _lineCount.insert_or_assign(event_ptr->wd, count);
+            if (fs.peek() == '\n') {
+              fs.seekg(1, fs.cur);
+            }
+
+            length = length - fs.tellg();
+            char line[length];
+            fs.getline(line, length);
+            fs.close();
+
+            std::string l(line);
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(l));
+            output(0, message, false);
           }
 
-          Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(count));
-          output(0, message, true);
         }
       } else if (event_ptr->mask & IN_DELETE_SELF) {
-        if (wdIt != wd.end()) {
-          wd.erase(wdIt);
+        if (it != wd.end()) {
+          wd.erase(it);
         }
       }
     }

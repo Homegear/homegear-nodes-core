@@ -54,7 +54,6 @@ class MyNode : public Flows::INode {
   std::thread _workerThread;
 
   std::vector<std::string> _path;
-  std::map<int, int> _lineCount;
 
   void tail();
 };
