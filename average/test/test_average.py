@@ -1,5 +1,6 @@
 from homegear import Homegear
 import unittest
+import sys
 import time
 import random
 
@@ -9,10 +10,22 @@ def buildAverage(numbers):
         return sum(numbers) / len(numbers)
 
 
-class TestCurrentValueInteger(unittest.TestCase):
-    global testValues, input
-    testValues = [5, 10, 42, 20, 37, 2, 4, 0.2, 4.2, 42.42]
-    input = "fixedInput"
+class CurrentValueInteger(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+
+        global testValues, input
+        testValues = [5, 10, 42, 20, 37, 2, 4, 0.2, 4.2, 42.42]
+        input = "fixedInput"
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
 
     def setUp(self):
         testFlow = [
@@ -52,7 +65,7 @@ class TestCurrentValueInteger(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
 
-    def testAverageIntegers(self):
+    def test_averageIntegers(self):
         values = []
         i = 0
         for value in testValues:
@@ -67,7 +80,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageDouble(self):
+    def test_averageDouble(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": float(value)})
@@ -80,7 +93,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverage(self):
+    def test_average(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
@@ -93,7 +106,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageZero(self):
+    def test_averageZero(self):
         values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
         i = 0
         for value in values:
@@ -107,7 +120,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageOverride(self):
+    def test_averageOverride(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
@@ -134,7 +147,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageNegative(self):
+    def test_averageNegative(self):
         values = []
         i = 0
         for value in testValues:
@@ -148,7 +161,7 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageRandom(self):
+    def test_averageRandom(self):
         values = [None] * 10
         for i in range(random.randint(20, 1000)):
             value = random.random() * random.random() * random.randint(0, 100)
@@ -162,7 +175,23 @@ class TestCurrentValueInteger(unittest.TestCase):
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
 
-class TestCurrentValueDouble(unittest.TestCase):
+class CurrentValueDouble(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+
+        global testValues, input
+        testValues = [5, 10, 42, 20, 37, 2, 4, 0.2, 4.2, 42.42]
+        input = "fixedInput"
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
         testFlow = [
             {
@@ -201,7 +230,7 @@ class TestCurrentValueDouble(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
 
-    def testAverageInteger(self):
+    def test_averageInteger(self):
         values = []
         i = 0
         for value in testValues:
@@ -216,7 +245,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageDouble(self):
+    def test_averageDouble(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": float(value)})
@@ -229,7 +258,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverage(self):
+    def test_average(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
@@ -242,7 +271,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageZero(self):
+    def test_averageZero(self):
         values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
         i = 0
         for value in values:
@@ -256,7 +285,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageOverride(self):
+    def test_averageOverride(self):
         i = 0
         for value in testValues:
             hg.setNodeVariable(n1, (input + str(i)), {"payload": value})
@@ -283,7 +312,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageNegative(self):
+    def test_averageNegative(self):
         values = []
         i = 0
         for value in testValues:
@@ -297,7 +326,7 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageRandom(self):
+    def test_averageRandom(self):
         values = [None] * 10
         for i in range(random.randint(20, 1000)):
             value = random.random() * random.random() * random.randint(0, 100)
@@ -311,7 +340,19 @@ class TestCurrentValueDouble(unittest.TestCase):
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
 
-class TestTimeInteger(unittest.TestCase):
+class TimeInteger(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
         testFlow = [
             {
@@ -348,7 +389,7 @@ class TestTimeInteger(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
 
-    def testAverageInteger(self):
+    def test_averageInteger(self):
         values = []
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value)})
@@ -360,7 +401,7 @@ class TestTimeInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageDouble(self):
+    def test_averageDouble(self):
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": float(value)})
         average = buildAverage(testValues)
@@ -370,7 +411,7 @@ class TestTimeInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverage(self):
+    def test_average(self):
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
         average = buildAverage(testValues)
@@ -380,7 +421,7 @@ class TestTimeInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageZero(self):
+    def test_averageZero(self):
         values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
@@ -391,7 +432,7 @@ class TestTimeInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageAppend(self):
+    def test_averageAppend(self):
         values = testValues
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
@@ -419,7 +460,7 @@ class TestTimeInteger(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
-    def testAverageRandom(self):
+    def test_averageRandom(self):
         values = []
         for i in range(random.randint(20, 100)):
             value = random.random() * random.random() * random.randint(0, 100)
@@ -433,7 +474,19 @@ class TestTimeInteger(unittest.TestCase):
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
 
-class TestTimeDouble(unittest.TestCase):
+class TimeDouble(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        global hg
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+
+    @classmethod
+    def tearDownClass(cls):
+        pass
+
     def setUp(self):
         testFlow = [
             {
@@ -470,7 +523,7 @@ class TestTimeDouble(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Average Unit test", "unit-test")
 
-    def testAverageInteger(self):
+    def test_averageInteger(self):
         values = []
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": int(value)})
@@ -492,7 +545,7 @@ class TestTimeDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverage(self):
+    def test_average(self):
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
         average = buildAverage(testValues)
@@ -502,7 +555,7 @@ class TestTimeDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageZero(self):
+    def test_averageZero(self):
         values = [0, 0, 0, 0, 42.42, 74, 2.56, 0, 0, 0]
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
@@ -513,7 +566,7 @@ class TestTimeDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageAppend(self):
+    def test_averageAppend(self):
         values = testValues
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
@@ -529,7 +582,7 @@ class TestTimeDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageNegative(self):
+    def test_averageNegative(self):
         values = []
         for value in testValues:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * (-1))})
@@ -541,7 +594,7 @@ class TestTimeDouble(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
-    def testAverageRandom(self):
+    def test_averageRandom(self):
         values = []
         for i in range(random.randint(20, 100)):
             value = random.random() * random.random() * random.randint(0, 100)
@@ -556,6 +609,13 @@ class TestTimeDouble(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    global hg
-    hg = Homegear("/var/run/homegear/homegearIPC.sock")
+    global socketPath
+    socketPath = ''
+    if len(sys.argv) > 1:
+        for arg in sys.argv:
+            if arg.startswith("/") and not arg == sys.argv[0]:
+                socketPath = arg
+                sys.argv.remove(arg)
+                break
+
     unittest.main()
