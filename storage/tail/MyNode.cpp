@@ -132,7 +132,7 @@ void MyNode::tail() {
   std::map<int, std::string> wd;
   for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
-    int w = inotify_add_watch(fd, path, IN_CLOSE_WRITE | IN_DELETE_SELF);
+    int w = inotify_add_watch(fd, path, IN_MODIFY | IN_DELETE_SELF);
     if (w == -1) {
       throw errno;
     }
@@ -152,7 +152,7 @@ void MyNode::tail() {
       event_ptr = (const struct inotify_event *) ptr;
       auto it = wd.find(event_ptr->wd);
 
-      if (event_ptr->mask & IN_CLOSE_WRITE) {
+      if (event_ptr->mask & IN_MODIFY) {
         if (it != wd.end()) {
           std::ifstream fs(it->second, std::ifstream::in);
           if (fs) {
@@ -176,8 +176,14 @@ void MyNode::tail() {
             fs.close();
 
             std::string l(line);
+            std::string filePath;
+            if(it != wd.end()){
+              filePath = it->second;
+            }
+            _out->printInfo("line: " + l + ", file path: " + filePath);
             Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
             message->structValue->emplace("payload", std::make_shared<Flows::Variable>(l));
+            message->structValue->emplace("file", std::make_shared<Flows::Variable>(filePath));
             output(0, message, false);
           }
 
