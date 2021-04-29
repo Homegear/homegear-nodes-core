@@ -1,0 +1,35 @@
+<script type="text/x-red" data-template-name="average">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i><span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('rbe',{
+        color:"#fdd0a2",
+        category: 'function',
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["int", "float"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["int", "float"]
+            }
+        ],
+        icon: "serial.svg",
+        label: function() {
+            if(this.name) return this.name;
+            return "rbe";
+        },
+        oneditprepare: function(){
+
+        }
+    });
+</script>
