@@ -1,14 +1,18 @@
 from homegear import Homegear
 import unittest
+import sys
 import time
 import os
 
 
-class WriteToFileTestCase(unittest.TestCase):
+class WriteToEmptyFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -62,7 +66,7 @@ class WriteToFileTestCase(unittest.TestCase):
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-    def test_writeToFile(self):
+    def test_write(self):
         text = "This is a test"
         file = open(filePath, "a")
         file.write(text + '\n')
@@ -72,33 +76,61 @@ class WriteToFileTestCase(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
-    def test_writeMultipleToFile(self):
+    def test_writeMultiple(self):
         text = "This is a test"
+        i = 0
         while text:
+            if i < 10:
+                i = i + 1
             file = open(filePath, "a")
             file.write(text + '\n')
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), i, f"There should be {i} messages, but there are {len(inputHistory)} messages")
             self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
             text = text[:-2]
 
-    def test_writeEmptyLineToFile(self):
+    def test_writeEmptyLine(self):
         file = open(filePath, "a")
         file.write('' + '\n')
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertEqual(inputHistory, None, f"Input should be None, but was {inputHistory}")
+
+    def test_writeOneLetter(self):
+        text = 'a'
+        file = open(filePath, "a")
+        file.write(text + '\n')
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], '', f"Payload is '{inputHistory[0][1]['payload']}', but should be ''")
+        self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
+
+    def test_writeMultipleLines(self):
+        text = "This is a test\nThe answer to life the universe and everything\n42\nWrite something here"
+        lastLine = "This is the last line"
+        file = open(filePath, "a")
+        file.write(text + '\n')
+        file.write(lastLine + '\n')
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[0][1]['payload'], lastLine, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{lastLine}'")
 
 
-class AppendToFileTestCase(unittest.TestCase):
+class AppendToFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -153,7 +185,7 @@ class AppendToFileTestCase(unittest.TestCase):
             for name in dirs:
                 os.rmdir(os.path.join(root, name))
 
-    def test_appendToFile(self):
+    def test_append(self):
         text = "This is a test"
         file = open(filePath, "a")
         file.write(text + '\n')
@@ -163,27 +195,60 @@ class AppendToFileTestCase(unittest.TestCase):
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
-    def test_appendMultipleToFile(self):
+    def test_appendMultiple(self):
         text = "This is a test"
+        i = 0
         while text:
+            if i < 10:
+                i = i + 1
             file = open(filePath, "a")
             file.write(text + '\n')
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), i, f"There should be {i} messages, but there are {len(inputHistory)} messages")
             self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
             text = text[:-2]
 
-    def test_appendEmptyLineToFile(self):
+    def test_appendEmptyLine(self):
         file = open(filePath, "a")
         file.write('' + '\n')
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertEqual(inputHistory, None, f"Input should be None, but was {inputHistory}")
+
+    def test_appendOneLetter(self):
+        text = 'a'
+        file = open(filePath, "a")
+        file.write(text + '\n')
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], '', f"Payload is '{inputHistory[0][1]['payload']}', but should be ''")
+        self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
+
+    def test_apendMultipleLines(self):
+        text = "This is a test\nThe answer to life the universe and everything\n42\nWrite something here"
+        lastLine = "This is the last line"
+        file = open(filePath, "a")
+        file.write(text + '\n')
+        file.write(lastLine + '\n')
+        file.close()
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[0][1]['payload'], lastLine, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{lastLine}'")
 
 
 if __name__ == '__main__':
+    global socketPath
+    socketPath = ''
+    if len(sys.argv) > 1:
+        for arg in sys.argv:
+            if arg.startswith("/") and not arg == sys.argv[0]:
+                socketPath = arg
+                sys.argv.remove(arg)
+
     unittest.main()
