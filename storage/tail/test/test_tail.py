@@ -250,5 +250,6 @@ if __name__ == '__main__':
             if arg.startswith("/") and not arg == sys.argv[0]:
                 socketPath = arg
                 sys.argv.remove(arg)
+                break
 
     unittest.main()
