@@ -1,17 +1,21 @@
 from homegear import Homegear
 import unittest
+import sys
 import time
-import datetime
 import os
+import datetime
 import shutil
 import stat
 
 
-class CreateNotRecursiveTestCase(unittest.TestCase):
+class CreateNotRecursive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -95,11 +99,14 @@ class CreateNotRecursiveTestCase(unittest.TestCase):
             self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[2][1]['payload']}', but should be 'IN_CREATE'")
 
 
-class CreateRecursiveTestCase(unittest.TestCase):
+class CreateRecursive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -193,11 +200,14 @@ class CreateRecursiveTestCase(unittest.TestCase):
             self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
 
 
-class WatchFileTestCase(unittest.TestCase):
+class WatchFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -268,11 +278,14 @@ class WatchFileTestCase(unittest.TestCase):
         self.assertEqual(inputHistory[1][1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
 
 
-class DeleteNotRecursiveTestCase(unittest.TestCase):
+class DeleteNotRecursive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -368,11 +381,14 @@ class DeleteNotRecursiveTestCase(unittest.TestCase):
             self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
 
 
-class DeleteRecursiveTestCase(unittest.TestCase):
+class DeleteRecursive(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -483,11 +499,14 @@ class DeleteRecursiveTestCase(unittest.TestCase):
             self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
 
 
-class OpenFileTestCase(unittest.TestCase):
+class OpenFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -569,11 +588,14 @@ class OpenFileTestCase(unittest.TestCase):
             f.close()
 
 
-class WriteFileTestCase(unittest.TestCase):
+class WriteFile(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -643,11 +665,14 @@ class WriteFileTestCase(unittest.TestCase):
         self.assertEqual(inputHistory[0][1]['payload'], "IN_CLOSE_WRITE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CLOSE_WRITE'")
 
 
-class ModifyTestCase(unittest.TestCase):
+class Modify(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -794,11 +819,14 @@ class ModifyTestCase(unittest.TestCase):
         self.assertEqual(inputHistory[0][1]['payload'], "IN_ATTRIB", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_ATTRIB'")
 
 
-class DeleteWatchedDirectoryTestCase(unittest.TestCase):
+class DeleteWatchedDirectory(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -879,11 +907,14 @@ class DeleteWatchedDirectoryTestCase(unittest.TestCase):
         os.mkdir(path)
 
 
-class SelectorTestCase(unittest.TestCase):
+class Selector(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         global hg, path
-        hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        if socketPath:
+            hg = Homegear(socketPath)
+        else:
+            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
         path = os.getcwd() + "/testingDirectory"
         if not os.path.exists(path):
@@ -955,4 +986,13 @@ class SelectorTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    global socketPath
+    socketPath = ''
+    if len(sys.argv) > 1:
+        for arg in sys.argv:
+            if arg.startswith("/") and not arg == sys.argv[0]:
+                socketPath = arg
+                sys.argv.remove(arg)
+                break
+
     unittest.main()
