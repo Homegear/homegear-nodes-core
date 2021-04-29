@@ -171,20 +171,23 @@ void MyNode::tail() {
             }
 
             length = length - fs.tellg();
-            char line[length];
-            fs.getline(line, length);
-            fs.close();
+            if (length > 1) {
+              char line[length];
+              fs.getline(line, length);
 
-            std::string l(line);
-            std::string filePath;
-            if(it != wd.end()){
-              filePath = it->second;
+
+              std::string l(line);
+              std::string filePath;
+              if (it != wd.end()) {
+                filePath = it->second;
+              }
+              _out->printInfo("line: " + l + ", file path: " + filePath);
+              Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(l));
+              message->structValue->emplace("file", std::make_shared<Flows::Variable>(filePath));
+              output(0, message, false);
             }
-            _out->printInfo("line: " + l + ", file path: " + filePath);
-            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(l));
-            message->structValue->emplace("file", std::make_shared<Flows::Variable>(filePath));
-            output(0, message, false);
+            fs.close();
           }
 
         }
