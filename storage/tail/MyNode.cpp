@@ -132,7 +132,7 @@ void MyNode::tail() {
   std::map<int, std::string> wd;
   for (size_t i = 0; i < _path.size(); i++) {
     const char *path = _path[i].c_str();
-    int w = inotify_add_watch(fd, path, IN_MODIFY | IN_DELETE_SELF);
+    int w = inotify_add_watch(fd, path, IN_MODIFY | IN_MOVE_SELF | IN_DELETE_SELF);
     if (w == -1) {
       throw errno;
     }
@@ -153,43 +153,47 @@ void MyNode::tail() {
       auto it = wd.find(event_ptr->wd);
 
       if (event_ptr->mask & IN_MODIFY) {
+        _out->printInfo("IN_MODIFY");
         if (it != wd.end()) {
-          std::ifstream fs(it->second, std::ifstream::in);
-          if (fs) {
-            fs.seekg(0, fs.end);
-            int length = fs.tellg();
-
-            int n = 2;
-            while (fs.tellg() != 0 && n) {
-              fs.seekg(-1, fs.cur);
-              if (fs.peek() == '\n') {
-                n--;
-              }
+          std::string line = getLastLine(it->second);
+          if (!line.empty()){
+            std::string filePath;
+            if (it != wd.end()) {
+              filePath = it->second;
             }
-            if (fs.peek() == '\n') {
-              fs.seekg(1, fs.cur);
+            _out->printInfo("line: " + line + ", file path: " + filePath);
+            Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(line));
+            message->structValue->emplace("file", std::make_shared<Flows::Variable>(filePath));
+            output(0, message, false);
+          }
+        }
+      } else if (event_ptr->mask & IN_MOVE_SELF) {
+        if (it != wd.end()) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          if (BaseLib::Io::fileExists(it->second)) {
+            const char *path = it->second.c_str();
+            int w = inotify_add_watch(fd, path, IN_MODIFY | IN_MOVE_SELF | IN_DELETE_SELF);
+            if (w == -1) {
+              throw errno;
             }
+            auto node = wd.extract(it);
+            node.key() = w;
+            wd.insert(std::move(node));
 
-            length = length - fs.tellg();
-            if (length > 1) {
-              char line[length];
-              fs.getline(line, length);
-
-
-              std::string l(line);
+            std::string line = getLastLine(it->second);
+            if (!line.empty()){
               std::string filePath;
               if (it != wd.end()) {
                 filePath = it->second;
               }
-              _out->printInfo("line: " + l + ", file path: " + filePath);
+              _out->printInfo("line: " + line + ", file path: " + filePath);
               Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(l));
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(line));
               message->structValue->emplace("file", std::make_shared<Flows::Variable>(filePath));
               output(0, message, false);
             }
-            fs.close();
           }
-
         }
       } else if (event_ptr->mask & IN_DELETE_SELF) {
         if (it != wd.end()) {
@@ -200,5 +204,34 @@ void MyNode::tail() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
   close(fd);
+}
+
+std::string MyNode::getLastLine(std::string path) {
+  std::ifstream fs(path, std::ifstream::in);
+  if (fs) {
+    fs.seekg(0, fs.end);
+    int length = fs.tellg();
+
+    int n = 2;
+    while (fs.tellg() != 0 && n) {
+      fs.seekg(-1, fs.cur);
+      if (fs.peek() == '\n') {
+        n--;
+      }
+    }
+    if (fs.peek() == '\n') {
+      fs.seekg(1, fs.cur);
+    }
+
+    length = length - fs.tellg();
+    if (length > 1) {
+      char line[length];
+      fs.getline(line, length);
+      fs.close();
+      return std::string(line);
+    }
+    fs.close();
+  }
+  return "";
 }
 }

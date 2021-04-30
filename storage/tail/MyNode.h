@@ -56,6 +56,7 @@ class MyNode : public Flows::INode {
   std::vector<std::string> _path;
 
   void tail();
+  std::string getLastLine(std::string path);
 };
 
 }
