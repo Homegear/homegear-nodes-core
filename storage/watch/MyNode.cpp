@@ -339,7 +339,7 @@ void MyNode::monitor() {
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(payload));
         if (!filePath.empty()) {
-          message->structValue->emplace("file path", std::make_shared<Flows::Variable>(payload));
+          message->structValue->emplace("file path", std::make_shared<Flows::Variable>(filePath));
         }
         if (!topic.empty()) {
           message->structValue->emplace("path", std::make_shared<Flows::Variable>(topic));
