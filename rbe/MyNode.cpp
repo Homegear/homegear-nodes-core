@@ -40,9 +40,64 @@ MyNode::~MyNode() = default;
 
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
-    auto settingsIterator = info->info->structValue->find("");
+    auto settingsIterator = info->info->structValue->find("mode");
     if (settingsIterator != info->info->structValue->end()) {
+      if (settingsIterator->second->stringValue.compare("blockValueChange") == 0) {
+        _mode = blockValueChange;
+      } else if (settingsIterator->second->stringValue.compare("blockValueChangeIgnore") == 0) {
+        _mode = blockValueChangeIgnore;
+      } else if (settingsIterator->second->stringValue.compare("blockValueChangeGreaterEqual") == 0) {
+        _mode = blockValueChangeGreaterEqual;
+      } else if (settingsIterator->second->stringValue.compare("blockValueChangeGreater") == 0) {
+        _mode = blockValueChangeGreater;
+      } else if (settingsIterator->second->stringValue.compare("blockIfValueChangeGreaterEqual") == 0) {
+        _mode = blockIfValueChangeGreaterEqual;
+      } else if (settingsIterator->second->stringValue.compare("blockIfValueChangeGreater") == 0) {
+        _mode = blockIfValueChangeGreater;
+      }
+    }
 
+    switch(_mode){
+      case blockValueChangeGreaterEqual:
+      case blockValueChangeGreater:
+        settingsIterator = info->info->structValue->find("compareTo");
+        if (settingsIterator != info->info->structValue->end()){
+          if (settingsIterator->second->stringValue.compare("lastOutput") == 0){
+            _compareTo = lastOutput;
+          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0){
+            _compareTo = lastInput;
+          }
+        }
+        break;
+      case blockIfValueChangeGreaterEqual:
+      case blockIfValueChangeGreater:
+        settingsIterator = info->info->structValue->find("compareTo");
+        if (settingsIterator != info->info->structValue->end()){
+          if (settingsIterator->second->stringValue.compare("lastOutput") == 0){
+            _compareTo = lastOutput;
+          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0){
+            _compareTo = lastInput;
+          }
+        }
+
+        settingsIterator = info->info->structValue->find("startValue");
+        if (settingsIterator != info->info->structValue->end()){
+          _startValue = settingsIterator->second->floatValue;
+        }
+    }
+
+    settingsIterator = info->info->structValue->find("inputValue");
+    if (settingsIterator != info->info->structValue->end()) {
+      _inputValue = settingsIterator->second->floatValue;
+    }
+
+    settingsIterator = info->info->structValue->find("inputValueType");
+    if (settingsIterator != info->info->structValue->end()) {
+      if (settingsIterator->second->stringValue.compare("flatValue") == 0) {
+        _inputValueType = flatValue;
+      } else if (settingsIterator->second->stringValue.compare("percent") == 0) {
+        _inputValueType = percent;
+      }
     }
 
     return true;

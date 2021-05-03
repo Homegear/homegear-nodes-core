@@ -44,6 +44,31 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
+  enum Mode {
+    blockValueChange,
+    blockValueChangeIgnore,
+    blockValueChangeGreaterEqual,
+    blockValueChangeGreater,
+    blockIfValueChangeGreaterEqual,
+    blockIfValueChangeGreater
+  };
+
+  enum InputValueType {
+    flatValue,
+    percent
+  };
+
+  enum CompareTo {
+    lastOutput,
+    lastInput
+  };
+
+  Mode _mode = blockValueChange;
+  double _inputValue;
+  InputValueType _inputValueType = flatValue;
+  CompareTo _compareTo = lastOutput;
+  double _startValue;
+
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
