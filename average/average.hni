@@ -78,7 +78,7 @@
                 min:2,
                 max:10
             });
-            //var node = this;
+            var node = this;
 
             if(this.averageOver == "time"){
                 $("#timeValue").show();
@@ -96,14 +96,14 @@
             }
 
             document.getElementById("node-input-averageOver").addEventListener("change", function(){
-                var averageOver = document.getElementById("node-input-averageOver").value;
-                if(averageOver == "time"){
+                node.averageOver = document.getElementById("node-input-averageOver").value;
+                if(node.averageOver == "time"){
                     $("#timeValue").show();
                     $("#currentValue").hide();
                     $("#checkDelete").hide();
                     $("#ignoreValue").hide();
                     $("#in").hide();
-                }else if(averageOver == "currentValues"){
+                }else if(node.averageOver == "currentValues"){
                     $("#timeValue").hide();
                     $("#currentValue").show();
                     $("#checkDelete").show();
