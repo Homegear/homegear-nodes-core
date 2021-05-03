@@ -1,7 +1,21 @@
 {
   "rbe": {
     "label": {
-      "rbe": "rbe"
+      "rbe": "rbe",
+      "mode": "Mode",
+      "blockValueChange": "block unless value changes",
+      "blockValueChangeIgnore": "block unless value changes (ignore initial value)",
+      "blockValueChangeGreaterEqual": "block unless value change is greater or equal",
+      "blockValueChangeGreater": "block unless value change is greater than",
+      "blockIfValueChangeGreaterEqual": "block if value change is greater or equal to",
+      "blockIfValueChangeGreater": "block if value change is greater than",
+      "inputValue": "10",
+      "lastOutput": "compared to last valid output value",
+      "lastInput": "compared to last input value",
+      "startValueLabel": "Start value",
+      "startValue": "leave empty to use first data received",
+      "differentTopic" : "different topics",
+      "inputs": "inputs"
     },
     "input1Description": "",
     "output1Description": ""

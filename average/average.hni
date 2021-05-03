@@ -78,15 +78,15 @@
                 min:2,
                 max:10
             });
-            var node = this;
+            //var node = this;
 
-            if(node.averageOver == "time"){
+            if(this.averageOver == "time"){
                 $("#timeValue").show();
                 $("#currentValue").hide();
                 $("#checkDelete").hide();
                 $("#ignoreValue").hide();
                 $("#in").hide();
-            }else if(node.averageOver == "currentValues"){
+            }else if(this.averageOver == "currentValues"){
                 $("#timeValue").hide();
                 $("#currentValue").show();
                 $("#checkDelete").show();
@@ -96,14 +96,14 @@
             }
 
             document.getElementById("node-input-averageOver").addEventListener("change", function(){
-                node.averageOver = document.getElementById("node-input-averageOver").value;
-                if(node.averageOver == "time"){
+                var averageOver = document.getElementById("node-input-averageOver").value;
+                if(averageOver == "time"){
                     $("#timeValue").show();
                     $("#currentValue").hide();
                     $("#checkDelete").hide();
                     $("#ignoreValue").hide();
                     $("#in").hide();
-                }else if(node.averageOver == "currentValues"){
+                }else if(averageOver == "currentValues"){
                     $("#timeValue").hide();
                     $("#currentValue").show();
                     $("#checkDelete").show();

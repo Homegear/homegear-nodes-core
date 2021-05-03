@@ -1,7 +1,41 @@
-<script type="text/x-red" data-template-name="average">
+<script type="text/x-red" data-template-name="rbe">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i><span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-mode"><i class="fa fa-wrench"></i><span data-i18n="rbe.label.mode"></span></label>
+        <select id="node-input-mode" style="display: inline-block; width: 70%:">
+            <option value="blockValueChange" data-i18n="rbe.label.blockValueChange"></option>
+            <option value="blockValueChangeIgnore" data-i18n="rbe.label.blockValueChangeIgnore"></option>
+            <option value="blockValueChangeGreaterEqual" data-i18n="rbe.label.blockValueChangeGreaterEqual"></option>
+            <option value="blockValueChangeGreater" data-i18n="rbe.label.blockValueChangeGreater"></option>
+            <option value="blockIfValueChangeGreaterEqual" data-i18n="rbe.label.blockIfValueChangeGreaterEqual"></option>
+            <option value="blockIfValueChangeGreater" data-i18n="rbe.label.blockIfValueChangeGreater"></option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-inputValue"></label>
+        <input type="text" id="node-input-inputValue" data-i18n="[placeholder]rbe.label.inputValue" style="display: inline-block; width: 115px;"/>
+        <input type="hidden" id="node-input-inputValueType"/>
+        <select id="node-input-compareTo" style="display: inline-block; width: 50%:">
+            <option value="lastOutput" data-i18n="rbe.label.lastOutput"></option>
+            <option value="lastInput" data-i18n="rbe.label.lastInput"></option>
+        </select>
+    </div>
+    <div class="form-row" id="startValue">
+        <label for="node-input-inputValue"><i class="fa fa-thumb-tack"></i><span data-i18n="rbe.label.startValueLabel"></label>
+        <input type="text" id="node-input-startValue" data-i18n="[placeholder]rbe.label.startValue"/>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-differentTopic" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-differentTopic" data-i18n="rbe.label.differentTopic" style="width: 15%; vertical-align: top;">
+    </div>
+    <div class="form-row" id="in">
+        <label for="node-input-inputs"><i class="fa fa-random"></i><span data-i18n="rbe.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;">
+        <input type="hidden" id="node-input-outputs">
     </div>
 </script>
 <script type="text/javascript">
@@ -9,7 +43,14 @@
         color:"#fdd0a2",
         category: 'function',
         defaults: {
-            name: {value:""}
+            name: {value:""},
+            mode: {value:"blockValueChange"},
+            inputValue: {value:"", required: true, validate:RED.validators.number()},
+            inputValueType: {value:"number"},
+            compareTo: {value:"lastOutput"},
+            startValue: {value:"", validate:function(v){new Promise(r => setTimeout(r, 10)); if(v){if(isNan(v)){return false;}} return true;}},
+            differentTopic: {value:false},
+            inputs: {value:1}
         },
         inputs:1,
         inputInfo: [
@@ -29,7 +70,56 @@
             return "rbe";
         },
         oneditprepare: function(){
+            $("#node-input-inputs").spinner({
+                min:1,
+                max:10
+            });
 
+            if (this.differentTopic){
+                $("#in").show();
+            } else {
+                $("#in").hide();
+            }
+
+            $("#node-input-differentTopic").on("change", function(){
+                if($("#node-input-differentTopic").is(":checked")){
+                    $("#in").show();
+                } else{
+                    $("#in").hide();
+                }
+            });
+
+            if (this.mode == "blockValueChange" || this.mode == "blockValueChangeIgnore"){
+                $("#node-input-compareTo").hide();
+                $("#startValue").hide();
+            } else if (this.mode == "blockValueChangeGreaterEqual" || this.mode == "blockValueChangeGreater"){
+                $("#node-input-compareTo").show();
+                $("#startValue").hide();
+            } else if (this.mode == "blockIfValueChangeGreaterEqual" || this.mode == "blockIfValueChangeGreater"){
+                $("#node-input-compareTo").show();
+                $("#startValue").show();
+            }
+
+            $("#node-input-mode").on("change", function(){
+                if ($("#node-input-mode").val() == "blockValueChange" || $("#node-input-mode").val() == "blockValueChangeIgnore"){
+                    $("#node-input-compareTo").hide();
+                    $("#startValue").hide();
+                } else if ($("#node-input-mode").val() == "blockValueChangeGreaterEqual" || $("#node-input-mode").val() == "blockValueChangeGreater"){
+                    $("#node-input-compareTo").show();
+                    $("#startValue").hide();
+                } else if ($("#node-input-mode").val() == "blockIfValueChangeGreaterEqual" || $("#node-input-mode").val() == "blockIfValueChangeGreater"){
+                    $("#node-input-compareTo").show();
+                    $("#startValue").show();
+                }
+            });
+
+            $("#node-input-inputValueType").val(this.inputValueType);
+            $("#node-input-inputValue").typedInput({
+                default: 'number',
+                typeField: $("#node-input-inputValueType"),
+                types:[{value:"number", label:"flat value"}, {value:"percent", label:"%"}]
+            });
+            $("#node-input-inputValue").typedInput('type', this.inputValueType);
         }
     });
 </script>
