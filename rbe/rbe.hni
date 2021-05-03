@@ -46,7 +46,7 @@
             name: {value:""},
             mode: {value:"blockValueChange"},
             inputValue: {value:"", required: true, validate:RED.validators.number()},
-            inputValueType: {value:"number"},
+            inputValueType: {value:"flatValue"},
             compareTo: {value:"lastOutput"},
             startValue: {value:"", validate:function(v){new Promise(r => setTimeout(r, 10)); if(v){if(isNan(v)){return false;}} return true;}},
             differentTopic: {value:false},
@@ -115,9 +115,9 @@
 
             $("#node-input-inputValueType").val(this.inputValueType);
             $("#node-input-inputValue").typedInput({
-                default: 'number',
+                default: 'flatValue',
                 typeField: $("#node-input-inputValueType"),
-                types:[{value:"number", label:"flat value"}, {value:"percent", label:"%"}]
+                types:[{value:"flatValue", label:"flat value"}, {value:"percent", label:"%"}]
             });
             $("#node-input-inputValue").typedInput('type', this.inputValueType);
         }
