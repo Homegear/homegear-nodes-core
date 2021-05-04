@@ -57,38 +57,39 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       }
     }
 
-    switch(_mode){
+    switch (_mode) {
+      case blockValueChange:
+      case blockValueChangeIgnore:
+        break;
       case blockValueChangeGreaterEqual:
-      case blockValueChangeGreater:
-        settingsIterator = info->info->structValue->find("compareTo");
-        if (settingsIterator != info->info->structValue->end()){
-          if (settingsIterator->second->stringValue.compare("lastOutput") == 0){
+      case blockValueChangeGreater:settingsIterator = info->info->structValue->find("compareTo");
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->stringValue.compare("lastOutput") == 0) {
             _compareTo = lastOutput;
-          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0){
+          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0) {
             _compareTo = lastInput;
           }
         }
         break;
       case blockIfValueChangeGreaterEqual:
-      case blockIfValueChangeGreater:
-        settingsIterator = info->info->structValue->find("compareTo");
-        if (settingsIterator != info->info->structValue->end()){
-          if (settingsIterator->second->stringValue.compare("lastOutput") == 0){
+      case blockIfValueChangeGreater:settingsIterator = info->info->structValue->find("compareTo");
+        if (settingsIterator != info->info->structValue->end()) {
+          if (settingsIterator->second->stringValue.compare("lastOutput") == 0) {
             _compareTo = lastOutput;
-          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0){
+          } else if (settingsIterator->second->stringValue.compare("lastInput") == 0) {
             _compareTo = lastInput;
           }
         }
 
         settingsIterator = info->info->structValue->find("startValue");
-        if (settingsIterator != info->info->structValue->end()){
-          _startValue = settingsIterator->second->floatValue;
+        if (settingsIterator != info->info->structValue->end()) {
+          _startValue = Flows::Math::getDouble(settingsIterator->second->stringValue);
         }
     }
 
     settingsIterator = info->info->structValue->find("inputValue");
     if (settingsIterator != info->info->structValue->end()) {
-      _inputValue = settingsIterator->second->floatValue;
+      _inputValue = Flows::Math::getDouble(settingsIterator->second->stringValue);
     }
 
     settingsIterator = info->info->structValue->find("inputValueType");
@@ -97,6 +98,18 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _inputValueType = flatValue;
       } else if (settingsIterator->second->stringValue.compare("percent") == 0) {
         _inputValueType = percent;
+      }
+    }
+
+    settingsIterator = info->info->structValue->find("differentTopics");
+    if (settingsIterator != info->info->structValue->end()) {
+      _differentTopics = settingsIterator->second->booleanValue;
+    }
+
+    if (_differentTopics) {
+      settingsIterator = info->info->structValue->find("inputs");
+      if (settingsIterator != info->info->structValue->end()) {
+        _inputs = settingsIterator->second->integerValue;
       }
     }
 

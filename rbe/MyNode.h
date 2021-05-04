@@ -68,6 +68,8 @@ class MyNode : public Flows::INode {
   InputValueType _inputValueType = flatValue;
   CompareTo _compareTo = lastOutput;
   double _startValue;
+  bool _differentTopics = false;
+  uint8_t _inputs = 1;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
