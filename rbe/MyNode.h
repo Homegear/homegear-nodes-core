@@ -71,6 +71,8 @@ class MyNode : public Flows::INode {
   bool _differentTopics = false;
   uint8_t _inputs = 1;
 
+  std::map<uint32_t , double> _lastInput;
+
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
