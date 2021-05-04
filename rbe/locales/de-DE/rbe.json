@@ -9,12 +9,11 @@
       "blockValueChangeGreater": "blockieren bis die Änderung größer ist",
       "blockIfValueChangeGreaterEqual": "blockieren, wenn die Änderung größer oder gleich ist",
       "blockIfValueChangeGreater": "blockieren, wenn die Änderung größer ist",
-      "inputValue": "10",
       "lastOutput": "verglichen mit letztem, validiertem ausgegangenem Wert",
       "lastInput": "verglichen mit letztem eingegangenem Wert",
       "startValueLabel": "Start Wert",
       "startValue": "leer lassen, um ersten eingegangenen Wert zu nutzen",
-      "differentTopic" : "Unterschiedliche Themen",
+      "differentTopics" : "Unterschiedliche Themen",
       "inputs": "Eingänge"
     },
     "input1Description": "",
