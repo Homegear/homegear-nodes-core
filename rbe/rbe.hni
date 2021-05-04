@@ -5,7 +5,7 @@
     </div>
     <div class="form-row">
         <label for="node-input-mode"><i class="fa fa-wrench"></i><span data-i18n="rbe.label.mode"></span></label>
-        <select id="node-input-mode" style="display: inline-block; width: 70%:">
+        <select id="node-input-mode" style="display: inline-block; width: auto;">
             <option value="blockValueChange" data-i18n="rbe.label.blockValueChange"></option>
             <option value="blockValueChangeIgnore" data-i18n="rbe.label.blockValueChangeIgnore"></option>
             <option value="blockValueChangeGreaterEqual" data-i18n="rbe.label.blockValueChangeGreaterEqual"></option>
@@ -14,9 +14,9 @@
             <option value="blockIfValueChangeGreater" data-i18n="rbe.label.blockIfValueChangeGreater"></option>
         </select>
     </div>
-    <div class="form-row">
+    <div class="form-row" id="valueChange">
         <label for="node-input-inputValue"></label>
-        <input type="text" id="node-input-inputValue" style="display: inline-block; width: 115px;"/>
+        <input type="text" id="node-input-inputValue" style="display: inline-block; width: 110px;"/>
         <input type="hidden" id="node-input-inputValueType"/>
         <select id="node-input-compareTo" style="display: inline-block; width: 30%:">
             <option value="lastOutput" data-i18n="rbe.label.lastOutput"></option>
@@ -90,25 +90,25 @@
             });
 
             if (this.mode == "blockValueChange" || this.mode == "blockValueChangeIgnore"){
-                $("#node-input-compareTo").hide();
+                $("#valueChange").hide();
                 $("#startValue").hide();
             } else if (this.mode == "blockValueChangeGreaterEqual" || this.mode == "blockValueChangeGreater"){
-                $("#node-input-compareTo").show();
+                $("#valueChange").show();
                 $("#startValue").hide();
             } else if (this.mode == "blockIfValueChangeGreaterEqual" || this.mode == "blockIfValueChangeGreater"){
-                $("#node-input-compareTo").show();
+                $("#valueChange").show();
                 $("#startValue").show();
             }
 
             $("#node-input-mode").on("change", function(){
                 if ($("#node-input-mode").val() == "blockValueChange" || $("#node-input-mode").val() == "blockValueChangeIgnore"){
-                    $("#node-input-compareTo").hide();
+                    $("#valueChange").hide();
                     $("#startValue").hide();
                 } else if ($("#node-input-mode").val() == "blockValueChangeGreaterEqual" || $("#node-input-mode").val() == "blockValueChangeGreater"){
-                    $("#node-input-compareTo").show();
+                    $("#valueChange").show();
                     $("#startValue").hide();
                 } else if ($("#node-input-mode").val() == "blockIfValueChangeGreaterEqual" || $("#node-input-mode").val() == "blockIfValueChangeGreater"){
-                    $("#node-input-compareTo").show();
+                    $("#valueChange").show();
                     $("#startValue").show();
                 }
             });
