@@ -16,9 +16,9 @@
     </div>
     <div class="form-row">
         <label for="node-input-inputValue"></label>
-        <input type="text" id="node-input-inputValue" data-i18n="[placeholder]rbe.label.inputValue" style="display: inline-block; width: 115px;"/>
+        <input type="text" id="node-input-inputValue" style="display: inline-block; width: 115px;"/>
         <input type="hidden" id="node-input-inputValueType"/>
-        <select id="node-input-compareTo" style="display: inline-block; width: 50%:">
+        <select id="node-input-compareTo" style="display: inline-block; width: 30%:">
             <option value="lastOutput" data-i18n="rbe.label.lastOutput"></option>
             <option value="lastInput" data-i18n="rbe.label.lastInput"></option>
         </select>
@@ -29,8 +29,8 @@
     </div>
     <div class="form-row">
         <label>&nbsp;</label>
-        <input type="checkbox" id="node-input-differentTopic" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-differentTopic" data-i18n="rbe.label.differentTopic" style="width: 15%; vertical-align: top;">
+        <input type="checkbox" id="node-input-differentTopics" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-differentTopics" data-i18n="rbe.label.differentTopics" style="width: 15%; vertical-align: top;">
     </div>
     <div class="form-row" id="in">
         <label for="node-input-inputs"><i class="fa fa-random"></i><span data-i18n="rbe.label.inputs"></span></label>
@@ -45,12 +45,12 @@
         defaults: {
             name: {value:""},
             mode: {value:"blockValueChange"},
-            inputValue: {value:"", required: true, validate:RED.validators.number()},
+            inputValue: {value:"10", required: true, validate:RED.validators.number()},
             inputValueType: {value:"flatValue"},
             compareTo: {value:"lastOutput"},
-            startValue: {value:"", validate:function(v){new Promise(r => setTimeout(r, 10)); if(v){if(isNan(v)){return false;}} return true;}},
-            differentTopic: {value:false},
-            inputs: {value:1}
+            startValue: {value:"", validate:function(v){new Promise(r => setTimeout(r, 10)); if(v){if(isNaN(v)){return false;}} return true;}},
+            differentTopics: {value:false, validate:function(v){if(!v){this.inputs = 1;} return true;}},
+            inputs: {value:1, validate:function(v){this.outputs = v; return true;}}
         },
         inputs:1,
         inputInfo: [
@@ -75,14 +75,14 @@
                 max:10
             });
 
-            if (this.differentTopic){
+            if (this.differentTopics){
                 $("#in").show();
             } else {
                 $("#in").hide();
             }
 
-            $("#node-input-differentTopic").on("change", function(){
-                if($("#node-input-differentTopic").is(":checked")){
+            $("#node-input-differentTopics").on("change", function(){
+                if($("#node-input-differentTopics").is(":checked")){
                     $("#in").show();
                 } else{
                     $("#in").hide();
