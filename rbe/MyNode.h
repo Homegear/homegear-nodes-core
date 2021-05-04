@@ -68,8 +68,7 @@ class MyNode : public Flows::INode {
   InputValueType _inputValueType = flatValue;
   CompareTo _compareTo = lastOutput;
   double _startValue;
-  bool _differentTopics = false;
-  uint8_t _inputs = 1;
+  bool _startValueSet = false;
 
   std::map<uint32_t , double> _lastInput;
 
