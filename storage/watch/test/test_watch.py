@@ -71,7 +71,12 @@ class CreateNotRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CREATE":
+                self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_createDirectories(self):
         for i in range(10):
@@ -79,7 +84,12 @@ class CreateNotRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_CREATE":
+                    self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_createFile(self):
         file = open((path + "/foo.txt"), "x")
@@ -87,7 +97,11 @@ class CreateNotRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[2][1]['payload']}', but should be 'IN_CREATE'")
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CREATE":
+                self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_createFiles(self):
         for i in range(10):
@@ -96,7 +110,11 @@ class CreateNotRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[2][1]['payload']}', but should be 'IN_CREATE'")
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_CREATE":
+                    self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
 
 class CreateRecursive(unittest.TestCase):
@@ -162,7 +180,12 @@ class CreateRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CREATE":
+                self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_createDirectories(self):
         for i in range(10):
@@ -170,7 +193,12 @@ class CreateRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_CREATE":
+                    self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_createDirectoryRecursive(self):
         p = path + "/foo"
@@ -179,7 +207,12 @@ class CreateRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_CREATE":
+                    self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                    checked = True
+            self.assertTrue(True, checked)
             p = p + "/foo"
 
     def test_createFile(self):
@@ -188,7 +221,12 @@ class CreateRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CREATE":
+                self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_createFiles(self):
         for i in range(10):
@@ -197,7 +235,12 @@ class CreateRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[2][1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_CREATE":
+                    self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
 
 class WatchFile(unittest.TestCase):
@@ -266,7 +309,12 @@ class WatchFile(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_OPEN'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_OPEN":
+                self.assertEqual(input[1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_OPEN'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_writeWatchedFile(self):
         file = open(path + "/foo.txt", "a")
@@ -275,7 +323,12 @@ class WatchFile(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MODIFY":
+                self.assertEqual(input[1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
+                checked = True
+        self.assertTrue(True, checked)
 
 
 class DeleteNotRecursive(unittest.TestCase):
@@ -344,7 +397,12 @@ class DeleteNotRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE":
+                self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_deleteDirectories(self):
         p = path + "/foo"
@@ -356,7 +414,12 @@ class DeleteNotRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_deleteFile(self):
         file = open(path + "/foo.txt", "x")
@@ -366,7 +429,12 @@ class DeleteNotRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE":
+                self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_deleteFiles(self):
         for i in range(10):
@@ -378,7 +446,12 @@ class DeleteNotRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
 
 class DeleteRecursive(unittest.TestCase):
@@ -447,7 +520,12 @@ class DeleteRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE":
+                self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_deleteDirectories(self):
         p = path + "/foo"
@@ -459,7 +537,12 @@ class DeleteRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[1][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_deleteDirectoriesRecursive(self):
         p = path + "/foo"
@@ -473,7 +556,12 @@ class DeleteRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[1][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_deleteFile(self):
         file = open(path + "/foo.txt", "x")
@@ -483,7 +571,12 @@ class DeleteRecursive(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE":
+                self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_deleteFiles(self):
         for i in range(10):
@@ -496,7 +589,12 @@ class DeleteRecursive(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE'")
+                    checked = True
+            self.assertTrue(True, checked)
 
 
 class OpenFile(unittest.TestCase):
@@ -567,7 +665,12 @@ class OpenFile(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_OPEN'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_OPEN":
+                self.assertEqual(input[1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_OPEN'")
+                checked = True
+        self.assertTrue(True, checked)
         file.close()
 
     def test_openFiles(self):
@@ -582,7 +685,12 @@ class OpenFile(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_OPEN'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_OPEN":
+                    self.assertEqual(input[1]['payload'], "IN_OPEN", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_OPEN'")
+                    checked = True
+            self.assertTrue(True, checked)
 
         for f in file:
             f.close()
@@ -653,8 +761,18 @@ class WriteFile(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_CLOSE_WRITE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CLOSE_WRITE'")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CLOSE_WRITE":
+                self.assertEqual(input[1]['payload'], "IN_CLOSE_WRITE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CLOSE_WRITE'")
+                checked = True
+        self.assertTrue(True, checked)
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MODIFY":
+                self.assertEqual(input[1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MODIFY'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_noWriteFile(self):
         file = open(path + "/foo.txt", "x")
@@ -662,7 +780,12 @@ class WriteFile(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_CLOSE_WRITE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CLOSE_WRITE'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_CLOSE_WRITE":
+                self.assertEqual(input[1]['payload'], "IN_CLOSE_WRITE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CLOSE_WRITE'")
+                checked = True
+        self.assertTrue(True, checked)
 
 
 class Modify(unittest.TestCase):
@@ -730,8 +853,18 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-        self.assertEqual(inputHistory[2][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVED_TO":
+                self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                checked = True
+        self.assertTrue(True, checked)
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVE_FROM":
+                self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_renameDirectories(self):
         directory = []
@@ -744,8 +877,18 @@ class Modify(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-            self.assertEqual(inputHistory[2][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_MOVED_TO":
+                    self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                    checked = True
+            self.assertTrue(True, checked)
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_MOVE_FROM":
+                    self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_renameFile(self):
         file = open(path + "/foo.txt", "x")
@@ -755,8 +898,18 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVED_TO":
+                self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                checked = True
+        self.assertTrue(True, checked)
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVE_FROM":
+                self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_renameFiles(self):
         files = []
@@ -770,8 +923,18 @@ class Modify(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-            self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_MOVED_TO":
+                    self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                    checked = True
+            self.assertTrue(True, checked)
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_MOVE_FROM":
+                    self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                    checked = True
+            self.assertTrue(True, checked)
 
     def test_moveDirectory(self):
         os.mkdir(path + "/foo")
@@ -782,8 +945,18 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVED_TO":
+                self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                checked = True
+        self.assertTrue(True, checked)
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVE_FROM":
+                self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_moveFile(self):
         os.mkdir(path + "/foo")
@@ -795,8 +968,18 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
-        self.assertEqual(inputHistory[1][1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVED_TO":
+                self.assertEqual(input[1]['payload'], "IN_MOVED_TO", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MOVED_TO'")
+                checked = True
+        self.assertTrue(True, checked)
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MOVE_FROM":
+                self.assertEqual(input[1]['payload'], "IN_MOVE_FROM", f"Payload is '{inputHistory[1][1]['payload']}', but should be 'IN_MOVE_FROM'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_modifyMetaDataTime(self):
         file = open(path + "/foo.txt", "x")
@@ -807,7 +990,12 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_ATTRIB", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_ATTRIB'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_ATTRIB":
+                self.assertEqual(input[1]['payload'], "IN_ATTRIB", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_ATTRIB'")
+                checked = True
+        self.assertTrue(True, checked)
 
     def test_modifyMetaDataRights(self):
         file = open(path + "/foo.txt", "x")
@@ -816,7 +1004,12 @@ class Modify(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_ATTRIB", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_ATTRIB'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_ATTRIB":
+                self.assertEqual(input[1]['payload'], "IN_ATTRIB", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_ATTRIB'")
+                checked = True
+        self.assertTrue(True, checked)
 
 
 class DeleteWatchedDirectory(unittest.TestCase):
@@ -882,7 +1075,12 @@ class DeleteWatchedDirectory(unittest.TestCase):
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE_SELF":
+                self.assertEqual(input[1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+                checked = True
+        self.assertTrue(True, checked)
         os.mkdir(path)
 
     def test_deleteWatchedDirectoryRecursive(self):
@@ -897,13 +1095,23 @@ class DeleteWatchedDirectory(unittest.TestCase):
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-            self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+            checked = False
+            for input in inputHistory:
+                if input[1]['payload'] == "IN_DELETE_SELF":
+                    self.assertEqual(input[1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+                    checked = True
+            self.assertTrue(True, checked)
 
         os.rmdir(path)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_DELETE_SELF":
+                self.assertEqual(input[1]['payload'], "IN_DELETE_SELF", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_DELETE_SELF'")
+                checked = True
+        self.assertTrue(True, checked)
         os.mkdir(path)
 
 
@@ -982,7 +1190,12 @@ class Selector(unittest.TestCase):
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
-        self.assertEqual(inputHistory[0][1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MODIFY'")
+        checked = False
+        for input in inputHistory:
+            if input[1]['payload'] == "IN_MODIFY":
+                self.assertEqual(input[1]['payload'], "IN_MODIFY", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_MODIFY'")
+                checked = True
+        self.assertTrue(True, checked)
 
 
 if __name__ == '__main__':
