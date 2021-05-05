@@ -1180,7 +1180,7 @@ class Selector(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertEqual(inputHistory, None, f"Input should be None, but was {inputHistory}")
+        self.assertIsNone(inputHistory, f"Input should be None, but was {inputHistory}")
 
     def test_writeFile(self):
         file = open(path + "/foo.txt", "x")
