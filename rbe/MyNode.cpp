@@ -171,10 +171,12 @@ void MyNode::input(const Flows::PNodeInfo &info,
           if (_inputValueType == percent) {
             difference = it->second * (_inputValue / 100);
           }
+          difference = std::abs(difference);
           switch (_compareTo) {
             case lastOutput:
               if ((it->second - difference) >= input->floatValue || (it->second + difference) <= input->floatValue) {
                 it->second = input->floatValue;
+                _out->printInfo(std::to_string(input->floatValue));
                 message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
                 output(index, message);
               }
@@ -201,6 +203,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           if (_inputValueType == percent) {
             difference = it->second * (_inputValue / 100);
           }
+          difference = std::abs(difference);
           switch (_compareTo) {
             case lastOutput:
               if ((it->second - difference) > input->floatValue || (it->second + difference) < input->floatValue) {
@@ -230,6 +233,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           if (_inputValueType == percent) {
             difference = _startValue * (_inputValue / 100);
           }
+          difference = std::abs(difference);
           switch (_compareTo) {
             case lastOutput:
               if ((_startValue - difference) <= input->floatValue && (_startValue + difference) >= input->floatValue) {
@@ -287,6 +291,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
           if (_inputValueType == percent) {
             difference = _startValue * (_inputValue / 100);
           }
+          difference = std::abs(difference);
           switch (_compareTo) {
             case lastOutput:
               if ((_startValue - difference) < input->floatValue && (_startValue + difference) > input->floatValue) {
@@ -314,6 +319,7 @@ void MyNode::input(const Flows::PNodeInfo &info,
             if (_inputValueType == percent) {
               difference = it->second * (_inputValue / 100);
             }
+            difference = std::abs(difference);
             switch (_compareTo) {
               case lastOutput:
                 if ((it->second - difference) < input->floatValue && (it->second + difference) > input->floatValue) {
