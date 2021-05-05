@@ -101,7 +101,7 @@ class WriteToEmptyFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertEqual(inputHistory, None, f"Input should be None, but was {inputHistory}")
+        self.assertIsNone(inputHistory, f"Input should be None, but was {inputHistory}")
 
     def test_writeOneLetter(self):
         text = 'a'
@@ -220,7 +220,7 @@ class AppendToFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertEqual(inputHistory, None, f"Input should be None, but was {inputHistory}")
+        self.assertIsNone(inputHistory, f"Input should be None, but was {inputHistory}")
 
     def test_appendOneLetter(self):
         text = 'a'
