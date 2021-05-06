@@ -54,8 +54,8 @@ class BlockValueChange(unittest.TestCase):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
     def test_sameValue(self):
-        for i in range(10):
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
@@ -95,7 +95,7 @@ class BlockValueChange(unittest.TestCase):
         self.assertEqual(inputHistory[1][1]['payload'], (values[0] * -1), f"Payload is {inputHistory[1][1]['payload']}, but should be {(values[0] * -1)}")
         self.assertEqual(inputHistory[0][1]['payload'], (values[1] * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(values[1] * -1)}")
 
-    def test_negativeNumbersBlockNoneExtended(self):
+    def test_negativeNumbersBlockNoneExtended(self):  # fail rounding issue
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * -1)})
             time.sleep(1)
@@ -103,7 +103,7 @@ class BlockValueChange(unittest.TestCase):
             self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], (value * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(value * -1)}")
 
-    def test_mixedNumbers(self):
+    def test_mixedNumbers(self):  # fail rounding issue
         for i in range(len(values)):
             if i % 2:
                 hg.setNodeVariable(n1, "fixedInput0", {"payload": (values[i] * -1)})
@@ -169,8 +169,8 @@ class BlockValueChangeIgnore(unittest.TestCase):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
     def test_sameValue(self):
-        for i in range(10):
-            hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertIsNone(inputHistory, f"No message was passed on. Length is {inputHistory}")
@@ -209,7 +209,7 @@ class BlockValueChangeIgnore(unittest.TestCase):
         self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], (values[1] * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(values[1] * -1)}")
 
-    def test_negativeNumbersBlockNoneButFirstExtended(self):
+    def test_negativeNumbersBlockNoneButFirstExtended(self):  # fail rounding issue
         for value in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": (value * -1)})
             time.sleep(1)
@@ -220,7 +220,7 @@ class BlockValueChangeIgnore(unittest.TestCase):
                 self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
                 self.assertEqual(inputHistory[0][1]['payload'], (value * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(value * -1)}")
 
-    def test_mixedNumbers(self):
+    def test_mixedNumbers(self):  # fail rounding issue
         for i in range(len(values)):
             if i == 0:
                 hg.setNodeVariable(n1, "fixedInput0", {"payload": (values[i] * -1)})
