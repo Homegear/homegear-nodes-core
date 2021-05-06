@@ -15,16 +15,16 @@
         </select>
     </div>
     <div class="form-row" id="valueChange">
-        <label for="node-input-inputValue"></label>
-        <input type="text" id="node-input-inputValue" style="display: inline-block; width: 110px;"/>
-        <input type="hidden" id="node-input-inputValueType"/>
+        <label for="node-input-range"></label>
+        <input type="text" id="node-input-range" style="display: inline-block; width: 110px;"/>
+        <input type="hidden" id="node-input-rangeType"/>
         <select id="node-input-compareTo" style="display: inline-block; width: 30%:">
             <option value="lastOutput" data-i18n="rbe.label.lastOutput"></option>
             <option value="lastInput" data-i18n="rbe.label.lastInput"></option>
         </select>
     </div>
     <div class="form-row" id="startValue">
-        <label for="node-input-inputValue"><i class="fa fa-thumb-tack"></i><span data-i18n="rbe.label.startValueLabel"></label>
+        <label for="node-input-startValue"><i class="fa fa-thumb-tack"></i><span data-i18n="rbe.label.startValueLabel"></label>
         <input type="text" id="node-input-startValue" data-i18n="[placeholder]rbe.label.startValue"/>
     </div>
     <div class="form-row">
@@ -45,8 +45,8 @@
         defaults: {
             name: {value:""},
             mode: {value:"blockValueChange"},
-            inputValue: {value:"10", required: true, validate:RED.validators.number()},
-            inputValueType: {value:"flatValue"},
+            range: {value:"10", required: true, validate:RED.validators.number()},
+            rangeType: {value:"flatValue"},
             compareTo: {value:"lastOutput"},
             startValue: {value:"", validate:function(v){new Promise(r => setTimeout(r, 10)); if(v){if(isNaN(v)){return false;}} return true;}},
             differentTopics: {value:false, validate:function(v){if(!v){this.inputs = 1;} return true;}},
@@ -113,13 +113,13 @@
                 }
             });
 
-            $("#node-input-inputValueType").val(this.inputValueType);
-            $("#node-input-inputValue").typedInput({
+            $("#node-input-rangeType").val(this.rangeType);
+            $("#node-input-range").typedInput({
                 default: 'flatValue',
-                typeField: $("#node-input-inputValueType"),
+                typeField: $("#node-input-rangeType"),
                 types:[{value:"flatValue", label:"flat value"}, {value:"percent", label:"%"}]
             });
-            $("#node-input-inputValue").typedInput('type', this.inputValueType);
+            $("#node-input-range").typedInput('type', this.rangeType);
         }
     });
 </script>

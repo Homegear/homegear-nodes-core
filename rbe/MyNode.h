@@ -53,7 +53,7 @@ class MyNode : public Flows::INode {
     blockIfValueChangeGreater
   };
 
-  enum InputValueType {
+  enum RangeType {
     flatValue,
     percent
   };
@@ -64,8 +64,8 @@ class MyNode : public Flows::INode {
   };
 
   Mode _mode = blockValueChange;
-  double _inputValue;
-  InputValueType _inputValueType = flatValue;
+  double _range;
+  RangeType _rangeType = flatValue;
   CompareTo _compareTo = lastOutput;
   double _startValue;
   bool _startValueSet = false;
