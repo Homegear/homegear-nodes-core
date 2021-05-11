@@ -368,7 +368,50 @@ void MyNode::evalString(std::string input, uint32_t index) {
 }
 
 void MyNode::evalBinary(std::vector<uint8_t> input, uint32_t index) {
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
+  switch (_mode) {
+    case blockValueChange: {
+      auto it = _lastInputBinary.find(index);
+      if (it != _lastInputBinary.end()){
+        if (it->second != input){
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputBinary.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockValueChangeIgnore: {
+      auto it = _lastInputBinary.find(index);
+      if (it != _lastInputBinary.end()){
+        if (it->second != input){
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputBinary.insert_or_assign(index, input);
+      }
+      break;
+    }
+    case blockValueChangeGreaterEqual: {
+      break;
+    }
+    case blockValueChangeGreater: {
+      break;
+    }
+    case blockIfValueChangeGreaterEqual: {
+      break;
+    }
+    case blockIfValueChangeGreater: {
+
+    }
+  }
 }
 
 }
