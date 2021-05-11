@@ -77,7 +77,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         if (!settingsIterator->second->stringValue.empty()) {
           _startValue = Flows::Math::getDouble(settingsIterator->second->stringValue);
           for (int i = 0; i < _inputs; ++i) {
-            _lastInput.insert_or_assign(i, _startValue);
+            _lastInputNumber.insert_or_assign(i, _startValue);
           }
         }
       }
@@ -143,162 +143,13 @@ void MyNode::input(const Flows::PNodeInfo &info,
                    const Flows::PVariable &message) { //is executed, when a new message arrives
   try {
     Flows::PVariable &input = message->structValue->at("payload");
-    input->floatValue = std::llround(input->floatValue * std::pow(10, 7)) / std::pow(10, 7);
-    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-
-    switch (_mode) {
-      case blockValueChange: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          if (it->second != input->floatValue) {
-            it->second = input->floatValue;
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-            output(index, message);
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-          output(index, message);
-        }
-        break;
-      }
-      case blockValueChangeIgnore: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          if (it->second != input->floatValue) {
-            it->second = input->floatValue;
-            message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-            output(index, message);
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-        }
-        break;
-      }
-      case blockValueChangeGreaterEqual: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          double difference = _range;
-          if (_rangeType == percent) {
-            difference = it->second * (_range / 100);
-          }
-          difference = std::abs(difference);
-          switch (_compareTo) {
-            case lastOutput:
-              if ((it->second - difference) >= input->floatValue || (it->second + difference) <= input->floatValue) {
-                it->second = input->floatValue;
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              break;
-            case lastInput:
-              if ((it->second - difference) >= input->floatValue || (it->second + difference) <= input->floatValue) {
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              it->second = input->floatValue;
-              break;
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-          output(index, message);
-        }
-        break;
-      }
-      case blockValueChangeGreater: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          double difference = _range;
-          if (_rangeType == percent) {
-            difference = it->second * (_range / 100);
-          }
-          difference = std::abs(difference);
-          switch (_compareTo) {
-            case lastOutput:
-              if ((it->second - difference) > input->floatValue || (it->second + difference) < input->floatValue) {
-                it->second = input->floatValue;
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              break;
-            case lastInput:
-              if ((it->second - difference) > input->floatValue || (it->second + difference) < input->floatValue) {
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              it->second = input->floatValue;
-              break;
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-          output(index, message);
-        }
-        break;
-      }
-      case blockIfValueChangeGreaterEqual: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          double difference = _range;
-          if (_rangeType == percent) {
-            difference = it->second * (_range / 100);
-          }
-          difference = std::abs(difference);
-          switch (_compareTo) {
-            case lastOutput:
-              if ((it->second - difference) < input->floatValue && (it->second + difference) > input->floatValue) {
-                it->second = input->floatValue;
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              break;
-            case lastInput:
-              if ((it->second - difference) < input->floatValue && (it->second + difference) > input->floatValue) {
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              it->second = input->floatValue;
-              break;
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-          output(index, message);
-        }
-        break;
-      }
-      case blockIfValueChangeGreater: {
-        auto it = _lastInput.find(index);
-        if (it != _lastInput.end()) {
-          double difference = _range;
-          if (_rangeType == percent) {
-            difference = it->second * (_range / 100);
-          }
-          difference = std::abs(difference);
-          switch (_compareTo) {
-            case lastOutput:
-              if ((it->second - difference) <= input->floatValue && (it->second + difference) >= input->floatValue) {
-                it->second = input->floatValue;
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              break;
-            case lastInput:
-              if ((it->second - difference) <= input->floatValue && (it->second + difference) >= input->floatValue) {
-                message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-                output(index, message);
-              }
-              it->second = input->floatValue;
-              break;
-          }
-        } else {
-          _lastInput.insert_or_assign(index, input->floatValue);
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input->floatValue));
-          output(index, message);
-        }
-        break;
-      }
+    if (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64
+        || input->type == Flows::VariableType::tFloat) {
+      evalNumber(input->floatValue, index);
+    } else if (input->type == Flows::VariableType::tString) {
+      evalString(input->stringValue, index);
+    } else if (input->type == Flows::VariableType::tBinary) {
+      evalBinary(input->binaryValue, index);
     }
   }
   catch (const std::exception &ex) {
@@ -307,6 +158,217 @@ void MyNode::input(const Flows::PNodeInfo &info,
   catch (...) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
+}
+
+void MyNode::evalNumber(double input, uint32_t index) {
+  input = std::llround(input * std::pow(10, 7)) / std::pow(10, 7);
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+  switch (_mode) {
+    case blockValueChange: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        if (it->second != input) {
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockValueChangeIgnore: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        if (it->second != input) {
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+      }
+      break;
+    }
+    case blockValueChangeGreaterEqual: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        double difference = _range;
+        if (_rangeType == percent) {
+          difference = it->second * (_range / 100);
+        }
+        difference = std::abs(difference);
+        switch (_compareTo) {
+          case lastOutput:
+            if ((it->second - difference) >= input || (it->second + difference) <= input) {
+              it->second = input;
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            break;
+          case lastInput:
+            if ((it->second - difference) >= input || (it->second + difference) <= input) {
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            it->second = input;
+            break;
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockValueChangeGreater: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        double difference = _range;
+        if (_rangeType == percent) {
+          difference = it->second * (_range / 100);
+        }
+        difference = std::abs(difference);
+        switch (_compareTo) {
+          case lastOutput:
+            if ((it->second - difference) > input || (it->second + difference) < input) {
+              it->second = input;
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            break;
+          case lastInput:
+            if ((it->second - difference) > input || (it->second + difference) < input) {
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            it->second = input;
+            break;
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockIfValueChangeGreaterEqual: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        double difference = _range;
+        if (_rangeType == percent) {
+          difference = it->second * (_range / 100);
+        }
+        difference = std::abs(difference);
+        switch (_compareTo) {
+          case lastOutput:
+            if ((it->second - difference) < input && (it->second + difference) > input) {
+              it->second = input;
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            break;
+          case lastInput:
+            if ((it->second - difference) < input && (it->second + difference) > input) {
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            it->second = input;
+            break;
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockIfValueChangeGreater: {
+      auto it = _lastInputNumber.find(index);
+      if (it != _lastInputNumber.end()) {
+        double difference = _range;
+        if (_rangeType == percent) {
+          difference = it->second * (_range / 100);
+        }
+        difference = std::abs(difference);
+        switch (_compareTo) {
+          case lastOutput:
+            if ((it->second - difference) <= input && (it->second + difference) >= input) {
+              it->second = input;
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            break;
+          case lastInput:
+            if ((it->second - difference) <= input && (it->second + difference) >= input) {
+              message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+              output(index, message);
+            }
+            it->second = input;
+            break;
+        }
+      } else {
+        _lastInputNumber.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+  }
+}
+
+void MyNode::evalString(std::string input, uint32_t index) {
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+
+  switch (_mode) {
+    case blockValueChange: {
+      auto it = _lastInputString.find(index);
+      if (it != _lastInputString.end()) {
+        if (it->second.compare(input) != 0) {
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputString.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        output(index, message);
+      }
+      break;
+    }
+    case blockValueChangeIgnore: {
+      auto it = _lastInputString.find(index);
+      if (it != _lastInputString.end()) {
+        if (it->second.compare(input) != 0) {
+          it->second = input;
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          output(index, message);
+        }
+      } else {
+        _lastInputString.insert_or_assign(index, input);
+      }
+      break;
+    }
+    case blockValueChangeGreaterEqual: {
+      break;
+    }
+    case blockValueChangeGreater: {
+      break;
+    }
+    case blockIfValueChangeGreaterEqual: {
+      break;
+    }
+    case blockIfValueChangeGreater: {
+      break;
+    }
+  }
+}
+
+void MyNode::evalBinary(std::vector<uint8_t> input, uint32_t index) {
+
 }
 
 }

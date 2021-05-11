@@ -68,11 +68,16 @@ class MyNode : public Flows::INode {
   RangeType _rangeType = flatValue;
   CompareTo _compareTo = lastOutput;
   double _startValue;
-  uint8_t _inputs = 1;
+  uint32_t _inputs = 1;
 
-  std::map<uint32_t , double> _lastInput;
+  std::map<uint32_t , double> _lastInputNumber;
+  std::map<uint32_t , std::string> _lastInputString;
+  std::map<uint32_t , std::vector<uint8_t>> _lastInputBinary;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void evalNumber(double input, uint32_t index);
+  void evalString(std::string input, uint32_t index);
+  void evalBinary(std::vector<uint8_t> input, uint32_t index);
 };
 
 }
