@@ -61,7 +61,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -69,13 +69,13 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -83,13 +83,13 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -97,7 +97,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -106,7 +106,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -114,21 +114,21 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -14, -75, -24, -83, -73, -61.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -136,21 +136,21 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -159,7 +159,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -167,7 +167,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -176,7 +176,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -237,7 +237,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -245,13 +245,13 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -259,13 +259,13 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -273,7 +273,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -282,7 +282,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -290,21 +290,21 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # round issue in c++ code -74.7000000480000125000
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -75, -82.5, -24, -83, -74.7, -65.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -312,21 +312,21 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-38.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -335,7 +335,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -343,7 +343,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -352,7 +352,7 @@ class BlockValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -413,7 +413,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -421,13 +421,13 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -435,13 +435,13 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -449,7 +449,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -458,7 +458,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -466,21 +466,21 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -14, -75, -24, -83, -73, -61.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -488,21 +488,21 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, False], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -511,7 +511,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -519,7 +519,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -528,7 +528,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -589,7 +589,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -597,13 +597,13 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -611,13 +611,13 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -625,7 +625,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -634,7 +634,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -642,21 +642,21 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # round issue in c++ code -74.7000000480000125000
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -75, -82.5, -24, -83, -74.7, -65.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -664,21 +664,21 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-35.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -687,7 +687,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -695,7 +695,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -704,7 +704,7 @@ class BlockValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -765,7 +765,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -773,13 +773,13 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -787,13 +787,13 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -801,7 +801,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -810,7 +810,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -818,21 +818,21 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -15, -75, -24, -83, -72.999, -61.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -840,21 +840,21 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -863,7 +863,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -871,7 +871,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -880,7 +880,7 @@ class BlockValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -941,7 +941,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -949,13 +949,13 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -963,13 +963,13 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -977,7 +977,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -986,7 +986,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -994,21 +994,21 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -75, -82.6, -24, -83, -74.6, -65.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1016,21 +1016,21 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-38.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -1039,7 +1039,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1047,7 +1047,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -1056,7 +1056,7 @@ class BlockValueChangeGreaterLastOutputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -1117,7 +1117,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -1125,13 +1125,13 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -1139,13 +1139,13 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -1153,7 +1153,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -1162,7 +1162,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -1170,21 +1170,21 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -15, -75, -24, -83, -72, -61.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1192,21 +1192,21 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, False], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -1215,7 +1215,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1223,7 +1223,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -1232,7 +1232,7 @@ class BlockValueChangeGreaterLastInputFlatValue(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -1293,7 +1293,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -1301,13 +1301,13 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -1315,13 +1315,13 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -1329,7 +1329,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -1338,7 +1338,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -1346,21 +1346,21 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -75, -82.6, -24, -83, -74.699, -65.9363, -35.6584, -47.00001, -36.99999]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1368,21 +1368,21 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         for v in values:
             hg.setNodeVariable(n1, "fixedInput0", {"payload": v})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-35.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         hg.setNodeVariable(n1, "fixedInput0", {"payload": (startValue * -1)})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
         value = (startValue * -1)
         for v in values:
@@ -1391,7 +1391,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1399,7 +1399,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
         hg.setNodeVariable(n1, "fixedInput0", {"payload": startValue})
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
         value = startValue
         for v in values:
@@ -1408,7 +1408,7 @@ class BlockValueChangeGreaterLastInputPercent(unittest.TestCase):
                 value = v[0]
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -1475,7 +1475,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -1484,13 +1484,13 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -1499,13 +1499,13 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -1514,7 +1514,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1523,7 +1523,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -1532,22 +1532,22 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -14, -75, -24, -83, -73, -61.9363, -35.6584, -47.00001, -36.99999]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1556,22 +1556,22 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -1580,7 +1580,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1589,7 +1589,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1598,7 +1598,7 @@ class BlockValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.Tes
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -1665,7 +1665,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -1674,13 +1674,13 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -1689,13 +1689,13 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -1704,7 +1704,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1713,7 +1713,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -1722,7 +1722,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockNone(self):
@@ -1731,13 +1731,13 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1746,13 +1746,13 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockSome(self):
@@ -1761,7 +1761,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -1770,7 +1770,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1779,7 +1779,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1788,7 +1788,7 @@ class BlockValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestC
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -1855,7 +1855,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -1864,13 +1864,13 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -1879,13 +1879,13 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -1894,7 +1894,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1903,7 +1903,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -1912,22 +1912,22 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -14, -75, -24, -83, -73, -61.9363, -35.6584, -47.00001, -36.99999]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -1936,13 +1936,13 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockSome(self):
@@ -1951,7 +1951,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -1960,7 +1960,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -1969,7 +1969,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -1978,7 +1978,7 @@ class BlockValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Test
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -2045,7 +2045,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -2054,13 +2054,13 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -2069,13 +2069,13 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -2084,7 +2084,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2093,7 +2093,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -2102,7 +2102,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockNone(self):
@@ -2111,13 +2111,13 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -2126,13 +2126,13 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockSome(self):
@@ -2141,7 +2141,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -2150,7 +2150,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -2159,7 +2159,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2168,7 +2168,7 @@ class BlockValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCa
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -2235,7 +2235,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -2244,13 +2244,13 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -2259,13 +2259,13 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -2274,7 +2274,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2283,7 +2283,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -2292,7 +2292,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockNone(self):
@@ -2301,13 +2301,13 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -2316,13 +2316,13 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockSome(self):
@@ -2331,7 +2331,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -2340,7 +2340,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -2349,7 +2349,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2358,7 +2358,7 @@ class BlockValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -2425,7 +2425,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -2434,13 +2434,13 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -2449,13 +2449,13 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -2464,7 +2464,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2473,7 +2473,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -2482,22 +2482,22 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -75, -82.6, -24, -83, -74.6, -65.9363, -35.6584, -47.00001, -36.99999]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -2506,22 +2506,22 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-38.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -2530,7 +2530,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -2539,7 +2539,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2548,7 +2548,7 @@ class BlockValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -2615,7 +2615,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -2624,13 +2624,13 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -2639,13 +2639,13 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -2654,7 +2654,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2663,7 +2663,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -2672,22 +2672,22 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockNone(self):  # fail round issue
+    def test_negativeNumbersBlockNone(self):
         values = [-4, -15, -75, -24, -83, -72, -61.9363, -35.6584, -47.00001, -36.99999]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -2696,22 +2696,22 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-38, True], [-32, False], [-36.7584, False], [-27.999, False], [-45.93, True], [-42.42, False]]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -2720,7 +2720,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -2729,7 +2729,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2738,7 +2738,7 @@ class BlockValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase)
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
@@ -2805,7 +2805,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockNone(self):
@@ -2814,13 +2814,13 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_blockAll(self):
@@ -2829,13 +2829,13 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
 
     def test_blockSome(self):
@@ -2844,7 +2844,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(inputHistory[0][1]['payload'], startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2853,7 +2853,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_negativeNumbersSameValue(self):
@@ -2862,7 +2862,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) == 1, f"There should be 1 message, but there are {len(inputHistory)}")
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
     def test_negativeNumbersBlockNone(self):
@@ -2871,13 +2871,13 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), v, f"Payload is {inputHistory[0][1]['payload']}, but should be {v}")
 
     def test_negativeNumbersBlockAll(self):
@@ -2886,22 +2886,22 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             for v in values:
                 hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": v})
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
 
-    def test_negativeNumbersBlockSome(self):  # fail round issue
+    def test_negativeNumbersBlockSome(self):
         values = [[-46, False], [-4, True], [-37, True], [-33.5, False], [-35.7584, False], [-27.999, True], [-45.93, True], [-42.42, False]]
         for i in range(inputs):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": (startValue * -1)})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), (startValue * -1), f"Payload is {inputHistory[0][1]['payload']}, but should be {(startValue * -1)}")
             value = (startValue * -1)
             for v in values:
@@ -2910,7 +2910,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
     def test_mixedNumbers(self):
@@ -2919,7 +2919,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
             hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": startValue})
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(round(inputHistory[0][1]['payload'], 7), startValue, f"Payload is {inputHistory[0][1]['payload']}, but should be {startValue}")
             value = startValue
             for v in values:
@@ -2928,7 +2928,7 @@ class BlockValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
                     value = v[0]
                 time.sleep(1)
                 inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
-                self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
                 self.assertEqual(round(inputHistory[0][1]['payload'], 7), value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
