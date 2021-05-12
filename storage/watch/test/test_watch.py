@@ -70,7 +70,7 @@ class CreateNotRecursive(unittest.TestCase):
         os.mkdir((path + "/foo"))
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_CREATE":
@@ -83,7 +83,7 @@ class CreateNotRecursive(unittest.TestCase):
             os.mkdir((path + "/foo" + str(i)))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_CREATE":
@@ -96,7 +96,7 @@ class CreateNotRecursive(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         for input in inputHistory:
             if input[1]['payload'] == "IN_CREATE":
                 self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
@@ -109,7 +109,7 @@ class CreateNotRecursive(unittest.TestCase):
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             for input in inputHistory:
                 if input[1]['payload'] == "IN_CREATE":
                     self.assertEqual(input[1]['payload'], "IN_CREATE", f"Payload is '{inputHistory[0][1]['payload']}', but should be 'IN_CREATE'")
@@ -179,7 +179,7 @@ class CreateRecursive(unittest.TestCase):
         os.mkdir((path + "/foo"))
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_CREATE":
@@ -192,7 +192,7 @@ class CreateRecursive(unittest.TestCase):
             os.mkdir((path + "/foo" + str(i)))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_CREATE":
@@ -206,7 +206,7 @@ class CreateRecursive(unittest.TestCase):
             os.mkdir(p)
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_CREATE":
@@ -220,7 +220,7 @@ class CreateRecursive(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_CREATE":
@@ -234,7 +234,7 @@ class CreateRecursive(unittest.TestCase):
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_CREATE":
@@ -308,7 +308,7 @@ class WatchFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_OPEN":
@@ -322,7 +322,7 @@ class WatchFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MODIFY":
@@ -396,7 +396,7 @@ class DeleteNotRecursive(unittest.TestCase):
         os.rmdir(p)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE":
@@ -413,7 +413,7 @@ class DeleteNotRecursive(unittest.TestCase):
             os.rmdir(p + str(i))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE":
@@ -428,7 +428,7 @@ class DeleteNotRecursive(unittest.TestCase):
         os.remove(path + "/foo.txt")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE":
@@ -445,7 +445,7 @@ class DeleteNotRecursive(unittest.TestCase):
             os.remove(path + "/foo" + str(i) + ".txt")
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE":
@@ -519,7 +519,7 @@ class DeleteRecursive(unittest.TestCase):
         os.rmdir(p)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE":
@@ -536,7 +536,7 @@ class DeleteRecursive(unittest.TestCase):
             os.rmdir(p + str(i))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE":
@@ -555,7 +555,7 @@ class DeleteRecursive(unittest.TestCase):
             os.rmdir(p)
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE":
@@ -570,7 +570,7 @@ class DeleteRecursive(unittest.TestCase):
         os.remove(path + "/foo.txt")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE":
@@ -588,7 +588,7 @@ class DeleteRecursive(unittest.TestCase):
             os.remove(path + "/foo" + str(i) + ".txt")
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE":
@@ -664,7 +664,7 @@ class OpenFile(unittest.TestCase):
         file = open(p, "a")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_OPEN":
@@ -684,7 +684,7 @@ class OpenFile(unittest.TestCase):
             file.append(open(path + "/foo" + str(i) + ".txt", "a"))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_OPEN":
@@ -760,7 +760,7 @@ class WriteFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_CLOSE_WRITE":
@@ -779,7 +779,7 @@ class WriteFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_CLOSE_WRITE":
@@ -852,7 +852,7 @@ class Modify(unittest.TestCase):
         os.rename(path + "/foo", path + "/bar")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MOVED_TO":
@@ -876,7 +876,7 @@ class Modify(unittest.TestCase):
             os.rename(directory[i], path + "/bar" + str(i))
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_MOVED_TO":
@@ -897,7 +897,7 @@ class Modify(unittest.TestCase):
         os.rename(path + "/foo.txt", path + "/bar.txt")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MOVED_TO":
@@ -922,7 +922,7 @@ class Modify(unittest.TestCase):
             os.rename(files[i], path + "/bar" + str(i) + ".txt")
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_MOVED_TO":
@@ -944,7 +944,7 @@ class Modify(unittest.TestCase):
         shutil.move(path + "/foo/foo", path + "/bar")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MOVED_TO":
@@ -967,7 +967,7 @@ class Modify(unittest.TestCase):
         shutil.move(path + "/foo/foo.txt", path + "/bar")
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MOVED_TO":
@@ -989,7 +989,7 @@ class Modify(unittest.TestCase):
         os.utime(path + "/foo.txt", (modTime, modTime))
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_ATTRIB":
@@ -1003,7 +1003,7 @@ class Modify(unittest.TestCase):
         os.chmod(path + "/foo.txt", stat.S_IREAD)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_ATTRIB":
@@ -1074,7 +1074,7 @@ class DeleteWatchedDirectory(unittest.TestCase):
         os.rmdir(path)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE_SELF":
@@ -1094,7 +1094,7 @@ class DeleteWatchedDirectory(unittest.TestCase):
             os.rmdir(p)
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             checked = False
             for input in inputHistory:
                 if input[1]['payload'] == "IN_DELETE_SELF":
@@ -1105,7 +1105,7 @@ class DeleteWatchedDirectory(unittest.TestCase):
         os.rmdir(path)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_DELETE_SELF":
@@ -1189,7 +1189,7 @@ class Selector(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) == 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
         checked = False
         for input in inputHistory:
             if input[1]['payload'] == "IN_MODIFY":
