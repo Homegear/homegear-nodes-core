@@ -55,13 +55,13 @@
         inputs:1,
         inputInfo: [
             {
-                types: ["int", "float"]
+                types: ["any"]
             }
         ],
         outputs:1,
         outputInfo: [
             {
-                types: ["int", "float"]
+                types: ["any"]
             }
         ],
         icon: "serial.svg",
