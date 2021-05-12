@@ -5,7 +5,6 @@ import time
 import os
 from logging.handlers import TimedRotatingFileHandler
 import logging
-import datetime
 
 
 class WriteToEmptyFile(unittest.TestCase):
@@ -76,7 +75,7 @@ class WriteToEmptyFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
     def test_writeMultiple(self):
@@ -90,7 +89,7 @@ class WriteToEmptyFile(unittest.TestCase):
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(len(inputHistory), i, f"There should be {i} messages, but there are {len(inputHistory)} messages")
             self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
             text = text[:-2]
@@ -110,7 +109,7 @@ class WriteToEmptyFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
     def test_writeMultipleLines(self):
@@ -122,7 +121,7 @@ class WriteToEmptyFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], lastLine, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{lastLine}'")
 
 
@@ -195,7 +194,7 @@ class AppendToFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
     def test_appendMultiple(self):
@@ -209,7 +208,7 @@ class AppendToFile(unittest.TestCase):
             file.close()
             time.sleep(1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
             self.assertEqual(len(inputHistory), i, f"There should be {i} messages, but there are {len(inputHistory)} messages")
             self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
             text = text[:-2]
@@ -229,7 +228,7 @@ class AppendToFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
     def test_appendMultipleLines(self):
@@ -241,7 +240,7 @@ class AppendToFile(unittest.TestCase):
         file.close()
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], lastLine, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{lastLine}'")
 
 
@@ -321,14 +320,14 @@ class RotateLog(unittest.TestCase):
         logger.info(text)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
         time.sleep(5)
         text = "42"
         logger.info(text)
         time.sleep(1)
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], text, f"Payload is '{inputHistory[0][1]['payload']}', but should be '{text}'")
 
 
