@@ -76,7 +76,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       if (settingsIterator != info->info->structValue->end()) {
         if (!settingsIterator->second->stringValue.empty()) {
           _startValue = Flows::Math::getDouble(settingsIterator->second->stringValue);
-          for (int i = 0; i < _inputs; ++i) {
+          for (uint32_t i = 0; i < _inputs; ++i) {
             _lastInputNumber.insert_or_assign(i, _startValue);
           }
         }
@@ -146,10 +146,8 @@ void MyNode::input(const Flows::PNodeInfo &info,
     if (input->type == Flows::VariableType::tInteger || input->type == Flows::VariableType::tInteger64
         || input->type == Flows::VariableType::tFloat) {
       evalNumber(input->floatValue, index);
-    } else if (input->type == Flows::VariableType::tString) {
-      evalString(input->stringValue, index);
-    } else if (input->type == Flows::VariableType::tBinary) {
-      evalBinary(input->binaryValue, index);
+    } else {
+      eval(input, index);
     }
   }
   catch (const std::exception &ex) {
@@ -320,97 +318,42 @@ void MyNode::evalNumber(double input, uint32_t index) {
   }
 }
 
-void MyNode::evalString(std::string input, uint32_t index) {
+void MyNode::eval(const Flows::PVariable &input, uint32_t index) {
   Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
 
   switch (_mode) {
     case blockValueChange: {
-      auto it = _lastInputString.find(index);
-      if (it != _lastInputString.end()) {
-        if (it->second.compare(input) != 0) {
+      auto it = _lastInputObject.find(index);
+      if (it != _lastInputObject.end()) {
+        if (*it->second != *input) {
           it->second = input;
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(*input));
           output(index, message);
         }
       } else {
-        _lastInputString.insert_or_assign(index, input);
-        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+        _lastInputObject.insert_or_assign(index, input);
+        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(*input));
         output(index, message);
       }
       break;
     }
     case blockValueChangeIgnore: {
-      auto it = _lastInputString.find(index);
-      if (it != _lastInputString.end()) {
-        if (it->second.compare(input) != 0) {
+      auto it = _lastInputObject.find(index);
+      if (it != _lastInputObject.end()) {
+        if (*it->second != *input) {
           it->second = input;
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(*input));
           output(index, message);
         }
       } else {
-        _lastInputString.insert_or_assign(index, input);
+        _lastInputObject.insert_or_assign(index, input);
       }
       break;
     }
-    case blockValueChangeGreaterEqual: {
-      break;
-    }
-    case blockValueChangeGreater: {
-      break;
-    }
-    case blockIfValueChangeGreaterEqual: {
-      break;
-    }
-    case blockIfValueChangeGreater: {
-      break;
-    }
-  }
-}
-
-void MyNode::evalBinary(std::vector<uint8_t> input, uint32_t index) {
-  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-
-  switch (_mode) {
-    case blockValueChange: {
-      auto it = _lastInputBinary.find(index);
-      if (it != _lastInputBinary.end()){
-        if (it->second != input){
-          it->second = input;
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
-          output(index, message);
-        }
-      } else {
-        _lastInputBinary.insert_or_assign(index, input);
-        message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
-        output(index, message);
-      }
-      break;
-    }
-    case blockValueChangeIgnore: {
-      auto it = _lastInputBinary.find(index);
-      if (it != _lastInputBinary.end()){
-        if (it->second != input){
-          it->second = input;
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
-          output(index, message);
-        }
-      } else {
-        _lastInputBinary.insert_or_assign(index, input);
-      }
-      break;
-    }
-    case blockValueChangeGreaterEqual: {
-      break;
-    }
-    case blockValueChangeGreater: {
-      break;
-    }
-    case blockIfValueChangeGreaterEqual: {
-      break;
-    }
-    case blockIfValueChangeGreater: {
-
-    }
+    case blockValueChangeGreaterEqual:
+    case blockValueChangeGreater:
+    case blockIfValueChangeGreaterEqual:
+    case blockIfValueChangeGreater:break;
   }
 }
 
