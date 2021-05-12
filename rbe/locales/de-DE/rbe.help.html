@@ -1,1 +1,22 @@
-<p>rbe</p>
+<p>Report by Exception node - Gibt Daten nur dann weiter, wenn sie sich geändert haben.</p>
+<h3>Input</h3>
+<p>Nimmt einen nummerischen Wert oder ein Objekt entgegen</p>
+<h3>Output</h3>
+<p>Wenn alle Kriterien zutreffen, wird der Eingang weiter geleitet</p>
+<h3>Details</h3>
+<h4>Blockieren bis sich der Wert ändert</h4>
+<p>Blockiert alle Werte die gleich dem letzten Ausgang sind</p>
+<p>Der erste Ausgang kann ignoriert werden</p>
+<h4>Blockieren, bis die Änderung größer gleich ist</h4>
+<h4>Deadband</h4>
+<p>Blockiert alle Eingänge, die kleiner/kleiner gleich dem letzten Ausgang oder dem letzten Eingang +/- der Differenz</p>
+<p>Die Differenz kann als Ganzzahl, wie <code>42</code> oder als Prozentzahl, wie <code>42%</code>. Die Differenz wird dann an Hand des letzten Ausgangs oder des letzten Eingangs berechnet</p>
+<p><code>Dieser Modus funktioniert NICHT mit Objekten</code></p>
+<h4>Blockieren, wenn die Änderung größer gleich ist</h4>
+<h4>Narrowband</h4>
+<p>Blockiert alle Eingänge, die größer/größer gleich dem letzten Ausgang oder letzten Eingang +/- der Differenz</p>
+<p>Die Differenz kann als Ganzzahl, wie <code>42</code> oder als Prozentzahl, wie <code>42%</code>. Die Differenz wird dann an Hand des letzten Ausgangs oder des letzten Eingangs berechnet</p>
+<p>Für diesen Modus kann ein Start Wert gesetzt werden</p>
+<p><code>Dieser Modus funktioniert NICHT mit Objekten</code></p>
+<h4>Unterschiedliche Themen</h4>
+<p>Um verschiedene Themen zu evaluieren, erstelle für jedes Thema einen Eingang. Der Ausgang ist dann gegenüberliegen. Jeder Eingang wird unabhäüngig von den anderen Eingängen evaluiert</p>
