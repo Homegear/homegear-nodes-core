@@ -77,7 +77,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageDouble(self):
@@ -90,7 +90,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_average(self):
@@ -103,7 +103,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageZero(self):
@@ -117,7 +117,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageOverride(self):
@@ -129,7 +129,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
         values = []
@@ -144,7 +144,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageNegative(self):
@@ -158,7 +158,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageRandom(self):
@@ -171,7 +171,7 @@ class CurrentValueInteger(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
 
@@ -242,7 +242,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageDouble(self):
@@ -255,7 +255,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_average(self):
@@ -282,7 +282,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageOverride(self):
@@ -294,7 +294,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
         values = []
@@ -309,7 +309,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageNegative(self):
@@ -323,7 +323,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageRandom(self):
@@ -336,7 +336,7 @@ class CurrentValueDouble(unittest.TestCase):
         time.sleep(1)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
 
@@ -398,7 +398,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageDouble(self):
@@ -408,7 +408,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_average(self):
@@ -418,7 +418,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageZero(self):
@@ -429,7 +429,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageAppend(self):
@@ -445,7 +445,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(5)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def testAverageNegative(self):
@@ -457,7 +457,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
     def test_averageRandom(self):
@@ -470,7 +470,7 @@ class TimeInteger(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(inputHistory[0][1]['payload'], round(average, 0), f"Payload is {inputHistory[0][1]['payload']}, but should be {round(average, 0)}")
 
 
@@ -532,7 +532,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def testAverageDouble(self):
@@ -542,7 +542,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_average(self):
@@ -552,7 +552,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageZero(self):
@@ -563,7 +563,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageAppend(self):
@@ -579,7 +579,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(5)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageNegative(self):
@@ -591,7 +591,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
     def test_averageRandom(self):
@@ -604,7 +604,7 @@ class TimeDouble(unittest.TestCase):
         time.sleep(6)
 
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-        self.assertTrue(len(inputHistory) >= 1, f"No message was passed on. Length is {len(inputHistory)}")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
         self.assertEqual(round(inputHistory[0][1]['payload'], 7), round(average, 7), f"Payload is {round(inputHistory[0][1]['payload'], 7)}, but should be {round(average, 7)}")
 
 
