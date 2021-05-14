@@ -7,13 +7,8 @@ import time
 class BlockValueChange(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values
-        values = []
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        values = [bytearray(b'42'), bytearray(b'24'), bytearray(b'83'), bytearray(b'32'), bytearray(b'99'), bytearray(b'71')]
 
     @classmethod
     def tearDownClass(cls):
@@ -53,20 +48,37 @@ class BlockValueChange(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
-    def test_(self):
-        pass
+    def test_sameValue(self):
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[0][1]['payload'], values[0], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[0]}")
+
+    def test_blockNone(self):
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[1]})
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertIsNotNone(inputHistory, "No message was passed on.")
+        self.assertEqual(inputHistory[0][1]['payload'], values[1], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[1]}")
+        self.assertEqual(inputHistory[1][1]['payload'], values[0], f"Payload is {inputHistory[1][1]['payload']}, but should be {values[0]}")
+
+    def test_blockNoneExtended(self):
+        for value in values:
+            hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
+            self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
 class BlockValueChangeIgnore(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values
-        values = []
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
+        values = [bytearray(b'42'), bytearray(b'24'), bytearray(b'83'), bytearray(b'32'), bytearray(b'99'), bytearray(b'71')]
 
     @classmethod
     def tearDownClass(cls):
@@ -106,21 +118,39 @@ class BlockValueChangeIgnore(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
-    def test_(self):
-        pass
+    def test_sameValue(self):
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertIsNone(inputHistory, f"No message expected. Length is {inputHistory}")
+
+    def test_blockNoneButFirst(self):
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[0]})
+        hg.setNodeVariable(n1, "fixedInput0", {"payload": values[1]})
+        time.sleep(1)
+        inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+        self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
+        self.assertEqual(inputHistory[0][1]['payload'], values[1], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[1]}")
+
+    def test_blockNoneButFirstExtended(self):
+        for value in values:
+            hg.setNodeVariable(n1, "fixedInput0", {"payload": value})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, "inputHistory0")
+            if value == values[0]:
+                self.assertIsNone(inputHistory, f"No message expected. Length is {inputHistory}")
+            else:
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
+                self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}")
 
 
 class BlockValueChangeMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values, inputs
-        values = [42, 24, 65, 38, 9999, 5.89, 2.95, 97.42, 57.03, 54.97, 0.764, 5.03]
+        values = [bytearray(b'42'), bytearray(b'24'), bytearray(b'83'), bytearray(b'32'), bytearray(b'99'), bytearray(b'71')]
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -164,21 +194,41 @@ class BlockValueChangeMultipleInputs(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
-    def test_(self):
-        pass
+    def test_sameValue(self):
+        for i in range(inputs):
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}")
+            self.assertEqual(inputHistory[0][1]['payload'], values[0], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[0]}, input {i}")
+
+    def test_blockNone(self):
+        for i in range(inputs):
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[1]})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+            self.assertIsNotNone(inputHistory, "No message was passed on.")
+            self.assertEqual(inputHistory[0][1]['payload'], values[1], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[1]}, input {i}")
+            self.assertEqual(inputHistory[1][1]['payload'], values[0], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[0]}, input {i}")
+
+    def test_blockNoneExtended(self):
+        for i in range(inputs):
+            for value in values:
+                hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": value})
+                time.sleep(1)
+                inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+                self.assertIsNotNone(inputHistory, "No message was passed on.")
+                self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}, input {i}")
 
 
 class BlockValueChangeIgnoreMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values, inputs
-        values = []
+        values = [bytearray(b'42'), bytearray(b'24'), bytearray(b'83'), bytearray(b'32'), bytearray(b'99'), bytearray(b'71')]
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -222,12 +272,39 @@ class BlockValueChangeIgnoreMultipleInputs(unittest.TestCase):
     def tearDown(self):
         hg.removeNodesFromFlow("Watch Unit test", "unit-test")
 
-    def test_(self):
-        pass
+    def test_sameValue(self):
+        for i in range(inputs):
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+            self.assertIsNone(inputHistory, f"No message expected. Length is {inputHistory}, input {i}")
+
+    def test_blockNoneButFirst(self):
+        for i in range(inputs):
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[0]})
+            hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": values[1]})
+            time.sleep(1)
+            inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+            self.assertEqual(len(inputHistory), 1, f"There should be one message, but length is {len(inputHistory)}, input {i}")
+            self.assertEqual(inputHistory[0][1]['payload'], values[1], f"Payload is {inputHistory[0][1]['payload']}, but should be {values[1]}, input {i}")
+
+    def test_blockNoneButFirstExtended(self):
+        for i in range(inputs):
+            for value in values:
+                hg.setNodeVariable(n1, ("fixedInput" + str(i)), {"payload": value})
+                time.sleep(1)
+                inputHistory = hg.getNodeVariable(n2, ("inputHistory" + str(i)))
+                if value == values[0]:
+                    self.assertIsNone(inputHistory, f"No message expected. Length is {inputHistory}")
+                else:
+                    self.assertIsNotNone(inputHistory, "No message was passed on.")
+                    self.assertEqual(inputHistory[0][1]['payload'], value, f"Payload is {inputHistory[0][1]['payload']}, but should be {value}, input {i}")
 
 
 if __name__ == '__main__':
     global socketPath
+    global hg
     socketPath = ''
     if len(sys.argv) > 1:
         for arg in sys.argv:
@@ -235,5 +312,10 @@ if __name__ == '__main__':
                 socketPath = arg
                 sys.argv.remove(arg)
                 break
+
+    if socketPath:
+        hg = Homegear(socketPath)
+    else:
+        hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     unittest.main()
