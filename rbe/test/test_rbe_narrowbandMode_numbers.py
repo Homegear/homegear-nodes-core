@@ -7,13 +7,8 @@ import time
 class BlockIfValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -131,13 +126,8 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValue(unittest.TestCase):
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -238,13 +228,8 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbers(unittest.
 class BlockIfValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -362,13 +347,8 @@ class BlockIfValueChangeGreaterEqualLastOutputPercent(unittest.TestCase):
 class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -469,13 +449,8 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbers(unittest.Te
 class BlockIfValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -593,13 +568,8 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValue(unittest.TestCase):
 class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -700,13 +670,8 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbers(unittest.T
 class BlockIfValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -824,13 +789,8 @@ class BlockIfValueChangeGreaterEqualLastInputPercent(unittest.TestCase):
 class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -931,13 +891,8 @@ class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbers(unittest.Tes
 class BlockIfValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1055,13 +1010,8 @@ class BlockIfValueChangeGreaterLastOutputFlatValue(unittest.TestCase):
 class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1162,13 +1112,8 @@ class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbers(unittest.TestC
 class BlockIfValueChangeGreaterLastOutputPercent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1286,13 +1231,8 @@ class BlockIfValueChangeGreaterLastOutputPercent(unittest.TestCase):
 class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1393,13 +1333,8 @@ class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbers(unittest.TestCas
 class BlockIfValueChangeGreaterLastInputFlatValue(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1517,13 +1452,8 @@ class BlockIfValueChangeGreaterLastInputFlatValue(unittest.TestCase):
 class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1624,13 +1554,8 @@ class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbers(unittest.TestCa
 class BlockIfValueChangeGreaterLastInputPercent(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1748,13 +1673,8 @@ class BlockIfValueChangeGreaterLastInputPercent(unittest.TestCase):
 class BlockIfValueChangeGreaterLastInputPercentNegativeNumbers(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1855,13 +1775,8 @@ class BlockIfValueChangeGreaterLastInputPercentNegativeNumbers(unittest.TestCase
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -1963,13 +1878,8 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueStartValueSet(unittest.Te
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2056,13 +1966,8 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersStartValue
 class BlockIfValueChangeGreaterEqualLastOutputPercentStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2164,13 +2069,8 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentStartValueSet(unittest.Test
 class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2257,13 +2157,8 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersStartValueSe
 class BlockIfValueChangeGreaterEqualLastInputFlatValueStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2365,13 +2260,8 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueStartValueSet(unittest.Tes
 class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2458,13 +2348,8 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersStartValueS
 class BlockIfValueChangeGreaterEqualLastInputPercentStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2566,13 +2451,8 @@ class BlockIfValueChangeGreaterEqualLastInputPercentStartValueSet(unittest.TestC
 class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2659,13 +2539,8 @@ class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersStartValueSet
 class BlockIfValueChangeGreaterLastOutputFlatValueStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2767,13 +2642,8 @@ class BlockIfValueChangeGreaterLastOutputFlatValueStartValueSet(unittest.TestCas
 class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2860,13 +2730,8 @@ class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersStartValueSet(u
 class BlockIfValueChangeGreaterLastOutputPercentStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -2968,13 +2833,8 @@ class BlockIfValueChangeGreaterLastOutputPercentStartValueSet(unittest.TestCase)
 class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3061,13 +2921,8 @@ class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersStartValueSet(uni
 class BlockIfValueChangeGreaterLastInputFlatValueStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3169,13 +3024,8 @@ class BlockIfValueChangeGreaterLastInputFlatValueStartValueSet(unittest.TestCase
 class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3262,13 +3112,8 @@ class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersStartValueSet(un
 class BlockIfValueChangeGreaterLastInputPercentStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = 42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3370,13 +3215,8 @@ class BlockIfValueChangeGreaterLastInputPercentStartValueSet(unittest.TestCase):
 class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersStartValueSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue
         startValue = -42
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3463,14 +3303,9 @@ class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersStartValueSet(unit
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3597,14 +3432,8 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueMultipleInputs(unittest.T
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
-        inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3713,14 +3542,9 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersMultipleIn
 class BlockIfValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3847,14 +3671,9 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentMultipleInputs(unittest.Tes
 class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -3963,14 +3782,9 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersMultipleInpu
 class BlockIfValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4097,14 +3911,9 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueMultipleInputs(unittest.Te
 class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4213,14 +4022,9 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersMultipleInp
 class BlockIfValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4347,14 +4151,9 @@ class BlockIfValueChangeGreaterEqualLastInputPercentMultipleInputs(unittest.Test
 class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4463,14 +4262,9 @@ class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersMultipleInput
 class BlockIfValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4597,14 +4391,9 @@ class BlockIfValueChangeGreaterLastOutputFlatValueMultipleInputs(unittest.TestCa
 class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4713,14 +4502,9 @@ class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersMultipleInputs(
 class BlockIfValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4847,14 +4631,9 @@ class BlockIfValueChangeGreaterLastOutputPercentMultipleInputs(unittest.TestCase
 class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -4963,14 +4742,9 @@ class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersMultipleInputs(un
 class BlockIfValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5097,14 +4871,9 @@ class BlockIfValueChangeGreaterLastInputFlatValueMultipleInputs(unittest.TestCas
 class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5213,14 +4982,9 @@ class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersMultipleInputs(u
 class BlockIfValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5347,14 +5111,9 @@ class BlockIfValueChangeGreaterLastInputPercentMultipleInputs(unittest.TestCase)
 class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5463,14 +5222,9 @@ class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersMultipleInputs(uni
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5581,14 +5335,9 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueStartValueSetMultipleInpu
 class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5683,14 +5432,9 @@ class BlockIfValueChangeGreaterEqualLastOutputFlatValueNegativeNumbersStartValue
 class BlockIfValueChangeGreaterEqualLastOutputPercentStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5801,14 +5545,9 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentStartValueSetMultipleInputs
 class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -5903,14 +5642,9 @@ class BlockIfValueChangeGreaterEqualLastOutputPercentNegativeNumbersStartValueSe
 class BlockIfValueChangeGreaterEqualLastInputFlatValueStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6021,14 +5755,9 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueStartValueSetMultipleInput
 class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6123,14 +5852,9 @@ class BlockIfValueChangeGreaterEqualLastInputFlatValueNegativeNumbersStartValueS
 class BlockIfValueChangeGreaterEqualLastInputPercentStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6241,14 +5965,9 @@ class BlockIfValueChangeGreaterEqualLastInputPercentStartValueSetMultipleInputs(
 class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6343,14 +6062,9 @@ class BlockIfValueChangeGreaterEqualLastInputPercentNegativeNumbersStartValueSet
 class BlockIfValueChangeGreaterLastOutputFlatValueStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6461,14 +6175,9 @@ class BlockIfValueChangeGreaterLastOutputFlatValueStartValueSetMultipleInputs(un
 class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6563,14 +6272,9 @@ class BlockIfValueChangeGreaterLastOutputFlatValueNegativeNumbersStartValueSetMu
 class BlockIfValueChangeGreaterLastOutputPercentStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6681,14 +6385,9 @@ class BlockIfValueChangeGreaterLastOutputPercentStartValueSetMultipleInputs(unit
 class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6783,14 +6482,9 @@ class BlockIfValueChangeGreaterLastOutputPercentNegativeNumbersStartValueSetMult
 class BlockIfValueChangeGreaterLastInputFlatValueStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -6901,14 +6595,9 @@ class BlockIfValueChangeGreaterLastInputFlatValueStartValueSetMultipleInputs(uni
 class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -7003,14 +6692,9 @@ class BlockIfValueChangeGreaterLastInputFlatValueNegativeNumbersStartValueSetMul
 class BlockIfValueChangeGreaterLastInputPercentStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = 42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -7121,14 +6805,9 @@ class BlockIfValueChangeGreaterLastInputPercentStartValueSetMultipleInputs(unitt
 class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersStartValueSetMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global startValue, inputs
         startValue = -42
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -7222,6 +6901,7 @@ class BlockIfValueChangeGreaterLastInputPercentNegativeNumbersStartValueSetMulti
 
 if __name__ == '__main__':
     global socketPath
+    global hg
     socketPath = ''
     if len(sys.argv) > 1:
         for arg in sys.argv:
@@ -7229,5 +6909,10 @@ if __name__ == '__main__':
                 socketPath = arg
                 sys.argv.remove(arg)
                 break
+
+    if socketPath:
+        hg = Homegear(socketPath)
+    else:
+        hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     unittest.main()

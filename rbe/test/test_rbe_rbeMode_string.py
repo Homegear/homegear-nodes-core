@@ -7,13 +7,8 @@ import time
 class BlockValueChange(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values
         values = ["homegear", "node-blue", "home", "gear", "node", "blue", "Blue"]
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -82,13 +77,8 @@ class BlockValueChange(unittest.TestCase):
 class BlockValueChangeIgnore(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values
         values = ["homegear", "node-blue", "home", "gear", "node", "blue", "Blue"]
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -158,14 +148,9 @@ class BlockValueChangeIgnore(unittest.TestCase):
 class BlockValueChangeMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values, inputs
         values = ["homegear", "node-blue", "home", "gear", "node", "blue", "Blue"]
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -241,14 +226,9 @@ class BlockValueChangeMultipleInputs(unittest.TestCase):
 class BlockValueChangeIgnoreMultipleInputs(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        global hg
         global values, inputs
         values = ["homegear", "node-blue", "home", "gear", "node", "blue", "Blue"]
         inputs = 3
-        if socketPath:
-            hg = Homegear(socketPath)
-        else:
-            hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     @classmethod
     def tearDownClass(cls):
@@ -324,6 +304,7 @@ class BlockValueChangeIgnoreMultipleInputs(unittest.TestCase):
 
 if __name__ == '__main__':
     global socketPath
+    global hg
     socketPath = ''
     if len(sys.argv) > 1:
         for arg in sys.argv:
@@ -331,5 +312,10 @@ if __name__ == '__main__':
                 socketPath = arg
                 sys.argv.remove(arg)
                 break
+
+    if socketPath:
+        hg = Homegear(socketPath)
+    else:
+        hg = Homegear("/var/run/homegear/homegearIPC.sock")
 
     unittest.main()
