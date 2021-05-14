@@ -156,6 +156,10 @@ set(SOURCE_FILES
 		python-wrapper/Factory.h
 		python-wrapper/Python.cpp
 		python-wrapper/Python.h
+		rbe/Factory.cpp
+		rbe/Factory.h
+		rbe/MyNode.cpp
+		rbe/MyNode.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -176,6 +180,14 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		storage/tail/Factory.cpp
+		storage/tail/Factory.h
+		storage/tail/MyNode.cpp
+		storage/tail/MyNode.h
+		storage/watch/Factory.cpp
+		storage/watch/Factory.h
+		storage/watch/MyNode.cpp
+		storage/watch/MyNode.h
 		tcp/tcp-in/Factory.cpp
 		tcp/tcp-in/Factory.h
 		tcp/tcp-in/MyNode.cpp

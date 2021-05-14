@@ -1,0 +1,36 @@
+<p>Überwacht Aktionen in Verzeichnissen</p>
+<h3>Input</h3>
+<p>Pfad zu einem Verzeichnis/einer Datei oder mehreren Verzeichnissen/Dateien. Werden mehrere Verzeichnisse/Dateien angegeben, so sind diese mit <code>,</code> zu trennen.</p>
+<p>Beispiel: <code>/home, /var</code></p>
+<h3>Output</h3>
+<h4>payload</h4>
+<p>Gibt die Ausgeführte Aktion an</p>
+<h4>file path</h4>
+<p>Gibt den Pfad der Datei an, auf der eine Aktion ausgeführt wird.</p>
+<p>Kann nicht vorhanden sein</p>
+<h4>path</h4>
+<p>Gibt den Pfade des Verzeichnisses an, in dem eine Aktion ausgeführt wird</p>
+<p>Kann nicht vorhanden sein</p>
+<h4>type</h4>
+<p>Gibt den Typ an, auf dem eine Aktion ausgeführt wird. Der Typ kann <code>file</code> oder <code>directory</code> sein</p>
+<p>Kann nicht vorhanden sein</p>
+<h3>Details</h3>
+<p>Beschreibung des Payloads</p>
+<ul>
+    <li><code>IN_ACCESS</code> Auf die Datei wurde zugegriffen</li>
+    <li><code>IN_ATTRIB</code> Metadaten wurden geändert</li>
+    <li><code>IN_CLOSE_WRITE</code> Die zum Schreiben geöffnete Datei wurde geschlossen</li>
+    <li><code>IN_CLOSE_NOWRITE</code> Datei oder Verzeichnis, die nicht zum Schreiben geöffnet wurden, wurde geschlossen</li>
+    <li><code>IN_CREATE</code> Datei oder Verzeichnis im überwachten Verzeichnis erstellt</li>
+    <li><code>IN_DELETE</code> Datei oder Verzeichnis im überwachten Verzeichnis gelöscht</li>
+    <li><code>IN_DELETE_SELF</code> Überwachte Datei oder überwachtes Verzeichnis gelöscht</li>
+    <li><code>IN_MODIFY</code> Datei wurde geändert</li>
+    <li><code>IN_MOVE_SELF</code> Überwachte Datei oder überwachtes Verzeichnis wurde verschoben</li>
+    <li><code>IN_MOVE_FROM</code> Wird für das Verzeichnis generiert, das den alten Dateinamen enthält, wenn eine Datei umbenannt wird</li>
+    <li><code>IN_MOVE_TO</code>Wird für das Verzeichnis generiert, das den neuen Dateinamen enthält, wenn eine Datei umbenannt wird</li>
+    <li><code>IN_OPEN</code> Datei oder Verzeichnis wurde geöffnet</li>
+</ul>
+<h3>References</h3>
+<ul>
+    <li><a href="https://man7.org/linux/man-pages/man7/inotify.7.html">inotify</a> - Mehr Informationen über den Output</li>
+</ul>

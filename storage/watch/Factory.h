@@ -27,56 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H
+#define FACTORY_H
 
-#include <homegear-node/INode.h>
-#include <thread>
-#include <mutex>
-#include <map>
+#include <homegear-node/NodeFactory.h>
+#include "MyNode.h"
 
-namespace MyNode {
-
-class MyNode : public Flows::INode {
+class MyFactory : Flows::NodeFactory
+{
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
-
-  bool init(const Flows::PNodeInfo &info) override;
-  bool start() override;
-  void stop() override;
-  void waitForStop() override;
- private:
-  enum Type{
-    TIME,
-    CURRENT_VALUES
-  };
-  Type _type = TIME;
-  int64_t _interval = 60000;
-  int64_t _deleteAfter = 60000;
-  std::atomic_bool _deleteAfterCheck {false};
-  int64_t _ignoreDoubleValuesAfter = 86400000; //one day in ms
-
-  std::atomic_bool _stopThread{true};
-  std::mutex _workerThreadMutex;
-  std::thread _workerThread;
-
-  std::atomic_bool _round{false};
-  std::mutex _valuesMutex;
-  struct Value {
-    double value;
-    int64_t time;
-    int64_t doubleValueTime;
-    bool ignore = false;
-  };
-  std::map<uint32_t, Value> _currentValues;
-  std::list<double> _timeValues;
-
-  void averageOverTime();
-  void averageOverCurrentValues();
-  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif

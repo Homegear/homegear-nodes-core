@@ -31,9 +31,6 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <thread>
-#include <mutex>
-#include <map>
 
 namespace MyNode {
 
@@ -47,34 +44,38 @@ class MyNode : public Flows::INode {
   void stop() override;
   void waitForStop() override;
  private:
-  enum Type{
-    TIME,
-    CURRENT_VALUES
+  enum Mode {
+    blockValueChange,
+    blockValueChangeIgnore,
+    blockValueChangeGreaterEqual,
+    blockValueChangeGreater,
+    blockIfValueChangeGreaterEqual,
+    blockIfValueChangeGreater
   };
-  Type _type = TIME;
-  int64_t _interval = 60000;
-  int64_t _deleteAfter = 60000;
-  std::atomic_bool _deleteAfterCheck {false};
-  int64_t _ignoreDoubleValuesAfter = 86400000; //one day in ms
 
-  std::atomic_bool _stopThread{true};
-  std::mutex _workerThreadMutex;
-  std::thread _workerThread;
-
-  std::atomic_bool _round{false};
-  std::mutex _valuesMutex;
-  struct Value {
-    double value;
-    int64_t time;
-    int64_t doubleValueTime;
-    bool ignore = false;
+  enum RangeType {
+    flatValue,
+    percent
   };
-  std::map<uint32_t, Value> _currentValues;
-  std::list<double> _timeValues;
 
-  void averageOverTime();
-  void averageOverCurrentValues();
+  enum CompareTo {
+    lastOutput,
+    lastInput
+  };
+
+  Mode _mode = blockValueChange;
+  double _range;
+  RangeType _rangeType = flatValue;
+  CompareTo _compareTo = lastOutput;
+  double _startValue;
+  uint32_t _inputs = 1;
+
+  std::map<uint32_t , double> _lastInputNumber;
+  std::map<uint32_t , Flows::PVariable> _lastInputObject;
+
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  void evalNumber(double input, uint32_t index);
+  void eval(const Flows::PVariable &input, uint32_t index);
 };
 
 }
