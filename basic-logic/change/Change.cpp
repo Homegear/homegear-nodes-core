@@ -86,7 +86,6 @@ void Change::convertType(Flows::PVariable &value, Flows::VariableType vt) {
     value->setType(vt);
     value->floatValue = Flows::Math::getDouble(value->stringValue);
   } else if (vt == Flows::VariableType::tArray || vt == Flows::VariableType::tStruct) {
-    Flows::JsonDecoder jsonDecoder;
     value = Flows::JsonDecoder::decode(value->stringValue);
   }
 }

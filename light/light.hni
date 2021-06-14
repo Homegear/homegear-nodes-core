@@ -13,6 +13,11 @@
         <input type="checkbox" id="node-input-twoinputs" style="display: inline-block; width: auto; vertical-align: top;">        
         <label for="node-input-twoinputs" style="width: 65%" data-i18n="light.label.twoinputs"></label>
     </div>
+    <div id="node-input-fbinput-container" class="form-row hide">
+		<label>&nbsp;</label>
+		<input type="checkbox" id="node-input-fbinput" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-fbinput" style="width: 65%" data-i18n="light.label.fbinput"></label>
+	</div>
     <div id="node-input-dimmerstate" class="form-row hide">
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-offvalue"><span data-i18n="light.label.offvalue"></span></label>
@@ -110,17 +115,20 @@
             name: {value:""}
         },
         inputs:1,
-        inputInfo: [
-            {
-                types: ["boolean"]
-            },
-            {
-                types: ["boolean"]
-            },
-            {
-                types: ["boolean"]
-            }
-        ],
+        inputInfo: function(i) {
+        	if(this.lighttype == "dimmer") {
+        		if (i == 0) return "State";
+        		else if (i == 1) return "Up";
+        		else if (i == 2) return "Down";
+        		else if (i == 3) return "Feedback";
+                else return "";
+        	}
+        	else if(this.twoinputs) {
+        		if (i == 0) return "On";
+        		else return "Off";
+        	}
+        	else return "State";
+		},
         outputs:0,
         icon: "light.svg",
         align: "right",
@@ -453,7 +461,7 @@
             });
         },
         oneditsave: function() {
-            if($("#node-input-lighttype").val() == "dimmer") this.inputs = 3;
+            if($("#node-input-lighttype").val() == "dimmer") this.inputs = 4;
             else this.inputs = $("#node-input-twoinputs").prop('checked') ? 2 : 1;
         }
     });

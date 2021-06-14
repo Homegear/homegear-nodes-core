@@ -169,6 +169,7 @@ void Light::dim(bool up) {
     Flows::PVariable startValue = invoke("getValue", parameters);
     if (startValue->errorStruct) {
       _out->printWarning("For the light node to work correctly the selected device variable should be readable.");
+      std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
       if (_currentValue) startValue = _currentValue;
     }
 
@@ -201,7 +202,12 @@ void Light::dim(bool up) {
     if (startValue->type == Flows::VariableType::tInteger) currentValue2->integerValue = std::lround(currentValue);
     else if (startValue->type == Flows::VariableType::tInteger64) currentValue2->integerValue64 = std::lround(currentValue);
     else currentValue2->floatValue = currentValue;
-    _currentValue = currentValue2;
+
+    {
+      std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
+      _currentValue = currentValue2;
+    }
+
     if (currentValue >= _minValue->floatValue) {
       setNodeData("currentvalue", currentValue2);
       if (!_onMaxValue) _onValue = currentValue2;
@@ -216,7 +222,7 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
   try {
     bool value = *(message->structValue->at("payload"));
 
-    if (_lightType == LightType::dimmer && index > 0) {
+    if (_lightType == LightType::dimmer && (index == 1 || index == 2)) {
       std::lock_guard<std::mutex> timerGuard(_timerMutex);
       _stopThread = true;
       if (value) {
@@ -226,6 +232,9 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
       } else {
         if (_timerThread.joinable()) _timerThread.join();
       }
+    } else if (index == 3) {
+      std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
+      *_currentValue = *(message->structValue->at("payload"));
     } else {
       Flows::PArray parameters = std::make_shared<Flows::Array>();
       parameters->reserve(4);
