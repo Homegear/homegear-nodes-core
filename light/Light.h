@@ -66,6 +66,7 @@ class Light : public Flows::INode {
   std::atomic_bool _stopThread{true};
   std::thread _timerThread;
 
+  std::mutex _onValueMutex;
   Flows::PVariable _onValue;
   Flows::PVariable _offValue;
   Flows::PVariable _minValue;

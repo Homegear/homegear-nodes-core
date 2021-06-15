@@ -233,8 +233,17 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
         if (_timerThread.joinable()) _timerThread.join();
       }
     } else if (index == 3) {
-      std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
-      *_currentValue = *(message->structValue->at("payload"));
+      {
+        std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
+        *_currentValue = *(message->structValue->at("payload"));
+        setNodeData("currentvalue", _currentValue);
+      }
+
+      {
+        std::lock_guard<std::mutex> currentValueGuard(_onValueMutex);
+        _onValue = std::make_shared<Flows::Variable>();
+        if (_currentValue->integerValue64 > 0) *_onValue = *_currentValue;
+      }
     } else {
       Flows::PArray parameters = std::make_shared<Flows::Array>();
       parameters->reserve(4);
@@ -244,7 +253,10 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
 
       if (_twoInputs && !value) return;
       bool state = _twoInputs ? index == 0 : value;
-      parameters->push_back(state ? _onValue : _offValue);
+      {
+        std::lock_guard<std::mutex> currentValueGuard(_onValueMutex);
+        parameters->push_back(state ? _onValue : _offValue);
+      }
 
       Flows::PVariable result = invoke("setValue", parameters);
       if (result->errorStruct) _out->printError("Error setting variable (Peer ID: " + std::to_string(_peerId) + ", channel: " + std::to_string(_channel) + ", name: " + _variable + "): " + result->structValue->at("faultString")->stringValue);
