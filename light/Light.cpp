@@ -235,13 +235,14 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
     } else if (index == 3) {
       {
         std::lock_guard<std::mutex> currentValueGuard(_currentValueMutex);
+        if (!_currentValue) _currentValue = std::make_shared<Flows::Variable>();
         *_currentValue = *(message->structValue->at("payload"));
         setNodeData("currentvalue", _currentValue);
       }
 
       {
         std::lock_guard<std::mutex> currentValueGuard(_onValueMutex);
-        _onValue = std::make_shared<Flows::Variable>();
+        if (!_onValue) _onValue = std::make_shared<Flows::Variable>();
         if (_currentValue->integerValue64 > 0) *_onValue = *_currentValue;
       }
     } else {
