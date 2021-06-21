@@ -242,8 +242,10 @@ void Light::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVa
 
       {
         std::lock_guard<std::mutex> currentValueGuard(_onValueMutex);
-        if (!_onValue) _onValue = std::make_shared<Flows::Variable>();
-        if (_currentValue->integerValue64 > 0) *_onValue = *_currentValue;
+        if (_currentValue->integerValue64 > 0 && !_onMaxValue)  {
+          if (!_onValue) _onValue = std::make_shared<Flows::Variable>();
+          *_onValue = *_currentValue;
+        }
       }
     } else {
       Flows::PArray parameters = std::make_shared<Flows::Array>();
