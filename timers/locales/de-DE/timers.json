@@ -119,7 +119,7 @@
     "input1Description": "Der Arbeitszyklus.",
     "output1Description": "Gibt \"true\" bei einem hohen und \"false\" bei einem niedrigen Wert aus.",
     "paletteHelp": "<p>Erzeugt ein PWM-Signal.</p>",
-    "help": "<p>Dieser Knoten erzeugt ein langsames PWM-Signal. Geben Sie die Einschaltdauer in <code>D</ code> ein. Stellen Sie <code>Zeitraum</code> auf den Zeitraum in Sekunden ein. Die Mindestdauer beträgt 10 Sekunden, die Auflösung des Arbeitszyklus 1 Sekunde. Setzen Sie <code>EN</code> auf <code>false</code>, um den PWM zu deaktivieren. Wenn deaktiviert, gibt der Knoten <code>false</code> aus. Es wird mindestens eine Meldung pro Arbeitszyklus ausgegeben.</p>"
+    "help": "<p>Dieser Knoten erzeugt ein langsames PWM-Signal. Geben Sie die Einschaltdauer in <code>D</code> ein. Stellen Sie <code>Zeitraum</code> auf den Zeitraum in Sekunden ein. Die Mindestdauer beträgt 10 Sekunden, die Auflösung des Arbeitszyklus 1 Sekunde. Setzen Sie <code>EN</code> auf <code>false</code>, um den PWM zu deaktivieren. Wenn deaktiviert, gibt der Knoten <code>false</code> aus. Es wird mindestens eine Meldung pro Arbeitszyklus ausgegeben.</p>"
   },
   "sun-position": {
     "label": {
@@ -161,7 +161,7 @@
       "november": "Nov",
       "december": "Dez"
     },
-    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</ code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
+    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
     "input2Description": "<code>HH:MM:[SS]</code> setzen um die \"Einschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
     "input3Description": "<code>HH:MM:[SS]</code> setzen um die \"Ausschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
     "paletteHelp": "<p>Erzeugt Ereignisse zu bestimmten Zeitpunkten.</p>",
@@ -197,7 +197,7 @@
       "november": "Nov",
       "december": "Dez"
     },
-    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</ code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
+    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
     "input2Description": "<code>HH:MM:[SS]</code> setzen um die \"Einschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
     "input3Description": "<code>HH:MM:[SS]</code> setzen um die \"Ausschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
     "paletteHelp": "<p>Erzeugt Ereignisse zu bestimmten Zeitpunkten.</p>",

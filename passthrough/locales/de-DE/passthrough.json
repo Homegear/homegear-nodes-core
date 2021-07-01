@@ -6,9 +6,9 @@
       "name": "Name"
     },
     "paletteHelp": "<p>Dieser Knoten übergibt abhängig von einer booleschen Eingabe einen Wert an die Ausgabe.</p>",
-    "help": "<p>TDieser Knoten prüft den Booleschen Status von Eingabe <code>EN</code>. Wenn der Status <code>true</ code> ist, wird der Wert am Eingang <code>v</code> an den Ausgang übergeben.</p>",
+    "help": "<p>Dieser Knoten prüft den Booleschen Status von Eingabe <code>EN</code>. Wenn der Status <code>true</code> ist, wird der Wert am Eingang <code>v</code> an den Ausgang übergeben.</p>",
     "input1Description": "Der durchzuleitende Wert.",
-    "input2Description": "<code>true</code> einstellen, um den Wert am Eingang <code>v</ code> durchzuleiten.",
-    "output1Description": "Gibt den Wert am Eingang <code>v</ code> unverändert aus."
+    "input2Description": "<code>true</code> einstellen, um den Wert am Eingang <code>v</code> durchzuleiten.",
+    "output1Description": "Gibt den Wert am Eingang <code>v</code> unverändert aus."
   }
 }
