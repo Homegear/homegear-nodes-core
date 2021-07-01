@@ -9,6 +9,14 @@
     "help": "This node provices a constant value which is transmitted once on each reload.",
     "output1Description": "Outputs the configured constant value."
   },
+  "inject": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Provides a constant value.</p>",
+    "help": "This node provices a constant value which is transmitted in the given interval.",
+    "output1Description": "Outputs the configured constant value."
+  },
   "round-robin-shift": {
     "label": {
       "true-only": "Only toggle on \"true\"",

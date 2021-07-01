@@ -9,6 +9,14 @@
     "help": "Dieser Knoten liefert einen konstanten Wert, der bei jedem Neuladen einmal übertragen wird.",
     "output1Description": "Gibt den konfigurierten konstanten Wert aus."
   },
+  "inject": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Liefert einen konstanten Wert immer wieder</p>",
+    "help": "Dieser Knoten liefert einen konstanten Wert, der in dem gesetzen Zeitintervall übertragen wird.",
+    "output1Description": "Gibt den konfigurierten konstanten Wert aus."
+  },
   "round-robin-shift": {
     "label": {
       "true-only": "Nur bei \"true\" togglen",

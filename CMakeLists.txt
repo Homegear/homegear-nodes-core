@@ -289,6 +289,10 @@ set(SOURCE_FILES
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
         variable/constant/MyNode.h
+		variable/inject/Factory.cpp
+		variable/inject/Factory.h
+		variable/inject/MyNode.cpp
+		variable/inject/MyNode.h
 		variable/round-robin-shift/Factory.cpp
 		variable/round-robin-shift/Factory.h
 		variable/round-robin-shift/MyNode.cpp
