@@ -11,7 +11,31 @@
   },
   "inject": {
     "label": {
-      "name": "Name"
+      "name": "Name",
+      "onstart": "Wert einmal anlegen nach",
+      "onceDelay": "sekunden, dann",
+      "repeat": "Wiederholen",
+      "none": "nie",
+      "interval": "Intervall",
+      "interval-time": "Intervall zwischen Zeiten",
+      "time": "zu einer bestimmten Uhrzeit",
+      "every": "alle",
+      "seconds": "Sekunden",
+      "minutes": "Minuten",
+      "hours": "Stunden",
+      "between": "zwischen",
+      "and": "und",
+      "on": "am",
+      "days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "at": "um"
     },
     "paletteHelp": "<p>Liefert einen konstanten Wert immer wieder</p>",
     "help": "Dieser Knoten liefert einen konstanten Wert, der in dem gesetzen Zeitintervall übertragen wird.",
