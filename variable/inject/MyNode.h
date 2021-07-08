@@ -31,6 +31,9 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
+#include <thread>
+#include <mutex>
+#include <ctime>
 #include <homegear-node/JsonDecoder.h>
 
 namespace MyNode {
@@ -41,8 +44,35 @@ class MyNode : public Flows::INode {
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
  private:
+  std::atomic_bool _stopThread{true};
+  std::mutex _workerThreadMutex;
+  std::thread _workerThread;
 
+  std::vector<Flows::Variable> _messages;
+  enum Mode {
+    None,
+    Interval,
+    Interval_Time,
+    Time
+  };
+
+
+  Mode _mode = None;
+  bool _once = false;
+  int _onceDelay = 0.1;
+  int _sleepingTime = 1;
+  int _intervalStart = 0;
+  int _intervalStop = 1;
+  double _time = 12;
+  std::map<int, bool> _days {{0, false}, {1, false}, {2, false}, {3, false}, {4, false}, {5, false}, {6, false}};
+
+  void sleep();
+  void sendMessage();
+  void getTime();
 };
 
 }
