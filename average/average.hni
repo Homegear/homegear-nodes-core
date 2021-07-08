@@ -15,15 +15,15 @@
         <input type="text" id="node-input-interval" data-i18n="[placeholder]average.label.interval" style="width: 40%;">
         <label for="node-input-interval">s</label>
     </div>
+    <div class="form-row" id="checkDelete" style="height: 5px">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-deleteAfterCheck" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-deleteAfterCheck" style="width: 70%;" data-i18n="average.label.deleteAfterCheck"></label>
+    </div>
     <div class="form-row" id="currentValue">
         <label for="node-input-deleteAfter"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.deleteAfter"></span></label>
         <input type="text" id="node-input-deleteAfter" data-i18n="[placeholder]average.label.deleteAfter" style="width: 40%;">
         <label for="node-input-deleteAfter">s</label>
-    </div>
-    <div class="form-row" id="checkDelete">
-        <label>&nbsp;</label>
-        <input type="checkbox" id="node-input-deleteAfterCheck" style="display: inline-block; width: auto; vertical-align: top;">
-        <label for="node-input-deleteAfterCheck" style="width: 70%;" data-i18n="average.label.deleteAfterCheck"></label>
     </div>
     <div class="form-row" id="ignoreValue">
         <label for="node-input-ignoreDoubleValues"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.ignoreValue"></span></label>
@@ -80,37 +80,49 @@
             });
             var node = this;
 
-            if(this.averageOver == "time"){
+            function timeMode(){
                 $("#timeValue").show();
                 $("#currentValue").hide();
                 $("#checkDelete").hide();
                 $("#ignoreValue").hide();
                 $("#in").hide();
-            }else if(this.averageOver == "currentValues"){
+            }
+
+            function currentValueMode(){
                 $("#timeValue").hide();
                 $("#currentValue").show();
                 $("#checkDelete").show();
+                deleteAfterCheck();
                 $("#ignoreValue").show();
                 $("#in").show();
                 $("#node-input-inputs").spinner("value", node.inputs > 1 ? node.inputs : 2);
+            }
+            
+            function deleteAfterCheck(){
+                if($("#node-input-deleteAfterCheck").is(":checked")) {
+                    $("#node-input-deleteAfter").prop("disabled", false);
+                } else {
+                    $("#node-input-deleteAfter").prop("disabled", true);
+                }
+            }
+
+            if(this.averageOver == "time"){
+                timeMode();
+            }else if(this.averageOver == "currentValues"){
+                currentValueMode();
             }
 
             document.getElementById("node-input-averageOver").addEventListener("change", function(){
                 node.averageOver = document.getElementById("node-input-averageOver").value;
                 if(node.averageOver == "time"){
-                    $("#timeValue").show();
-                    $("#currentValue").hide();
-                    $("#checkDelete").hide();
-                    $("#ignoreValue").hide();
-                    $("#in").hide();
+                    timeMode();
                 }else if(node.averageOver == "currentValues"){
-                    $("#timeValue").hide();
-                    $("#currentValue").show();
-                    $("#checkDelete").show();
-                    $("#ignoreValue").show();
-                    $("#in").show();
-                    $("#node-input-inputs").spinner("value", node.inputs > 1 ? node.inputs : 2);
+                    currentValueMode();
                 }
+            });
+
+            document.getElementById("node-input-deleteAfterCheck").addEventListener("change", function(){
+                deleteAfterCheck();
             });
         }
     });
