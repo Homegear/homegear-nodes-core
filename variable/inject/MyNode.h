@@ -60,19 +60,33 @@ class MyNode : public Flows::INode {
     Time
   };
 
+  struct Time {
+    uint8_t hour = 0;
+    uint8_t minute = 0;
+  };
+
+  struct Interval {
+    uint8_t start = 0;
+    uint8_t stop = 1;
+  };
+
 
   Mode _mode = None;
   bool _once = false;
   int _onceDelay = 0.1;
   int _sleepingTime = 1;
-  int _intervalStart = 0;
-  int _intervalStop = 1;
-  double _time = 12;
+  struct Interval _interval{0, 1};
+  struct Time _startingTime {12, 0};
+
+  //sunday = 0
   std::map<int, bool> _days {{0, false}, {1, false}, {2, false}, {3, false}, {4, false}, {5, false}, {6, false}};
 
-  void sleep();
+  void evalMode();
+  void intervalMode();
+  void intervalTimeMode();
+  void timeMode();
   void sendMessage();
-  void getTime();
+  std::tm* getTime();
 };
 
 }

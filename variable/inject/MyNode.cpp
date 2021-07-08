@@ -71,17 +71,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
             std::string timeInterval = crontab.substr(4, found - 4);
             found = timeInterval.find("-");
             if (found != std::string::npos){
-              _intervalStart = Flows::Math::getNumber(timeInterval.substr(0, found));
-              _intervalStop = Flows::Math::getNumber(timeInterval.substr(found + 1)) + 1;
+              _interval.start = Flows::Math::getNumber(timeInterval.substr(0, found));
+              _interval.stop = Flows::Math::getNumber(timeInterval.substr(found + 1)) + 1;
             } else {
-              _intervalStart = Flows::Math::getNumber(timeInterval);
-              _intervalStop = _intervalStart + 1;
+              _interval.start = Flows::Math::getNumber(timeInterval);
+              _interval.stop = _interval.start + 1;
             }
           }
         } else {
           _mode = Time;
-          std::string time = crontab.substr(3, 2) + "." + crontab.substr(0, 2);
-          _time = Flows::Math::getDouble(time);
+          _startingTime.hour = Flows::Math::getNumber(crontab.substr(3, 2));
+          _startingTime.minute = Flows::Math::getNumber(crontab.substr(0, 2));
         }
 
         size_t found = crontab.find("* *");
@@ -116,7 +116,6 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         }
       }
     }
-    getTime();
     settingsIterator = info->info->structValue->find("once");
     if (settingsIterator != info->info->structValue->end()) {
       _once = settingsIterator->second->booleanValue;
@@ -129,7 +128,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
     settingsIterator = info->info->structValue->find("topic");
     if (settingsIterator != info->info->structValue->end()) {
-      
+
     }
 
     settingsIterator = info->info->structValue->find("payload");
@@ -141,6 +140,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
 
     }
+    switch(_mode){
+      case None: _out->printInfo("none");
+        break;
+      case Interval: _out->printInfo("interval");
+        break;
+      case Interval_Time: _out->printInfo("interval time");
+        break;
+      case Time: _out->printInfo("time");
+        break;
+    }
+
     return true;
   }
   catch (const std::exception &ex) {
@@ -161,7 +171,7 @@ bool MyNode::start() {
     }
 
     _stopThread = false;
-    _workerThread = std::thread(&MyNode::sleep, this);
+    _workerThread = std::thread(&MyNode::evalMode, this);
 
     return true;
   }
@@ -195,44 +205,99 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::sleep() {
-  if (_mode == None){
-    if (_once){
-      std::this_thread::sleep_for(std::chrono::milliseconds(_onceDelay));
-      sendMessage();
-      _once = false;
-    }
-  } else {
-    while(!_stopThread){
-      switch (_mode) {
-        case None:
-          break;
-        case Interval:{
-          if (_once) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(_onceDelay));
-            sendMessage();
-            _once = false;
-          } else {
-            std::this_thread::sleep_for(std::chrono::seconds(_sleepingTime));
-            sendMessage();
-          }
-          break;
-        }
-        case Interval_Time:{
-          if (_once) {
-            std::this_thread::sleep_for(std::chrono::seconds(_onceDelay));
-            sendMessage();
-            _once = false;
-          } else {
-
-          }
-          break;
-        }
-        case Time:{
-
-          break;
-        }
+void MyNode::evalMode(){
+  if (_once) {
+    int iterations = _onceDelay / 100;
+    for (int i = 0; i < iterations; ++i) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (_stopThread){
+        return;
       }
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(_onceDelay % 100));
+    sendMessage();
+  }
+  while(!_stopThread) {
+    switch (_mode) {
+      case None:
+        _stopThread = true;
+        break;
+      case Interval:
+        intervalMode();
+        break;
+      case Interval_Time:
+        _out->printInfo(std::to_string(_sleepingTime));
+        intervalTimeMode();
+        break;
+      case Time:
+        timeMode();
+        break;
+    }
+  }
+}
+
+void MyNode::intervalMode() {
+  int iterations = (_sleepingTime * 1000) / 100;
+  for (int i = 0; i < iterations; ++i) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    if (_stopThread){
+      return;
+    }
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds((_sleepingTime * 1000) % 100));
+  sendMessage();
+}
+
+void MyNode::intervalTimeMode() {
+  std::tm* time = getTime();
+  auto it = _days.find(time->tm_wday);
+  if (it != _days.end()){
+    if (it->second){
+      if (_interval.start <= time->tm_hour){
+        int iterations = (_sleepingTime * 1000) / 100;
+        for (int i = 0; i < iterations; ++i) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          if (_stopThread){
+            return;
+          }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds((_sleepingTime * 1000) % 100));
+        time = getTime();
+        if (_interval.stop > time->tm_hour) {
+          sendMessage();
+        } else {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    } else {
+      //don't output on that day
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  }
+}
+
+void MyNode::timeMode() {
+  std::tm* time = getTime();
+  auto it = _days.find(time->tm_wday);
+  if (it != _days.end()){
+    if (it->second){
+      if (_startingTime.hour == time->tm_hour && _startingTime.minute == time->tm_min) {
+        sendMessage();
+        int iterations = (60 * 1000) / 100;
+        for (int i = 0; i < iterations; ++i) {
+          std::this_thread::sleep_for(std::chrono::milliseconds (100));
+          if (_stopThread) {
+            return;
+          }
+        }
+      } else {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    } else {
+      //don't output that day
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
   }
 }
@@ -241,12 +306,11 @@ void MyNode::sendMessage() {
   return;
 }
 
-void MyNode::getTime() {
-  std::time_t time = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-  _out->printInfo(std::ctime(&time));
+std::tm* MyNode::getTime() {
+  std::time_t time = std::time(0);
+  std::tm* now = std::localtime(&time);
+  return now;
 }
-
-
 
 }
 
