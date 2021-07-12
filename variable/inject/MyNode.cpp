@@ -28,9 +28,9 @@
  */
 
 #include "MyNode.h"
+
 namespace MyNode {
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected)
-    : Flows::INode(path, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 MyNode::~MyNode() {
@@ -39,7 +39,6 @@ MyNode::~MyNode() {
 
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
-    //TODO
     Flows::PArray messages;
     auto settingsIterator = info->info->structValue->find("props");
     if (settingsIterator != info->info->structValue->end()) {
@@ -48,11 +47,43 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       if (messages) {
         _messages.reserve(messages->size());
       }
+
+      for (auto &m : *messages) {
+        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        auto it = m->structValue->find("p");
+        if (it != m->structValue->end()){
+          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(it->second->stringValue));
+          if (it->second->stringValue.compare("payload") == 0) {
+            auto payloadIter = info->info->structValue->find("payload");
+            if (payloadIter != info->info->structValue->end()) {
+              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*payloadIter->second));
+            }
+            payloadIter = info->info->structValue->find("payloadType");
+            if (payloadIter != info->info->structValue->end()){
+              message->structValue->emplace("type", std::make_shared<Flows::Variable>(it->second->stringValue));
+            }
+          } else if (it->second->stringValue.compare("topic") == 0) {
+            auto topicIter = info->info->structValue->find("topic");
+            if (topicIter != info->info->structValue->end()) {
+              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*it->second));
+            }
+          }
+        }
+        it = m->structValue->find("v");
+        if (it != m->structValue->end()) {
+          message->structValue->emplace("value", std::make_shared<Flows::Variable>(*it->second));
+        }
+        it = m->structValue->find("vt");
+        if (it != m->structValue->end()) {
+          message->structValue->emplace("type", std::make_shared<Flows::Variable>(it->second->stringValue));
+        }
+        _messages.emplace_back(message);
+      }
     }
 
     settingsIterator = info->info->structValue->find("repeat");
     if (settingsIterator != info->info->structValue->end()) {
-      if (!settingsIterator->second->stringValue.empty()){
+      if (!settingsIterator->second->stringValue.empty()) {
         _mode = Interval;
         _sleepingTime = settingsIterator->second->integerValue;
       }
@@ -60,17 +91,17 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
     settingsIterator = info->info->structValue->find("crontab");
     if (settingsIterator != info->info->structValue->end()) {
-      if (!settingsIterator->second->stringValue.empty()){
+      if (!settingsIterator->second->stringValue.empty()) {
         std::string crontab = settingsIterator->second->stringValue;
-        if (crontab.substr(0, 2).compare("*/") == 0){
+        if (crontab.substr(0, 2).compare("*/") == 0) {
           _mode = Interval_Time;
           _sleepingTime = Flows::Math::getNumber(crontab.substr(2, 1)) * 60;
 
           size_t found = crontab.find("*", 1);
-          if (found != std::string::npos){
+          if (found != std::string::npos) {
             std::string timeInterval = crontab.substr(4, found - 4);
             found = timeInterval.find("-");
-            if (found != std::string::npos){
+            if (found != std::string::npos) {
               _interval.start = Flows::Math::getNumber(timeInterval.substr(0, found));
               _interval.stop = Flows::Math::getNumber(timeInterval.substr(found + 1)) + 1;
             } else {
@@ -85,9 +116,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         }
 
         size_t found = crontab.find("* *");
-        if (found != std::string::npos){
+        if (found != std::string::npos) {
           std::string days = crontab.substr(found + 4);
-          if (days.compare("*") == 0){
+          if (days.compare("*") == 0) {
             for (auto &d : _days) {
               d.second = true;
             }
@@ -126,29 +157,19 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
       _onceDelay = settingsIterator->second->floatValue * 1000;
     }
 
-    settingsIterator = info->info->structValue->find("topic");
-    if (settingsIterator != info->info->structValue->end()) {
-
-    }
-
-    settingsIterator = info->info->structValue->find("payload");
-    if (settingsIterator != info->info->structValue->end()) {
-
-    }
-
-    settingsIterator = info->info->structValue->find("payloadType");
-    if (settingsIterator != info->info->structValue->end()) {
-
-    }
-    switch(_mode){
-      case None: _out->printInfo("none");
-        break;
-      case Interval: _out->printInfo("interval");
-        break;
-      case Interval_Time: _out->printInfo("interval time");
-        break;
-      case Time: _out->printInfo("time");
-        break;
+    for (auto &m : _messages) {
+      auto it = m->structValue->find("payload");
+      if (it != m->structValue->end()) {
+        _out->printInfo("payload: " + it->second->stringValue);
+      }
+      it = m->structValue->find("value");
+      if (it != m->structValue->end()){
+        _out->printInfo("value: " + it->second->stringValue);
+      }
+      it = m->structValue->find("type");
+      if (it != m->structValue->end()) {
+        _out->printInfo("type: " + it->second->stringValue);
+      }
     }
 
     return true;
@@ -166,7 +187,7 @@ bool MyNode::start() {
   try {
     std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
     _stopThread = true;
-    if (_workerThread.joinable()){
+    if (_workerThread.joinable()) {
       _workerThread.join();
     }
 
@@ -193,7 +214,7 @@ void MyNode::waitForStop() {
   try {
     std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
     _stopThread = true;
-    if (_workerThread.joinable()){
+    if (_workerThread.joinable()) {
       _workerThread.join();
     }
   }
@@ -205,32 +226,39 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::evalMode(){
+void MyNode::setNodeVariable(const std::string &variable, const Flows::PVariable &value) {
+  try {
+    sendMessage();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void MyNode::evalMode() {
   if (_once) {
     int iterations = _onceDelay / 100;
     for (int i = 0; i < iterations; ++i) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      if (_stopThread){
+      if (_stopThread) {
         return;
       }
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(_onceDelay % 100));
     sendMessage();
   }
-  while(!_stopThread) {
+  while (!_stopThread) {
     switch (_mode) {
-      case None:
-        _stopThread = true;
+      case None:_stopThread = true;
         break;
-      case Interval:
-        intervalMode();
+      case Interval:intervalMode();
         break;
-      case Interval_Time:
-        _out->printInfo(std::to_string(_sleepingTime));
-        intervalTimeMode();
+      case Interval_Time:intervalTimeMode();
         break;
-      case Time:
-        timeMode();
+      case Time:timeMode();
         break;
     }
   }
@@ -240,7 +268,7 @@ void MyNode::intervalMode() {
   int iterations = (_sleepingTime * 1000) / 100;
   for (int i = 0; i < iterations; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    if (_stopThread){
+    if (_stopThread) {
       return;
     }
   }
@@ -249,15 +277,15 @@ void MyNode::intervalMode() {
 }
 
 void MyNode::intervalTimeMode() {
-  std::tm* time = getTime();
+  std::tm *time = getTime();
   auto it = _days.find(time->tm_wday);
-  if (it != _days.end()){
-    if (it->second){
-      if (_interval.start <= time->tm_hour){
+  if (it != _days.end()) {
+    if (it->second) {
+      if (_interval.start <= time->tm_hour) {
         int iterations = (_sleepingTime * 1000) / 100;
         for (int i = 0; i < iterations; ++i) {
           std::this_thread::sleep_for(std::chrono::milliseconds(100));
-          if (_stopThread){
+          if (_stopThread) {
             return;
           }
         }
@@ -279,15 +307,15 @@ void MyNode::intervalTimeMode() {
 }
 
 void MyNode::timeMode() {
-  std::tm* time = getTime();
+  std::tm *time = getTime();
   auto it = _days.find(time->tm_wday);
-  if (it != _days.end()){
-    if (it->second){
+  if (it != _days.end()) {
+    if (it->second) {
       if (_startingTime.hour == time->tm_hour && _startingTime.minute == time->tm_min) {
         sendMessage();
         int iterations = (60 * 1000) / 100;
         for (int i = 0; i < iterations; ++i) {
-          std::this_thread::sleep_for(std::chrono::milliseconds (100));
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
           if (_stopThread) {
             return;
           }
@@ -303,12 +331,14 @@ void MyNode::timeMode() {
 }
 
 void MyNode::sendMessage() {
-  return;
+  Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+  message->structValue->emplace("payload", std::make_shared<Flows::Variable>("Hallo"));
+  output(0, message);
 }
 
-std::tm* MyNode::getTime() {
+std::tm *MyNode::getTime() {
   std::time_t time = std::time(0);
-  std::tm* now = std::localtime(&time);
+  std::tm *now = std::localtime(&time);
   return now;
 }
 

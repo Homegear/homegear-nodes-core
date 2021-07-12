@@ -34,7 +34,6 @@
 #include <thread>
 #include <mutex>
 #include <ctime>
-#include <homegear-node/JsonDecoder.h>
 
 namespace MyNode {
 
@@ -47,12 +46,13 @@ class MyNode : public Flows::INode {
   bool start() override;
   void stop() override;
   void waitForStop() override;
+  void setNodeVariable(const std::string &variable, const Flows::PVariable &value) override;
  private:
   std::atomic_bool _stopThread{true};
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
-  std::vector<Flows::Variable> _messages;
+  std::vector<Flows::PVariable> _messages;
   enum Mode {
     None,
     Interval,
