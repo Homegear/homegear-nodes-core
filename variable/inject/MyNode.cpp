@@ -56,7 +56,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
           if (it->second->stringValue.compare("payload") == 0) {
             auto payloadIt = info->info->structValue->find("payload");
             if (payloadIt != info->info->structValue->end()) {
-              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*payloadIt->second));
+              message->structValue->emplace("value", payloadIt->second);
             }
             payloadIt = info->info->structValue->find("payloadType");
             if (payloadIt != info->info->structValue->end()) {
@@ -65,13 +65,13 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
           } else if (it->second->stringValue.compare("topic") == 0) {
             auto topicIt = info->info->structValue->find("topic");
             if (topicIt != info->info->structValue->end()) {
-              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*topicIt->second));
+              message->structValue->emplace("value", topicIt->second);
             }
           }
         }
         it = msg->structValue->find("v");
         if (it != msg->structValue->end()) {
-          message->structValue->emplace("value", std::make_shared<Flows::Variable>(*it->second));
+          message->structValue->emplace("value", it->second);
         }
         it = msg->structValue->find("vt");
         if (it != msg->structValue->end()) {
@@ -337,7 +337,7 @@ void MyNode::sendMessage() {
           auto valueIt = msg->structValue->find("value");
           if (valueIt != msg->structValue->end()) {
             _out->printInfo("emplace...");
-            message->structValue->emplace(payload, std::make_shared<Flows::Variable>(*valueIt->second));
+            message->structValue->emplace(payload, valueIt->second);
             _out->printInfo("done");
           }
         }
