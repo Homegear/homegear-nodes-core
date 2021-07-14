@@ -86,7 +86,7 @@ class MyNode : public Flows::INode {
   void intervalTimeMode();
   void timeMode();
   void sendMessage();
-  std::tm* getTime();
+  static std::tm* getTime();
 };
 
 }

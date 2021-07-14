@@ -48,33 +48,33 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         _messages.reserve(messages->size());
       }
 
-      for (auto &m : *messages) {
+      for (auto &msg : *messages) {
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        auto it = m->structValue->find("p");
-        if (it != m->structValue->end()){
+        auto it = msg->structValue->find("p");
+        if (it != msg->structValue->end()) {
           message->structValue->emplace("payload", std::make_shared<Flows::Variable>(it->second->stringValue));
           if (it->second->stringValue.compare("payload") == 0) {
-            auto payloadIter = info->info->structValue->find("payload");
-            if (payloadIter != info->info->structValue->end()) {
-              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*payloadIter->second));
+            auto payloadIt = info->info->structValue->find("payload");
+            if (payloadIt != info->info->structValue->end()) {
+              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*payloadIt->second));
             }
-            payloadIter = info->info->structValue->find("payloadType");
-            if (payloadIter != info->info->structValue->end()){
-              message->structValue->emplace("type", std::make_shared<Flows::Variable>(it->second->stringValue));
+            payloadIt = info->info->structValue->find("payloadType");
+            if (payloadIt != info->info->structValue->end()) {
+              message->structValue->emplace("type", std::make_shared<Flows::Variable>(payloadIt->second->stringValue));
             }
           } else if (it->second->stringValue.compare("topic") == 0) {
-            auto topicIter = info->info->structValue->find("topic");
-            if (topicIter != info->info->structValue->end()) {
-              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*it->second));
+            auto topicIt = info->info->structValue->find("topic");
+            if (topicIt != info->info->structValue->end()) {
+              message->structValue->emplace("value", std::make_shared<Flows::Variable>(*topicIt->second));
             }
           }
         }
-        it = m->structValue->find("v");
-        if (it != m->structValue->end()) {
+        it = msg->structValue->find("v");
+        if (it != msg->structValue->end()) {
           message->structValue->emplace("value", std::make_shared<Flows::Variable>(*it->second));
         }
-        it = m->structValue->find("vt");
-        if (it != m->structValue->end()) {
+        it = msg->structValue->find("vt");
+        if (it != msg->structValue->end()) {
           message->structValue->emplace("type", std::make_shared<Flows::Variable>(it->second->stringValue));
         }
         _messages.emplace_back(message);
@@ -147,6 +147,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         }
       }
     }
+
     settingsIterator = info->info->structValue->find("once");
     if (settingsIterator != info->info->structValue->end()) {
       _once = settingsIterator->second->booleanValue;
@@ -155,21 +156,6 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     settingsIterator = info->info->structValue->find("onceDelay");
     if (settingsIterator != info->info->structValue->end()) {
       _onceDelay = settingsIterator->second->floatValue * 1000;
-    }
-
-    for (auto &m : _messages) {
-      auto it = m->structValue->find("payload");
-      if (it != m->structValue->end()) {
-        _out->printInfo("payload: " + it->second->stringValue);
-      }
-      it = m->structValue->find("value");
-      if (it != m->structValue->end()){
-        _out->printInfo("value: " + it->second->stringValue);
-      }
-      it = m->structValue->find("type");
-      if (it != m->structValue->end()) {
-        _out->printInfo("type: " + it->second->stringValue);
-      }
     }
 
     return true;
@@ -331,13 +317,38 @@ void MyNode::timeMode() {
 }
 
 void MyNode::sendMessage() {
+  for (auto &msg : _messages) {
+    _out->printInfo(msg->structValue->at("payload")->stringValue);
+    _out->printInfo(msg->structValue->at("value")->stringValue);
+    _out->printInfo(msg->structValue->at("type")->stringValue);
+  }
+
   Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-  message->structValue->emplace("payload", std::make_shared<Flows::Variable>("Hallo"));
+  for (auto &msg : _messages) {
+    auto typeIt = msg->structValue->find("type");
+    if (typeIt != msg->structValue->end()) {
+      std::string type = typeIt->second->stringValue;
+      auto payloadIt = msg->structValue->find("payload");
+      if (payloadIt != msg->structValue->end()) {
+        std::string payload = payloadIt->second->stringValue;
+        if (type.compare("date") == 0) {
+          message->structValue->emplace(payload, std::make_shared<Flows::Variable>(Flows::HelperFunctions::getTime()));
+        } else {
+          auto valueIt = msg->structValue->find("value");
+          if (valueIt != msg->structValue->end()) {
+            _out->printInfo("emplace...");
+            message->structValue->emplace(payload, std::make_shared<Flows::Variable>(*valueIt->second));
+            _out->printInfo("done");
+          }
+        }
+      }
+    }
+  }
   output(0, message);
 }
 
 std::tm *MyNode::getTime() {
-  std::time_t time = std::time(0);
+  std::time_t time = std::time(nullptr);
   std::tm *now = std::localtime(&time);
   return now;
 }
