@@ -317,12 +317,6 @@ void MyNode::timeMode() {
 }
 
 void MyNode::sendMessage() {
-  for (auto &msg : _messages) {
-    _out->printInfo(msg->structValue->at("payload")->stringValue);
-    _out->printInfo(msg->structValue->at("value")->stringValue);
-    _out->printInfo(msg->structValue->at("type")->stringValue);
-  }
-
   Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
   for (auto &msg : _messages) {
     auto typeIt = msg->structValue->find("type");
@@ -336,9 +330,7 @@ void MyNode::sendMessage() {
         } else {
           auto valueIt = msg->structValue->find("value");
           if (valueIt != msg->structValue->end()) {
-            _out->printInfo("emplace...");
             message->structValue->emplace(payload, valueIt->second);
-            _out->printInfo("done");
           }
         }
       }
