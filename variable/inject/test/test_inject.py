@@ -168,7 +168,7 @@ class IntervalTest(unittest.TestCase):
             {
                 "id": "n1",
                 "type": "inject",
-                "repeat": intervalTime,
+                "repeat": str(intervalTime),
                 "crontab": "",
                 "once": "false",
                 "onceDelay": "1",
@@ -243,7 +243,7 @@ class IntervalOnceTest(unittest.TestCase):
             {
                 "id": "n1",
                 "type": "inject",
-                "repeat": intervalTime,
+                "repeat": str(intervalTime),
                 "crontab": "",
                 "once": "true",
                 "onceDelay": "1",
@@ -287,7 +287,7 @@ class IntervalOnceTest(unittest.TestCase):
         self.assertIsNotNone(inputHistory, "No message was passed on")
         for i in range(2):
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertEqual(len(inputHistory), 1 + i, f"Length should be 1, but is {inputHistory}")
+            self.assertEqual(len(inputHistory), 1 + i, f"Length should be {1 + i}, but is {inputHistory}")
             self.assertEqual(inputHistory[i][1][testValues[0][0]], testValues[0][1], f"Input should be '{testValues[0][1]}' at '{testValues[0][0]}', but is {inputHistory[i][1][testValues[0][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[1][0]], testValues[1][1], f"Input should be '{testValues[1][1]}' at '{testValues[1][0]}', but is {inputHistory[i][1][testValues[1][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[2][0]], testValues[2][1], f"Input should be '{testValues[2][1]}' at '{testValues[2][0]}', but is {inputHistory[i][1][testValues[2][0]]}")
@@ -311,9 +311,7 @@ class IntervalTimeTest(unittest.TestCase):
     @classmethod
     def setUp(self):
         global testValues
-        global intervalTime
         testValues = [['payload', 'This is a test'], ['topic', 'true'], ['test', 42]]
-        intervalTime = 60
         now = time.localtime()
         hour = time.strftime("%H", now)
         testFlow = [
@@ -363,9 +361,9 @@ class IntervalTimeTest(unittest.TestCase):
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertIsNone(inputHistory, f"Input should be None, but was {inputHistory}")
         for i in range(2):
-            time.sleep(intervalTime)
+            time.sleep(60 + 1)
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertEqual(len(inputHistory), 1 + i, f"Length should be 1, but is {inputHistory}")
+            self.assertEqual(len(inputHistory), 1 + i, f"Length should be {1 + i}, but is {inputHistory}")
             self.assertEqual(inputHistory[i][1][testValues[0][0]], testValues[0][1], f"Input should be '{testValues[0][1]}' at '{testValues[0][0]}', but is {inputHistory[i][1][testValues[0][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[1][0]], testValues[1][1], f"Input should be '{testValues[1][1]}' at '{testValues[1][0]}', but is {inputHistory[i][1][testValues[1][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[2][0]], testValues[2][1], f"Input should be '{testValues[2][1]}' at '{testValues[2][0]}', but is {inputHistory[i][1][testValues[2][0]]}")
@@ -387,9 +385,7 @@ class IntervalTimeOnceTest(unittest.TestCase):
     @classmethod
     def setUp(self):
         global testValues
-        global intervalTime
         testValues = [['payload', 'This is a test'], ['topic', 'true'], ['test', 42]]
-        intervalTime = 60
         now = time.localtime()
         hour = time.strftime("%H", now)
         testFlow = [
@@ -440,12 +436,12 @@ class IntervalTimeOnceTest(unittest.TestCase):
         self.assertIsNotNone(inputHistory, "No message was passed on")
         for i in range(2):
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
-            self.assertEqual(len(inputHistory), 1 + i, f"Length should be 1, but is {inputHistory}")
+            self.assertEqual(len(inputHistory), 1 + i, f"Length should be {1 + i}, but is {inputHistory}")
             self.assertEqual(inputHistory[i][1][testValues[0][0]], testValues[0][1], f"Input should be '{testValues[0][1]}' at '{testValues[0][0]}', but is {inputHistory[i][1][testValues[0][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[1][0]], testValues[1][1], f"Input should be '{testValues[1][1]}' at '{testValues[1][0]}', but is {inputHistory[i][1][testValues[1][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[2][0]], testValues[2][1], f"Input should be '{testValues[2][1]}' at '{testValues[2][0]}', but is {inputHistory[i][1][testValues[2][0]]}")
             if i < 2:
-                time.sleep(intervalTime)
+                time.sleep(60 + 1)
 
 
 class TimeTest(unittest.TestCase):
@@ -475,7 +471,7 @@ class TimeTest(unittest.TestCase):
                 "type": "inject",
                 "repeat": "",
                 "crontab": minute + " " + hour + " * * *",
-                "once": "true",
+                "once": "false",
                 "onceDelay": "1",
                 "props": [{"p": "payload"},
                           {"p": "topic", "vt": "bool"},
@@ -515,7 +511,7 @@ class TimeTest(unittest.TestCase):
     def test_time(self):
         inputHistory = hg.getNodeVariable(n2, "inputHistory0")
         self.assertIsNotNone(inputHistory, "No message was passed on.")
-        self.assertEqual(len(inputHistory), 1, f"Length should be 1, but is {len(inputHistory)}")
+        self.assertEqual(len(inputHistory), 1, f"Length should be 1, but is {inputHistory}")
         self.assertEqual(inputHistory[0][1][testValues[0][0]], testValues[0][1], f"Input should be '{testValues[0][1]}' at '{testValues[0][0]}', but is {inputHistory[0][1][testValues[0][0]]}")
         self.assertEqual(inputHistory[0][1][testValues[1][0]], testValues[1][1], f"Input should be '{testValues[1][1]}' at '{testValues[1][0]}', but is {inputHistory[0][1][testValues[1][0]]}")
         self.assertEqual(inputHistory[0][1][testValues[2][0]], testValues[2][1], f"Input should be '{testValues[2][1]}' at '{testValues[2][0]}', but is {inputHistory[0][1][testValues[2][0]]}")
@@ -590,7 +586,7 @@ class TimeOnceTest(unittest.TestCase):
         for i in range(1):
             inputHistory = hg.getNodeVariable(n2, "inputHistory0")
             self.assertIsNotNone(inputHistory, "No message was passed on.")
-            self.assertEqual(len(inputHistory), 1 + i, f"Length should be 1, but is {inputHistory}")
+            self.assertEqual(len(inputHistory), 1 + i, f"Length should be {1 + i}, but is {inputHistory}")
             self.assertEqual(inputHistory[i][1][testValues[0][0]], testValues[0][1], f"Input should be '{testValues[0][1]}' at '{testValues[0][0]}', but is {inputHistory[i][1][testValues[0][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[1][0]], testValues[1][1], f"Input should be '{testValues[1][1]}' at '{testValues[1][0]}', but is {inputHistory[i][1][testValues[1][0]]}")
             self.assertEqual(inputHistory[i][1][testValues[2][0]], testValues[2][1], f"Input should be '{testValues[2][1]}' at '{testValues[2][0]}', but is {inputHistory[i][1][testValues[2][0]]}")
