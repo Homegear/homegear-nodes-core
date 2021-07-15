@@ -12,13 +12,13 @@
   "inject": {
     "label": {
       "name": "Name",
-      "onstart": "Wert einmal anlegen nach",
+      "onstart": "Wert einmal ausgeben nach",
       "onceDelay": "sekunden, dann",
       "repeat": "Wiederholen",
-      "none": "nie",
+      "none": "Nie",
       "interval": "Intervall",
-      "interval-time": "Intervall zwischen Zeiten",
-      "time": "zu einer bestimmten Uhrzeit",
+      "interval-time": "Intervall zwischen Uhrzeiten",
+      "time": "Täglicher Zeitpunkt",
       "every": "alle",
       "seconds": "Sekunden",
       "minutes": "Minuten",
@@ -27,13 +27,13 @@
       "and": "und",
       "on": "am",
       "days": [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-        "Sunday"
+        "Montag",
+        "Dienstag",
+        "Mittwoch",
+        "Donnerstag",
+        "Freitag",
+        "Samstag",
+        "Sonntag"
       ],
       "at": "um"
     },
