@@ -10,6 +10,7 @@
     "local": false,
     "maxThreadCounts": {
       "constant": 0,
+      "inject": 1,
       "round-robin-shift": 0,
       "toggle": 0,
       "variable-in": 0,
@@ -18,6 +19,7 @@
     },
     "nodes": {
       "constant": "constant.so",
+      "inject": "inject.so",
       "round-robin-shift": "round-robin-shift.so",
       "toggle": "toggle.so",
       "variable-in": "variable-in.so",

@@ -193,8 +193,7 @@ void MyNode::averageOverTime() {
             break;
         }
         if (sleepingTime % 100)
-          std::this_thread::sleep_for(
-              std::chrono::milliseconds(sleepingTime % 100));
+          std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
 
       } else if (sleepingTime >= 30000) {
         int32_t iterations = sleepingTime / 1000;
@@ -204,8 +203,7 @@ void MyNode::averageOverTime() {
             break;
         }
         if (sleepingTime % 1000)
-          std::this_thread::sleep_for(
-              std::chrono::milliseconds(sleepingTime % 1000));
+          std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
       }
       if (_stopThread)
         break;
@@ -225,8 +223,7 @@ void MyNode::averageOverTime() {
         }
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        message->structValue->emplace("payload",
-                                      std::make_shared<Flows::Variable>(_round ? average : std::llround(average)));
+        message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_round ? average : std::llround(average)));
         output(0, message);
       }
 
@@ -277,8 +274,7 @@ void MyNode::averageOverCurrentValues() {
       }
 
       Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-      message->structValue->emplace("payload",
-                                    std::make_shared<Flows::Variable>(_round ? average : std::llround(average)));
+      message->structValue->emplace("payload",std::make_shared<Flows::Variable>(_round ? average : std::llround(average)));
       output(0, message);
     }
   }

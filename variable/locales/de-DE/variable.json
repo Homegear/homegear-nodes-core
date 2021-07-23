@@ -9,6 +9,38 @@
     "help": "Dieser Knoten liefert einen konstanten Wert, der bei jedem Neuladen einmal übertragen wird.",
     "output1Description": "Gibt den konfigurierten konstanten Wert aus."
   },
+  "inject": {
+    "label": {
+      "name": "Name",
+      "onstart": "Wert einmal ausgeben nach",
+      "onceDelay": "sekunden, dann",
+      "repeat": "Wiederholen",
+      "none": "Nie",
+      "interval": "Intervall",
+      "interval-time": "Intervall zwischen Uhrzeiten",
+      "time": "Täglicher Zeitpunkt",
+      "every": "alle",
+      "seconds": "Sekunden",
+      "minutes": "Minuten",
+      "hours": "Stunden",
+      "between": "zwischen",
+      "and": "und",
+      "on": "am",
+      "days": [
+        "Montag",
+        "Dienstag",
+        "Mittwoch",
+        "Donnerstag",
+        "Freitag",
+        "Samstag",
+        "Sonntag"
+      ],
+      "at": "um"
+    },
+    "paletteHelp": "<p>Liefert einen konstanten Wert immer wieder</p>",
+    "help": "Dieser Knoten liefert einen konstanten Wert, der in dem gesetzen Zeitintervall übertragen wird.",
+    "output1Description": "Gibt den konfigurierten konstanten Wert aus."
+  },
   "round-robin-shift": {
     "label": {
       "true-only": "Nur bei \"true\" togglen",

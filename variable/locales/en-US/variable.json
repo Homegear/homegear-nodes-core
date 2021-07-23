@@ -9,6 +9,38 @@
     "help": "This node provices a constant value which is transmitted once on each reload.",
     "output1Description": "Outputs the configured constant value."
   },
+  "inject": {
+    "label": {
+      "name": "Name",
+      "onstart": "Inject once after",
+      "onceDelay": "seconds, then",
+      "repeat": "Repeat",
+      "none": "none",
+      "interval": "interval",
+      "interval-time": "interval between times",
+      "time": "at a specific time",
+      "every": "every",
+      "seconds": "seconds",
+      "minutes": "minutes",
+      "hours": "hours",
+      "between": "between",
+      "and": "and",
+      "on": "on",
+      "days": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday"
+      ],
+      "at": "at"
+    },
+    "paletteHelp": "<p>Provides a constant value.</p>",
+    "help": "This node provices a constant value which is transmitted in the given interval.",
+    "output1Description": "Outputs the configured constant value."
+  },
   "round-robin-shift": {
     "label": {
       "true-only": "Only toggle on \"true\"",
