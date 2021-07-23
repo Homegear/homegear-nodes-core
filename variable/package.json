@@ -10,7 +10,7 @@
     "local": false,
     "maxThreadCounts": {
       "constant": 0,
-      "inject": 0,
+      "inject": 1,
       "round-robin-shift": 0,
       "toggle": 0,
       "variable-in": 0,
