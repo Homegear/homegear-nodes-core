@@ -23,6 +23,7 @@
         <select type="text" id="node-input-eventtype" style="display: inline-block; width: 65%;">
             <option value="all" data-i18n="homegear-event.label.all"></option>
             <option value="devicevariables" data-i18n="homegear-event.label.devicevariables"></option>
+            <option value="servicemessages" data-i18n="homegear-event.label.servicemessages"></option>
             <option value="metadata" data-i18n="homegear-event.label.metadata"></option>
             <option value="system" data-i18n="homegear-event.label.systemvariables"></option>
             <option value="flowvariables" data-i18n="homegear-event.label.flowvariables"></option>
