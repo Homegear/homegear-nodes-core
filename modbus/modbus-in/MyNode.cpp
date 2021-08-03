@@ -71,6 +71,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         auto irIterator = element->structValue->find("ir");
         if (irIterator == element->structValue->end()) continue;
 
+        auto nameIterator = element->structValue->find("n");
+        if (nameIterator == element->structValue->end()) continue;
+
         int32_t index = Flows::Math::getNumber(indexIterator->second->stringValue);
         int32_t count = Flows::Math::getNumber(countIterator->second->stringValue);
 
@@ -83,6 +86,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         registerInfo->outputIndex = (uint32_t)outputIndex;
         registerInfo->index = (uint32_t)index;
         registerInfo->count = registerInfo->modbusType == ModbusType::tHoldingRegister || registerInfo->modbusType == ModbusType::tInputRegister ? (uint32_t)count : 1;
+        registerInfo->name = nameIterator->second->stringValue;
 
         auto &type = typeIterator->second->stringValue;
         if (type == "bool") registerInfo->type = RegisterType::tBool;
@@ -211,6 +215,7 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         message->structValue->emplace((ModbusType)packet->arrayValue->at(0)->integerValue == ModbusType::tHoldingRegister ? "holdingRegister" : "inputRegister", std::make_shared<Flows::Variable>(indexIterator->first));
         message->structValue->emplace("count", std::make_shared<Flows::Variable>(countIterator->first));
+        message->structValue->emplace("name", std::make_shared<Flows::Variable>(countIterator->second->name));
 
         switch (countIterator->second->type) {
           case RegisterType::tBin:message->structValue->emplace("payload", packet->arrayValue->at(3));
