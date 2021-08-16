@@ -21,16 +21,16 @@ file_ladir = $(libdir)
 file_la_DATA = package.json file/file.hni tail/tail.hni watch/watch.hni
 
 locale_endir = $(libdir)/locales/en
-locale_en_DATA = locales/en-US/storage.json
+locale_en_DATA = locales/en-US/storage.json locales/en-US/tail.help.html locales/en-US/watch.help.html
 
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/storage.json
+locale_en_us_DATA = locales/en-US/storage.json locales/en-US/tail.help.html locales/en-US/watch.help.html
 
 locale_dedir = $(libdir)/locales/de
-locale_de_DATA = locales/de-DE/storage.json
+locale_de_DATA = locales/de-DE/storage.json locales/de-DE/tail.help.html locales/de-DE/watch.help.html
 
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/storage.json
+locale_de_de_DATA = locales/de-DE/storage.json locales/de-DE/tail.help.html locales/de-DE/watch.help.html
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/file.la

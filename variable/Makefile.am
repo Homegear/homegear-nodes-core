@@ -33,16 +33,16 @@ variable_ladir = $(libdir)
 variable_la_DATA = package.json constant/constant.hni inject/inject.hni round-robin-shift/round-robin-shift.hni toggle/toggle.hni variable-in/variable-in.hni variable-loop-prevention-group/variable-loop-prevention-group.hni variable-out/variable-out.hni
 
 locale_endir = $(libdir)/locales/en
-locale_en_DATA = locales/en-US/variable.json
+locale_en_DATA = locales/en-US/variable.json locales/en-US/inject.help.html
 
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = locales/en-US/variable.json
+locale_en_us_DATA = locales/en-US/variable.json locales/en-US/inject.help.html
 
 locale_dedir = $(libdir)/locales/de
-locale_de_DATA = locales/de-DE/variable.json
+locale_de_DATA = locales/de-DE/variable.json locales/de-DE/inject.help.html
 
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = locales/de-DE/variable.json
+locale_de_de_DATA = locales/de-DE/variable.json locales/de-DE/inject.help.html
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/constant.la
