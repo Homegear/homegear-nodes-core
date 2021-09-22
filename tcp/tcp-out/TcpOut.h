@@ -33,21 +33,30 @@
 #include <homegear-node/INode.h>
 #include <homegear-node/JsonEncoder.h>
 
-namespace MyNode {
+namespace TcpOut {
 
-class HttpResponse : public Flows::INode {
+class TcpOut : public Flows::INode {
  public:
-  HttpResponse(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~HttpResponse() override;
+  TcpOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~TcpOut() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   void configNodesStarted() override;
  private:
-  std::string _server;
-  int32_t _statusCode = 200;
-  Flows::PVariable _headers;
+  enum class PayloadType {
+    raw,
+    hex,
+    json
+  };
+
+  std::string _socket;
+  PayloadType _payloadType = PayloadType::hex;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+
+  //{{{ RCP methods
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

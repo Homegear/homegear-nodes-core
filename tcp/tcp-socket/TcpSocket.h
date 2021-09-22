@@ -35,41 +35,53 @@
 
 #include <regex>
 
-namespace MyNode
-{
+namespace TcpSocket {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected);
-	~MyNode() override;
+class TcpSocket : public Flows::INode {
+ public:
+  TcpSocket(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~TcpSocket() override;
 
-	bool init(const Flows::PNodeInfo &info) override;
-	bool start() override;
-	void stop() override;
-	void waitForStop() override;
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
 
-	Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
-private:
-	struct NodeInfo
-	{
-		std::string id;
-	};
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
+ private:
+  enum class SocketType {
+    kUndefined,
+    kClient,
+    kServer
+  };
 
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	Flows::PNodeInfo _nodeInfo;
+  enum class NodeType {
+    kUndefined = 0,
+    kInput = 1,
+    kOutput = 2
+  };
 
-	std::mutex _nodesMutex;
-	std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
+  std::shared_ptr<BaseLib::SharedObjects> _bl;
+  Flows::PNodeInfo _nodeInfo;
+  SocketType _type = SocketType::kUndefined;
 
-	BaseLib::PTcpSocket _socket;
+  std::mutex _nodesMutex;
+  std::unordered_map<std::string, NodeType> _nodes;
 
-    void packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket& packet);
+  BaseLib::PTcpSocket _socket;
 
-	//{{{ RPC methods
-		Flows::PVariable send(const Flows::PArray& parameters);
-		Flows::PVariable registerNode(const Flows::PArray& parameters);
-	//}}}
+  //For client socket
+  std::atomic_bool _stopListenThread{false};
+  std::thread _listenThread;
+
+  void setConnectionState(bool value);
+  void packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket &packet);
+  void listen();
+
+  //{{{ RPC methods
+  Flows::PVariable send(const Flows::PArray &parameters);
+  Flows::PVariable registerNode(const Flows::PArray &parameters);
+  //}}}
 };
 
 }

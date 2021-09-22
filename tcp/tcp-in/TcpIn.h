@@ -34,28 +34,32 @@
 #include <homegear-node/JsonDecoder.h>
 #include <homegear-base/BaseLib.h>
 
-namespace MyNode {
+namespace TcpIn {
 
-class MyNode : public Flows::INode {
+class TcpIn : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  TcpIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~TcpIn() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   void configNodesStarted() override;
  private:
-  std::string _server;
-  std::string _method;
-  std::string _path;
-  bool _fileUploads = false;
+  enum class PayloadType {
+    rawBinary,
+    string,
+    hex,
+    json
+  };
 
-  Flows::JsonDecoder _jsonDecoder;
+  std::string _socket;
+  PayloadType _payloadType = PayloadType::hex;
+  std::vector<uint8_t> _splitAfter;
 
-  std::pair<std::string, std::string> splitFirst(const std::string& string, char delimiter);
-  std::vector<std::string> splitAll(std::string string, char delimiter);
+  std::vector<uint8_t> _buffer;
 
   //{{{ RPC methods
   Flows::PVariable packetReceived(const Flows::PArray& parameters);
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
   //}}}
 };
 

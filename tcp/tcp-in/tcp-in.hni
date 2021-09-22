@@ -22,7 +22,20 @@
         <label for="node-input-socket"><i class="fa fa-globe"></i> <span data-i18n="tcp-in.label.socket"></span></label>
         <input type="text" id="node-input-socket">
     </div>
-    <div id="node-input-tip" class="form-tips"><span data-i18n="tcp-in.tip.in"></span><code><span id="node-input-path"></span></code>.</div>
+    <div class="form-row">
+		<label for="node-input-output"><i class="fa fa-long-arrow-right"></i> <span data-i18n="tcp-in.label.output"></span></label>
+		<select id="node-input-output" style="width:180px;">
+			<option value="rawBinary" data-i18n="tcp-in.label.rawBinary"></option>
+			<option value="string" data-i18n="tcp-in.label.string"></option>
+			<option value="hex" data-i18n="tcp-in.label.hex"></option>
+			<option value="json" data-i18n="tcp-in.label.json"></option>
+		</select>
+	</div>
+	<div class="form-row">
+		<label for="node-input-splitAfter"><i class="fa fa-envelope"></i> <span data-i18n="tcp-in.label.splitAfter"></span></label>
+		<input type="text" id="node-input-splitAfter" style="width:70%"/>
+		<input type="hidden" id="node-input-splitAfterType"/>
+	</div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('tcp-in',{
@@ -30,7 +43,10 @@
         color:"#c0c0c0",
         defaults: {
             name: {value:""},
-            socket: {type:"tcp-socket", required:true}
+            socket: {type:"tcp-socket", required:true},
+            output: {value:"hex"},
+            splitAfterType: {value:"string"},
+            splitAfter: {value:"\\n"}
         },
         inputs:0,
         outputs:1,
@@ -51,8 +67,16 @@
             return this.name?"node_label_italic":"";
         },
         oneditprepare: function() {
-            
-        }
+            if (this.splitAfterType == null) this.splitAfterType = "string";
+			$("#node-input-splitAfterType").val(this.payloadType);
 
+			$("#node-input-splitAfter").typedInput({
+				default: 'string',
+				typeField: $("#node-input-splitAfterType"),
+				types:['string','bin']
+			});
+
+			$("#node-input-splitAfter").typedInput('type',this.splitAfterType);
+        }
     });
 </script>

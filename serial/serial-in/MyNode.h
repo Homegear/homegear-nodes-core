@@ -44,7 +44,7 @@ class MyNode : public Flows::INode {
   bool init(const Flows::PNodeInfo &info) override;
   void configNodesStarted() override;
  private:
-  std::string _server;
+  std::string _socket;
 
   //{{{ RPC methods
   Flows::PVariable packetReceived(const Flows::PArray& parameters);

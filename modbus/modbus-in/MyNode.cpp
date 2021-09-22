@@ -46,7 +46,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     int32_t outputIndex = -1;
 
     auto settingsIterator = info->info->structValue->find("server");
-    if (settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+    if (settingsIterator != info->info->structValue->end()) _socket = settingsIterator->second->stringValue;
 
     settingsIterator = info->info->structValue->find("registers");
     if (settingsIterator != info->info->structValue->end()) {
@@ -115,7 +115,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 void MyNode::configNodesStarted() {
   try {
-    if (_server.empty()) {
+    if (_socket.empty()) {
       _out->printError("Error: This node has no Modbus server assigned.");
       return;
     }
@@ -176,7 +176,7 @@ void MyNode::configNodesStarted() {
     }
 
     if (!registers->arrayValue->empty()) {
-      Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
+      Flows::PVariable result = invokeNodeMethod(_socket, "registerNode", parameters, true);
       if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
     }
   }

@@ -190,16 +190,16 @@ set(SOURCE_FILES
 		storage/watch/MyNode.h
 		tcp/tcp-in/Factory.cpp
 		tcp/tcp-in/Factory.h
-		tcp/tcp-in/MyNode.cpp
-		tcp/tcp-in/MyNode.h
+		tcp/tcp-in/TcpIn.cpp
+		tcp/tcp-in/TcpIn.h
 		tcp/tcp-out/Factory.cpp
 		tcp/tcp-out/Factory.h
-		tcp/tcp-out/MyNode.cpp
-		tcp/tcp-out/MyNode.h
+		tcp/tcp-out/TcpOut.cpp
+        tcp/tcp-out/TcpOut.h
 		tcp/tcp-socket/Factory.cpp
 		tcp/tcp-socket/Factory.h
-		tcp/tcp-socket/MyNode.cpp
-		tcp/tcp-socket/MyNode.h
+		tcp/tcp-socket/TcpSocket.cpp
+		tcp/tcp-socket/TcpSocket.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h
