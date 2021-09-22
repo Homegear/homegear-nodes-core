@@ -69,6 +69,7 @@ class MyNode : public Flows::INode {
     bool invertBytes = false;
     bool invertRegisters = false;
     std::vector<uint8_t> lastValue;
+    std::string name;
   };
 
   std::string _socket;
