@@ -59,7 +59,8 @@ bool TcpIn::init(const Flows::PNodeInfo &info) {
     settingsIterator = info->info->structValue->find("splitAfter");
     if (settingsIterator != info->info->structValue->end()) {
       if (splitAfterType == "string") {
-        _splitAfter = std::vector<uint8_t>(settingsIterator->second->stringValue.begin(), settingsIterator->second->stringValue.end());
+        auto splitAfter = BaseLib::Rpc::JsonDecoder::decodeString(settingsIterator->second->stringValue);
+        _splitAfter = std::vector<uint8_t>(splitAfter.begin(), splitAfter.end());
       } else {
         auto array = Flows::JsonDecoder::decode(settingsIterator->second->stringValue);
         _splitAfter.reserve(array->arrayValue->size());
@@ -67,6 +68,11 @@ bool TcpIn::init(const Flows::PNodeInfo &info) {
           _splitAfter.push_back((uint8_t)byte->integerValue);
         }
       }
+    }
+
+    settingsIterator = info->info->structValue->find("removeSplitBytes");
+    if (settingsIterator != info->info->structValue->end()) {
+      _removeSplitBytes = settingsIterator->second->booleanValue;
     }
 
     return true;
@@ -108,41 +114,51 @@ Flows::PVariable TcpIn::packetReceived(const Flows::PArray &parameters) {
     if (parameters->at(0)->type != Flows::VariableType::tInteger && parameters->at(0)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 1 is not of type integer.");
     if (parameters->at(1)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 2 is not of type binary.");
 
-    std::vector<uint8_t> data;
+    bool finished = false;
 
-    auto payload = parameters->at(1);
-    if (!_splitAfter.empty()) {
-      auto iterator = std::search(payload->binaryValue.begin(), payload->binaryValue.end(), _splitAfter.begin(), _splitAfter.end());
-      if (iterator == payload->binaryValue.end()) {
-        if (_buffer.size() + payload->binaryValue.size() > 102400) {
-          _out->printError("Error: Buffer is full.");
-          _buffer.clear();
+    auto payload = parameters->at(1)->binaryValue;
+
+    while (!finished) {
+      std::vector<uint8_t> data;
+      if (!_splitAfter.empty()) {
+        auto iterator = std::search(payload.begin(), payload.end(), _splitAfter.begin(), _splitAfter.end());
+        if (iterator == payload.end()) {
+          finished = true;
+          if (_buffer.size() + payload.size() > 102400) {
+            _out->printError("Error: Buffer is full.");
+            _buffer.clear();
+            return std::make_shared<Flows::Variable>();
+          }
+          _buffer.insert(_buffer.end(), payload.begin(), payload.end());
           return std::make_shared<Flows::Variable>();
         }
-        _buffer.insert(_buffer.end(), payload->binaryValue.begin(), payload->binaryValue.end());
-        return std::make_shared<Flows::Variable>();
+        data = _buffer;
+        _buffer.clear();
+        if (_removeSplitBytes) {
+          data.insert(data.end(), payload.begin(), iterator);
+        } else {
+          data.insert(data.end(), payload.begin(), iterator + (signed)_splitAfter.size());
+        }
+        payload = std::vector<uint8_t>(iterator + (signed)_splitAfter.size(), payload.end());
+      } else {
+        finished = true;
+        data.swap(payload);
       }
-      data = _buffer;
-      _buffer.clear();
-      data.insert(data.end(), payload->binaryValue.begin(), iterator + _splitAfter.size());
-      _buffer.insert(_buffer.end(), iterator + _splitAfter.size(), payload->binaryValue.end());
-    } else {
-      data = payload->binaryValue;
+
+      Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      message->structValue->emplace("clientId", std::make_shared<Flows::Variable>(parameters->at(0)->integerValue));
+      if (_payloadType == PayloadType::rawBinary) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(data));
+      else if (_payloadType == PayloadType::string) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string(data.begin(), data.end())));
+      else if (_payloadType == PayloadType::hex) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(data)));
+      else if (_payloadType == PayloadType::json) message->structValue->emplace("payload", Flows::JsonDecoder::decode(std::string(data.begin(), data.end())));
+
+      Flows::PVariable internal = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      internal->structValue->emplace("clientId", std::make_shared<Flows::Variable>(parameters->at(0)->integerValue));
+
+      setInternalMessage(internal);
+
+      output(0, message);
     }
-
-    Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-    message->structValue->emplace("clientId", std::make_shared<Flows::Variable>(parameters->at(0)->integerValue));
-    if (_payloadType == PayloadType::rawBinary) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(data));
-    else if (_payloadType == PayloadType::string) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(std::string(data.begin(), data.end())));
-    else if (_payloadType == PayloadType::hex) message->structValue->emplace("payload", std::make_shared<Flows::Variable>(BaseLib::HelperFunctions::getHexString(data)));
-    else if (_payloadType == PayloadType::json) message->structValue->emplace("payload", Flows::JsonDecoder::decode(std::string(data.begin(), data.end())));
-
-    Flows::PVariable internal = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-    internal->structValue->emplace("clientId", std::make_shared<Flows::Variable>(parameters->at(0)->integerValue));
-
-    setInternalMessage(internal);
-
-    output(0, message);
 
     return std::make_shared<Flows::Variable>();
   }

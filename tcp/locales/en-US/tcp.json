@@ -10,7 +10,8 @@
       "string": "String",
       "hex": "Hexadecimal string",
       "json": "Parsed JSON",
-      "splitAfter": "Split after"
+      "splitAfter": "Split after",
+      "removeSplitBytes": "Remove split bytes"
     }
   },
   "tcp-out": {

@@ -54,6 +54,7 @@ class TcpIn : public Flows::INode {
   std::string _socket;
   PayloadType _payloadType = PayloadType::hex;
   std::vector<uint8_t> _splitAfter;
+  bool _removeSplitBytes = true;
 
   std::vector<uint8_t> _buffer;
 

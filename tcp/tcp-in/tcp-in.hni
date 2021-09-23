@@ -36,6 +36,11 @@
 		<input type="text" id="node-input-splitAfter" style="width:70%"/>
 		<input type="hidden" id="node-input-splitAfterType"/>
 	</div>
+	<div class="form-row">
+		<label>&nbsp;</label>
+		<input type="checkbox" id="node-input-removeSplitBytes" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-removeSplitBytes" style="width: 70%;" data-i18n="tcp-in.label.removeSplitBytes"></label>
+	</div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('tcp-in',{
@@ -46,7 +51,8 @@
             socket: {type:"tcp-socket", required:true},
             output: {value:"hex"},
             splitAfterType: {value:"string"},
-            splitAfter: {value:"\\n"}
+            splitAfter: {value:"\\n"},
+            removeSplitBytes: {value: true}
         },
         inputs:0,
         outputs:1,

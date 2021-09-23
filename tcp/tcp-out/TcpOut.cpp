@@ -135,12 +135,8 @@ Flows::PVariable TcpOut::setConnectionState(const Flows::PArray& parameters)
 {
   try
   {
-    _out->printWarning("Moin0");
-
     if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if(parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
-
-    _out->printWarning("Moin1");
 
     Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
     if(parameters->at(0)->booleanValue)
