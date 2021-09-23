@@ -454,7 +454,7 @@
                     var propertyValue = $('<input/>',{class:"node-input-prop-property-value",type:"text"})
                         .css("width","calc(70% - 30px)")
                         .appendTo(row)
-                        .typedInput({default:'str',types:['msg','flow','global','str','num','bool','json','bin','date','jsonata','env']});
+                        .typedInput({default:'str',types:['msg','flow','global','str','int','float','bool','json','bin','date','env']});
 
                     propertyName.typedInput('value',prop.p);
 

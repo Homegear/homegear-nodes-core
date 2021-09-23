@@ -104,8 +104,15 @@ void TcpOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     }
 
     std::vector<uint8_t> data;
-    if (_payloadType == PayloadType::hex) data = BaseLib::HelperFunctions::getUBinary(message->structValue->at("payload")->stringValue);
-    else if (_payloadType == PayloadType::json) {
+    if (_payloadType == PayloadType::hex) {
+      auto hex = message->structValue->at("payload")->stringValue;
+      std::string strippedHex;
+      strippedHex.reserve(hex.size());
+      for (const auto c: hex) {
+        if ((c >= 97 && c <= 102) || (c >= 65 && c <= 70) || std::isdigit(c)) strippedHex.push_back(c);
+      }
+      data = BaseLib::HelperFunctions::getUBinary(strippedHex);
+    } else if (_payloadType == PayloadType::json) {
       Flows::JsonEncoder jsonEncoder;
       auto json = jsonEncoder.getString(message->structValue->at("payload"));
       data.insert(data.end(), json.begin(), json.end());
@@ -131,22 +138,17 @@ void TcpOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
 }
 
 //{{{ RPC methods
-Flows::PVariable TcpOut::setConnectionState(const Flows::PArray& parameters)
-{
-  try
-  {
-    if(parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
-    if(parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
+Flows::PVariable TcpOut::setConnectionState(const Flows::PArray &parameters) {
+  try {
+    if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
+    if (parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");
 
     Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-    if(parameters->at(0)->booleanValue)
-    {
+    if (parameters->at(0)->booleanValue) {
       status->structValue->emplace("text", std::make_shared<Flows::Variable>("connected"));
       status->structValue->emplace("fill", std::make_shared<Flows::Variable>("green"));
       status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
-    }
-    else
-    {
+    } else {
       status->structValue->emplace("text", std::make_shared<Flows::Variable>("disconnected"));
       status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
       status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
@@ -155,12 +157,10 @@ Flows::PVariable TcpOut::setConnectionState(const Flows::PArray& parameters)
 
     return std::make_shared<Flows::Variable>();
   }
-  catch(const std::exception& ex)
-  {
+  catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
   }
-  catch(...)
-  {
+  catch (...) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
   return Flows::Variable::createError(-32500, "Unknown application error.");

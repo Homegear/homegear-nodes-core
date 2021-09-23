@@ -35,7 +35,16 @@
         "Samstag",
         "Sonntag"
       ],
-      "at": "um"
+      "at": "um",
+      "msg": "msg",
+      "flow": "flow",
+      "global": "global",
+      "string": "string",
+      "boolean": "boolean",
+      "json": "JSON",
+      "bin": "binary",
+      "date": "date",
+      "env": "env"
     },
     "paletteHelp": "<p>Liefert einen konstanten Wert immer wieder</p>",
     "help": "Dieser Knoten liefert einen konstanten Wert, der in dem gesetzen Zeitintervall übertragen wird.",
