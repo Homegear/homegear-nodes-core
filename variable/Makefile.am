@@ -11,7 +11,7 @@ lib_LTLIBRARIES = constant.la inject.la round-robin-shift.la toggle.la variable-
 constant_la_SOURCES = constant/Factory.cpp constant/MyNode.cpp
 constant_la_LDFLAGS =-module -avoid-version -shared
 
-inject_la_SOURCES = inject/Factory.cpp inject/MyNode.cpp
+inject_la_SOURCES = inject/Factory.cpp inject/Inject.cpp
 inject_la_LDFLAGS =-module -avoid-version -shared
 
 round_robin_shift_la_SOURCES = round-robin-shift/Factory.cpp round-robin-shift/MyNode.cpp

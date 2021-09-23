@@ -35,12 +35,12 @@
 #include <mutex>
 #include <ctime>
 
-namespace MyNode {
+namespace Inject {
 
-class MyNode : public Flows::INode {
+class Inject : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  Inject(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~Inject() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   bool start() override;
@@ -52,7 +52,7 @@ class MyNode : public Flows::INode {
   std::mutex _workerThreadMutex;
   std::thread _workerThread;
 
-  std::vector<Flows::PVariable> _messages;
+  std::vector<Flows::PVariable> _properties;
   enum Mode {
     None,
     Interval,
@@ -73,8 +73,8 @@ class MyNode : public Flows::INode {
 
   Mode _mode = None;
   bool _once = false;
-  int _onceDelay = 0.1;
-  int _sleepingTime = 1;
+  int32_t _onceDelay = 1;
+  int32_t _sleepingTime = 1;
   struct Interval _interval{0, 1};
   struct Time _startingTime {12, 0};
 

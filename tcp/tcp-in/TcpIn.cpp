@@ -62,10 +62,14 @@ bool TcpIn::init(const Flows::PNodeInfo &info) {
         auto splitAfter = BaseLib::Rpc::JsonDecoder::decodeString(settingsIterator->second->stringValue);
         _splitAfter = std::vector<uint8_t>(splitAfter.begin(), splitAfter.end());
       } else {
-        auto array = Flows::JsonDecoder::decode(settingsIterator->second->stringValue);
-        _splitAfter.reserve(array->arrayValue->size());
-        for (auto &byte: *array->arrayValue) {
-          _splitAfter.push_back((uint8_t)byte->integerValue);
+        auto splitAfter = Flows::JsonDecoder::decode(settingsIterator->second->stringValue);
+        if (splitAfter->type == Flows::VariableType::tArray) {
+          _splitAfter.reserve(splitAfter->arrayValue->size());
+          for (auto &byte: *splitAfter->arrayValue) {
+            _splitAfter.push_back((uint8_t)byte->integerValue);
+          }
+        } else {
+          _splitAfter = std::vector<uint8_t>(splitAfter->stringValue.begin(), splitAfter->stringValue.end());
         }
       }
     }

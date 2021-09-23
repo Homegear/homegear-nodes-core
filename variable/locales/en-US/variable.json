@@ -36,15 +36,15 @@
         "Sunday"
       ],
       "at": "at",
-      "msg": "msg",
       "flow": "flow",
       "global": "global",
-      "string": "string",
-      "boolean": "boolean",
+      "str": "string",
+      "bool": "boolean",
+      "int": "int",
+      "float": "float",
       "json": "JSON",
       "bin": "binary",
-      "date": "date",
-      "env": "env"
+      "date": "date"
     },
     "paletteHelp": "<p>Provides a constant value.</p>",
     "help": "This node provices a constant value which is transmitted in the given interval.",

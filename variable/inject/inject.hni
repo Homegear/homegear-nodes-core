@@ -255,7 +255,8 @@
 
             if (payloadType === "string" ||
                     payloadType === "str" ||
-                    payloadType === "num" ||
+                    payloadType === "int" ||
+                    payloadType === "float" ||
                     payloadType === "bool" ||
                     payloadType === "json") {
                 if ((topic !== "") && ((topic.length + payload.length) <= 32)) {
@@ -454,7 +455,7 @@
                     var propertyValue = $('<input/>',{class:"node-input-prop-property-value",type:"text"})
                         .css("width","calc(70% - 30px)")
                         .appendTo(row)
-                        .typedInput({default:'str',types:['msg','flow','global','str','int','float','bool','json','bin','date','env']});
+                        .typedInput({default:'str',types:['flow','global','str','int','float','bool','json','bin','date']});
 
                     propertyName.typedInput('value',prop.p);
 

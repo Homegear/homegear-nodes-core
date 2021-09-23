@@ -27,57 +27,56 @@
  * files in the program, then also delete it here.
  */
 
-#include "MyNode.h"
+#include "Inject.h"
+#include <homegear-node/JsonDecoder.h>
 
-namespace MyNode {
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+namespace Inject {
+
+Inject::Inject(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
-MyNode::~MyNode() {
+Inject::~Inject() {
   _stopThread = true;
 }
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool Inject::init(const Flows::PNodeInfo &info) {
   try {
-    Flows::PArray messages;
     auto settingsIterator = info->info->structValue->find("props");
     if (settingsIterator != info->info->structValue->end()) {
-      messages = settingsIterator->second->arrayValue;
-      _messages.clear();
-      if (messages) {
-        _messages.reserve(messages->size());
-      }
+      auto &properties = settingsIterator->second->arrayValue;
+      _properties.clear();
+      _properties.reserve(properties->size());
 
-      for (auto &msg : *messages) {
-        Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-        auto it = msg->structValue->find("p");
-        if (it != msg->structValue->end()) {
-          message->structValue->emplace("payload", std::make_shared<Flows::Variable>(it->second->stringValue));
-          if (it->second->stringValue.compare("payload") == 0) {
+      for (auto &element: *properties) {
+        Flows::PVariable property = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        auto iterator = element->structValue->find("p");
+        if (iterator != element->structValue->end()) {
+          property->structValue->emplace("payload", std::make_shared<Flows::Variable>(iterator->second->stringValue));
+          if (iterator->second->stringValue == "payload") {
             auto payloadIt = info->info->structValue->find("payload");
             if (payloadIt != info->info->structValue->end()) {
-              message->structValue->emplace("value", payloadIt->second);
+              property->structValue->emplace("value", payloadIt->second);
             }
             payloadIt = info->info->structValue->find("payloadType");
             if (payloadIt != info->info->structValue->end()) {
-              message->structValue->emplace("type", std::make_shared<Flows::Variable>(payloadIt->second->stringValue));
+              property->structValue->emplace("type", std::make_shared<Flows::Variable>(payloadIt->second->stringValue));
             }
-          } else if (it->second->stringValue.compare("topic") == 0) {
+          } else if (iterator->second->stringValue == "topic") {
             auto topicIt = info->info->structValue->find("topic");
             if (topicIt != info->info->structValue->end()) {
-              message->structValue->emplace("value", topicIt->second);
+              property->structValue->emplace("value", topicIt->second);
             }
           }
         }
-        it = msg->structValue->find("v");
-        if (it != msg->structValue->end()) {
-          message->structValue->emplace("value", it->second);
+        iterator = element->structValue->find("v");
+        if (iterator != element->structValue->end()) {
+          property->structValue->emplace("value", iterator->second);
         }
-        it = msg->structValue->find("vt");
-        if (it != msg->structValue->end()) {
-          message->structValue->emplace("type", std::make_shared<Flows::Variable>(it->second->stringValue));
+        iterator = element->structValue->find("vt");
+        if (iterator != element->structValue->end()) {
+          property->structValue->emplace("type", std::make_shared<Flows::Variable>(iterator->second->stringValue));
         }
-        _messages.emplace_back(message);
+        _properties.emplace_back(property);
       }
     }
 
@@ -97,10 +96,10 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
           _mode = Interval_Time;
           _sleepingTime = Flows::Math::getNumber(crontab.substr(2, 1)) * 60;
 
-          size_t found = crontab.find("*", 1);
+          size_t found = crontab.find('*', 1);
           if (found != std::string::npos) {
             std::string timeInterval = crontab.substr(4, found - 4);
-            found = timeInterval.find("-");
+            found = timeInterval.find('-');
             if (found != std::string::npos) {
               _interval.start = Flows::Math::getNumber(timeInterval.substr(0, found));
               _interval.stop = Flows::Math::getNumber(timeInterval.substr(found + 1)) + 1;
@@ -118,8 +117,8 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         size_t found = crontab.find("* *");
         if (found != std::string::npos) {
           std::string days = crontab.substr(found + 4);
-          if (days.compare("*") == 0) {
-            for (auto &d : _days) {
+          if (days == "*") {
+            for (auto &d: _days) {
               d.second = true;
             }
           } else {
@@ -169,7 +168,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-bool MyNode::start() {
+bool Inject::start() {
   try {
     std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
     _stopThread = true;
@@ -178,7 +177,7 @@ bool MyNode::start() {
     }
 
     _stopThread = false;
-    _workerThread = std::thread(&MyNode::evalMode, this);
+    _workerThread = std::thread(&Inject::evalMode, this);
 
     return true;
   }
@@ -191,12 +190,12 @@ bool MyNode::start() {
   return false;
 }
 
-void MyNode::stop() {
+void Inject::stop() {
   std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
   _stopThread = true;
 }
 
-void MyNode::waitForStop() {
+void Inject::waitForStop() {
   try {
     std::lock_guard<std::mutex> workerGuard(_workerThreadMutex);
     _stopThread = true;
@@ -212,7 +211,7 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::setNodeVariable(const std::string &variable, const Flows::PVariable &value) {
+void Inject::setNodeVariable(const std::string &variable, const Flows::PVariable &value) {
   try {
     sendMessage();
   }
@@ -224,7 +223,7 @@ void MyNode::setNodeVariable(const std::string &variable, const Flows::PVariable
   }
 }
 
-void MyNode::evalMode() {
+void Inject::evalMode() {
   if (_once) {
     int iterations = _onceDelay / 100;
     for (int i = 0; i < iterations; ++i) {
@@ -250,7 +249,7 @@ void MyNode::evalMode() {
   }
 }
 
-void MyNode::intervalMode() {
+void Inject::intervalMode() {
   int iterations = (_sleepingTime * 1000) / 100;
   for (int i = 0; i < iterations; ++i) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -262,7 +261,7 @@ void MyNode::intervalMode() {
   sendMessage();
 }
 
-void MyNode::intervalTimeMode() {
+void Inject::intervalTimeMode() {
   std::tm *time = getTime();
   auto it = _days.find(time->tm_wday);
   if (it != _days.end()) {
@@ -292,7 +291,7 @@ void MyNode::intervalTimeMode() {
   }
 }
 
-void MyNode::timeMode() {
+void Inject::timeMode() {
   std::tm *time = getTime();
   auto it = _days.find(time->tm_wday);
   if (it != _days.end()) {
@@ -316,30 +315,58 @@ void MyNode::timeMode() {
   }
 }
 
-void MyNode::sendMessage() {
+void Inject::sendMessage() {
   Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-  for (auto &msg : _messages) {
-    auto typeIt = msg->structValue->find("type");
-    if (typeIt != msg->structValue->end()) {
-      std::string type = typeIt->second->stringValue;
-      auto payloadIt = msg->structValue->find("payload");
-      if (payloadIt != msg->structValue->end()) {
-        std::string payload = payloadIt->second->stringValue;
-        if (type.compare("date") == 0) {
-          message->structValue->emplace(payload, std::make_shared<Flows::Variable>(Flows::HelperFunctions::getTime()));
-        } else {
-          auto valueIt = msg->structValue->find("value");
-          if (valueIt != msg->structValue->end()) {
-            message->structValue->emplace(payload, valueIt->second);
-          }
+  for (auto &property: _properties) {
+    auto propertyIterator = property->structValue->find("type");
+    if (propertyIterator == property->structValue->end()) continue;
+    std::string type = propertyIterator->second->stringValue;
+
+    std::string propertyName;
+    propertyIterator = property->structValue->find("payload");
+    if (propertyIterator == property->structValue->end()) continue;
+    propertyName = propertyIterator->second->stringValue;
+
+    Flows::PVariable value = std::make_shared<Flows::Variable>();
+    propertyIterator = property->structValue->find("value");
+    if (propertyIterator != property->structValue->end()) value = propertyIterator->second;
+
+    if (type == "flow") {
+      message->structValue->emplace(propertyName, getFlowData(value->stringValue));
+    } else if (type == "global") {
+      message->structValue->emplace(propertyName, getGlobalData(value->stringValue));
+    } else if (type == "str") {
+      message->structValue->emplace(propertyName, value);
+    } else if (type == "int") {
+      message->structValue->emplace(propertyName, std::make_shared<Flows::Variable>(Flows::Math::getNumber64(value->stringValue)));
+    } else if (type == "float") {
+      message->structValue->emplace(propertyName, std::make_shared<Flows::Variable>(Flows::Math::getDouble(value->stringValue)));
+    } else if (type == "bool") {
+      message->structValue->emplace(propertyName, std::make_shared<Flows::Variable>(value->booleanValue));
+    } else if (type == "json") {
+      message->structValue->emplace(propertyName, Flows::JsonDecoder::decode(value->stringValue));
+    } else if (type == "bin") {
+      auto outputValue = std::make_shared<Flows::Variable>(Flows::VariableType::tBinary);
+      auto buffer = Flows::JsonDecoder::decode(value->stringValue);
+      if (buffer->type == Flows::VariableType::tArray) {
+        outputValue->binaryValue.reserve(buffer->arrayValue->size());
+        for (auto &byte: *buffer->arrayValue) {
+          outputValue->binaryValue.push_back((uint8_t)byte->integerValue);
         }
+      } else {
+        outputValue->binaryValue = std::vector<uint8_t>(buffer->stringValue.begin(), buffer->stringValue.end());
       }
+      message->structValue->emplace(propertyName, outputValue);
+    } else if (type == "date") {
+      message->structValue->emplace(propertyName, std::make_shared<Flows::Variable>(Flows::HelperFunctions::getTime()));
+    } else {
+      _out->printError("Error: Unknown type: " + type);
     }
   }
   output(0, message);
 }
 
-std::tm *MyNode::getTime() {
+std::tm *Inject::getTime() {
   std::time_t time = std::time(nullptr);
   std::tm *now = std::localtime(&time);
   return now;

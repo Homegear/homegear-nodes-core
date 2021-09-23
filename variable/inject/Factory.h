@@ -31,7 +31,7 @@
 #define FACTORY_H_
 
 #include <homegear-node/NodeFactory.h>
-#include "MyNode.h"
+#include "Inject.h"
 
 class MyFactory : Flows::NodeFactory
 {
