@@ -1,0 +1,16 @@
+{
+  "template": {
+    "label": {
+      "template": "Vorlage",
+      "property": "Eigenschaft festlegen",
+      "format": "Syntax Hervorhebung",
+      "syntax": "Format",
+      "output": "Ausgabe als",
+      "mustache": "Mustache template",
+      "plain": "Nur Text",
+      "json": "Analysiertes JSON"
+    },
+    "templatevalue": "Dies ist der Payload: {{payload}} !",
+    "paletteHelp": "<p>Legt eine Eigenschaft basierend auf der bereitgestellten Vorlage fest.</p>"
+  }
+}

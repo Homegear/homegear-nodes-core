@@ -1,0 +1,19 @@
+{
+  "name": "catch",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "catch",
+    "error"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "catch": 0
+    },
+    "nodes": {
+      "catch": "catch.so"
+    }
+  },
+  "version": "1.0.0"
+}

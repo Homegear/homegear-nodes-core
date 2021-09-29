@@ -36,12 +36,27 @@ namespace MyNode {
 
 class MyNode : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   void homegearEvent(const std::string &type, const Flows::PArray &data) override;
  private:
+  enum class EventTypes {
+    kAll,
+    kDeviceVariables,
+    kServiceMessages,
+    kMetadataVariables,
+    kSystemVariables,
+    kFlowVariables,
+    kGlobalVariables,
+    kVariableProfile,
+    kUiNotification,
+    kDevice,
+    kRawPacket
+  };
+
+  EventTypes _eventType = EventTypes::kAll;
 };
 
 }

@@ -1,0 +1,57 @@
+{
+  "serial-in": {
+    "help": "<p>Reads data from a local serial port.</p><p>Can either <ul><li>wait for a \"split\" character (default \n). Also accepts hex notation (0x0d).</li><li>Wait for a timeout in milliseconds from the first character received</li><li>Wait to fill a fixed sized buffer</li></ul></p><p>It then outputs <code>$message['payload']</code> as either a UTF8 ascii string or a binary Buffer object.</p><p><code>msg.port</code> is set to the name of the port selected.</p><p>If no split character is specified, or a timeout or buffer size of 0, then a stream of single characters is sent - again either as ascii chars or size 1 binary buffers.</p>",
+    "label": {
+      "serialport": "Serial Port",
+      "serial": "serial"
+    }
+  },
+  "serial-out": {
+    "help": "<p>Provides a connection to an outbound serial port.</p><p>Only the <code>$message['payload']</code> is sent.</p><p>Optionally the new line character used to split the input can be appended to every message sent out to the serial port.</p>",
+    "input1Description": "A binary input. The type of the binary data can be <code>string</code> though, too. Note that hexadecimal input is not converted to it's binary equivalent.",
+    "label": {
+      "serialport": "Serial Port",
+      "serial": "serial"
+    }
+  },
+  "serial-port": {
+    "help": "<p>Provides configuration options for a serial port.</p><p>The input can be split on a fixed character, after a timeout, or after a fixed number of characters.</p><p>If using a character, it can be specified as either the character, the escaped shortcut (e.g. \n), or the hex code (e.g. 0x0d).</p>",
+    "label": {
+      "serialport": "Serial Port",
+      "settings": "Settings",
+      "baudrate": "Baud Rate",
+      "databits": "Data Bits",
+      "parity": "Parity",
+      "stopbits": "Stop Bits",
+      "input": "Input",
+      "split": "Split input",
+      "deliver": "and deliver",
+      "output": "Output",
+      "none": "none",
+      "unit": "chars"
+    },
+    "placeholder": {
+      "serialport": "for example: /dev/ttyUSB0"
+    },
+    "parity": {
+      "none": "None",
+      "even": "Even",
+      "odd": "Odd"
+    },
+    "split": {
+      "no": "no",
+      "character": "on the character",
+      "timeout": "after a timeout of",
+      "lengths": "into fixed lengths of"
+    },
+    "output": {
+      "ascii": "strings",
+      "binary": "binary data"
+    },
+    "addsplit": "add split character to output messages",
+    "tip": {
+      "split": "Tip: the \"Split on\" character is used to split the input into separate messages. It can also be added to every message sent out to the serial port.",
+      "timeout": "Tip: In timeout mode timeout starts from arrival of first character."
+    }
+  }
+}

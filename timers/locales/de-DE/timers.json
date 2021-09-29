@@ -1,0 +1,225 @@
+{
+  "clock": {
+    "label": {
+      "name": "Name",
+      "every": "Ausgabe jede",
+      "timestamp": "Unix Zeitstempel ausgeben"
+    },
+    "milliseconds": "100 Millisekunden",
+    "second": "Sekunde",
+    "minute": "Minute",
+    "hour": "Stunde",
+    "dayofmonth": "Tag des Monats",
+    "dayofweek": "Tag der Woche",
+    "dayofyear": "Tag des Jahres",
+    "week": "Wochennummer",
+    "month": "Monat",
+    "year": "Jahr",
+    "paletteHelp": "<p>Erzeugt Ereignisse in regelmäßigen Zeitintervallen (Sekunden, Minuten, Stunden, ...).</p>",
+    "help": "<p>Dieser Knoten generiert Ereignisse in regelmäßigen Zeitabständen. \"Tag des Monats\", \"Tag der Woche\", \"Tag des Jahres\", \"Monat\" and \"Wochennummer\" starten mit \"1\". Der erste Tag der Woche ist Montag. Eine Ausgabe wird generiert: <ul><li>Beim Start</li><li>Alle \"100 ms\", \"Sekunden\", \"Minuten\" oder \"Stunden\"</li><li>Um Mitternacht für \"Tag des Monats\", \"Tag der Woche\", \"Tag des Jahres\", \"Woche\", \"Monat\" und \"Jahr\"</li></ul></p>"
+  },
+  "delay": {
+    "label": {
+      "delay": "Verzögerung",
+      "delay2": "Verzögerung in ms",
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Leitet eine Eingabe nach einer festgelegten Zeitspanne weiter.</p>",
+    "help": "<p>Dieser Knoten leitet eine Eingabe nach einer festgelegten Zeitspanne weiter. Die maximale Anzahl von Eingängen in der Warteschlange beträgt 10.</p>"
+  },
+  "impulse": {
+    "label": {
+      "impulse": "Impuls",
+      "impulse2": "Impuls in ms",
+      "allow-retrigger": "Erneutes Auslösen zulassen",
+      "name": "Name"
+    },
+    "input1Description": "",
+    "paletteHelp": "<p>Leitet <code>true</code> weiter und setzt die Ausgabe nach einer festgelegten Zeit auf <code>false</code> zurück.</p>",
+    "help": "<p>Der Impulsknoten leitet <code>true</code> weiter und setzt die Ausgabe nach einer festgelegten Zeit auf <code>false</code> zurück. Die Eingabe eines einzelnen <code>true</code> oder <code>false</code> wird ignoriert, während der Timer läuft. Eine Sequenz <code>false</code> / <code>true</code> während der Timer ausgeführt wird, startet ihn neu. Dieses Verhalten wird durch Auswahl von <code>Erneutes Auslösen zulassen</code> geändert. Wenn diese Option aktiviert ist, wird ein <code>true</code> nach einem <code>true</code> nicht ignoriert.</p>"
+  },
+  "interval": {
+    "label": {
+      "interval": "Intervall",
+      "interval2": "Intervall in ms",
+      "resetafter": "Zurücksetzen nach",
+      "resetafter2": "Zeit in ms or 0",
+      "name": "Name"
+    },
+    "input1Description": "<code>true</code> setzen, um den Timer zu aktivieren, <code>false</code>, um ihn zu deaktivieren.",
+    "input2Description": "<code>true</code> setzen, um den Timer zurückzusetzen. Wenn <code>EN</code> auf false gesetzt wird, wird auch der Timer zurückgesetzt.",
+    "output1Description": "Gibt die Anzahl der Ticks seit dem Start des Timers aus.",
+    "output2Description": "Gibt <code>true</code> aus, wenn der Timer nach Ablauf der unter \"Zurücksetzen nach\" festgelegten Zeit abgelaufen ist.",
+    "paletteHelp": "<p>Erzeugt ein periodisches Ereignis in konstanten Intervallen.</p>",
+    "help": "<p>Dieser Knoten generiert Ereignisse in konstanten Intervallen. Setzen Sie <code>EN</code> auf <code>true</code>, um den Timer zu aktivieren. Sie können \"Zurücksetzen nach\" einstellen, um den Timer automatisch zu deaktivieren. Wenn der Timer nach der unter \"Zurücksetzen nach\" festgelegten Zeit angehalten wird, wird der Ausgang <code>f</code> auf <code>true</code> gesetzt.</p>"
+  },
+  "off-delay": {
+    "label": {
+      "off-delay": "Ausschaltverzögerung",
+      "off-delay2": "Verzägerung in ms",
+      "name": "Name"
+    },
+    "input1Description": "Eine boolesche Eingabe. Der Timer wird eingestellt, wenn <code>false</code> eingegeben wird, und zurückgesetzt, wenn die Eingabe auf <code>true</code> gesetzt wird.",
+    "input2Description": "Ein boolescher Eingang, der den Timer auf seinen Startwert zurücksetzt. Wenn die letzte Eingabe <code>false</code> war, läuft der Timer weiter.",
+    "output1Description": "Gibt <code>true</code> aus, wenn die Eingabe auf <code>true</code> gesetzt ist. Gibt <code>false</code> aus, wenn der Timer <code>0</code> erreicht.",
+    "output2Description": "Gibt die verbleibende Zeit aus, bevor \"o\" auf <code>false</code> gesetzt wird.",
+    "paletteHelp": "<p>Die Ausgabe wird auf <code>true</code> gesetzt, wenn die Eingabe <code>true</code> ist. Wenn die Eingabe auf <code>false</code> gesetzt ist, bleibt die Ausgabe <code>true</code>, bis die konfigurierte Zeit abgelaufen ist. Der Timer wird zurückgesetzt, wenn der Eingang auf <code>true</code> gesetzt ist, und neu gestartet, wenn er wieder auf <code>false</code> gesetzt ist.</p><p>Wird die Verzögerungszeit nicht konfiguriert, kann diese über <code>$message['delay']</code> gesetzt werden.</p>",
+    "help": "<p>Die Ausgabe wird auf <code>true</code> gesetzt, wenn die Eingabe <code>true</code> ist. Wenn die Eingabe auf <code>false</code> gesetzt ist, bleibt die Ausgabe <code>true</code>, bis die konfigurierte Zeit abgelaufen ist. Der Timer wird zurückgesetzt, wenn der Eingang auf <code>true</code> gesetzt ist, und neu gestartet, wenn er wieder auf <code>false</code> gesetzt ist.</p>"
+  },
+  "on-delay": {
+    "label": {
+      "on-delay": "Einschaltverzögerung",
+      "on-delay2": "Verzögerung in ms",
+      "name": "Name"
+    },
+    "input1Description": "Eine boolesche Eingabe. Der Timer wird eingestellt, wenn <code>true</code> eingegeben wird, und zurückgesetzt, wenn die Eingabe auf <code>false</code> gesetzt wird.",
+    "input2Description": "Ein boolescher Eingang, der den Timer auf seinen Startwert zurücksetzt. Wenn die letzte Eingabe <code>true</code> war, läuft der Timer weiter.",
+    "output1Description": "Gibt <code>false</code> aus, wenn die Eingabe auf <code>false</code> gesetzt ist. Gibt <code>true</code> aus, wenn der Timer <code>0</code> erreicht.",
+    "output2Description": "Gibt die verbleibende Zeit aus, bevor \"o\" auf <code>true</code> gesetzt wird.",
+    "paletteHelp": "<p>Wenn der Eingang auf <code>true</code> gesetzt ist, bleibt der Ausgang bis zur konfigurierten Verzögerungszeit auf <code>false</code>. Wenn die Verzögerungszeit abgelaufen ist, wird der Ausgang auf <code>true</code> gesetzt. Wenn die Eingabe auf <code>false</code> gesetzt ist, wird die Ausgabe sofort auf <code>false</code> gesetzt.</p><p>Wird die Verzögerungszeit nicht konfiguriert, kann diese über <code>$message['delay']</code> gesetzt werden.</p>",
+    "help": "<p>Wenn der Eingang auf <code>true</code> gesetzt ist, bleibt der Ausgang bis zur konfigurierten Verzögerungszeit auf <code>false</code>. Wenn die Verzögerungszeit abgelaufen ist, wird der Ausgang auf <code>true</code> gesetzt. Wenn die Eingabe auf <code>false</code> gesetzt ist, wird die Ausgabe sofort auf <code>false</code> gesetzt.</p>"
+  },
+  "ramp-to": {
+    "label": {
+      "interval-up": "Interv. hoch",
+      "interval-down": "Interv. runter",
+      "interval2": "Intervall in ms",
+      "step-interval": "Schrittinterv.",
+      "step-interval2": "Schrittintervall in ms",
+      "minimum": "Minimum",
+      "maximum": "Maximum",
+      "name": "Name"
+    },
+    "input1Description": "Rampe zu diesem Wert.",
+    "input2Description": "Setzt den aktuellen Wert. Es können keine Rückkopplungsschleifen entstehen.",
+    "input3Description": "Stoppt das Rampen.",
+    "output1Description": "Gibt jedes <code>Schrittintervall</code> den aktuellen Wert aus. Es werden nur Wertänderungen ausgegeben.",
+    "output2Description": "Gibt <code>true</code> aus, wenn das Hochrampen startet und <code>false</code>, wenn es abgeschlossen ist.",
+    "output3Description": "Gibt <code>true</code> aus, wenn das Runterrampen startet und <code>false</code>, wenn es abgeschlossen ist.",
+    "paletteHelp": "<p>Rampt zu beliebigen Werten.</p>"
+  },
+  "rate-limiter": {
+    "label": {
+      "max-inputs": "Maximale Nr. von Nachrichten",
+      "interval": "Intervall",
+      "output-first": "Ausgabe während des ersten Intervalls",
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Begrenzt die Anzahl eingehende Nachrichten.</p>",
+    "help": "<p>Diese Knotenrate begrenzt eingehende Nachrichten. Sie können die maximale Anzahl eingehender Nachrichten angeben, die innerhalb eines Intervalls weitergeleitet werden. Die letzte Nachricht wird gespeichert und immer am Ende weitergeleitet. Durch Deaktivieren von \"Ausgabe während des ersten Intervalls\" wartet der Knoten auf \"Intervall\", bis die erste Nachricht ausgegeben wird.</p>"
+  },
+  "slow-pwm": {
+    "label": {
+      "period": "Zeitraum",
+      "period2": "Zeitraum in Sekunden",
+      "dutycyclemin": "Minimaler Arbeitszykluswert",
+      "dutycyclemax": "Maximaler Arbeitszykluswert",
+      "name": "Name"
+    },
+    "input1Description": "Der Arbeitszyklus.",
+    "output1Description": "Gibt \"true\" bei einem hohen und \"false\" bei einem niedrigen Wert aus.",
+    "paletteHelp": "<p>Erzeugt ein PWM-Signal.</p>",
+    "help": "<p>Dieser Knoten erzeugt ein langsames PWM-Signal. Geben Sie die Einschaltdauer in <code>D</code> ein. Stellen Sie <code>Zeitraum</code> auf den Zeitraum in Sekunden ein. Die Mindestdauer beträgt 10 Sekunden, die Auflösung des Arbeitszyklus 1 Sekunde. Setzen Sie <code>EN</code> auf <code>false</code>, um den PWM zu deaktivieren. Wenn deaktiviert, gibt der Knoten <code>false</code> aus. Es wird mindestens eine Meldung pro Arbeitszyklus ausgegeben.</p>"
+  },
+  "sun-position": {
+    "label": {
+      "name": "Name",
+      "latitude": "Breitengrad",
+      "longitude": "Längengrad"
+    },
+    "paletteHelp": "<p>Gibt den Azimut und die Höhe der Sonne aus.</p>",
+    "help": "<p>Dieser Knoten gibt jede Minute den aktuellen Azimut und die aktuelle Höhe aus. Der Ausgabetyp ist <code>struct</code> mit den Schlüsseln <code>azimuth</code> und <code>height</code>.</p>",
+    "output1Description": "Gibt einen <code>struct</code> mit den Schlüsseln <code>azimuth</code> und <code>altitude</code> aus."
+  },
+  "timer": {
+    "label": {
+      "name": "Name",
+      "startup": "Zustand beim Start ausgeben",
+      "ontime": "Einschaltzeit",
+      "offtime": "Auschaltzeit",
+      "latitude": "Breitengrad",
+      "longitude": "Längengrad",
+      "onoffset": "Ein-Versatz",
+      "offoffset": "Aus-Versatz",
+      "monday": "Mo",
+      "tuesday": "Di",
+      "wednesday": "Mi",
+      "thursday": "Do",
+      "friday": "Fr",
+      "saturday": "Sa",
+      "sunday": "So",
+      "january": "Jan",
+      "february": "Feb",
+      "march": "Mär",
+      "april": "Apr",
+      "may": "Mai",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Aug",
+      "september": "Sep",
+      "october": "Okt",
+      "november": "Nov",
+      "december": "Dez"
+    },
+    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
+    "input2Description": "<code>HH:MM:[SS]</code> setzen um die \"Einschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+    "input3Description": "<code>HH:MM:[SS]</code> setzen um die \"Ausschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+    "paletteHelp": "<p>Erzeugt Ereignisse zu bestimmten Zeitpunkten.</p>",
+    "help": "<p>Dieser Knoten generiert Ereignisse zu bestimmten Zeitpunkten. Damit die \"Sonnenlichtzeiten\" funktionieren, müssen \"Breitengrad\" und \"Längengrad\" angegeben werden. \"Ein-Versatz\" und \"Aus-Versatz\" (in Minuten) werden zu \"Einschaltzeit\" und \"Auschaltzeit\" addiert. Stellen Sie sicher, dass die Zeit- und Zeitzoneneinstellungen des Computers, auf dem der Flow ausgeführt wird, korrekt sind.<H3>Sonnenlichtzeiten</h3><dl><dt>sunrise</dt><dd>Sonnenaufgang (oberer Rand der Sonne erscheint auf der Horizont)</dd><dt>sunriseEnd</dt><dd>Sonnenaufgang endet (unterer Rand der Sonne berührt den Horizont)</dd><dt>goldenHourEnd</dt><dd>goldene Morgenstunde (weiches Licht, beste Zeit zum Fotografieren) endet</dd><dt>solarNoon</dt><dd>solarer Mittag (die Sonne steht am höchsten)</dd><dt>goldenHour</dt><dd>goldene Abendstunde startet</dd><dt>sunsetStart</dt><dd>Sonnenuntergang startet (unterer Rand der Sonne berührt den Horizont)</dd><dt>sunset</dt><dd>Sonnenuntergang (Sonne verschwindet unter dem Horizont, die Abenddämmerung beginnt)</dd><dt>dusk</dt><dd>Abenddämmerung (Beginn der nautischen Dämmerung)</dd><dt>nauticalDusk</dt><dd>Abenddämmerung (Beginn der astronomischen Dämmerung)</dd><dt>Nacht</dt><dd>Nacht beginnt (dunkel genug für astronomische Beobachtungen)</dd><dt>Nadir</dt><dd>Nadir (dunkelster Moment der Nacht, Sonne ist in der niedrigsten Position)</dd><dt>nightEnd</dt><dd>die Nacht endet (die astronomische Morgendämmerung beginnt)</dd><dt>nauticalDawn</dt><dd>nautische Morgendämmerung (die nautische Morgendämmerung beginnt)</dd><dt>dawn</dt><dd>Morgendämmerung (die nautische Morgendämmerung endet, die bürgerliche Morgendämmerung beginnt)</dd></dl></p>"
+  },
+  "timer2": {
+    "label": {
+      "name": "Name",
+      "startup": "Zustand beim Start ausgeben",
+      "ontime": "Einschaltzeit",
+      "offtime": "Auschaltzeit",
+      "latitude": "Breitengrad",
+      "longitude": "Längengrad",
+      "onoffset": "Ein-Versatz",
+      "offoffset": "Aus-Versatz",
+      "monday": "Mo",
+      "tuesday": "Di",
+      "wednesday": "Mi",
+      "thursday": "Do",
+      "friday": "Fr",
+      "saturday": "Sa",
+      "sunday": "So",
+      "january": "Jan",
+      "february": "Feb",
+      "march": "Mär",
+      "april": "Apr",
+      "may": "Mai",
+      "june": "Jun",
+      "july": "Jul",
+      "august": "Aug",
+      "september": "Sep",
+      "october": "Okt",
+      "november": "Nov",
+      "december": "Dez"
+    },
+    "input1Description": "<code>false</code> setzen um den Timer zu deaktivieren, und <code>true</code>, um ihn erneut zu aktivieren. Standardmäßig ist der Timer aktiviert.",
+    "input2Description": "<code>HH:MM:[SS]</code> setzen um die \"Einschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+    "input3Description": "<code>HH:MM:[SS]</code> setzen um die \"Ausschaltzeit\" des Timers dynamisch einzustellen und den Wert aus dem Einstellungsdialog zu überschreiben.",
+    "paletteHelp": "<p>Erzeugt Ereignisse zu bestimmten Zeitpunkten.</p>",
+    "help": "<p>Dieser Knoten generiert Ereignisse zu bestimmten Zeitpunkten. Damit die \"Sonnenlichtzeiten\" funktionieren, müssen \"Breitengrad\" und \"Längengrad\" angegeben werden. \"Ein-Versatz\" und \"Aus-Versatz\" (in Minuten) werden zu \"Einschaltzeit\" und \"Auschaltzeit\" addiert. Stellen Sie sicher, dass die Zeit- und Zeitzoneneinstellungen des Computers, auf dem der Flow ausgeführt wird, korrekt sind.<H3>Sonnenlichtzeiten</h3><dl><dt>sunrise</dt><dd>Sonnenaufgang (oberer Rand der Sonne erscheint auf der Horizont)</dd><dt>sunriseEnd</dt><dd>Sonnenaufgang endet (unterer Rand der Sonne berührt den Horizont)</dd><dt>goldenHourEnd</dt><dd>goldene Morgenstunde (weiches Licht, beste Zeit zum Fotografieren) endet</dd><dt>solarNoon</dt><dd>solarer Mittag (die Sonne steht am höchsten)</dd><dt>goldenHour</dt><dd>goldene Abendstunde startet</dd><dt>sunsetStart</dt><dd>Sonnenuntergang startet (unterer Rand der Sonne berührt den Horizont)</dd><dt>sunset</dt><dd>Sonnenuntergang (Sonne verschwindet unter dem Horizont, die Abenddämmerung beginnt)</dd><dt>dusk</dt><dd>Abenddämmerung (Beginn der nautischen Dämmerung)</dd><dt>nauticalDusk</dt><dd>Abenddämmerung (Beginn der astronomischen Dämmerung)</dd><dt>Nacht</dt><dd>Nacht beginnt (dunkel genug für astronomische Beobachtungen)</dd><dt>Nadir</dt><dd>Nadir (dunkelster Moment der Nacht, Sonne ist in der niedrigsten Position)</dd><dt>nightEnd</dt><dd>die Nacht endet (die astronomische Morgendämmerung beginnt)</dd><dt>nauticalDawn</dt><dd>nautische Morgendämmerung (die nautische Morgendämmerung beginnt)</dd><dt>dawn</dt><dd>Morgendämmerung (die nautische Morgendämmerung endet, die bürgerliche Morgendämmerung beginnt)</dd></dl></p>"
+  },
+  "weekly-program": {
+    "label": {
+      "name": "Name",
+      "startup": "Aktuellen Wert beim Start ausgeben",
+      "monday": "Montag",
+      "tuesday": "Dienstag",
+      "wednesday": "Mittwoch",
+      "thursday": "Donnerstag",
+      "friday": "Freitag",
+      "saturday": "Samstag",
+      "sunday": "Sonntag",
+      "time": "Zeit",
+      "value": "Wert",
+      "asprevious": "Wie Vortag"
+    },
+    "input1Description": "Auf <code>false</code> setzen, um den Knoten zu deaktivieren und auf <code>true</code>, um ihn wieder zu aktivieren. Standardmäßig ist der Knoten aktiviert.",
+    "paletteHelp": "<p>Gibt vorgegebene Werte zu definierten Zeitpunkten aus.</p>",
+    "help": "<p>Dieser Knoten gibt vorgegebene Werte zu definierten Zeitpunkten aus.</p>"
+  }
+}

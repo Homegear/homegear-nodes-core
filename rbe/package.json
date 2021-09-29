@@ -1,0 +1,18 @@
+{
+  "name": "rbe",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "rbe"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "rbe": 0
+    },
+    "nodes": {
+      "rbe": "rbe.so"
+    }
+  },
+  "version": "1.0.0"
+}

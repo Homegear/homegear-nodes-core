@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "passthrough",
-    "readableName": "Passthrough",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="passthrough">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="passthrough.label.name"></span></label>
@@ -26,7 +17,6 @@
 <script type="text/javascript">
 	RED.nodes.registerType('passthrough',{
         category: 'general',
-        namespace: 'passthrough',
         color: "#C0DEED",
         defaults: {
             name: {value:""},

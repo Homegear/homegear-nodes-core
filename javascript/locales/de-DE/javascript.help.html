@@ -1,0 +1,76 @@
+<!--
+  Copyright JS Foundation and other contributors, http://js.foundation
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<p>Eine JavaScript-Funktion welche zur Verarbeitung eingehender Nachrichten genutzt werden kann.</p>
+<p>Die Nachrichten werden als JavaScript-Objekt mit Namen <code>msg</code> übergeben.</p>
+<p>Es ist immer eine Eigenschaft <code>msg.payload</code> mit den Nachrichtennutzdaten vorhanden.</p>
+<p>Der Knoten kann ein oder mehrere Nachrichtenobjekte zurückgeben, welche dann an die Ausgänge weitergereicht
+    werden.</p>
+<p>Der <b>Setup</b>-Tab enthält Quelltext, welcher ausgeführt wird, wenn der Knoten startet.
+    Der <b>Schließen</b>-Tab enthält Quelltext, welcher ausgeführt wird, wenn der Knoten stoppt.</p>
+<p>Wenn ein Promise-Objekt vom Setup-Quelltext zurückgegeben wird, werden Eingänge erst nach seiner Fertigstellung
+    verarbeitet.</p>
+<h3>Details</h3>
+<p>Für mehr Informationen zum Schreiben von Funktionen, siehe auch die englischsprachige <a target="_blank"
+                                                                                            href="http://nodered.org/docs/writing-functions.html">Onlinedokumentation</a>.
+</p>
+<h4>Nachrichten ausgeben</h4>
+<p>Die Funktion kann Nachrichten, welche ausgegeben werden sollen entweder mittels <code>return</code> zurückgeben oder
+    <code>node.send(nachrichten)</code> aufrufen.</p>
+<p>The function can either return the messages it wants to pass on to the next nodes
+    in the flow, or can call <code>node.send(messages)</code>.</p>
+<p>Sie kann zurückgeben bzw. senden:</p>
+<ul>
+    <li>Ein einzelnes Nachrichtenobjekt - dieses wird am ersten Ausgang ausgegeben</li>
+    <li>Ein Array von Nachrichtenobjekten - diese werden an den korrespondierenden Ausgängen ausgegeben</li>
+</ul>
+<p>Hinweis: Der Setup-Quelltext wird während der Knoteninitialisierung ausgeführt. Daher kann <code>node.send</code>
+    nicht verwendet werden.</p>
+<p>Wenn ein Arrayelement ein Array von Nachrichten ist, werden diese einzeln an den jeweiligen Ausgang gesendet.</p>
+<p>Wenn <code>null</code> zurückgegeben wird oder ein Arrayelement <code>null</code> ist, wird keine Nachricht
+    ausgegeben.</p>
+<h4>Logging und Fehlerbehandlung</h4>
+<p>Um Informationen zu loggen oder Fehler auszugeben, stehen folgende Funktionen zur Verfügung:</p>
+<ul>
+    <li><code>node.log("Nachricht")</code></li>
+    <li><code>node.warn("Warnung")</code></li>
+    <li><code>node.error("Fehler")</code></li>
+</ul>
+<h4>Knoteninformation</h4>
+<p>Im Funktionsblock stehen folgende Knoteninformationen zur Verfügung:</p>
+<ul>
+    <li><code>node.id</code> - Die ID des Knotens</li>
+    <li><code>node.z</code> - Die ID des Flows</li>
+    <li><code>node.name</code> - Der Name des Knotens</li>
+</ul>
+<h4>Aufrufen von Homegear-RPC-Methoden</h4>
+<p>Homegear-RPC-Methoden können mit <code>hg.invoke(methodenName, [parameter1, parameter2, ...)</code> aufgerufen werden.</p>
+<h4>Datenpersistenz</h4>
+<p>Daten können mit Hilfe folgender Funktionen gespeichert werden:</p>
+<ul>
+    <li><code>setNodeData(key, value)</code>,</li>
+    <li><code>setFlowData(key, value)</code> or</li>
+    <li><code>setGlobalData(key, value)</code></li>
+</ul>
+<p>und mit folgenden Funktionen abgerufen werden:</p>
+<ul>
+    <li><code>getNodeData(key)</code>,</li>
+    <li><code>getFlowData(key)</code> or</li>
+    <li><code>getGlobalData(key)</code>.</li>
+</ul>
+<p>Außerdem lässt sich Node-REDs Kontextspeicher-API verwenden.</p>
+<h4>Umgebungsvariablen</h4>
+<p>Auf Umgebungsvariablen kann über <code>env.get("MEINE_UMGEBUNGS_VARIABLE") zugegriffen werden.</code>.</p>

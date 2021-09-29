@@ -31,24 +31,13 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
-MyNode::~MyNode() = default;
-
 bool MyNode::init(const Flows::PNodeInfo &info) {
-  try {
-    _settings = info->info;
+  _settings = info->info;
 
-    return true;
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
-  }
-  return false;
+  return true;
 }
 
 Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
@@ -61,9 +50,6 @@ Flows::PVariable MyNode::getConfigParameterIncoming(const std::string &name) {
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-  catch (...) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
   return std::make_shared<Flows::Variable>();
 }

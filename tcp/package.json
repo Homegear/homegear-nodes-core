@@ -1,0 +1,22 @@
+{
+  "name": "tcp",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "tcp"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "tcp-in": 0,
+      "tcp-out": 0,
+      "tcp-socket": 1
+    },
+    "nodes": {
+      "tcp-in": "tcp-in.so",
+      "tcp-out": "tcp-out.so",
+      "tcp-socket": "tcp-socket.so"
+    }
+  },
+  "version": "1.0.0"
+}

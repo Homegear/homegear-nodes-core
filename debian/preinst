@@ -3,9 +3,73 @@ set -e
 
 case "$1" in
     install)
+        rm -Rf /var/lib/homegear/node-blue/nodes/average/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/basic-logic/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/comment/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/debug/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/exec/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/function/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/gpio/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/homegear-event/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/http/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/influxdb/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/light/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/link/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/modbus/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/mqtt/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/notification/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/parsers/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/passthrough/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/ping/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/presence-light/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/press-pattern/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/pulsecounter/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/python/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/python-wrapper/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/serial/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/storage/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/synchronous/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tcp/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/template/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tls-config/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tls-server-config/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/udp/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/variable/locales
         ;;
 
     upgrade|abort-upgrade)
+        rm -Rf /var/lib/homegear/node-blue/nodes/average/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/basic-logic/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/comment/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/debug/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/exec/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/function/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/gpio/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/homegear-event/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/http/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/influxdb/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/light/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/link/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/modbus/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/mqtt/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/notification/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/parsers/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/passthrough/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/ping/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/presence-light/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/press-pattern/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/pulsecounter/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/python/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/python-wrapper/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/serial/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/storage/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/synchronous/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tcp/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/template/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tls-config/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/tls-server-config/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/udp/locales
+        rm -Rf /var/lib/homegear/node-blue/nodes/variable/locales
         ;;
 esac
 

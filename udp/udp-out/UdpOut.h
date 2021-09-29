@@ -37,7 +37,7 @@ namespace UdpOut {
 
 class UdpOut : public Flows::INode {
  public:
-  UdpOut(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  UdpOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~UdpOut() override = default;
 
   bool init(const Flows::PNodeInfo &info) override;

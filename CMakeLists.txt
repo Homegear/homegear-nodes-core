@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(homegear_nodes_core)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 set(SOURCE_FILES
         average/Factory.cpp
@@ -44,6 +44,10 @@ set(SOURCE_FILES
 		basic-logic/variable-switch/Factory.h
 		basic-logic/variable-switch/MyNode.cpp
 		basic-logic/variable-switch/MyNode.h
+		catch/Factory.cpp
+		catch/Factory.h
+		catch/Catch.cpp
+		catch/Catch.h
         debug/Factory.cpp
         debug/Factory.h
         debug/MyNode.cpp
@@ -78,16 +82,16 @@ set(SOURCE_FILES
         influxdb/MyNode.h
         light/Factory.cpp
         light/Factory.h
-        light/MyNode.cpp
-        light/MyNode.h
+        light/Light.cpp
+        light/Light.h
         link/link-in/Factory.cpp
         link/link-in/Factory.h
-        link/link-in/MyNode.cpp
-        link/link-in/MyNode.h
+		link/link-in/LinkIn.cpp
+		link/link-in/LinkIn.h
         link/link-out/Factory.cpp
         link/link-out/Factory.h
-        link/link-out/MyNode.cpp
-        link/link-out/MyNode.h
+        link/link-out/LinkOut.cpp
+        link/link-out/LinkOut.h
         modbus/modbus-host/Factory.cpp
         modbus/modbus-host/Factory.h
         modbus/modbus-host/Modbus.cpp
@@ -152,6 +156,10 @@ set(SOURCE_FILES
 		python-wrapper/Factory.h
 		python-wrapper/Python.cpp
 		python-wrapper/Python.h
+		rbe/Factory.cpp
+		rbe/Factory.h
+		rbe/MyNode.cpp
+		rbe/MyNode.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -164,22 +172,34 @@ set(SOURCE_FILES
 		serial/serial-out/Factory.h
 		serial/serial-out/MyNode.cpp
 		serial/serial-out/MyNode.h
+		status/Factory.cpp
+		status/Factory.h
+		status/Status.cpp
+		status/Status.h
         storage/file/Factory.cpp
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		storage/tail/Factory.cpp
+		storage/tail/Factory.h
+		storage/tail/MyNode.cpp
+		storage/tail/MyNode.h
+		storage/watch/Factory.cpp
+		storage/watch/Factory.h
+		storage/watch/MyNode.cpp
+		storage/watch/MyNode.h
 		tcp/tcp-in/Factory.cpp
 		tcp/tcp-in/Factory.h
-		tcp/tcp-in/MyNode.cpp
-		tcp/tcp-in/MyNode.h
+		tcp/tcp-in/TcpIn.cpp
+		tcp/tcp-in/TcpIn.h
 		tcp/tcp-out/Factory.cpp
 		tcp/tcp-out/Factory.h
-		tcp/tcp-out/MyNode.cpp
-		tcp/tcp-out/MyNode.h
+		tcp/tcp-out/TcpOut.cpp
+        tcp/tcp-out/TcpOut.h
 		tcp/tcp-socket/Factory.cpp
 		tcp/tcp-socket/Factory.h
-		tcp/tcp-socket/MyNode.cpp
-		tcp/tcp-socket/MyNode.h
+		tcp/tcp-socket/TcpSocket.cpp
+		tcp/tcp-socket/TcpSocket.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h
@@ -261,10 +281,18 @@ set(SOURCE_FILES
 		udp/udp-out/Factory.h
 		udp/udp-out/UdpOut.cpp
 		udp/udp-out/UdpOut.h
+		unit-test-helper/Factory.cpp
+		unit-test-helper/Factory.h
+		unit-test-helper/UnitTestHelper.cpp
+		unit-test-helper/UnitTestHelper.h
         variable/constant/Factory.cpp
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
         variable/constant/MyNode.h
+		variable/inject/Factory.cpp
+		variable/inject/Factory.h
+		variable/inject/Inject.cpp
+        variable/inject/Inject.h
 		variable/round-robin-shift/Factory.cpp
 		variable/round-robin-shift/Factory.h
 		variable/round-robin-shift/MyNode.cpp
@@ -286,6 +314,6 @@ set(SOURCE_FILES
         variable/variable-out/MyNode.cpp
         variable/variable-out/MyNode.h)
 
-add_custom_target(homegear COMMAND ../../makeAll.sh SOURCES ${SOURCE_FILES})
+add_custom_target(homegear COMMAND ../../devscripts/makeAll.sh SOURCES ${SOURCE_FILES})
 
 add_library(homegear_nodes_core ${SOURCE_FILES})

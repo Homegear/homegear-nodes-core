@@ -39,7 +39,7 @@
 
 namespace UdpOut {
 
-UdpOut::UdpOut(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+UdpOut::UdpOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 bool UdpOut::init(const Flows::PNodeInfo &info) {

@@ -1,0 +1,29 @@
+{
+  "debug": {
+    "output": "Output",
+    "msgprop": "message property",
+    "msgobj": "complete message object",
+    "to": "to",
+    "debtab": "debug tab",
+    "tabcon": "debug tab and console",
+    "hg": "Homegear flows log",
+    "debtabhg": "debug tab and Homegear flows log",
+    "loglevel": "Log level",
+    "debug": "Debug",
+    "info": "Info",
+    "warning": "Warning",
+    "error": "Error",
+    "critical": "Critical",
+    "notification": {
+      "activated": "Successfully activated: __label__",
+      "deactivated": "Successfully deactivated: __label__"
+    },
+    "sidebar": {
+      "label": "debug",
+      "name": "Debug messages"
+    },
+    "paletteHelp": "<p>The Debug node can be connected to the output of any node. It can be used to display the output of any message property in the debug tab of the sidebar, the console or the Homegear flows log.</p>",
+    "help": "<p>The Debug node can be connected to the output of any node. It can be used to display the output of any message property in the debug tab of the sidebar, the console or the Homegear log. The default is to display <code>message['payload']</code>.</p><p>Each message will also display the timestamp, <code>message['topic']</code> and the type of property chosen to output.</p><p>The sidebar can be accessed under the options drop-down in the top right corner.</p><p>The button to the right of the node will toggle its output on and off so you can de-clutter the debug window.</p><p>If the payload is an object it will be stringified first for display and indicate that by saying \"(Object)\".</p><p>Selecting any particular message will highlight (in red) the debug node that reported it. This is useful if you wire up multiple debug nodes.</p><p>Optionally can show the complete <code>message</code> object, and send messages to the console log.</p>",
+    "input1Description": "The value to debug."
+  }
+}

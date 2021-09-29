@@ -31,7 +31,7 @@
 
 namespace VariableIn {
 
-VariableIn::VariableIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+VariableIn::VariableIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _metadata = std::make_shared<Flows::Variable>();
 }
 

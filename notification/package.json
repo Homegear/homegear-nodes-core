@@ -1,0 +1,20 @@
+{
+  "name": "notification",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "notification",
+    "xmpp"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "xmpp-server": 0
+    },
+    "nodes": {
+      "xmpp-server": "xmpp-server.s.php",
+      "xmpp": "xmpp.php"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,24 @@
+{
+  "name": "http",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "http"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "http-in": 0,
+      "http-request": 0,
+      "http-response": 0,
+      "http-server": 1
+    },
+    "nodes": {
+      "http-in": "http-in.so",
+      "http-request": "http-request.so",
+      "http-response": "http-response.so",
+      "http-server": "http-server.so"
+    }
+  },
+  "version": "1.0.0"
+}

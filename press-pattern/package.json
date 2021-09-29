@@ -1,0 +1,19 @@
+{
+  "name": "press-pattern",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "rocker",
+    "switch"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "press-pattern": 1
+    },
+    "nodes": {
+      "press-pattern": "press-pattern.so"
+    }
+  },
+  "version": "1.0.0"
+}

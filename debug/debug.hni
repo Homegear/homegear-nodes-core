@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "debug",
-    "readableName": "Debug",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright 2013, 2015 IBM Corp.
 
@@ -266,7 +257,7 @@
 	        } else {
 	            $('<span class="debug-message-topic">'+
 	                (o.topic?topic+' : ':'')+
-	                (o.property?'$message[\''+property+'\']':'$message')+" : "+format+
+	                (o.property?'msg[\''+property+'\']':'msg')+" : "+format+
 	                '</span>').appendTo(metaRow);
 	        }
 	        if (format === 'Object' || /^array/.test(format) || format === 'boolean' || format === 'number' ) {
@@ -339,9 +330,9 @@
             var suffix = "";
             if (this.console === true || this.console === "true") { suffix = " ⇲"; }
             if (this.complete === true || this.complete === "true") {
-                return (this.name||"$message") + suffix;
+                return (this.name||"msg") + suffix;
             } else {
-                return (this.name || "$message['" + ((!this.complete || this.complete === "false") ? "payload" : this.complete) + "']") + suffix;
+                return (this.name || "msg['" + ((!this.complete || this.complete === "false") ? "payload" : this.complete) + "']") + suffix;
             }
         },
         labelStyle: function() {
@@ -492,7 +483,7 @@
             delete RED._debug;
         },
         oneditprepare: function() {
-            $("#node-input-typed-complete").typedInput({types:[{value:"msg",label:"$message."}, {value:"full",label:RED._("debug/debug.hni:debug.msgobj"),hasValue:false}]});
+            $("#node-input-typed-complete").typedInput({types:[{value:"msg",label:"msg."}, {value:"full",label:RED._("debug/debug:debug.msgobj"),hasValue:false}]});
             if (this.complete === "true" || this.complete === true) {
                 // show complete message object
                 $("#node-input-typed-complete").typedInput('type','full');

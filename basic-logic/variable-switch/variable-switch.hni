@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "variable-switch",
-    "readableName": "Variable switch",
-    "version": "1.1.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!-- Source was modified from original by Sathya Laufer -->
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
@@ -31,33 +22,28 @@
     </div>
     <div class="form-row">
         <label style="width: 130px;" for="node-input-variabletype"><i class="fa fa-random"></i> <span data-i18n="variable-switch.label.variabletype"></span></label>
-        <select type="text" id="node-input-variabletype" style="display: inline-block; width: 65%;">
-            <option value="device" data-i18n="variable-switch.label.devicevariable"></option>
-            <option value="metadata" data-i18n="variable-switch.label.metadata"></option>
-            <option value="system" data-i18n="variable-switch.label.systemvariable"></option>
-            <option value="flow" data-i18n="variable-switch.label.flowvariable"></option>
-            <option value="global" data-i18n="variable-switch.label.globalvariable"></option>
+        <select type="text" id="node-input-variabletype" class="node-input-select2-nosearch" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-family-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-family"><i class="fa fa-id-badge"></i> <span data-i18n="variable-switch.label.family"></span></label>
-        <select type="text" id="node-input-family" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-family" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-peerid-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-peerid"><i class="fa fa-id-badge"></i> <span data-i18n="variable-switch.label.peerid"></span></label>
-        <select type="text" id="node-input-peerid" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-peerid" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-channel-container" class="form-row hide">
         <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-channel"><i class="fa fa-list-ol"></i> <span data-i18n="variable-switch.label.channel"></span></label>
-        <select type="text" id="node-input-channel" style="display: inline-block; width: 65%;">
+        <select type="text" id="node-input-channel" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
     <div id="node-input-variable-container" class="hide">
         <div class="form-row">
             <label style="width: 100px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-switch.label.variable"></span></label>
-            <select type="text" id="node-input-variable" style="display: inline-block; width: 65%;">
+            <select type="text" id="node-input-variable" class="node-input-select2" style="display: inline-block; width: 65%;">
             </select>
         </div>
         <div style="margin-left: 150px; font-size: 11px;" id="node-input-variableinfo" class="form-row">
@@ -136,7 +122,6 @@
     RED.nodes.registerType('variable-switch', {
         color: "#E2D96E",
         category: 'logic',
-        namespace: 'basic-logic',
         defaults: {
             name: {value:""},
             "static-value":{value:""},
@@ -174,6 +159,20 @@
             var devices = {};
             var currentDevice = {};
             var variables = {};
+
+            //{{{ Fill variable types - this needs to be done here so the label is loaded before initializing select2.
+            var variableTypeSelect = $("#node-input-variabletype");
+            variableTypeSelect.append($("<option />").val("device").text(RED._("basic-logic/variable-switch:variable-switch.label.devicevariable")));
+            variableTypeSelect.append($("<option />").val("metadata").text(RED._("basic-logic/variable-switch:variable-switch.label.metadata")));
+            variableTypeSelect.append($("<option />").val("system").text(RED._("basic-logic/variable-switch:variable-switch.label.systemvariable")));
+            variableTypeSelect.append($("<option />").val("flow").text(RED._("basic-logic/variable-switch:variable-switch.label.flowvariable")));
+            variableTypeSelect.append($("<option />").val("global").text(RED._("basic-logic/variable-switch:variable-switch.label.globalvariable")));
+            variableTypeSelect.val(node.variabletype);
+            //}}}
+
+            //Initialize select2
+            $('.node-input-select2').select2();
+            $('.node-input-select2-nosearch').select2({minimumResultsForSearch: Infinity});
 
             function getVariableType(variable)
             {
@@ -559,7 +558,7 @@
                                 {
                                     id: "create-variable-dialog-set",
                                     class: "primary",
-                                    text: RED._("variable/variable-in.hni:variable-in.label.create"),
+                                    text: RED._("basic-logic/variable-switch:variable-switch.label.create"),
                                     click: function() {
                                         var variableName = $("#create-variable-name").val().trim();
                                         var variableValueType = $("#create-variable-valueType").val();
@@ -592,8 +591,8 @@
                             open: function(e) {
                                 $(this).parent().find(".ui-dialog-titlebar-close").hide();
 
-                                $("#create-variable-dialog-label-name").text(RED._("variable/variable-in.hni:variable-in.label.name") + ":");
-                                $("#create-variable-dialog-label-type").text(RED._("variable/variable-in.hni:variable-in.label.typeandvalue") + ":");
+                                $("#create-variable-dialog-label-name").text(RED._("basic-logic/variable-switch:variable-switch.label.name") + ":");
+                                $("#create-variable-dialog-label-type").text(RED._("basic-logic/variable-switch:variable-switch.label.typeandvalue") + ":");
 
                                 $("#create-variable-value").typedInput({
                                     default: 'int',
@@ -612,7 +611,7 @@
                                 else if(variableType == "global") updateGlobalVariableOptions();
                             }
                         });
-                    createVariableDialog.dialog("option", "title", RED._("variable/variable-in.hni:variable-in.label.createvariable")).dialog("open");
+                    createVariableDialog.dialog("option", "title", RED._("basic-logic/variable-switch:variable-switch.label.createvariable")).dialog("open");
                 });
             //}}}
 

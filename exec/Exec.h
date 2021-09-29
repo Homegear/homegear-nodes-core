@@ -38,7 +38,7 @@ namespace Exec {
 
 class Exec : public Flows::INode {
  public:
-  Exec(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Exec(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Exec() override;
 
   bool init(const Flows::PNodeInfo &info) override;

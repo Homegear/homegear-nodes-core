@@ -1,0 +1,137 @@
+<script type="text/x-red" data-template-name="watch">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-path"><i class="fa fa-folder"></i> <span data-i18n="watch.label.path"></span></label>
+        <input type="text" id="node-input-path" data-i18n="[placeholder]watch.label.path">
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-recursive" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-recursive" style="width: 70%;" data-i18n="watch.label.recursive"></label>
+    </div>
+    <div class="form-row">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-allEvents" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-allEvents" data-i18n="watch.label.allEvents" style="width: 15%"></label>
+    </div>
+    <div class="form-row" id="checkbox-row1">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-accessEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-accessEvent" data-i18n="watch.label.accessEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-attributeEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-attributeEvent" data-i18n="watch.label.attributeEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-closeWriteEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-closeWriteEvent" data-i18n="watch.label.closeWriteEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-closeNoWriteEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-closeNoWrite" data-i18n="watch.label.closeNoWriteEvent" style="width: 15%; vertical-align: top;"></label>
+    </div>
+    <div class="form-row" id="checkbox-row2">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-createEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-createEvent" data-i18n="watch.label.createEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-deleteEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-deleteEvent" data-i18n="watch.label.deleteEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-selfDeleteEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-selfDeleteEvent" data-i18n="watch.label.selfDeleteEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-modifyEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-modifyEvent" data-i18n="watch.label.modifyEvent" style="width: 15%; vertical-align: top;"></label>
+    </div>
+    <div class="form-row" id="checkbox-row3">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-selfMoveEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-selfMoveEvent" data-i18n="watch.label.selfMoveEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-moveFromEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-moveFromEvent" data-i18n="watch.label.moveFromEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-moveToEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-moveToEvent" data-i18n="watch.label.moveToEvent" style="width: 15%; vertical-align: top;"></label>
+        <input type="checkbox" id="node-input-openEvent" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-openEvent" data-i18n="watch.label.openEvent" style="width: 15%; vertical-align: top;"></label>
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('watch',{
+        color:"BurlyWood",
+        category: 'storage',
+        defaults: {
+            name: {value:""},
+            path: {value:"", required: true},
+            recursive: {value: false},
+            allEvents: {value: true, validate:function(){
+                if (this.allEvents) {
+                    return true;
+                }
+                else if (this.accessEvent || this.attributeEvent || this.closeWriteEvent || this.closeNoWriteEvent || this.createEvent || this.deleteEvent || this.selfDeleteEvent || this.modifyEvent || this.selfMoveEvent || this.moveFromEvent || this.moveToEvent || this.openEvent) {
+                    return true;
+                }
+                return false;}},
+            accessEvent: {value: false},
+            attributeEvent: {value: false},
+            closeWriteEvent: {value: false},
+            closeNoWriteEvent: {value: false},
+            createEvent: {value: false},
+            deleteEvent: {value: false},
+            selfDeleteEvent: {value: false},
+            modifyEvent: {value: false},
+            selfMoveEvent: {value: false},
+            moveFromEvent: {value: false},
+            moveToEvent: {value: false},
+            openEvent: {value: false}
+        },
+        outputs:1,
+        icon: "file.svg",
+        label: function() {
+            if(this.name) return this.name;
+            return "watch";
+        },
+        oneditprepare: function(){
+            if ($("#node-input-allEvents").is(":checked")){
+                $("#checkbox-row1 :input").each(function(){
+                    $(this).prop("disabled", true);
+                });
+                $("#checkbox-row2 :input").each(function(){
+                    $(this).prop("disabled", true);
+                });
+                $("#checkbox-row3 :input").each(function(){
+                    $(this).prop("disabled", true);
+                });
+            } else {
+                $("#checkbox-row1 :input").each(function(){
+                    $(this).prop("disabled", false);
+                });
+                $("#checkbox-row2 :input").each(function(){
+                    $(this).prop("disabled", false);
+                });
+                $("#checkbox-row3 :input").each(function(){
+                    $(this).prop("disabled", false);
+                });
+            }
+
+            document.getElementById("node-input-allEvents").addEventListener("change", function(){
+                if ($("#node-input-allEvents").is(":checked")){
+                    $("#checkbox-row1 :input").each(function(){
+                        $(this).prop("disabled", true);
+                    });
+                    $("#checkbox-row2 :input").each(function(){
+                        $(this).prop("disabled", true);
+                    });
+                    $("#checkbox-row3 :input").each(function(){
+                        $(this).prop("disabled", true);
+                    });
+                } else {
+                    $("#checkbox-row1 :input").each(function(){
+                        $(this).prop("disabled", false);
+                    });
+                    $("#checkbox-row2 :input").each(function(){
+                        $(this).prop("disabled", false);
+                    });
+                    $("#checkbox-row3 :input").each(function(){
+                        $(this).prop("disabled", false);
+                    });
+                }
+            });
+        }
+    });
+</script>

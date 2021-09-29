@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "modbus-host",
-    "readableName": "Modbus host",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 1
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -70,7 +61,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('modbus-host',{
         category: 'config',
-        namespace: 'modbus',
         defaults: {
             server: {value:"",required:true},
             port: {value:"502",required:true,validate:RED.validators.number()},

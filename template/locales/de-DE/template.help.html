@@ -1,0 +1,51 @@
+<p>Legt eine Eigenschaft basierend auf der bereitgestellten Vorlage fest.</p>
+<h3>Eingaben</h3>
+<dl class="message-properties">
+    <dt>
+        $message
+        <span class="property-type">Struct</span>
+    </dt>
+    <dd>
+        Ein $message-Objekt, das Informationen zum Auff&uuml;llen der Vorlage enth&auml;lt.
+    </dd>
+</dl>
+<p>Hinweis: Wenn Sie Mustache nicht verwenden, w&auml;hlen Sie <code>Nur Text</code> in <code>Format</code>, um
+    Ressourcen zu speichern.</p>
+<h3>Ausgaben</h3>
+<p>Wenn Sie <code>Ausgabe als</code> auf <code>Nur Text</code> setzen, wird immer eine <code>Zeichenfolge</code>
+    ausgegeben. Wenn Sie <code>Analysiertes JSON</code> festlegen, wird die Vorlage analysiert und gem&auml;&szlig; den
+    JSON-Regeln konvertiert (z.B. wird <code>20</code> in ein <code>integer</code>, <code>20.1</code> zu einem <code>float</code>,
+    <code>&quot;My text&quot;</code> zu einem <code>string</code>, <code>[0, 2, 3]</code> in ein <code>array</code> und
+    so weiter analysiert).</p>
+<dl class="message-properties">
+    <dt>
+        $message
+        <span class="property-type">struct</span>
+    </dt>
+    <dd>
+        eine $message mit einer festgelegten Eigenschaft, welches die konfigurierte Vorlage mit Eigenschaften aus der
+        eingehenden $message gef&uuml;llt wird.
+    </dd>
+</dl>
+<h3>Details</h3>
+<p>Standardm&auml;&szlig;ig wird das <i><a href="http://mustache.github.io/mustache.5.html" target="_blank">mustache</a></i>
+    Format verwendet, dies kann jedoch bei Bedarf deaktiviert werden.</p>
+<p>Zum Beispiel, wenn eine Vorlage mit: </p>
+<pre>Hallo {{name}}. Heute ist {{date}}</pre>
+<p>eine Nachricht mit: </p>
+<pre>{
+  name: &quot;Fred&quot;,
+  date: &quot;Montag&quot;
+  payload: ...
+}</pre>
+<p></p>
+<p>empf&auml;ngt.</p>
+<p>Das Resultat w&auml;re wie folgt: </p>
+<pre>Hallo Fred. Heute ist Montag</pre>
+<p></p>
+<p>Es ist m&ouml;glich, eine Eigenschaft aus dem Flow-Kontext oder dem globalen Kontext zu verwenden. Verwenden Sie
+    einfach <code>{{flow.name}}</code> oder <code>{{global.name}}</code>.</p>
+<p>Zudem ist es mit <code>{{env.name}}</code> m&ouml;glich, auf Umgebungsvariablen zuzugreifen.</p>
+<p>Weiterhin kann mit <code>{{variable.peerId_kanal_variablenName}}</code> (z. B. <code>{{variable.5_1_STATE}}</code>)  auf Gerätevariablen zugegriffen werden.</p>
+<p><b>Hinweis: </b>Standardm&auml;&szlig;ig wird <i>mustache</i> alle HTML-Entit&auml;ten in den von ihm ersetzten
+    Werten maskieren. Um dies zu verhindern, verwenden Sie <code>{{{dreifach}}}</code> geschweifte Klammern.</p>

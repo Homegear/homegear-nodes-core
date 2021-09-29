@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "and",
-    "readableName": "And",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="and">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="and.label.name"></span></label>
@@ -30,7 +21,6 @@
 <script type="text/javascript">
 	RED.nodes.registerType('and',{
         category: 'logic',
-        namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
             name: {value:""},

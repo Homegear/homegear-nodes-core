@@ -37,7 +37,7 @@ namespace UdpIn {
 
 class UdpIn : public Flows::INode {
  public:
-  UdpIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  UdpIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~UdpIn() override;
 
   bool init(const Flows::PNodeInfo &info) override;

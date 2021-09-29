@@ -7,6 +7,8 @@ case $1 in
 		rm -Rf /var/lib/homegear/node-blue/nodes/variable-in
 		rm -Rf /var/lib/homegear/node-blue/nodes/variable-out
 		rm -Rf /var/lib/homegear/node-blue/nodes/greater-than
+		rm -Rf /var/lib/homegear/node-blue/nodes/link/link-in.hni
+		rm -Rf /var/lib/homegear/node-blue/nodes/link/link-out.hni
 		rm -Rf /var/lib/homegear/node-blue/nodes/mqtt-broker
 		rm -Rf /var/lib/homegear/node-blue/nodes/mqtt-in
 		rm -Rf /var/lib/homegear/node-blue/nodes/php-test
@@ -23,8 +25,15 @@ case $1 in
 		rm -Rf /var/lib/homegear/node-blue/nodes/basic-logic/locales/en-US/less-than
 		rm -Rf /var/lib/homegear/node-blue/nodes/runscript
 		rm -Rf /var/lib/homegear/node-blue/nodes/sequence
+		sed -i 's/"type":"link-in"/"type":"link in"/g' /data/homegear-data/node-blue/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-in"/"type":"link in"/g' /var/lib/homegear/node-blue/data/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-out"/"type":"link out"/g' /data/homegear-data/node-blue/flows.json > /dev/null 2>&1
+		sed -i 's/"type":"link-out"/"type":"link out"/g' /var/lib/homegear/node-blue/data/flows.json > /dev/null 2>&1
 		chown -R homegear:homegear /var/lib/homegear/node-blue/nodes
-		chmod -R 550 /var/lib/homegear/node-blue/nodes
+		chmod -R 750 /var/lib/homegear/node-blue/nodes
+		rm -f /var/lib/homegear/node-blue/nodes/javascript
+		rm -f /var/lib/homegear/node-blue/nodes/node-red-nodes/javascript/javascript #Remove wrong link
+		ln -s node-red-nodes/javascript /var/lib/homegear/node-blue/nodes/javascript
 		homegear -e mls > /dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			homegear -e fr

@@ -38,7 +38,7 @@ namespace RampTo {
 
 class RampTo : public Flows::INode {
  public:
-  RampTo(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  RampTo(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~RampTo() override;
 
   bool init(const Flows::PNodeInfo &info) override;

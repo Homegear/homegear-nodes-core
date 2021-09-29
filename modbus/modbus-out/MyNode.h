@@ -37,7 +37,7 @@ namespace MyNode {
 
 class MyNode : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
@@ -58,7 +58,7 @@ class MyNode : public Flows::INode {
     bool invertRegisters = false;
   };
 
-  std::string _server;
+  std::string _socket;
   std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;

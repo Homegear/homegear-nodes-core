@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 MyNode::~MyNode() {
@@ -105,10 +105,12 @@ void MyNode::timer() {
       outputIndex = 0;
     }
 
-    Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-    Flows::PVariable value = std::make_shared<Flows::Variable>(true);
-    outputMessage->structValue->emplace("payload", value);
-    output(outputIndex, outputMessage);
+    if (_longPress || _outputs > 2) {
+      Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      Flows::PVariable value = std::make_shared<Flows::Variable>(true);
+      outputMessage->structValue->emplace("payload", value);
+      output(outputIndex, outputMessage);
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -135,13 +137,18 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         _counter = 1;
         _timerThread = std::thread(&MyNode::timer, this);
       } else _counter++;
-    } else {
+    } else if (_state) {
       _state = false;
       if (_longPress) {
         _longPress = false;
         Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
         outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>(false));
         output(0, outputMessage);
+      } else if (_outputs == 2) {
+        Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+        Flows::PVariable value = std::make_shared<Flows::Variable>(true);
+        outputMessage->structValue->emplace("payload", value);
+        output(1, outputMessage);
       }
     }
   }

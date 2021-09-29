@@ -1,0 +1,29 @@
+{
+  "json": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Converts between a JSON string and its <code>Struct</code> representation, in either direction.</p>",
+    "help": "<p>If the input is a JSON string it tries to parse it to a <code>Struct</code>. If the input is a <code>Struct</code> it creates a JSON string.</p>",
+    "input1Description": "JSON string or <code>Struct</code>.",
+    "output1Description": "JSON string or <code>Struct</code>."
+  },
+  "strip": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Creates a copy of the <code>$message</code> object only keeping the <code>payload</code>.</p>",
+    "help": "<p>This node creates a copy of the <code>$message</code> object only keeping the <code>payload</code>.</p>",
+    "input1Description": "Any message object.",
+    "output1Description": "A copy of the input message object only containing <code>payload</code>."
+  },
+  "xml": {
+    "label": {
+      "name": "Name"
+    },
+    "paletteHelp": "<p>Converts between a XML string and its <code>Struct</code> representation, in either direction.</p>",
+    "help": "<p>If the input is a XML string it tries to parse it to a <code>Struct</code>. If the input is a <code>Struct</code> it creates a JSON string.</p>",
+    "input1Description": "XML string or <code>Struct</code>.",
+    "output1Description": "XML string or <code>Struct</code>."
+  }
+}

@@ -39,10 +39,10 @@ function setGlobalData(string $key, $value)
 	return $nodeObject->setGlobalData($key, $value);
 }
 
-function output(int $outputIndex, array $message)
+function output(int $outputIndex, array $msg)
 {
 	global $nodeObject;
-	return $nodeObject->output($outputIndex, $message);
+	return $nodeObject->output($outputIndex, $msg);
 }
 
 function eventLog(string $message)
@@ -64,10 +64,11 @@ public function __construct()
 	$this->hg = new \Homegear\Homegear();
 }
 
-public function executeCode(int $inputIndex, array $message)
+public function executeCode(int $inputIndex, array $msg)
 {
 	try
 	{
+            $message = &$msg;
 	    $nodeInfo = $this->nodeInfo;
 		$code = $this->nodeInfo["info"]["func"];
 		if(array_key_exists('info', $this->nodeInfo) && array_key_exists('env', $this->nodeInfo['info']))
@@ -87,10 +88,21 @@ public function executeCode(int $inputIndex, array $message)
 	return NULL;
 }
 
-public function input(array $nodeInfoLocal, int $inputIndex, array $message)
+public function start() : bool
+{
+    $this->log(4, "In start()");
+    return true;
+}
+
+public function stop()
+{
+    $this->log(4, "In stop()");
+}
+
+public function input(array $nodeInfoLocal, int $inputIndex, array $msg)
 {
 	$this->nodeInfo = $nodeInfoLocal;
-	$result = $this->executeCode($inputIndex, $message);
+	$result = $this->executeCode($inputIndex, $msg);
 	if($result)
 	{
 		if(gettype(array_key_first($result)) === 'string')

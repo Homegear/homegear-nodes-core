@@ -1,0 +1,16 @@
+{
+  "status": {
+    "status": "status: all",
+    "statusNodes": "status: __number__",
+    "label": {
+      "selectNodes": "Select nodes...",
+      "source": "Report status from",
+      "sortByType": "sort by type"
+    },
+    "scope": {
+      "all": "all nodes",
+      "selected": "selected nodes"
+    },
+    "paletteHelp": "<p>Report status messages from other nodes on the same tab.</p>"
+  }
+}

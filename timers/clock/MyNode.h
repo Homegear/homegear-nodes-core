@@ -51,7 +51,7 @@ class MyNode : public Flows::INode {
     Y
   };
 
-  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;

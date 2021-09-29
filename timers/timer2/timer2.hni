@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "timer2",
-    "readableName": "Timer 2",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 1
-}
-</script>
 <script type="text/x-red" data-template-name="timer2">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
@@ -79,7 +70,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('timer2',{
         category: 'time',
-        namespace: 'timers',
         color:"#FFCC66",
         defaults: {
             name: {value:""},

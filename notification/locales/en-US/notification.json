@@ -1,0 +1,22 @@
+{
+  "xmpp": {
+    "label": {
+      "name": "Name",
+      "server": "Server",
+      "recipient": "Recipient",
+      "message": "Message"
+    },
+    "tip": "Tip: See the Info tab for help writing functions.",
+    "paletteHelp": "<p>Send a XMPP notification.</p>",
+    "help": "<p>This node sends a notification with XMPP.</p><p>You can enter the recipient and message manually, or use<br><code>$message['xmpp-recipient']</code><br><code>$message['xmpp-message']</code><br>to inject / override it.</p>"
+  },
+  "xmpp-server": {
+    "help": "<p>The XMPP (Jabber) connection requires a server address (the FQDN or an IP-address without http(s)://), the port, the username (just the localpart) and a password to be added to the default configuration.</p>",
+    "label": {
+      "server": "Server",
+      "port": "Port",
+      "user": "Username",
+      "pwd": "Password"
+    }
+  }
+}

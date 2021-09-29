@@ -36,7 +36,7 @@ namespace VariableIn {
 
 class VariableIn : public Flows::INode {
  public:
-  VariableIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  VariableIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~VariableIn() override;
 
   bool init(const Flows::PNodeInfo &info) override;

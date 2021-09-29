@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "http-request",
-    "readableName": "HTTP request",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -76,7 +67,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('http-request',{
         category: 'network',
-        namespace: 'http',
         color:"rgb(231, 231, 174)",
         defaults: {
             name: {value:""},

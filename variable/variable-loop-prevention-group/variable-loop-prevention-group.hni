@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "variable-loop-prevention-group",
-    "readableName": "Variable loop prevention group",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,7 +23,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('variable-loop-prevention-group',{
         category: 'config',
-        namespace: 'variable',
         defaults: {
             uniqueid: {value:"",required:true},
             refractoryperiod: {value: "1000",validate:RED.validators.number()},          

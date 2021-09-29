@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 MyNode::~MyNode() = default;
@@ -76,8 +76,9 @@ void MyNode::setNodeVariable(const std::string &variable, const Flows::PVariable
 std::string MyNode::stripNonPrintable(const std::string &s) {
   std::string strippedString;
   strippedString.reserve(s.size());
-  for (char i : s) {
-    if (std::isprint(i, std::locale("en_US.UTF-8"))) strippedString.push_back(i);
+  for (char i: s) {
+    if (std::isprint(i, std::locale())) strippedString.push_back(i);
+    else strippedString.append("\\" + Flows::HelperFunctions::getHexString(i, 2));
   }
   return strippedString;
 }
@@ -117,7 +118,8 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     if (_debTabHg) {
       Flows::PVariable object = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
       object->structValue->emplace("id", std::make_shared<Flows::Variable>(_id));
-      object->structValue->emplace("name", std::make_shared<Flows::Variable>(_type));
+      object->structValue->emplace("z", std::make_shared<Flows::Variable>(_flowId));
+      object->structValue->emplace("name", std::make_shared<Flows::Variable>(_name));
       object->structValue->emplace("msg", myMessage);
 
       std::string format;
@@ -152,8 +154,17 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
           myMessage->stringValue = stripNonPrintable(myMessage->stringValue);
           break;
         }
-        case Flows::VariableType::tVariant:
-        case Flows::VariableType::tBinary: break;
+        case Flows::VariableType::tVariant: {
+          format = "variant";
+          break;
+        }
+        case Flows::VariableType::tBinary: {
+          format = "binary[" + std::to_string(myMessage->binaryValue.size()) + "]";
+          myMessage->stringValue = Flows::HelperFunctions::getHexString(myMessage->binaryValue);
+          if (myMessage->stringValue.size() > 1000) myMessage->stringValue = myMessage->stringValue.substr(0, 1000) + "...";
+          myMessage->type = Flows::VariableType::tString;
+          break;
+        }
         case Flows::VariableType::tVoid: {
           format = "null";
           break;
@@ -162,7 +173,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
 
       if (!format.empty()) object->structValue->emplace("format", std::make_shared<Flows::Variable>(format));
       if (!property.empty()) object->structValue->emplace("property", std::make_shared<Flows::Variable>(property));
-      nodeEvent("debug", object);
+      nodeEvent("debug", object, false);
     }
   }
   catch (const std::exception &ex) {

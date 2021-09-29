@@ -57,7 +57,7 @@ class Switch : public Flows::INode {
     tElse
   };
 
-  Switch(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Switch(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Switch() override;
 
   bool init(const Flows::PNodeInfo &info) override;

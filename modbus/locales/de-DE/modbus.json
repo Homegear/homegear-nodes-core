@@ -1,0 +1,50 @@
+{
+  "modbus-host": {
+    "help": "<p>Für eine Modbus-Verbindung muss der Standardkonfiguration eine Modbus-Serveradresse hinzugefügt und mindestens ein Registerbereich gelesen werden. Es können so viele Bereiche wie möglich hinzufügt werden. \"Bytes invertieren\" ändert die Reihenfolge der zwei Bytes jedes Registers. Stellen Sie \"Min. Verzögerung\" auf die Wartezeit zwischen den Lese- oder Schreibvorgängen ein, wenn das Gerät nach dem Lesen oder Schreiben nicht sofort wieder gelesen oder geschrieben werden kann. Der Knoten versucht in jedem Intervall, alle angegebenen Register abzurufen. \"ROC\" (read on connect) bewirkt, dass der Knoten die Register einmal liest, nachdem die Verbindung zum Modbus-Host hergestellt wurde. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. hat Spule 5 die Adresse 4). \"Slave ID\" sollte normalerweise 255 für Modbus über TCP sein. Einige Geräte erfordern jedoch eine bestimmte ID.</p>",
+    "label": {
+      "server": "Server",
+      "port": "Port",
+      "interval": "Intervall",
+      "delay": "Min. Verzögerung",
+      "slaveid": "Slave ID",
+      "debug": "Debug-Informationen in das Flows-Protokoll schreiben",
+      "read-registers": "Holding Register zum Lesen (Func. 3)",
+      "write-registers": "Register zum Schreiben (Func. 16)",
+      "read-input-registers": "Eingangsregister zum Lesen (Func. 4)",
+      "read-coils": "Coils zum Lesen (Func. 1)",
+      "write-coils": "Coils zum Schreiben (Func. 15)",
+      "read-discrete-inputs": "Digitaleingänge zum Lesen (Func. 2)",
+      "first": "Erstes",
+      "last": "Letztes",
+      "invert": "Bytes invertieren",
+      "readonconnect": "ROC"
+    }
+  },
+  "modbus-in": {
+    "paletteHelp": "<p>Stellt eine Verbindung zu einem Modbus-Server her und abonniert die angegebenen Register.</p>",
+    "help": "<p>Stellt eine Verbindung zu einem Modbus-Server her und abonniert die angegebenen Register.</p><p>Gibt eine Nachricht mit den folgenden Eigenschaften aus:</p><ul><li><code>$message['holdingRegister'] (nur für holding register)</code></li><li><code>$message['inputRegister'] (nur für Eingaberegister)</code></li><li><code>$message ['coil'] (nur für Coils)</code></li><li><code>$message['discreteInput'] (nur für Digitaleingänge)</code></li><li><code>$message['count']</code></li><li><code>$message['payload']</code></li></ul><p><code>$message['payload']</code> kann entweder die reine Binärdatei ausgeben oder in <code>boolean</code>, <code>integer</code>, <code>float</code> oder <code>string</code> konvertiert werden. \"IB\" kehrt die Reihenfolge der zwei Bytes in jedem Register um. \"IR\" kehrt die Reihenfolge der zurückgegebenen Register um. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. Spule 5 hat die Adresse 4).</p>",
+    "output1Description": "Der vom Modbus-Server empfangene payload.",
+    "label": {
+      "server": "Server",
+      "registers": "Input/holding Register, Coils und Digitaleingänge",
+      "index": "Index",
+      "count": "Anzahl",
+      "type": "Typ",
+      "invertbytes": "IB",
+      "invertregisters": "IR"
+    }
+  },
+  "modbus-out": {
+    "paletteHelp": "<p>Stellt eine Verbindung zu einem Modbus-Server her und schreibt in die angegebenen Register.</p>",
+    "help": "<p>Stellt eine Verbindung zu einem Modbus-Server her und schreibt in die angegebenen Register.</p><p>\"IB\" kehrt die Reihenfolge der zwei Bytes in jedem Register um. \"IR\" kehrt die Reihenfolge der Register um. <code>boolean</code>, <code>integer</code>, <code>float</code> und <code>string</code> werden automatisch in binär konvertiert. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. Spule 5 hat die Adresse 4).</p>",
+    "output1Description": "The payload received from the Modbus server.",
+    "label": {
+      "server": "Server",
+      "registers": "Register und Coils",
+      "index": "Index",
+      "count": "Anzahl",
+      "invertbytes": "IB",
+      "invertregisters": "IR"
+    }
+  }
+}

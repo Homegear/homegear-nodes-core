@@ -30,9 +30,9 @@
 #include "Factory.h"
 #include "UdpIn.h"
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected)
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
 {
-	return new UdpIn::UdpIn(path, nodeNamespace, type, frontendConnected);
+	return new UdpIn::UdpIn(path, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()

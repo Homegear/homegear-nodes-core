@@ -1,0 +1,18 @@
+{
+  "name": "unit-test-helper",
+  "keywords": [
+    "node-blue",
+    "development",
+    "unit test"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "unit-test-helper": 0
+    },
+    "nodes": {
+      "unit-test-helper": "unit-test-helper.so"
+    }
+  },
+  "version": "1.0.0"
+}
