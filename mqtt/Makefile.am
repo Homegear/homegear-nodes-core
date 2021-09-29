@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
+AM_CPPFLAGS = -Wall -std=c++17 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node -lhomegear-base
 
@@ -18,11 +18,19 @@ mqtt_out_la_SOURCES = mqtt-out/Factory.cpp mqtt-out/MyNode.cpp
 mqtt_out_la_LDFLAGS =-module -avoid-version -shared
 
 mqtt_ladir = $(libdir)
-mqtt_la_DATA = mqtt-broker/mqtt-broker.hni mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
+mqtt_la_DATA = package.json mqtt-broker/mqtt-broker.hni mqtt-broker/mqtt-broker.cred.json mqtt-in/mqtt-in.hni mqtt-out/mqtt-out.hni
+
+locale_endir = $(libdir)/locales/en
+locale_en_DATA = locales/en-US/mqtt.json
+
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = mqtt-broker/locales/en-US/mqtt-broker mqtt-in/locales/en-US/mqtt-in mqtt-out/locales/en-US/mqtt-out
+locale_en_us_DATA = locales/en-US/mqtt.json
+
+locale_dedir = $(libdir)/locales/de
+locale_de_DATA = locales/de-DE/mqtt.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = mqtt-broker/locales/de-DE/mqtt-broker mqtt-in/locales/de-DE/mqtt-in mqtt-out/locales/de-DE/mqtt-out
+locale_de_de_DATA = locales/de-DE/mqtt.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/mqtt-broker.la

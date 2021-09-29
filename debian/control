@@ -8,7 +8,7 @@ Homepage: https://homegear.eu
 
 Package: homegear-nodes-core
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libhomegear-node, python3-homegear
+Depends: ${shlibs:Depends}, ${misc:Depends}, libhomegear-node, python3-homegear, libhomegear-base (= <BASELIBVER>)
 Description: Core nodes for Homegear's Node-BLUE
  Homegear is a program to interface your home automation software 
  with your smart home devices.

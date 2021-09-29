@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "gpio-out",
-    "readableName": "GPIO output",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="gpio-out">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="gpio-out.label.name"></span></label>
@@ -25,7 +16,6 @@
     RED.nodes.registerType('gpio-out',{
         color:"#fdd0a2",
         category: 'io',
-        namespace: 'gpio',
         defaults: {
             name: {value:""},
             index: {value:21,required:true,validate:RED.validators.number()},

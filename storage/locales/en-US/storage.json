@@ -1,0 +1,65 @@
+{
+  "file": {
+    "label": {
+      "name": "Name",
+      "filename": "Filename",
+      "action": "Action",
+      "addnewline": "Add newline (\\n) to each payload?",
+      "createdir": "Create directory if it doesn't exist?",
+      "outputas": "Output as",
+      "filelabel": "file",
+      "deletelabel": "delete __file__"
+    },
+    "action": {
+      "append": "append to file",
+      "overwrite": "overwrite file",
+      "delete": "delete file"
+    },
+    "output": {
+      "utf8": "a utf8 string",
+      "buffer": "a Buffer"
+    },
+    "status": {
+      "wrotefile": "wrote to file: __file__",
+      "deletedfile": "deleted file: __file__",
+      "appendedfile": "appended to file: __file__"
+    },
+    "errors": {
+      "nofilename": "No filename specified",
+      "invaliddelete": "Warning: Invalid delete. Please use specific delete option in config dialog.",
+      "deletefail": "failed to delete file: __error__",
+      "writefail": "failed to write to file: __error__",
+      "appendfail": "failed to append to file: __error__",
+      "createfail": "failed to create file: __error__"
+    },
+    "tip": "Tip: The filename should be an absolute path, otherwise it will be relative to the working directory of the Node-RED process.",
+    "paletteHelp": "<p>Writes <code>$message['payload']</code> to a file.</p>",
+    "help": "<p>Writes <code>$message['payload']</code> to a file, either adding to the end or replacing the existing content. Alternatively, it can delete the file.</p><h3>Inputs</h3><dl class=\"message-properties\"><dt class=\"optional\">filename <span class=\"property-type\">string</span></dt><dd>If not configured in the node, this optional property sets the name of the file to be updated.</dd></dl><h3>Details</h3><p>Each message payload will be added to the end of the file, optionally appending a newline (\n) character between each one.</p><p>It can be configured to overwrite the entire file rather than append. For example, when writing binary data to a file, such as an image, this option should be used and the option to append a newline should be disabled.</p><p>Alternatively, this node can be configured to delete the file.</p>"
+  },
+  "tail": {
+    "label": {
+      "name": "Name",
+      "path": "Path"
+    }
+  },
+  "watch": {
+    "label": {
+      "name": "Name",
+      "path": "Path",
+      "recursive": "Watch sub-directories recursively",
+      "allEvents": "All events",
+      "accessEvent": "Access Events",
+      "attributeEvent": "Attribute events",
+      "closeWriteEvent": "Opened for writing closed",
+      "closeNoWriteEvent": "Not opened for writing closed",
+      "createEvent": "Create event",
+      "deleteEvent": "Delete event",
+      "selfDeleteEvent": "Self delete event",
+      "modifyEvent": "Modify event",
+      "selfMoveEvent": "Self move event",
+      "moveFromEvent": "Move from event",
+      "moveToEvent": "Move to event",
+      "openEvent": "Open event"
+    }
+  }
+}

@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "slow-pwm",
-    "readableName": "Slow PWM",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 1
-}
-</script>
 <script type="text/x-red" data-template-name="slow-pwm">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
@@ -28,7 +19,6 @@
 <script type="text/javascript">
     RED.nodes.registerType('slow-pwm',{
         category: 'time',
-        namespace: 'timers',
         color:"#FFCC66",
         defaults: {
             period: {value:"",required:true,validate:RED.validators.number()},

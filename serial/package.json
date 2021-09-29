@@ -1,0 +1,22 @@
+{
+  "name": "serial",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "serial"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "serial-in": 0,
+      "serial-out": 0,
+      "serial-port": 1
+    },
+    "nodes": {
+      "serial-in": "serial-in.so",
+      "serial-out": "serial-out.so",
+      "serial-port": "serial-port.so"
+    }
+  },
+  "version": "1.0.0"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "parsers",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "parsers"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "json": 0,
+      "strip": 0,
+      "xml": 0
+    },
+    "nodes": {
+      "json": "json.so",
+      "strip": "strip.so",
+      "xml": "xml.so"
+    }
+  },
+  "version": "1.0.0"
+}

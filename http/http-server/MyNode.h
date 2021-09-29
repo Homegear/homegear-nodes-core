@@ -39,7 +39,7 @@ namespace MyNode {
 
 class MyNode : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
@@ -57,7 +57,7 @@ class MyNode : public Flows::INode {
 
   std::shared_ptr<BaseLib::SharedObjects> _bl;
   Flows::PNodeInfo _nodeInfo;
-  std::unique_ptr<BaseLib::HttpServer> _server;
+  std::unique_ptr<BaseLib::HttpServer> _socket;
   std::string _username;
   std::string _password;
   BaseLib::Http _http;

@@ -1,0 +1,34 @@
+{
+  "name": "basic-logic",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "logic"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "and": 0,
+      "change": 0,
+      "fallingedge": 0,
+      "not": 0,
+      "or": 0,
+      "risingedge": 0,
+      "srflipflop": 0,
+      "switch": 0,
+      "variable-switch": 0
+    },
+    "nodes": {
+      "and": "and.so",
+      "change": "change.so",
+      "fallingedge": "fallingedge.so",
+      "not": "not.so",
+      "or": "or.so",
+      "risingedge": "risingedge.so",
+      "srflipflop": "srflipflop.so",
+      "switch": "switch.so",
+      "variable-switch": "variable-switch.so"
+    }
+  },
+  "version": "1.0.0"
+}

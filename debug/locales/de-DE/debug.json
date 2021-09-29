@@ -1,0 +1,29 @@
+{
+  "debug": {
+    "output": "Ausgabe",
+    "msgprop": "Eigenschaft der Nachricht",
+    "msgobj": "Komplettes Nachrichten-Objekt",
+    "to": "nach",
+    "debtab": "Debug-Registerkarte",
+    "tabcon": "Debug-Registerkarte und Konsole",
+    "hg": "Homegear Flows Log",
+    "debtabhg": "Debug-Registerkarte und Homegear Flows Log",
+    "loglevel": "Protokollebene",
+    "debug": "Debug",
+    "info": "Info",
+    "warning": "Warning",
+    "error": "Error",
+    "critical": "Critical",
+    "notification": {
+      "activated": "Erfolgreich aktiviert: __label__",
+      "deactivated": "Erfolgreich deaktiviert: __label__"
+    },
+    "sidebar": {
+      "label": "Debug",
+      "name": "Debug Nachricht"
+    },
+    "paletteHelp": "<p>Der Debug-Knoten kann an den Ausgang eines beliebigen Knotens angeschlossen werden. Er kann verwendet werden, um die Ausgabe einer Nachrichteneigenschaft in der Debug-Registerkarte der Seitenleiste, der Konsole oder im Homegear Flow Logfile anzuzeigen.</p>",
+    "help": "<p>Der Debug-Knoten kann an den Ausgang eines beliebigen Knotens angeschlossen werden. Er kann verwendet werden, um die Ausgabe einer Nachrichteneigenschaft in der Debug-Registerkarte der Seitenleiste, der Konsole oder im Homegear Flow Logfile anzuzeigen. Standardmäßig wird <code>message['payload']</code> angezeigt.</p><p>In jeder Nachricht werden auch der Zeitstempel, <code>message['topic']</code> und der Typ der Eigenschaft angezeigt, die für die Ausgabe ausgewählt wurde.</p><p>Auf die Seitenleiste kann über die Dropdown-Optionen in der oberen rechten Ecke zugegriffen werden.</p><p>Die Schaltfläche rechts neben dem Knoten schaltet die Ausgabe ein und aus, damit das Debug-Fenster übersichtlicher gestalten werden kann.</p><p>Wenn es sich bei den Nutzdaten um ein Objekt handelt, wird es für die Anzeige in einen String umgewandelt und mit \"(Objekt)\" gekennzeichnet.</p><p>Wenn eine bestimmte Nachricht ausgewählt wird, wird der Debug-Knoten, der sie gemeldet hat, rot hervorgehoben. Dies ist hilfreich, wenn mehrere Debugknoten verbunden werden.</p><p>Kann optional das gesamte <code>message</code> Objekt anzeigen und Nachrichten an das Konsolenprotokoll senden.</p>",
+    "input1Description": "Der zu debuggende Wert."
+  }
+}

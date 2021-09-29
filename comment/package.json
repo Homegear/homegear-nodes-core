@@ -1,0 +1,15 @@
+{
+  "name": "comment",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "comment"
+  ],
+  "node-blue": {
+    "local": false,
+    "nodes": {
+      "comment": "comment.hni"
+    }
+  },
+  "version": "1.0.0"
+}

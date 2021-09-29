@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
 }
 
@@ -40,7 +40,7 @@ MyNode::~MyNode() = default;
 bool MyNode::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("server");
-    if (settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+    if (settingsIterator != info->info->structValue->end()) _socket = settingsIterator->second->stringValue;
 
     settingsIterator = info->info->structValue->find("method");
     if (settingsIterator != info->info->structValue->end()) _method = settingsIterator->second->stringValue;
@@ -64,7 +64,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
 void MyNode::configNodesStarted() {
   try {
-    if (_server.empty()) {
+    if (_socket.empty()) {
       _out->printError("Error: This node has no server assigned.");
       return;
     }
@@ -73,7 +73,7 @@ void MyNode::configNodesStarted() {
     parameters->push_back(std::make_shared<Flows::Variable>(_id));
     parameters->push_back(std::make_shared<Flows::Variable>(_method));
     parameters->push_back(std::make_shared<Flows::Variable>(_path));
-    Flows::PVariable result = invokeNodeMethod(_server, "registerNode", parameters, true);
+    Flows::PVariable result = invokeNodeMethod(_socket, "registerNode", parameters, true);
     if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
   }
   catch (const std::exception &ex) {

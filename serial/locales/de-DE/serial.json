@@ -1,0 +1,57 @@
+{
+  "serial-in": {
+    "help": "<p>Liest Daten von einer lokalen seriellen Schnittstelle.</p><p>Kann entweder <ul><li>auf ein \"Aufteilungs\"-Zeichen warten (Standardeinstellung \n). Akzeptiert auch Hex-Notation (0x0d).</li><li>Wartet auf eine Zeitüberschreitung in Millisekunden ab dem ersten empfangenen Zeichen.</li><li>Wartet bis ein Puffer mit fester Größe gefüllt ist.</li></ul></p><p>Anschließend wird <code>$message['payload']</code> entweder als UTF8-ASCII-Zeichenfolge oder als binäres Pufferobjekt ausgegeben.</p><p><code>msg.port</code> wird auf den Namen des ausgewählten Ports gesetzt.</p><p>Wenn kein Aufteilungs-Zeichen, keine Zeitüberschreitung oder eine Puffergröße von 0 angegeben ist, wird ein Strom von Einzelzeichen gesendet - wiederum entweder als ASCII-Zeichen oder als binärer Puffer der Größe 1.</p>",
+    "label": {
+      "serialport": "Serieller Port",
+      "serial": "seriell"
+    }
+  },
+  "serial-out": {
+    "help": "<p>Stellt eine Verbindung zu einem ausgehenden seriellen Port her.</p><p>Es wird nur <code>$message['payload']</code> gesendet.</p><p>Optional kann das Zeilenumbruch-Zeichen zum Teilen verwendet werden. Die Eingabe kann an jede Nachricht angehängt werden, die an die serielle Schnittstelle gesendet wird.</p>",
+    "input1Description": "Ein Binäreingang. Der Typ der Binärdaten kann jedoch auch <code>string</code> sein. Beachten Sie, dass hexadezimale Eingaben nicht in binäre Äquivalente konvertiert werden.",
+    "label": {
+      "serialport": "Serieller Port",
+      "serial": "seriell"
+    }
+  },
+  "serial-port": {
+    "help": "<p>Bietet Konfigurationsoptionen für eine serielle Schnittstelle.</p><p>Die Eingabe kann nach einer Zeitüberschreitung, nach einer festgelegten Anzahl von Zeichen oder einem festgeleten Zeichen aufgeteilt werden.</p><p>Bei Verwendung eines Zeichens kann es entweder als Zeichen, als maskierte Verknüpfung (z. B. \n) oder als Hex-Code (z. B. 0x0d) angegeben werden.</p>",
+    "label": {
+      "serialport": "Serieller Port",
+      "settings": "Einstellung",
+      "baudrate": "Baud Rate",
+      "databits": "Data Bits",
+      "parity": "Parität",
+      "stopbits": "Stop Bits",
+      "input": "Eingabe",
+      "split": "Eingabe aufteilen",
+      "deliver": "und ausgeben",
+      "output": "Ausgabe",
+      "none": "nichts",
+      "unit": "Zeichen"
+    },
+    "placeholder": {
+      "serialport": "Zum Beispiel: /dev/ttyUSB0"
+    },
+    "parity": {
+      "none": "Keine",
+      "even": "Gerade",
+      "odd": "Ungerade"
+    },
+    "split": {
+      "no": "nein",
+      "character": "nach einem Buchstaben",
+      "timeout": "nach einer Zeitüberschreitung von",
+      "lengths": "nach einer festen Länge von"
+    },
+    "output": {
+      "ascii": "Zeichenkette",
+      "binary": "Binärdaten"
+    },
+    "addsplit": "Aufteilungs-Zeichen zu den Ausgabenachrichten hinzufügen",
+    "tip": {
+      "split": "Tipp: Das Zeichen \"Eingabe aufteilen\" wird verwendet, um die Eingabe in separate Nachrichten zu teilen. Es kann auch zu jeder Nachricht hinzugefügt werden, die an die serielle Schnittstelle gesendet wird.",
+      "timeout": "Tipp: Im Timeout-Modus beginnt das Timeout mit dem Eintreffen des ersten Zeichens."
+    }
+  }
+}

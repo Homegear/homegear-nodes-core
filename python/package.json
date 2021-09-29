@@ -1,0 +1,18 @@
+{
+  "name": "python",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "python"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "python": 2
+    },
+    "nodes": {
+      "python": "python.so"
+    }
+  },
+  "version": "1.0.0"
+}

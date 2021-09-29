@@ -41,7 +41,7 @@ namespace Parsers {
 
 class Xml : public Flows::INode {
  public:
-  Xml(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Xml(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Xml() override;
 
   bool init(const Flows::PNodeInfo &info) override;

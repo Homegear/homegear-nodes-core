@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
-AM_CPPFLAGS = -Wall -std=c++11 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
+AM_CPPFLAGS = -Wall -std=c++17 -DFORTIFY_SOURCE=2 -DGCRYPT_NO_DEPRECATED
 AM_LDFLAGS = -Wl,-rpath=/lib/homegear -Wl,-rpath=/usr/lib/homegear -Wl,-rpath=/usr/local/lib/homegear
 LIBS += -Wl,-Bdynamic -lhomegear-node -lhomegear-base
 
@@ -21,11 +21,19 @@ http_request_la_SOURCES = http-request/Factory.cpp http-request/MyNode.cpp
 http_request_la_LDFLAGS =-module -avoid-version -shared
 
 http_ladir = $(libdir)
-http_la_DATA = http-server/http-server.hni http-in/http-in.hni http-response/http-response.hni http-request/http-request.hni
+http_la_DATA = package.json http-server/http-server.hni http-in/http-in.hni http-response/http-response.hni http-request/http-request.hni
+
+locale_endir = $(libdir)/locales/en
+locale_en_DATA = locales/en-US/http.json
+
 locale_en_usdir = $(libdir)/locales/en-US
-locale_en_us_DATA = http-server/locales/en-US/http-server http-in/locales/en-US/http-in http-response/locales/en-US/http-response http-request/locales/en-US/http-request
+locale_en_us_DATA = locales/en-US/http.json
+
+locale_dedir = $(libdir)/locales/de
+locale_de_DATA = locales/de-DE/http.json
+
 locale_de_dedir = $(libdir)/locales/de-DE
-locale_de_de_DATA = http-server/locales/de-DE/http-server http-in/locales/de-DE/http-in http-response/locales/de-DE/http-response http-request/locales/de-DE/http-request
+locale_de_de_DATA = locales/de-DE/http.json
 
 install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/http-server.la

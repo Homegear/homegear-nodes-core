@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "tls-config",
-    "readableName": "TLS configuration",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <!--
   Copyright JS Foundation and other contributors, http://js.foundation
 

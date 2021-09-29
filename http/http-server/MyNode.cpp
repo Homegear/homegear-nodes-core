@@ -32,7 +32,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _bl.reset(new BaseLib::SharedObjects(false));
 
   _localRpcMethods.emplace("send", std::bind(&MyNode::send, this, std::placeholders::_1));
@@ -97,9 +97,9 @@ bool MyNode::start() {
     _password = getNodeData("password")->stringValue;
 
     try {
-      _server.reset(new BaseLib::HttpServer(_bl.get(), serverInfo));
+      _socket.reset(new BaseLib::HttpServer(_bl.get(), serverInfo));
       std::string boundAddress;
-      _server->start(listenAddress, port, boundAddress);
+      _socket->start(listenAddress, port, boundAddress);
     }
     catch (BaseLib::Exception &ex) {
       _out->printError("Error starting server: " + std::string(ex.what()));
@@ -119,7 +119,7 @@ bool MyNode::start() {
 
 void MyNode::stop() {
   try {
-    _server->stop();
+    _socket->stop();
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -131,7 +131,7 @@ void MyNode::stop() {
 
 void MyNode::waitForStop() {
   try {
-    _server->waitForStop();
+    _socket->waitForStop();
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -216,14 +216,14 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http) {
     if (!_username.empty()) //Basic Auth
     {
       if (http.getHeader().authorization.empty()) {
-        _server->send(clientId, _authRequiredHeader);
+        _socket->send(clientId, _authRequiredHeader);
         return;
       }
 
       std::pair<std::string, std::string> authData = BaseLib::HelperFunctions::splitLast(http.getHeader().authorization, ' ');
       BaseLib::HelperFunctions::toLower(authData.first);
       if (authData.first != "basic") {
-        _server->send(clientId, _authRequiredHeader);
+        _socket->send(clientId, _authRequiredHeader);
         return;
       }
       std::string decodedData;
@@ -231,7 +231,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http) {
       std::pair<std::string, std::string> credentials = BaseLib::HelperFunctions::splitLast(decodedData, ':');
       BaseLib::HelperFunctions::toLower(credentials.first);
       if (credentials.first != _username || credentials.second != _password) {
-        _server->send(clientId, _authRequiredHeader);
+        _socket->send(clientId, _authRequiredHeader);
         return;
       }
     }
@@ -264,7 +264,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http) {
     }
     if (nodes.empty()) {
       BaseLib::TcpSocket::TcpPacket response = getError(404, "The requested URL " + http.getHeader().path + " was not found on this server.");
-      _server->send(clientId, response);
+      _socket->send(clientId, response);
       return;
     }
 
@@ -375,7 +375,7 @@ Flows::PVariable MyNode::send(const Flows::PArray& parameters) {
     response.insert(response.end(), header.begin(), header.end());
     response.insert(response.end(), parameters->at(3)->stringValue.begin(), parameters->at(3)->stringValue.end());
 
-    _server->send(parameters->at(0)->integerValue, response, true);
+    _socket->send(parameters->at(0)->integerValue, response, true);
 
     return std::make_shared<Flows::Variable>();
   }

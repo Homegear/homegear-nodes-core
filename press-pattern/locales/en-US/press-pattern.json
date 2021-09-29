@@ -1,0 +1,15 @@
+{
+  "press-pattern": {
+    "label": {
+      "timeout": "Maximum time to wait for the next press.",
+      "name": "Name",
+      "outputs": "Outputs"
+    },
+    "paletteHelp": "<p>Detects single, double, triple, ... or long presses.</p>",
+    "input1Description": "<code>true</code> for button down, <code>false</code> for button up.",
+    "output1Description": "Long press.",
+    "output2Description": "Single short press.",
+    "output3Description": "Double short press.",
+    "output4Description": "Triple short press."
+  }
+}

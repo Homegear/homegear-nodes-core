@@ -1,0 +1,18 @@
+{
+  "name": "passthrough",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "passthrough"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "passthrough": 0
+    },
+    "nodes": {
+      "passthrough": "passthrough.so"
+    }
+  },
+  "version": "1.0.0"
+}

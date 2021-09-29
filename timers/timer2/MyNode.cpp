@@ -32,7 +32,7 @@
 namespace Timer2
 {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected)
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) : Flows::INode(path, type, frontendConnected)
 {
 }
 
@@ -420,7 +420,7 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 		if(next.first == -1)
 		{
 			status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Unknown"));
-			nodeEvent("statusBottom/" + _id, status);
+			nodeEvent("statusBottom/" + _id, status, true);
 			return;
 		}
 
@@ -441,7 +441,7 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime)
 		}
 
 		status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str() + " (" + (next.second ? "on" : "off") + ")"));
-		nodeEvent("statusBottom/" + _id, status);
+		nodeEvent("statusBottom/" + _id, status, true);
 	}
 	catch(const std::exception& ex)
 	{

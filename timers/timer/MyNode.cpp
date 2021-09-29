@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 MyNode::~MyNode() {
@@ -353,7 +353,7 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime) {
     Flows::PVariable status = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
     if (next.first == -1) {
       status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: Unknown"));
-      nodeEvent("statusBottom/" + _id, status);
+      nodeEvent("statusBottom/" + _id, status, true);
       return;
     }
 
@@ -371,7 +371,7 @@ void MyNode::printNext(int64_t currentTime, int64_t onTime, int64_t offTime) {
     }
 
     status->structValue->emplace("text", std::make_shared<Flows::Variable>("Next: " + timeStream.str() + " (" + (next.second ? "on" : "off") + ")"));
-    nodeEvent("statusBottom/" + _id, status);
+    nodeEvent("statusBottom/" + _id, status, true);
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());

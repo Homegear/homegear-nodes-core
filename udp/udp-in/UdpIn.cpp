@@ -41,7 +41,7 @@
 
 namespace UdpIn {
 
-UdpIn::UdpIn(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+UdpIn::UdpIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 UdpIn::~UdpIn() = default;

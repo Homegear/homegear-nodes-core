@@ -1,0 +1,26 @@
+<script type="text/x-red" data-template-name="tail">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-path"><i class="fa fa-folder"></i> <span data-i18n="tail.label.path"></span></label>
+        <input type="text" id="node-input-path" data-i18n="[placeholder]tail.label.path">
+    </div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('tail',{
+        color:"BurlyWood",
+        category: 'storage',
+        defaults: {
+            name: {value:""},
+            path: {value:"", required: true}
+        },
+        outputs:1,
+        icon: "file.svg",
+        label: function() {
+            if(this.name) return this.name;
+            return "tail";
+        }
+    });
+</script>

@@ -1,0 +1,18 @@
+{
+  "python": {
+    "label": {
+      "name": "Name",
+      "function": "Function",
+      "inputs": "Inputs",
+      "outputs": "Outputs"
+    },
+    "tip": "Tip: See the Info tab for help.",
+    "paletteHelp": "<p>A node to write Python code to do more interesting things.</p>",
+    "help": "<p>A node to write Python code to do more interesting things. The node starts a new Python process executing the code. The process is continuously running. It communicates with Homegear using IPC.</p><p>When a message arrives, the node input callback method is called.</p><p>The message is passed in as a Python dictionary. The dictionary always contains at least the entry <code>payload</code>. Information about the node can be found in the dictionary <code>nodeInfo</code>. The input index is passed in <code>inputIndex</code></p><p>Using the Homegear object <code>hg</code> you can directly execute RPC methods. E. g. <code>hg.setValue(...)</code>.</p><h4>Data storage</h4><p>Data can be stored by calling <code>hg.setNodeData(key, value)</code>, <code>hg.setFlowData(key, value)</code> or <code>hg.setGlobalData(key, value)</code> and retrieved with <code>hg.getNodeData(key)</code>, <code>hg.getFlowData(key)</code> or <code>hg.getGlobalData(key)</code>.</p><h4>Sending messages</h4><p>To send message to an output, you can call <code>hg.nodeOutput(outputIndex, msg)</code>.</p>",
+    "input1Description": "This signal is passed to the running Python instance.",
+    "input2Description": "This input is sent to <code>stdin</code> of the Python instance.",
+    "output1Description": "Outputs the exit code and some additional information when the Python process finishes.",
+    "output2Description": "<code>stdout</code> of the Python instance.",
+    "output3Description": "<code>stderr</code> of the Python instance."
+  }
+}

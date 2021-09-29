@@ -35,7 +35,7 @@
 class MyFactory : Flows::NodeFactory
 {
 public:
-	Flows::INode* createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected) override;
+	Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
 };
 
 extern "C" Flows::NodeFactory* getFactory();

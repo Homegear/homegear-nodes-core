@@ -1,0 +1,18 @@
+{
+  "name": "pulsecounter",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "counter"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "pulsecounter": 0
+    },
+    "nodes": {
+      "pulsecounter": "pulsecounter.so"
+    }
+  },
+  "version": "1.0.0"
+}

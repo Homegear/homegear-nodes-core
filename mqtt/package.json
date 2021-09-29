@@ -1,0 +1,22 @@
+{
+  "name": "mqtt",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "mqtt"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "mqtt-broker": 6,
+      "mqtt-in": 0,
+      "mqtt-out": 0
+    },
+    "nodes": {
+      "mqtt-broker": "mqtt-broker.so",
+      "mqtt-in": "mqtt-in.so",
+      "mqtt-out": "mqtt-out.so"
+    }
+  },
+  "version": "1.0.0"
+}

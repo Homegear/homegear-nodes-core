@@ -1,12 +1,3 @@
-<script type="text/x-homegear">
-{
-    "name": "srflipflop",
-    "readableName": "Set-Reset-Flip-Flop",
-    "version": "1.0.0",
-    "coreNode": true,
-    "maxThreadCount": 0
-}
-</script>
 <script type="text/x-red" data-template-name="srflipflop">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="srflipflop.label.name"></span></label>
@@ -21,7 +12,6 @@
 <script type="text/javascript">
 	RED.nodes.registerType('srflipflop',{
         category: 'logic',
-        namespace: 'basic-logic',
         color: "#e2d96e",
         defaults: {
             name: {value:""},

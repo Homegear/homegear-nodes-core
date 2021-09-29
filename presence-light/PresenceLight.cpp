@@ -33,7 +33,7 @@
 
 namespace PresenceLight {
 
-PresenceLight::PresenceLight(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+PresenceLight::PresenceLight(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 PresenceLight::~PresenceLight() {

@@ -1,0 +1,22 @@
+<p>Report by Exception node - only passes on data if the payload has changed.</p>
+<h3>Input</h3>
+<p>Takes a numeric value or an object</p>
+<h3>Output</h3>
+<p>If the criteria are fulfilled the input is forwarded</p>
+<h3>Details</h3>
+<h4>Block unless value changes</h4>
+<p>Blocks all inputs which are equal to the last output.</p>
+<p>The first input can be ignored</p>
+<h4>Block unless value change is greater or equal</h4>
+<h4>Deadband</h4>
+<p>Blocks all inputs which are smaller/smaller or equal to the last output or last input +/- the difference.</p>
+<p>The difference can be a flat value like <code>42</code> or a percentage like <code>42%</code>. The difference is calculated from the last output or input.</p>
+<p><code>This mode does NOT work with objects</code></p>
+<h4>Block if value change is greater or equal</h4>
+<h4>Narrowband</h4>
+<p>Blocks all inputs which are in greater/greater or equal to the last output or last input +/- the differnce</p>
+<p>The difference can be a flat value like <code>42</code> or a percentage like <code>42%</code>. The percentage is calculated from the last output or input.</p>
+<p>Here you can also set a start value.</p>
+<p><code>This mode does NOT work with objects</code></p>
+<h4>Different topics</h4>
+<p>To evaluate different topics with the same rbe node, create foreach topic one input. The output is then on the opposite side. Each input will be evaluated independently from the other inputs</p>

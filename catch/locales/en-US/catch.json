@@ -1,0 +1,19 @@
+{
+  "catch": {
+    "catch": "catch: all",
+    "catchNodes": "catch: __number__",
+    "catchUncaught": "catch: uncaught",
+    "label": {
+      "selectNodes": "Select nodes...",
+      "source": "Catch errors from",
+      "selectAll": "select all",
+      "uncaught": "Ignore errors handled by other Catch nodes",
+      "global": "Catch errors of configuration nodes"
+    },
+    "scope": {
+      "all": "all nodes",
+      "selected": "selected nodes"
+    },
+    "paletteHelp": "<p>Catch errors thrown by nodes on the same tab.</p>"
+  }
+}

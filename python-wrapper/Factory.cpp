@@ -31,9 +31,9 @@
 #include "Python.h"
 #include "../config.h"
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected)
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
 {
-	return new PythonWrapper::Python(path, nodeNamespace, type, frontendConnected);
+	return new PythonWrapper::Python(path, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()

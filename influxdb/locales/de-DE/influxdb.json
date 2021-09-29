@@ -1,0 +1,12 @@
+{
+  "influxdb": {
+    "label": {
+      "measurement": "Messung",
+      "measurement2": "Eindeutiger Name der Messung",
+      "name": "Name"
+    },
+    "input1Description": "Die Daten, die in InfluxDB gespeichert werden sollen.",
+    "paletteHelp": "<p>Speichert Daten in InfluxDB.</p>",
+    "help": "Dieser Knoten kann benutzt werden um alle Arten von Daten in InfluxDB zu schreiben. Dies funktioniert nur, wenn homegear-influxDB aktiviert ist und ausgeführt wird. Die Eingabe kann von jeder Art sein. Es muss nur sichergestellt werden, dass sich der Typ nicht ändert! Es muss ein eindeutiger Name der Messung angeben werden unter dem alle Werte gespeichert werden, alternativ kann der Namen als <code>$payload['measurement']</code> an den Knoten übergeben werden. Nur alphanumerische  Zeichen einschließlich \"-\" und \"_\" sind erlaubt (keine Leerzeichen)."
+  }
+}

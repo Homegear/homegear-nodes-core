@@ -1,0 +1,20 @@
+{
+  "name": "udp",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "udp"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "udp-in": 1,
+      "udp-out": 0
+    },
+    "nodes": {
+      "udp-in": "udp-in.so",
+      "udp-out": "udp-out.so"
+    }
+  },
+  "version": "1.0.0"
+}

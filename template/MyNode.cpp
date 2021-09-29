@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-Template::Template(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+Template::Template(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
 Template::~Template() = default;
@@ -64,15 +64,35 @@ bool Template::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
+std::pair<std::string, std::string> Template::splitFirst(const std::string& string, char delimiter) {
+  int32_t pos = string.find_first_of(delimiter);
+  if (pos == -1) return std::pair<std::string, std::string>(string, "");
+  if ((unsigned)pos + 1 >= string.size()) return std::pair<std::string, std::string>(string.substr(0, pos), "");
+  return std::pair<std::string, std::string>(string.substr(0, pos), string.substr(pos + 1));
+}
+
 void Template::addData(mustache::DataSource dataSource, const std::string &key) {
   try {
     Flows::PVariable result;
     if (dataSource == mustache::DataSource::environment) {
       auto envIterator = _nodeInfo->info->structValue->find("env");
-      if (envIterator == _nodeInfo->info->structValue->end()) return;
+      if (envIterator != _nodeInfo->info->structValue->end()) return;
       auto envIterator2 = envIterator->second->structValue->find(key);
       if (envIterator2 == envIterator->second->structValue->end()) return;
       result = envIterator2->second;
+    } else if (dataSource == mustache::DataSource::variable) {
+      auto pair1 = splitFirst(key, '_');
+      auto pair2 = splitFirst(pair1.second, '_');
+      auto peerId = Flows::Math::getUnsignedNumber64(pair1.first);
+      auto channel = Flows::Math::getNumber(pair2.first);
+      auto &variable =  pair2.second;
+      auto parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(3);
+      parameters->push_back(std::make_shared<Flows::Variable>(peerId));
+      parameters->push_back(std::make_shared<Flows::Variable>(channel));
+      parameters->push_back(std::make_shared<Flows::Variable>(variable));
+      result = invoke("getValue", parameters);
+      if (result->errorStruct) return;
     } else {
       Flows::PArray parameters = std::make_shared<Flows::Array>();
       parameters->reserve(2);
@@ -82,7 +102,12 @@ void Template::addData(mustache::DataSource dataSource, const std::string &key) 
       if (result->errorStruct) return;
     }
 
-    auto *data = (mustache::data *)(_data.get(dataSource == mustache::DataSource::global ? "global" : (dataSource == mustache::DataSource::flow ? "flow" : "env"))); //This is dirty, but works as there is no access to _data, when addData is called.
+    mustache::data *data = nullptr;
+    //The conversion from const to non const is dirty, but works as there is no write access to data, when addData is called.
+    if (dataSource == mustache::DataSource::global) data = (mustache::data *)_data.get("global");
+    else if(dataSource == mustache::DataSource::flow) data = (mustache::data *)_data.get("flow");
+    else if(dataSource == mustache::DataSource::environment) data = (mustache::data *)_data.get("env");
+    else if(dataSource == mustache::DataSource::variable) data = (mustache::data *)_data.get("variable");
     if (!data) return;
     setData(*data, key, result);
   }
@@ -127,6 +152,7 @@ void Template::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::
     for (auto &element : *message->structValue) {
       setData(_data, element.first, element.second);
     }
+    _data.set("variable", mustache::data(mustache::data::type::object));
     _data.set("flow", mustache::data(mustache::data::type::object));
     _data.set("global", mustache::data(mustache::data::type::object));
     _data.set("env", mustache::data(mustache::data::type::object));

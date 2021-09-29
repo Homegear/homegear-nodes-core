@@ -40,7 +40,7 @@ namespace MyNode {
 
 class Template : public Flows::INode {
  public:
-  Template(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected);
+  Template(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
   ~Template() override;
 
   bool init(const Flows::PNodeInfo &info) override;
@@ -55,6 +55,7 @@ class Template : public Flows::INode {
   std::mutex _inputMutex;
   mustache::data _data;
 
+  static std::pair<std::string, std::string> splitFirst(const std::string& string, char delimiter);
   void addData(mustache::DataSource dataSource, const std::string& key);
   void setData(mustache::data &data, const std::string& key, const Flows::PVariable& value);
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;

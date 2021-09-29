@@ -1,0 +1,22 @@
+{
+  "average": {
+    "label": {
+      "average": "average",
+      "interval": "Interval to average in seconds",
+      "name": "Name",
+      "buildAverage": "Build the average over",
+      "time": "Build the average in interval",
+      "currentValue": "Average over current values",
+      "deleteAfter": "Delete values after",
+      "deleteAfterCheck": "Delete values",
+      "ignoreValue": "Ignore value after",
+      "round": "Format of output",
+      "integer": "Integer",
+      "double": "Floating point",
+      "inputs": "Inputs"
+    },
+    "input1Description": "Input values to average.",
+    "output1Description": "Outputs the average over the given interval. The type is set to the input type.",
+    "paletteHelp": "<p>Builds the average</p>"
+  }
+}

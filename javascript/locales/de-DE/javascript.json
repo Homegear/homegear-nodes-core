@@ -1,0 +1,20 @@
+{
+  "javascript": {
+    "javascript": "",
+    "label": {
+      "function": "JavaScript",
+      "initialize": "Setup",
+      "finalize": "Schließen",
+      "inputs": "Eingänge",
+      "outputs": "Ausgänge"
+    },
+    "text": {
+      "initialize": "// Code added here will be run once\n// whenever the node is deployed.\n",
+      "finalize": "// Code added here will be run when the\n// node is being stopped or re-deployed.\n"
+    },
+    "error": {
+      "inputListener": "Cannot add listener to 'input' event within Function",
+      "non-message-returned": "Function tried to send a message of type __type__"
+    }
+  }
+}

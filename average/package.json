@@ -1,0 +1,18 @@
+{
+  "name": "average",
+  "keywords": [
+    "node-blue",
+    "homegear",
+    "average"
+  ],
+  "node-blue": {
+    "local": false,
+    "maxThreadCounts": {
+      "average": 0
+    },
+    "nodes": {
+      "average": "average.so"
+    }
+  },
+  "version": "1.0.0"
+}

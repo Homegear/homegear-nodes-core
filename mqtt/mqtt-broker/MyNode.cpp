@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _localRpcMethods.emplace("publish", std::bind(&MyNode::publish, this, std::placeholders::_1));
   _localRpcMethods.emplace("registerNode", std::bind(&MyNode::registerNode, this, std::placeholders::_1));
   _localRpcMethods.emplace("registerTopic", std::bind(&MyNode::registerTopic, this, std::placeholders::_1));
@@ -76,8 +76,36 @@ bool MyNode::start() {
     if (settingsIterator != _nodeInfo->info->structValue->end()) mqttSettings->clientId = settingsIterator->second->stringValue;
     if (mqttSettings->clientId.empty()) mqttSettings->clientId = "HomegearNode." + _id + "." + BaseLib::HelperFunctions::getHexString(BaseLib::HelperFunctions::getRandomNumber(0, 16777215));
 
-    mqttSettings->username = getNodeData("username")->stringValue;
-    mqttSettings->password = getNodeData("password")->stringValue;
+    {
+      auto credentials = getNodeData("credentials");
+      auto credentialsIterator = credentials->structValue->find("username");
+      if (credentialsIterator != credentials->structValue->end()) mqttSettings->username = credentialsIterator->second->stringValue;
+      credentialsIterator = credentials->structValue->find("password");
+      if (credentialsIterator != credentials->structValue->end()) mqttSettings->password = credentialsIterator->second->stringValue;
+
+      if (mqttSettings->username.empty() && mqttSettings->password.empty()) {
+        //See if userdata was saved with ols method to save username and password
+        mqttSettings->username = getNodeData("username")->stringValue;
+        mqttSettings->password = getNodeData("password")->stringValue;
+
+        if (!mqttSettings->username.empty() || !mqttSettings->password.empty()) {
+          //Save credentials in new format
+          auto credentials = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+          credentials->structValue->emplace("username", std::make_shared<Flows::Variable>(mqttSettings->username));
+          credentials->structValue->emplace("password", std::make_shared<Flows::Variable>(mqttSettings->password));
+          setNodeData("credentials", credentials);
+
+          auto parameters = std::make_shared<Flows::Array>();
+          parameters->reserve(2);
+          parameters->emplace_back(std::make_shared<Flows::Variable>(_nodeInfo->id));
+          parameters->emplace_back(std::make_shared<Flows::Variable>("username"));
+          invoke("deleteNodeData", parameters);
+
+          parameters->at(1)->stringValue = "password";
+          invoke("deleteNodeData", parameters);
+        }
+      }
+    }
 
     if (mqttSettings->enableSSL) {
       std::string tlsNodeId;

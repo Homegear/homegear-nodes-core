@@ -31,7 +31,7 @@
 
 namespace MyNode {
 
-MyNode::MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, nodeNamespace, type, frontendConnected) {
+MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
   _localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
 }
 
@@ -42,7 +42,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     int32_t inputIndex = -1;
 
     auto settingsIterator = info->info->structValue->find("server");
-    if (settingsIterator != info->info->structValue->end()) _server = settingsIterator->second->stringValue;
+    if (settingsIterator != info->info->structValue->end()) _socket = settingsIterator->second->stringValue;
 
     settingsIterator = info->info->structValue->find("registers");
     if (settingsIterator != info->info->structValue->end()) {
@@ -198,7 +198,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertRegisters));
       parameters->push_back(payload);
 
-      invokeNodeMethod(_server, "writeRegisters", parameters, false);
+      invokeNodeMethod(_socket, "writeRegisters", parameters, false);
     } else {
       if (payload->type != Flows::VariableType::tBinary) {
         payload->binaryValue.push_back((bool)(*payload));
@@ -212,7 +212,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->count));
       parameters->push_back(payload);
 
-      invokeNodeMethod(_server, "writeRegisters", parameters, false);
+      invokeNodeMethod(_socket, "writeRegisters", parameters, false);
     }
   }
   catch (const std::exception &ex) {
@@ -239,7 +239,7 @@ Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters) {
       status->structValue->emplace("fill", std::make_shared<Flows::Variable>("red"));
       status->structValue->emplace("shape", std::make_shared<Flows::Variable>("dot"));
     }
-    nodeEvent("statusBottom/" + _id, status);
+    nodeEvent("statusBottom/" + _id, status, true);
 
     return std::make_shared<Flows::Variable>();
   }
