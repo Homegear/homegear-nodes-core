@@ -16,7 +16,6 @@
         <label for="node-input-interval">s</label>
     </div>
     <div class="form-row" id="checkDelete" style="height: 5px">
-        <label>&nbsp;</label>
         <input type="checkbox" id="node-input-deleteAfterCheck" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-input-deleteAfterCheck" style="width: 70%;" data-i18n="average.label.deleteAfterCheck"></label>
     </div>
@@ -34,13 +33,10 @@
         <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="average.label.inputs"></span></label>
         <input id="node-input-inputs" style="width: 60px;" value="2">
     </div>
-    <div class="form-row" id="round">
-        <label for="node-input-round"><i class =""></i><span data-i18n="average.label.round"></span></label>
-        <select id="node-input-round" style="display: inline-block; width: 70%;">
-            <option value="integer" data-i18n="average.label.integer"></option>
-            <option value="double" data-i18n="average.label.double"></option>
-        </select>
-    </div>
+    <div class="form-row" style="height: 5px">
+		<input type="checkbox" id="node-input-round" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-round" style="width: 70%;" data-i18n="average.label.round"></label>
+	</div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('average',{
@@ -53,8 +49,8 @@
             deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
             ignoreDoubleValues: {value:"12", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
             deleteAfterCheck: {value: false},
-            round: {value:"integer", required: true},
-            inputs: {value:1}
+            inputs: {value:1},
+            round: {value: false}
         },
         inputs:1,
         inputInfo: [

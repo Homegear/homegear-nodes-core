@@ -54,12 +54,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
     settingsIterator = info->info->structValue->find("round");
     if (settingsIterator != info->info->structValue->end()) {
-      if (settingsIterator->second->stringValue.compare("integer") == 0) {
-        _round = false;
-      }
-      if (settingsIterator->second->stringValue.compare("double") == 0) {
-        _round = true;
-      }
+      _round = settingsIterator->second->booleanValue;
     }
 
     if (_type == TIME) {
