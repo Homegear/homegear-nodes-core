@@ -4,6 +4,7 @@
       "type": "Event type",
       "all": "All events",
       "devicevariables": "Device variables",
+      "servicemessages": "Service messages",
       "metadata": "Metadata variables",
       "systemvariables": "System variables",
       "flowvariables": "Flow variables",

@@ -42,6 +42,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) {
       auto typeString = settingsIterator->second->stringValue;
       if (typeString == "devicevariables") _eventType = EventTypes::kDeviceVariables;
+      else if (typeString == "servicemessages") _eventType = EventTypes::kServiceMessages;
       else if (typeString == "metadata") _eventType = EventTypes::kMetadataVariables;
       else if (typeString == "system") _eventType = EventTypes::kSystemVariables;
       else if (typeString == "flowvariables") _eventType = EventTypes::kFlowVariables;
@@ -65,6 +66,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 void MyNode::homegearEvent(const std::string &type, const Flows::PArray &data) {
   try {
     if (_eventType == EventTypes::kDeviceVariables && type != "deviceVariableEvent") return;
+    else if (_eventType == EventTypes::kServiceMessages && type != "serviceMessage") return;
     else if (_eventType == EventTypes::kMetadataVariables && type != "metadataVariableEvent") return;
     else if (_eventType == EventTypes::kSystemVariables && type != "systemVariableEvent") return;
     else if (_eventType == EventTypes::kFlowVariables && type != "flowVariableEvent") return;

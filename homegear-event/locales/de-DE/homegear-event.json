@@ -4,6 +4,7 @@
       "type": "Ereignistyp",
       "all": "Alle Ereignisse",
       "devicevariables": "Gerätevariablen",
+      "servicemessages": "Servicemeldungen",
       "metadata": "Metadatumvariablen",
       "systemvariables": "Systemvariablen",
       "flowvariables": "Flowvariablen",

@@ -58,7 +58,7 @@ class MyNode : public Flows::INode {
     bool invertRegisters = false;
   };
 
-  std::string _server;
+  std::string _socket;
   std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;

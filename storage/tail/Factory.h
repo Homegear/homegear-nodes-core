@@ -27,29 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H
+#define FACTORY_H
 
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonEncoder.h>
+#include <homegear-node/NodeFactory.h>
+#include "MyNode.h"
 
-namespace MyNode {
-
-class HttpResponse : public Flows::INode {
+class MyFactory : Flows::NodeFactory
+{
  public:
-  HttpResponse(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~HttpResponse() override;
-
-  bool init(const Flows::PNodeInfo &info) override;
-  void configNodesStarted() override;
- private:
-  std::string _server;
-  int32_t _statusCode = 200;
-  Flows::PVariable _headers;
-
-  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif

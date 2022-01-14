@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 Homegear GmbH
+/* Copyright 2013-2021 Homegear GmbH
  *
  * Homegear is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,41 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H_
+#define FACTORY_H_
 
-#include <homegear-node/INode.h>
-#include <thread>
-#include <mutex>
+#include <homegear-node/NodeFactory.h>
+#include "Inject.h"
 
-namespace MyNode
+class MyFactory : Flows::NodeFactory
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(const std::string &path, const std::string &nodeNamespace, const std::string &type, const std::atomic_bool* frontendConnected);
-	~MyNode() override;
-
-	bool init(const Flows::PNodeInfo &info) override;
-	bool start() override;
-	void stop() override;
-	void waitForStop() override;
-private:
-	uint32_t _delay = 10000;
-
-	std::atomic_bool _threadRunning;
-	std::atomic_bool _stopThread;
-	std::atomic_bool _stopped;
-	std::mutex _timerThreadMutex;
-	std::thread _timerThread;
-
-	bool _firstInput = true;
-	bool _lastInputState = false;
-	void timer(int64_t inputTime);
-	void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+ public:
+  Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif

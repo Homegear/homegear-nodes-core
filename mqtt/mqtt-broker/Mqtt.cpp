@@ -341,8 +341,7 @@ void Mqtt::ping()
 void Mqtt::listen()
 {
 	std::vector<char> data;
-	int32_t bufferMax = 2048;
-	std::vector<char> buffer(bufferMax);
+	std::vector<char> buffer(4096);
 	uint32_t bytesReceived = 0;
 	uint32_t length = 0;
 	uint32_t dataLength = 0;
@@ -366,10 +365,10 @@ void Mqtt::listen()
 			{
 				do
 				{
-					bytesReceived = _socket->proofread(&buffer[0], bufferMax);
+					bytesReceived = _socket->proofread(buffer.data(), buffer.size());
 					if(bytesReceived > 0)
 					{
-						data.insert(data.end(), &buffer.at(0), &buffer.at(0) + bytesReceived);
+						data.insert(data.end(), buffer.begin(), buffer.begin() + bytesReceived);
 						if(data.size() > 1000000)
 						{
 							_out->printError("Could not read packet: Too much data.");
@@ -385,19 +384,19 @@ void Mqtt::listen()
 					while(length > 0 && data.size() > dataLength)
 					{
 						//Multiple MQTT packets in one TCP packet
-						std::vector<char> data2(&data.at(0), &data.at(0) + dataLength);
+						std::vector<char> data2(data.begin(), data.begin() + dataLength);
 						processData(data2);
-						data2 = std::vector<char>(&data.at(dataLength), &data.at(dataLength) + (data.size() - dataLength));
+						data2 = std::vector<char>(data.begin() + dataLength, data.begin() + dataLength + (data.size() - dataLength));
 						data = std::move(data2);
 						length = getLength(data, lengthBytes);
 						dataLength = length + lengthBytes + 1;
 					}
-					if(bytesReceived == (unsigned) bufferMax)
+					if(bytesReceived == buffer.size())
 					{
 						//Check if packet size is exactly a multiple of bufferMax
 						if(data.size() == dataLength) break;
 					}
-				} while(bytesReceived == (unsigned) bufferMax || dataLength > data.size());
+				} while(bytesReceived == buffer.size() || dataLength > data.size());
 			}
 			catch(BaseLib::SocketClosedException& ex)
 			{

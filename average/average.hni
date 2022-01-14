@@ -1,12 +1,42 @@
 <script type="text/x-red" data-template-name="average">
     <div class="form-row">
-        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <label for="node-input-name"><i class="fa fa-tag"></i><span data-i18n="common.label.name"></span></label>
         <input type="text" id="node-input-name" data-i18n="[placeholder]common.label.name">
     </div>
     <div class="form-row">
-        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.interval"></span></label>
-        <input type="text" id="node-input-interval" data-i18n="[placeholder]average.label.interval">
+        <label for="node-input-averageOver"><i class="fa fa-pencil-square-o"></i><span data-i18n="average.label.buildAverage"></span></label>
+        <select id="node-input-averageOver" style="display: inline-block; width: 70%;">
+            <option value="time" data-i18n="average.label.time"></option>
+            <option value="currentValues" data-i18n="average.label.currentValue"></option>
+        </select><br/>
     </div>
+    <div class="form-row" id="timeValue">
+        <label for="node-input-interval"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.interval"></span></label>
+        <input type="text" id="node-input-interval" data-i18n="[placeholder]average.label.interval" style="width: 40%;">
+        <label for="node-input-interval">s</label>
+    </div>
+    <div class="form-row" id="checkDelete" style="height: 5px">
+        <input type="checkbox" id="node-input-deleteAfterCheck" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-deleteAfterCheck" style="width: 70%;" data-i18n="average.label.deleteAfterCheck"></label>
+    </div>
+    <div class="form-row" id="currentValue">
+        <label for="node-input-deleteAfter"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.deleteAfter"></span></label>
+        <input type="text" id="node-input-deleteAfter" data-i18n="[placeholder]average.label.deleteAfter" style="width: 40%;">
+        <label for="node-input-deleteAfter">s</label>
+    </div>
+    <div class="form-row" id="ignoreValue">
+        <label for="node-input-ignoreDoubleValues"><i class="fa fa-id-badge"></i> <span data-i18n="average.label.ignoreValue"></span></label>
+        <input type="text" id="node-input-ignoreDoubleValues" data-i18n="[placeholder]average.label.ignoreValue" style="width: 40%;">
+        <label for="node-input-ignoreDoubleValues">h</label>
+    </div>
+    <div class="form-row" id="in">
+        <label for="node-input-inputs"><i class="fa fa-random"></i> <span data-i18n="average.label.inputs"></span></label>
+        <input id="node-input-inputs" style="width: 60px;" value="2">
+    </div>
+    <div class="form-row" style="height: 5px">
+		<input type="checkbox" id="node-input-round" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-round" style="width: 70%;" data-i18n="average.label.round"></label>
+	</div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('average',{
@@ -14,7 +44,13 @@
         category: 'function',
         defaults: {
             name: {value:""},
-            "interval": {value:"60",required:true,validate:RED.validators.number()}
+            averageOver: {value:"time", required: true, validate:function(v){new Promise(r => setTimeout(r,2)); if(v == "time"){this.inputs = 1; return true;} if(v == "currentValues"){if(this.inputs < 2){this.inputs = 2;} return true;} return false;}},
+            interval: {value:"60", validate:function(v){new Promise(r => setTimeout(r,10)); if(this.averageOver == "time" && isNaN(v)){return false;} return true;}},
+            deleteAfter: {value:"60", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
+            ignoreDoubleValues: {value:"12", validate:function(v){new Promise(r => setTimeout(r, 10)); if(this.averageOver == "currentValues" && isNaN(v)){return false;} return true;}},
+            deleteAfterCheck: {value: false},
+            inputs: {value:1},
+            round: {value: false}
         },
         inputs:1,
         inputInfo: [
@@ -32,6 +68,58 @@
         label: function() {
             if(this.name) return this.name;
             return "average";
+        },
+        oneditprepare: function(){
+            $("#node-input-inputs").spinner({
+                min:2,
+                max:10
+            });
+            var node = this;
+
+            function timeMode(){
+                $("#timeValue").show();
+                $("#currentValue").hide();
+                $("#checkDelete").hide();
+                $("#ignoreValue").hide();
+                $("#in").hide();
+            }
+
+            function currentValueMode(){
+                $("#timeValue").hide();
+                $("#currentValue").show();
+                $("#checkDelete").show();
+                deleteAfterCheck();
+                $("#ignoreValue").show();
+                $("#in").show();
+                $("#node-input-inputs").spinner("value", node.inputs > 1 ? node.inputs : 2);
+            }
+            
+            function deleteAfterCheck(){
+                if($("#node-input-deleteAfterCheck").is(":checked")) {
+                    $("#node-input-deleteAfter").prop("disabled", false);
+                } else {
+                    $("#node-input-deleteAfter").prop("disabled", true);
+                }
+            }
+
+            if(this.averageOver == "time"){
+                timeMode();
+            }else if(this.averageOver == "currentValues"){
+                currentValueMode();
+            }
+
+            document.getElementById("node-input-averageOver").addEventListener("change", function(){
+                node.averageOver = document.getElementById("node-input-averageOver").value;
+                if(node.averageOver == "time"){
+                    timeMode();
+                }else if(node.averageOver == "currentValues"){
+                    currentValueMode();
+                }
+            });
+
+            document.getElementById("node-input-deleteAfterCheck").addEventListener("change", function(){
+                deleteAfterCheck();
+            });
         }
     });
 </script>

@@ -42,7 +42,7 @@ class MyNode : public Flows::INode {
 
   bool init(const Flows::PNodeInfo &info) override;
  private:
-  std::string _server;
+  std::string _socket;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };

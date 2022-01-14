@@ -27,51 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef FACTORY_H
+#define FACTORY_H
 
-#include <homegear-node/INode.h>
-#include <homegear-base/BaseLib.h>
+#include <homegear-node/NodeFactory.h>
+#include "MyNode.h"
 
-#include <regex>
-
-namespace MyNode
+class MyFactory : Flows::NodeFactory
 {
-
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected);
-	~MyNode() override;
-
-	bool init(const Flows::PNodeInfo &info) override;
-	bool start() override;
-	void stop() override;
-	void waitForStop() override;
-
-	Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
-private:
-	struct NodeInfo
-	{
-		std::string id;
-	};
-
-	std::shared_ptr<BaseLib::SharedObjects> _bl;
-	Flows::PNodeInfo _nodeInfo;
-
-	std::mutex _nodesMutex;
-	std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
-
-	BaseLib::PTcpSocket _socket;
-
-    void packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket& packet);
-
-	//{{{ RPC methods
-		Flows::PVariable send(const Flows::PArray& parameters);
-		Flows::PVariable registerNode(const Flows::PArray& parameters);
-	//}}}
+ public:
+  Flows::INode* createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected) override;
 };
 
-}
+extern "C" Flows::NodeFactory* getFactory();
 
 #endif

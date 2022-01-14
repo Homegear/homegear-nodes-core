@@ -31,7 +31,7 @@
 #define FACTORY_H
 
 #include <homegear-node/NodeFactory.h>
-#include "MyNode.h"
+#include "TcpIn.h"
 
 class MyFactory : Flows::NodeFactory
 {

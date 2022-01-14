@@ -1,4 +1,4 @@
-/* Copyright 2013-2019 Homegear GmbH
+/* Copyright 2013-2021 Homegear GmbH
  *
  * Homegear is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,38 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "Inject.h"
 
-#include <homegear-node/INode.h>
-#include <homegear-node/JsonDecoder.h>
-#include <homegear-base/BaseLib.h>
-
-namespace MyNode {
-
-class MyNode : public Flows::INode {
- public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
-
-  bool init(const Flows::PNodeInfo &info) override;
-  void configNodesStarted() override;
- private:
-  std::string _server;
-  std::string _method;
-  std::string _path;
-  bool _fileUploads = false;
-
-  Flows::JsonDecoder _jsonDecoder;
-
-  std::pair<std::string, std::string> splitFirst(const std::string& string, char delimiter);
-  std::vector<std::string> splitAll(std::string string, char delimiter);
-
-  //{{{ RPC methods
-  Flows::PVariable packetReceived(const Flows::PArray& parameters);
-  //}}}
-};
-
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
+{
+  return new Inject::Inject(path, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+  return (Flows::NodeFactory*) (new MyFactory);
+}

@@ -32,6 +32,7 @@
 
 #include <homegear-node/INode.h>
 #include <thread>
+#include <queue>
 #include <mutex>
 
 namespace MyNode {
@@ -48,13 +49,14 @@ class MyNode : public Flows::INode {
  private:
   uint32_t _delay = 10000;
 
-  std::atomic_bool _stopThreads{true};
-  std::atomic_int _currentTimerThreadIndex{0};
-  std::atomic_int _currentTimerThreadCount{0};
-  std::mutex _timerThreadsMutex;
-  std::array<std::thread, 10> _timerThreads;
+  std::mutex _queueMutex;
+  std::queue<std::pair<int64_t, Flows::PVariable>> _messageQueue;
 
-  void timer(int64_t inputTime, const Flows::PVariable &message);
+  std::atomic_bool _stopThread{true};
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
+
+  void timer();
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 

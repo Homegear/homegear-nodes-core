@@ -76,7 +76,7 @@ void MyNode::setNodeVariable(const std::string &variable, const Flows::PVariable
 std::string MyNode::stripNonPrintable(const std::string &s) {
   std::string strippedString;
   strippedString.reserve(s.size());
-  for (char i : s) {
+  for (char i: s) {
     if (std::isprint(i, std::locale())) strippedString.push_back(i);
     else strippedString.append("\\" + Flows::HelperFunctions::getHexString(i, 2));
   }
@@ -154,8 +154,17 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
           myMessage->stringValue = stripNonPrintable(myMessage->stringValue);
           break;
         }
-        case Flows::VariableType::tVariant:
-        case Flows::VariableType::tBinary: break;
+        case Flows::VariableType::tVariant: {
+          format = "variant";
+          break;
+        }
+        case Flows::VariableType::tBinary: {
+          format = "binary[" + std::to_string(myMessage->binaryValue.size()) + "]";
+          myMessage->stringValue = Flows::HelperFunctions::getHexString(myMessage->binaryValue);
+          if (myMessage->stringValue.size() > 1000) myMessage->stringValue = myMessage->stringValue.substr(0, 1000) + "...";
+          myMessage->type = Flows::VariableType::tString;
+          break;
+        }
         case Flows::VariableType::tVoid: {
           format = "null";
           break;

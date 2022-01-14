@@ -156,6 +156,10 @@ set(SOURCE_FILES
 		python-wrapper/Factory.h
 		python-wrapper/Python.cpp
 		python-wrapper/Python.h
+		rbe/Factory.cpp
+		rbe/Factory.h
+		rbe/MyNode.cpp
+		rbe/MyNode.h
 		serial/serial-port/Factory.cpp
 		serial/serial-port/Factory.h
 		serial/serial-port/MyNode.cpp
@@ -176,18 +180,26 @@ set(SOURCE_FILES
         storage/file/Factory.h
         storage/file/MyNode.cpp
         storage/file/MyNode.h
+		storage/tail/Factory.cpp
+		storage/tail/Factory.h
+		storage/tail/MyNode.cpp
+		storage/tail/MyNode.h
+		storage/watch/Factory.cpp
+		storage/watch/Factory.h
+		storage/watch/MyNode.cpp
+		storage/watch/MyNode.h
 		tcp/tcp-in/Factory.cpp
 		tcp/tcp-in/Factory.h
-		tcp/tcp-in/MyNode.cpp
-		tcp/tcp-in/MyNode.h
+		tcp/tcp-in/TcpIn.cpp
+		tcp/tcp-in/TcpIn.h
 		tcp/tcp-out/Factory.cpp
 		tcp/tcp-out/Factory.h
-		tcp/tcp-out/MyNode.cpp
-		tcp/tcp-out/MyNode.h
+		tcp/tcp-out/TcpOut.cpp
+        tcp/tcp-out/TcpOut.h
 		tcp/tcp-socket/Factory.cpp
 		tcp/tcp-socket/Factory.h
-		tcp/tcp-socket/MyNode.cpp
-		tcp/tcp-socket/MyNode.h
+		tcp/tcp-socket/TcpSocket.cpp
+		tcp/tcp-socket/TcpSocket.h
         template/Factory.cpp
         template/Factory.h
         template/mustache.h
@@ -277,6 +289,10 @@ set(SOURCE_FILES
         variable/constant/Factory.h
         variable/constant/MyNode.cpp
         variable/constant/MyNode.h
+		variable/inject/Factory.cpp
+		variable/inject/Factory.h
+		variable/inject/Inject.cpp
+        variable/inject/Inject.h
 		variable/round-robin-shift/Factory.cpp
 		variable/round-robin-shift/Factory.h
 		variable/round-robin-shift/MyNode.cpp

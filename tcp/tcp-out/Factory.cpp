@@ -28,11 +28,11 @@
  */
 
 #include "Factory.h"
-#include "MyNode.h"
+#include "TcpOut.h"
 
 Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
 {
-	return new MyNode::HttpResponse(path, type, frontendConnected);
+	return new TcpOut::TcpOut(path, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()

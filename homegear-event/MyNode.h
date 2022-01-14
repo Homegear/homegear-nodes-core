@@ -45,6 +45,7 @@ class MyNode : public Flows::INode {
   enum class EventTypes {
     kAll,
     kDeviceVariables,
+    kServiceMessages,
     kMetadataVariables,
     kSystemVariables,
     kFlowVariables,

@@ -44,7 +44,7 @@ class MyNode : public Flows::INode {
   bool init(const Flows::PNodeInfo &info) override;
   void configNodesStarted() override;
  private:
-  std::string _server;
+  std::string _socket;
   std::string _method;
   std::string _path;
   bool _fileUploads = false;
