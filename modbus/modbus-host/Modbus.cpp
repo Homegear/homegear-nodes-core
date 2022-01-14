@@ -45,6 +45,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         BaseLib::Modbus::ModbusInfo modbusInfo;
         modbusInfo.hostname = _settings->server;
         modbusInfo.port = _settings->port;
+        modbusInfo.keepAlive = _settings->keepAlive;
 
         _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
         _modbus->setDebug(settings->debug);
