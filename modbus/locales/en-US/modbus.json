@@ -7,6 +7,7 @@
       "interval": "Interval",
       "delay": "Min. delay",
       "slaveid": "Slave ID",
+      "keepalive": "Keep TCP connection alive (otherwise it is closed after every request)",
       "debug": "Write debug info to flows log",
       "read-registers": "Holding registers to read (Func. 3)",
       "write-registers": "Registers to write (Func. 16)",

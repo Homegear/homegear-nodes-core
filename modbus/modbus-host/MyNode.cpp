@@ -68,6 +68,9 @@ bool MyNode::start() {
     settingsIterator = _nodeInfo->info->structValue->find("slaveid");
     if (settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->slaveId = Flows::Math::getNumber(settingsIterator->second->stringValue);
 
+    settingsIterator = _nodeInfo->info->structValue->find("keepalive");
+    if (settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->keepAlive = settingsIterator->second->booleanValue;
+
     settingsIterator = _nodeInfo->info->structValue->find("debug");
     if (settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->debug = settingsIterator->second->booleanValue;
 

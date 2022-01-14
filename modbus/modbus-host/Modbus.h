@@ -57,6 +57,7 @@ public:
         uint32_t interval = 100;
         uint32_t delay = 0;
         uint8_t slaveId = 255;
+        bool keepAlive = true;
         bool debug = false;
         std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
         std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;

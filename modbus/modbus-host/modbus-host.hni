@@ -30,6 +30,10 @@
         <input type="text" id="node-config-input-slaveid">
     </div>
     <div class="form-row">
+		<input type="checkbox" id="node-config-input-keepalive" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-config-input-keepalive" style="width: 65%;" data-i18n="modbus-host.label.keepalive"></label>
+	</div>
+    <div class="form-row">
         <input type="checkbox" id="node-config-input-debug" style="display: inline-block; width: auto; vertical-align: top;">
         <label for="node-config-input-debug" style="width: 65%;" data-i18n="modbus-host.label.debug"></label>
     </div>
@@ -67,6 +71,7 @@
             interval: {value:"100",required:true,validate:RED.validators.number()},
             delay: {value:"10",required:true,validate:RED.validators.number()},
             slaveid: {value:"255",required:true,validate:function(v) { return $.isNumeric(v) && v <= 255 && v >= 0; }},
+            keepalive: {value:true},
             debug: {value:false},
             readregisters: {value:[]},
             writeregisters: {value:[]},
