@@ -56,6 +56,7 @@ public:
         int32_t port = 502;
         uint32_t interval = 100;
         uint32_t delay = 0;
+        bool keepAlive = true;
         uint8_t slaveId = 255;
         bool keepAlive = true;
         bool debug = false;
