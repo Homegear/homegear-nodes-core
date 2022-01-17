@@ -10,7 +10,7 @@
       "always-off-time2": "Dauer in Sekunden",
       "process-false": "Licht sofort ausschalten, wenn \"IN\" auf \"false\" gesetzt ist.",
       "keep-on": "Licht an lassen, wenn \"EN\" auf \"false\" gesetzt ist.",
-      "toggle-profile-0-only": "\"TG\" schaltet nur auf einen Eingang von \"0\" um, andere Eingänge setzen \"SVAL\", aber schalten das Licht nicht aus.",
+      "toggle-profile-0-only": "\"TG\" toggelt nur bei einem Eingangswert von \"0\", andere Werte setzen \"SVAL\", aber schalten das Licht nicht aus.",
       "restore-profile": "Wenn das Licht mit \"TG\" (im Profilmodus) ausgeschaltet wird, wird das letzte Profil wieder hergestellt, nachdem für \"On time\" kein \"IN\" angegeben wurde.",
       "changes-only": "Nur Änderungen ausgeben",
       "refraction-time": "Ratenbegrenzer Verzögerung",

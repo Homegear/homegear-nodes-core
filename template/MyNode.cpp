@@ -76,7 +76,7 @@ void Template::addData(mustache::DataSource dataSource, const std::string &key) 
     Flows::PVariable result;
     if (dataSource == mustache::DataSource::environment) {
       auto envIterator = _nodeInfo->info->structValue->find("env");
-      if (envIterator != _nodeInfo->info->structValue->end()) return;
+      if (envIterator == _nodeInfo->info->structValue->end()) return;
       auto envIterator2 = envIterator->second->structValue->find(key);
       if (envIterator2 == envIterator->second->structValue->end()) return;
       result = envIterator2->second;
