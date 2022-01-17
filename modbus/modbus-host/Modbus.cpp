@@ -304,7 +304,8 @@ void Modbus::listen()
             {
                 if(!_started) return;
                 connect();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+                if (_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                else std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 if(!_started) return;
                 continue;
             }
