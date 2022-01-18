@@ -260,7 +260,6 @@
 	                (o.property?'msg[\''+property+'\']':'msg')+" : "+format+
 	                '</span>').appendTo(metaRow);
 	        }
-	        console.log(payload);
 	        if (format === 'Object' || /^array/.test(format) || format === 'boolean' || format === 'number' ) {
 	            payload = JSON.parse(payload);
 	        } else if (/error/i.test(format)) {
