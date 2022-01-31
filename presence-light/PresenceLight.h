@@ -51,6 +51,7 @@ class PresenceLight : public Flows::INode {
   uint32_t _onTime = 0;
   uint32_t _alwaysOnTime = 21600000;
   uint32_t _alwaysOffTime = 21600000;
+  int64_t _lastInputRefractionTime = -1;
   int64_t _lastInput = -1;
   bool _switchOffOnInFalse = false;
   bool _keepOn = false;
@@ -64,9 +65,12 @@ class PresenceLight : public Flows::INode {
   std::thread _timerThread;
   std::atomic_bool _toggleProfile0Only{false};
   std::atomic_bool _restoreProfile{false};
+  std::atomic_bool _restoreProfile2{false};
+  std::atomic<int64_t> _restoreHour{12};
   std::atomic_bool _booleanStateValue{true};
   std::atomic<int64_t> _stateValue{1};
   std::atomic<int64_t> _lastNonNullStateValue{1};
+  std::atomic<int64_t> _lastRestore{-1};
 
   std::atomic_bool _enabled{true};
   std::atomic_bool _manuallyEnabled{false};

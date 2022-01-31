@@ -14,7 +14,9 @@
       "restore-profile": "When the light is switched off (in profile mode) using \"TG\", restore the last profile after no \"IN\" for \"On time\".",
       "changes-only": "Output changes only",
       "refraction-time": "Rate limiter delay",
-      "refraction-time2": "Duration in milliseconds"
+      "refraction-time2": "Duration in milliseconds",
+      "restore-profile2": "When the light is switched off (in profile mode) restore the old profile at a specific hour. This is only done when \"IN\" is not triggered for at least 60 minutes.",
+      "restore-hour": "Reset hour"
     },
     "paletteHelp": "<p>This node automatically switches lights on or off depending on presence.</p>",
     "input1Description": "Enables or disables processing of <code>IN</code>.",

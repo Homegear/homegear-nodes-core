@@ -13,8 +13,10 @@
       "toggle-profile-0-only": "\"TG\" toggelt nur bei einem Eingangswert von \"0\", andere Werte setzen \"SVAL\", aber schalten das Licht nicht aus.",
       "restore-profile": "Wenn das Licht mit \"TG\" (im Profilmodus) ausgeschaltet wird, wird das letzte Profil wieder hergestellt, nachdem für \"On time\" kein \"IN\" angegeben wurde.",
       "changes-only": "Nur Änderungen ausgeben",
-      "refraction-time": "Ratenbegrenzer Verzögerung",
-      "refraction-time2": "Dauer in Millisekunden"
+      "refraction-time": "Rafraktärzeit",
+      "refraction-time2": "Dauer in Millisekunden",
+      "restore-profile2": "Wenn das Licht mit \"TG\" (im Profilmodus) ausgeschaltet wird, wird das letzte Profil zu einer bestimmten Stunde wieder hergestellt. Dies geschieht nur, wenn \"IN\" für mindestens 60 Minuten nicht getriggert wurde.",
+      "restore-hour": "Rücksetzstunde"
     },
     "paletteHelp": "<p>Dieser Knoten schaltet das Licht je nach Anwesenheit automatisch ein oder aus.</p>",
     "input1Description": "Aktiviert oder deaktiviert die Verarbeitung von <code>IN</code>.",
