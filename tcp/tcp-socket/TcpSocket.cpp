@@ -305,6 +305,11 @@ void TcpSocket::listen() {
         _out->printError("Error: " + std::string(ex.what()));
         continue;
       }
+      catch (const std::exception &ex) {
+        _socket->close();
+        _out->printError("Error: " + std::string(ex.what()));
+        continue;
+      }
     }
   }
   catch (const std::exception &ex) {
@@ -329,9 +334,11 @@ Flows::PVariable TcpSocket::send(const Flows::PArray &parameters) {
     return std::make_shared<Flows::Variable>();
   }
   catch (const std::exception &ex) {
+    _socket->close();
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
   }
   catch (...) {
+    _socket->close();
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
   return Flows::Variable::createError(-32500, "Unknown application error.");

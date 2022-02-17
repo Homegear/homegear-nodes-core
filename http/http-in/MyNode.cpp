@@ -132,24 +132,27 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray &parameters) {
     } else if (parameters->at(5)->stringValue == "multipart/form-data") {
       if (_fileUploads) message->structValue->emplace("payload", parameters->at(7));
       else message->structValue->emplace("payload", std::make_shared<Flows::Variable>(""));
-    } else if (parameters->at(4)->stringValue == "GET") {
-      Flows::PVariable getData = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+    } else if (parameters->at(5)->stringValue == "application/json") {
+      message->structValue->emplace("payload", Flows::JsonDecoder::decode(parameters->at(7)->stringValue));
+    } else {
+      auto content = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
+      content->structValue->emplace("content", std::make_shared<Flows::Variable>(parameters->at(7)->stringValue));
+      message->structValue->emplace("payload", content);
+    }
+
+    {
+      auto &payload = (*message->structValue)["payload"];
+      if (!payload) payload.reset(new Flows::Variable(Flows::VariableType::tStruct));
 
       std::vector<std::string> elements = splitAll(parameters->at(2)->stringValue, '&');
-      for (auto &element : elements) {
+      for (auto &element: elements) {
         std::pair<std::string, std::string> variable = splitFirst(element, '=');
         std::string key;
         std::string value;
         BaseLib::Html::unescapeHtmlEntities(variable.first, key);
         BaseLib::Html::unescapeHtmlEntities(variable.second, value);
-        getData->structValue->emplace(key, std::make_shared<Flows::Variable>(value));
+        payload->structValue->emplace(key, std::make_shared<Flows::Variable>(value));
       }
-
-      message->structValue->emplace("payload", getData);
-    } else if (parameters->at(5)->stringValue == "application/json") {
-      message->structValue->emplace("payload", Flows::JsonDecoder::decode(parameters->at(7)->stringValue));
-    } else {
-      message->structValue->emplace("payload", std::make_shared<Flows::Variable>(parameters->at(7)->stringValue));
     }
 
     Flows::PVariable req = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);

@@ -35,7 +35,8 @@ MyNode::MyNode(const std::string &path, const std::string &type, const std::atom
 }
 
 MyNode::~MyNode() {
-  _stopThreads = true;
+  _stopThread = true;
+  if (_timerThread.joinable()) _timerThread.join();
 }
 
 bool MyNode::init(const Flows::PNodeInfo &info) {
@@ -55,21 +56,19 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 }
 
 bool MyNode::start() {
-  _stopThreads = false;
+  _stopThread = false;
   return true;
 }
 
 void MyNode::stop() {
-  _stopThreads = true;
+  _stopThread = true;
 }
 
 void MyNode::waitForStop() {
   try {
-    std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
-    _stopThreads = true;
-    for (auto &timerThread : _timerThreads) {
-      if (timerThread.joinable()) timerThread.join();
-    }
+    std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+    _stopThread = true;
+    if (_timerThread.joinable()) _timerThread.join();
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -79,39 +78,32 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::timer(int64_t inputTime, const Flows::PVariable &message) {
-  int32_t sleepingTime = _delay - (Flows::HelperFunctions::getTime() - inputTime);
-  if (sleepingTime < 1) sleepingTime = 1;
-  else if (sleepingTime > (signed)_delay) sleepingTime = _delay;
-
+void MyNode::timer() {
   try {
-    if (sleepingTime > 1000 && sleepingTime < 30000) {
-      int32_t iterations = sleepingTime / 100;
-      for (int32_t j = 0; j < iterations; j++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        if (_stopThreads) {
-          _currentTimerThreadCount--;
-          return;
-        }
-      }
-      if (sleepingTime % 100) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 100));
-    } else if (sleepingTime >= 30000) {
-      int32_t iterations = sleepingTime / 1000;
-      for (int32_t j = 0; j < iterations; j++) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        if (_stopThreads) {
-          _currentTimerThreadCount--;
-          return;
-        }
-      }
-      if (sleepingTime % 1000) std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime % 1000));
-    } else std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
-    if (_stopThreads) {
-      _currentTimerThreadCount--;
-      return;
-    }
+    int32_t sleepingTime = 1000;
+    if (_delay < 30000) sleepingTime = 100;
+    else if (_delay < 100) sleepingTime = 10;
+    else if (_delay < 20) sleepingTime = 10;
 
-    output(0, message);
+    Flows::PVariable message;
+
+    while (!_stopThread) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(sleepingTime));
+
+      {
+        std::lock_guard<std::mutex> queueGuard(_queueMutex);
+        if (_messageQueue.empty()) return;
+        if (Flows::HelperFunctions::getTime() >= _messageQueue.front().first) {
+          message = _messageQueue.front().second;
+          _messageQueue.pop();
+        }
+      }
+
+      if (message) {
+        output(0, message);
+        message.reset();
+      }
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -119,22 +111,21 @@ void MyNode::timer(int64_t inputTime, const Flows::PVariable &message) {
   catch (...) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
-  _currentTimerThreadCount--;
 }
 
 void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
-    int64_t inputTime = Flows::HelperFunctions::getTime();
-    std::lock_guard<std::mutex> timerGuard(_timerThreadsMutex);
+    {
+      std::lock_guard<std::mutex> queueGuard(_queueMutex);
+      if (_messageQueue.size() >= 1000) return;
+      _messageQueue.push(std::make_pair(Flows::HelperFunctions::getTime() + _delay, message));
+    }
 
-    if (_currentTimerThreadCount == 10) return;
-
-    _currentTimerThreadCount++;
-    if (_timerThreads.at(_currentTimerThreadIndex).joinable()) _timerThreads.at(_currentTimerThreadIndex).join();
-    _timerThreads.at(_currentTimerThreadIndex) = std::thread(&MyNode::timer, this, inputTime, message);
-
-    _currentTimerThreadIndex++;
-    if ((unsigned)_currentTimerThreadIndex >= _timerThreads.size()) _currentTimerThreadIndex = 0;
+    std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
+    _stopThread = true;
+    if (_timerThread.joinable())_timerThread.join();
+    _stopThread = false;
+    _timerThread = std::thread(&MyNode::timer, this);
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());

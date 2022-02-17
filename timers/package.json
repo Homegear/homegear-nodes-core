@@ -10,7 +10,7 @@
     "local": false,
     "maxThreadCounts": {
       "clock": 1,
-      "delay": 10,
+      "delay": 1,
       "impulse": 1,
       "interval": 1,
       "off-delay": 1,

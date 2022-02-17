@@ -7,6 +7,7 @@
       "interval": "Intervall",
       "delay": "Min. Verzögerung",
       "slaveid": "Slave ID",
+      "keepalive": "Halte die TCP-Verbindung offen (andernfalls wird sie nach jeder Anfrage geschlossen)",
       "debug": "Debug-Informationen in das Flows-Protokoll schreiben",
       "read-registers": "Holding Register zum Lesen (Func. 3)",
       "write-registers": "Register zum Schreiben (Func. 16)",

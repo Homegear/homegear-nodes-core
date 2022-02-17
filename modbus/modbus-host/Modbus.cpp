@@ -45,6 +45,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
         BaseLib::Modbus::ModbusInfo modbusInfo;
         modbusInfo.hostname = _settings->server;
         modbusInfo.port = _settings->port;
+        modbusInfo.keepAlive = _settings->keepAlive;
 
         _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
         _modbus->setDebug(settings->debug);
@@ -303,7 +304,8 @@ void Modbus::listen()
             {
                 if(!_started) return;
                 connect();
-                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+                if (_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                else std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 if(!_started) return;
                 continue;
             }

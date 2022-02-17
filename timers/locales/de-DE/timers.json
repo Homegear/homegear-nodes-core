@@ -25,7 +25,7 @@
       "name": "Name"
     },
     "paletteHelp": "<p>Leitet eine Eingabe nach einer festgelegten Zeitspanne weiter.</p>",
-    "help": "<p>Dieser Knoten leitet eine Eingabe nach einer festgelegten Zeitspanne weiter. Die maximale Anzahl von Eingängen in der Warteschlange beträgt 10.</p>"
+    "help": "<p>Dieser Knoten leitet eine Eingabe nach einer festgelegten Zeitspanne weiter. Die maximale Anzahl von Eingängen in der Warteschlange beträgt 1000.</p>"
   },
   "impulse": {
     "label": {
