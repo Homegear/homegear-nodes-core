@@ -39,6 +39,40 @@
         <label for="node-input-restore-profile" style="width: 60%;" data-i18n="presence-light.label.restore-profile"></label>
     </div>
     <div class="form-row">
+		<label style="width: 130px;">&nbsp;</label>
+		<input type="checkbox" id="node-input-restore-profile2" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-restore-profile2" style="width: 60%;" data-i18n="presence-light.label.restore-profile2"></label>
+	</div>
+    <div id="node-input-restore-hour-container" class="form-row hide">
+		<label style="width: 130px;" for="node-input-restore-hour"><i class="fa fa-clock-o"></i> <span data-i18n="presence-light.label.restore-hour"></span></label>
+		<select id="node-input-restore-hour" style="display: inline-block; width: 40%;">
+			<option value="0">0</option>
+			<option value="1">1</option>
+			<option value="2">2</option>
+			<option value="3">3</option>
+			<option value="4">4</option>
+			<option value="5">5</option>
+			<option value="6">6</option>
+			<option value="7">7</option>
+			<option value="8">8</option>
+			<option value="9">9</option>
+			<option value="10">10</option>
+			<option value="11">11</option>
+			<option value="12">12</option>
+			<option value="13">13</option>
+			<option value="14">14</option>
+			<option value="15">15</option>
+			<option value="16">16</option>
+			<option value="17">17</option>
+			<option value="18">18</option>
+			<option value="19">19</option>
+			<option value="20">20</option>
+			<option value="21">21</option>
+			<option value="22">22</option>
+			<option value="23">23</option>
+		</select>
+	</div>
+    <div class="form-row">
         <label style="width: 130px;" for="node-input-refraction-time"><i class="fa fa-id-badge"></i> <span data-i18n="presence-light.label.refraction-time"></span></label>
         <input style="width: 40%;" type="text" id="node-input-refraction-time" data-i18n="[placeholder]presence-light.label.refraction-time2">
         <label for="node-input-on-time">ms</label>
@@ -62,6 +96,8 @@
             "keep-on": {value:false,required:false},
             "toggle-profile-0-only": {value:false,required:false},
             "restore-profile": {value:false,required:false},
+            "restore-profile2": {value:false,required:false},
+            "restore-hour": {value:"12",required:false},
             "refraction-time": {value:"1000",required:true,validate:RED.validators.number()},
             "changes-only": {value:false,required:false}
         },
@@ -125,7 +161,14 @@
             return "presence-light";
         },
         oneditprepare: function() {
-            
+            if(this['restore-profile2']) $("#node-input-restore-hour-container").show();
+			$("#node-input-restore-profile2").on("click", function() {
+				if(this.checked) {
+					$("#node-input-restore-hour-container").show();
+				} else {
+					$("#node-input-restore-hour-container").hide();
+				}
+			});
         },
         paletteLabel: "presence-light"
     });

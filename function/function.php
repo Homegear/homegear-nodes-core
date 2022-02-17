@@ -68,8 +68,9 @@ public function executeCode(int $inputIndex, array $msg)
 {
 	try
 	{
-            $message = &$msg;
+        $message = &$msg;
 	    $nodeInfo = $this->nodeInfo;
+	    $env = $this->nodeInfo["info"]["env"] ?? [];
 		$code = $this->nodeInfo["info"]["func"];
 		if(array_key_exists('info', $this->nodeInfo) && array_key_exists('env', $this->nodeInfo['info']))
 		{

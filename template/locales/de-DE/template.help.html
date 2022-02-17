@@ -2,11 +2,11 @@
 <h3>Eingaben</h3>
 <dl class="message-properties">
     <dt>
-        $message
+        message
         <span class="property-type">Struct</span>
     </dt>
     <dd>
-        Ein $message-Objekt, das Informationen zum Auff&uuml;llen der Vorlage enth&auml;lt.
+        Ein message-Objekt, das Informationen zum Auff&uuml;llen der Vorlage enth&auml;lt.
     </dd>
 </dl>
 <p>Hinweis: Wenn Sie Mustache nicht verwenden, w&auml;hlen Sie <code>Nur Text</code> in <code>Format</code>, um
@@ -19,12 +19,12 @@
     so weiter analysiert).</p>
 <dl class="message-properties">
     <dt>
-        $message
+        message
         <span class="property-type">struct</span>
     </dt>
     <dd>
-        eine $message mit einer festgelegten Eigenschaft, welches die konfigurierte Vorlage mit Eigenschaften aus der
-        eingehenden $message gef&uuml;llt wird.
+        eine message mit einer festgelegten Eigenschaft, welches die konfigurierte Vorlage mit Eigenschaften aus der
+        eingehenden message gef&uuml;llt wird.
     </dd>
 </dl>
 <h3>Details</h3>
@@ -47,5 +47,8 @@
     einfach <code>{{flow.name}}</code> oder <code>{{global.name}}</code>.</p>
 <p>Zudem ist es mit <code>{{env.name}}</code> m&ouml;glich, auf Umgebungsvariablen zuzugreifen.</p>
 <p>Weiterhin kann mit <code>{{variable.peerId_kanal_variablenName}}</code> (z. B. <code>{{variable.5_1_STATE}}</code>)  auf Gerätevariablen zugegriffen werden.</p>
+<h3>Arrays</h3>
+<p>Auf Array-Elemente kann über ihren Index zugegriffen werden. Mit zum Beispiel der Nachricht <code>{"payload":["first","second","third"]}</code> und dem Mustache-Code <code>{{payload.1}}</code> wird die Ausgabe <code>second</code> generiert.</p>
 <p><b>Hinweis: </b>Standardm&auml;&szlig;ig wird <i>mustache</i> alle HTML-Entit&auml;ten in den von ihm ersetzten
     Werten maskieren. Um dies zu verhindern, verwenden Sie <code>{{{dreifach}}}</code> geschweifte Klammern.</p>
+<p><b>Hinweis 2: </b>Wenn eine der Eigenschaften der obersten Ebene der Nachricht ein reserviertes Schlüsselwort enthält (z. B. <code>variable</code>), wird ein Unterstrich (<code>_</code>) an den Eigenschaftennamen gehängt (z. B. <code>variable_</code>).</p>

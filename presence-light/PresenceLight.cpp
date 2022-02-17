@@ -66,11 +66,19 @@ bool PresenceLight::init(const Flows::PNodeInfo &info) {
     settingsIterator = info->info->structValue->find("restore-profile");
     if (settingsIterator != info->info->structValue->end()) _restoreProfile = settingsIterator->second->booleanValue;
 
+    settingsIterator = info->info->structValue->find("restore-profile2");
+    if (settingsIterator != info->info->structValue->end()) _restoreProfile2 = settingsIterator->second->booleanValue;
+
+    settingsIterator = info->info->structValue->find("restore-hour");
+    if (settingsIterator != info->info->structValue->end()) _restoreHour = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
+
     settingsIterator = info->info->structValue->find("refraction-time");
     if (settingsIterator != info->info->structValue->end()) _refractionTime = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
     settingsIterator = info->info->structValue->find("changes-only");
     if (settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
+
+    _lastInput = BaseLib::HelperFunctions::getTime();
 
     return true;
   }
@@ -117,6 +125,11 @@ bool PresenceLight::start() {
     auto lastNonNullStateValue = getNodeData("lastNonNullStateValue");
     if (lastNonNullStateValue->type == Flows::VariableType::tInteger || lastNonNullStateValue->type == Flows::VariableType::tInteger64) {
       _lastNonNullStateValue.store(lastNonNullStateValue->integerValue64, std::memory_order_release);
+    }
+
+    auto lastRestore = getNodeData("lastRestore");
+    if (lastRestore->type == Flows::VariableType::tInteger || lastRestore->type == Flows::VariableType::tInteger64) {
+      _lastRestore.store(lastRestore->integerValue64, std::memory_order_release);
     }
 
     _stopThread.store(false, std::memory_order_release);
@@ -189,6 +202,12 @@ void PresenceLight::timer() {
         onTo = _onTo.load(std::memory_order_acquire);
         alwaysOnTo = _alwaysOnTo.load(std::memory_order_acquire);
         alwaysOffTo = _alwaysOffTo.load(std::memory_order_acquire);
+
+        if (_lastRestore.load(std::memory_order_acquire) > 0) {
+          if ((time % 86400000) < (_restoreHour * 3600000)) {
+            _lastRestore.store(-1, std::memory_order_release);
+          }
+        }
 
         if (onTo != -1) {
           if (onTo <= time) {
@@ -323,11 +342,28 @@ void PresenceLight::input(const Flows::PNodeInfo &info, uint32_t index, const Fl
   try {
     { //Rate limiter
       auto time = BaseLib::HelperFunctions::getTime();
-      if (time - _lastInput < _refractionTime) {
-        int64_t timeToSleep = _refractionTime - (time - _lastInput);
+      if (time - _lastInputRefractionTime < _refractionTime) {
+        int64_t timeToSleep = _refractionTime - (time - _lastInputRefractionTime);
         std::this_thread::sleep_for(std::chrono::milliseconds(timeToSleep));
       }
-      _lastInput = BaseLib::HelperFunctions::getTime();
+      _lastInputRefractionTime = BaseLib::HelperFunctions::getTime();
+    }
+
+    { //Restore profile at specified hour
+      auto time = BaseLib::HelperFunctions::getTime();
+      //Is profile restoration enabled? Was the profile already restored today?
+      if (_restoreProfile2.load(std::memory_order_acquire) && _lastRestore.load(std::memory_order_acquire) == -1) {
+        //Is the "off" profile active? Is it later than the restore hour?
+        if (_stateValue.load(std::memory_order_acquire) == 0 && (time % 86400000) >= (_restoreHour * 3600000)) {
+          //Has it been at least 60 minutes after the last movement?
+          if (time - _lastInput >= 3600000) {
+            _stateValue.store(_lastNonNullStateValue.load(std::memory_order_acquire), std::memory_order_release);
+            setNodeData("stateValue", std::make_shared<Flows::Variable>(_stateValue.load(std::memory_order_acquire)));
+            _lastRestore.store(time, std::memory_order_release);
+            setNodeData("lastRestore", std::make_shared<Flows::Variable>(time));
+          }
+        }
+      }
     }
 
     Flows::PVariable &input = message->structValue->at("payload");
@@ -409,6 +445,7 @@ void PresenceLight::input(const Flows::PNodeInfo &info, uint32_t index, const Fl
     } else if (index == 3) //Presence (IN)
     {
       if (inputValue) {
+        _lastInput = BaseLib::HelperFunctions::getTime();
         auto onTime = _onTime;
         if (onTime == 0) {
           auto payloadIterator = message->structValue->find("onTime");
