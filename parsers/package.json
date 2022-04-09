@@ -8,11 +8,13 @@
   "node-blue": {
     "local": false,
     "maxThreadCounts": {
+      "binary": 0,
       "json": 0,
       "strip": 0,
       "xml": 0
     },
     "nodes": {
+      "binary": "binary.so",
       "json": "json.so",
       "strip": "strip.so",
       "xml": "xml.so"

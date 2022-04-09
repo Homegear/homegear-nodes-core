@@ -120,6 +120,10 @@ set(SOURCE_FILES
         mqtt/mqtt-out/Factory.h
         mqtt/mqtt-out/MyNode.cpp
         mqtt/mqtt-out/MyNode.h
+		parsers/binary/Factory.cpp
+		parsers/binary/Factory.h
+		parsers/binary/MyNode.cpp
+		parsers/binary/MyNode.h
         parsers/json/Factory.cpp
         parsers/json/Factory.h
         parsers/json/MyNode.cpp
