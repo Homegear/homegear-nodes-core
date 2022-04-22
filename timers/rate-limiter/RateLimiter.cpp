@@ -27,19 +27,18 @@
  * files in the program, then also delete it here.
  */
 
-#include <homegear-base/HelperFunctions/HelperFunctions.h>
-#include "MyNode.h"
+#include "RateLimiter.h"
 
-namespace MyNode {
+namespace RateLimiter {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+RateLimiter::RateLimiter(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
 }
 
-MyNode::~MyNode() {
+RateLimiter::~RateLimiter() {
   _stopThread = true;
 }
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool RateLimiter::init(const Flows::PNodeInfo &info) {
   try {
     auto settingsIterator = info->info->structValue->find("max-inputs");
     if (settingsIterator != info->info->structValue->end()) _maxInputs = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
@@ -51,6 +50,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     settingsIterator = info->info->structValue->find("output-first");
     if (settingsIterator != info->info->structValue->end()) _outputFirst = settingsIterator->second->booleanValue;
 
+    settingsIterator = info->info->structValue->find("changes");
+    if (settingsIterator != info->info->structValue->end()) _outputChanges = settingsIterator->second->booleanValue;
+
     return true;
   }
   catch (const std::exception &ex) {
@@ -59,13 +61,13 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-bool MyNode::start() {
+bool RateLimiter::start() {
   try {
     std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
     _stopThread = true;
     if (_timerThread.joinable()) _timerThread.join();
     _stopThread = false;
-    _timerThread = std::thread(&MyNode::timer, this);
+    _timerThread = std::thread(&RateLimiter::timer, this);
 
     return true;
   }
@@ -75,12 +77,12 @@ bool MyNode::start() {
   return false;
 }
 
-void MyNode::stop() {
+void RateLimiter::stop() {
   std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
   _stopThread = true;
 }
 
-void MyNode::waitForStop() {
+void RateLimiter::waitForStop() {
   try {
     std::lock_guard<std::mutex> timerGuard(_timerThreadMutex);
     _stopThread = true;
@@ -94,7 +96,7 @@ void MyNode::waitForStop() {
   }
 }
 
-void MyNode::timer() {
+void RateLimiter::timer() {
   int32_t sleepingTime = _interval;
   if (sleepingTime < 1) sleepingTime = 1;
 
@@ -130,14 +132,14 @@ void MyNode::timer() {
         else if ((unsigned)sleepingTime > _interval) sleepingTime = _interval;
         _state = RateLimiterState::kFirstOffset;
         continue;
-      } else if(_state == RateLimiterState::kFirstOffset) {
+      } else if (_state == RateLimiterState::kFirstOffset) {
         _state = RateLimiterState::kReceiving;
       } else if (_state == RateLimiterState::kReceiving) {
         _state = RateLimiterState::kWaitingForInput;
       } else if (_state == RateLimiterState::kWaitingForInput) {
-        if (_lastInput) {
-          output(0, _lastInput);
-          _lastInput.reset();
+        if (_latestInput) {
+          output(0, _latestInput);
+          _latestInput.reset();
         }
         _state = RateLimiterState::kIdle;
       }
@@ -155,28 +157,38 @@ void MyNode::timer() {
   }
 }
 
-void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+void RateLimiter::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
     std::lock_guard<std::mutex> dataGuard(_dataMutex);
+
+    auto payload = message->structValue->at("payload");
+
     if (_state == RateLimiterState::kIdle) {
       _firstInputTime = Flows::HelperFunctions::getTime();
       _state = RateLimiterState::kFirst;
     }
     if (_inputCount < _maxInputs) {
-      _lastInput.reset();
+      _latestInput.reset();
 
-      if ((!_outputFirst && _state != RateLimiterState::kFirst && _state != RateLimiterState::kFirstOffset) || _outputFirst) {
+      if ((!_outputFirst && _state != RateLimiterState::kFirst && _state != RateLimiterState::kFirstOffset) || _outputFirst || (_outputChanges && *_currentValue != *payload)) {
         _inputCount++;
         output(0, message);
       } else {
         _inputCount++;
-        _lastInput = message;
+        _latestInput = message;
       }
 
       if (_state == RateLimiterState::kWaitingForInput) _state = RateLimiterState::kReceiving;
     } else {
-      _lastInput = message;
+      if (_outputChanges && *_currentValue != *payload) {
+        _latestInput.reset();
+        output(0, message);
+      } else {
+        _latestInput = message;
+      }
     }
+
+    _currentValue = payload;
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());

@@ -34,12 +34,12 @@
 #include <thread>
 #include <mutex>
 
-namespace MyNode {
+namespace RateLimiter {
 
-class MyNode : public Flows::INode {
+class RateLimiter : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  RateLimiter(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~RateLimiter() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   bool start() override;
@@ -57,6 +57,7 @@ class MyNode : public Flows::INode {
   uint32_t _maxInputs = 1;
   uint32_t _interval = 1000;
   bool _outputFirst = true;
+  bool _outputChanges = false;
 
   std::atomic_bool _stopThread{true};
   std::mutex _timerThreadMutex;
@@ -64,7 +65,8 @@ class MyNode : public Flows::INode {
 
   std::mutex _dataMutex;
   RateLimiterState _state = RateLimiterState::kIdle;
-  Flows::PVariable _lastInput;
+  Flows::PVariable _latestInput;
+  Flows::PVariable _currentValue = std::make_shared<Flows::Variable>();
   int64_t _firstInputTime = 0;
   size_t _inputCount = 0;
   void timer();
