@@ -27,16 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef FACTORY_H
-#define FACTORY_H
+#include "Factory.h"
+#include "MyNode.h"
 
-#include <homegear-node/NodeFactory.h>
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
+{
+	return new MyNode::MyNode(path, type, frontendConnected);
+}
 
-class MyFactory : Flows::NodeFactory {
- public:
-  Flows::INode *createNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) override;
-};
-
-extern "C" Flows::NodeFactory *getFactory();
-
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

@@ -31,7 +31,8 @@
 #define MYNODE_H_
 
 #include <homegear-node/INode.h>
-#include <thread>
+#include <homegear-node/JsonDecoder.h>
+#include <homegear-node/JsonEncoder.h>
 #include <mutex>
 
 namespace MyNode {
@@ -42,33 +43,13 @@ class MyNode : public Flows::INode {
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
-  bool start() override;
-  void stop() override;
-  void waitForStop() override;
  private:
-  enum class RateLimiterState : int32_t {
-    kIdle = 0,
-    kFirst = 1,
-    kFirstOffset = 2,
-    kReceiving = 3,
-    kWaitingForInput = 4,
-  };
+  static const std::array<int32_t, 23> _asciiToBinaryTable;
 
-  uint32_t _maxInputs = 1;
-  uint32_t _interval = 1000;
-  bool _outputFirst = true;
+  bool _inputIsBinary = false;
 
-  std::atomic_bool _stopThread{true};
-  std::mutex _timerThreadMutex;
-  std::thread _timerThread;
-
-  std::mutex _dataMutex;
-  RateLimiterState _state = RateLimiterState::kIdle;
-  Flows::PVariable _lastInput;
-  int64_t _firstInputTime = 0;
-  size_t _inputCount = 0;
-  void timer();
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  std::string getUBinary(const std::string &hexString);
 };
 
 }

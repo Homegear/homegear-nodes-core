@@ -103,7 +103,8 @@
       "max-inputs": "Maximum no. of messages",
       "interval": "Within interval",
       "output-first": "Output during first interval",
-      "name": "Name"
+      "name": "Name",
+      "changes": "Always output changes"
     },
     "paletteHelp": "<p>Rate limits incoming messages.</p>",
     "help": "<p>This node rate limits incoming messages. You can specify the maximum number of incoming messages that are forwarded within interval. The last message is stored and always forwarded at the end. By unchecking \"Output during first interval\", the node waits for \"interval\" until the first message is output.</p>"

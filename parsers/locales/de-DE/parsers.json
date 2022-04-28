@@ -1,12 +1,24 @@
 {
+  "binary": {
+    "label": {
+      "name": "Name",
+      "input-type": "Eingangstyp",
+      "binary": "Binär",
+      "hex": "Hex"
+    },
+    "paletteHelp": "<p>Konvertiert zwischen einem Bytearray und seiner hexadezimalen Repräsentation - in beide Richtungen.</p>",
+    "help": "<p>Wenn <code>Eingangstyp</code> auf <code>Binär</code> gesetzt ist, wird der Eingabewert in seine hexadezimale Repräsentation konvertiert. Ist <code>Hex</code> eingestellt, wird die hexadezimale Eingabe in ein Bytearray konvertiert.</p>",
+    "input1Description": "Bytearray oder hexadezimaler String",
+    "output1Description": "Bytearray oder hexadezimaler String"
+  },
   "json": {
     "label": {
       "name": "Name"
     },
     "paletteHelp": "<p>Konvertiert zwischen einer JSON-Zeichenfolge und ihrer <code>Struct</code>-Darstellung in beide Richtungen.</p>",
     "help": "<p>Wenn die Eingabe eine JSON-Zeichenfolge ist, wird versucht, sie in ein <code>struct</code> zu wandeln. Wenn die Eingabe ein <code>struct</code> ist, wird eine JSON-Zeichenfolge erstellt.</p>",
-    "input1Description": "JSON-Zeichenfolge oder <code>struct</code>.",
-    "output1Description": "JSON-Zeichenfolge oder <code>struct</code>."
+    "input1Description": "JSON-Zeichenfolge oder <code>struct</code>",
+    "output1Description": "JSON-Zeichenfolge oder <code>struct</code>"
   },
   "strip": {
     "label": {
@@ -14,7 +26,7 @@
     },
     "paletteHelp": "<p>Erstellt eine Kopie des <code>$message</code>-Objekts, wobei nur der <code>payload</code>beibehalten wird.</p>",
     "help": "<p>Dieser Knoten erstellt eine Kopie des <code>$message</code>-Objekts, wobei nur der <code>payload</code>beibehalten wird.</p>",
-    "input1Description": "Irgendein message-Object.",
+    "input1Description": "Irgendein message-Object",
     "output1Description": "Eine Kopie des Eingangsnachrichtenobjekts, die nur <code>payload</code> enthält."
   },
   "xml": {
@@ -23,7 +35,7 @@
     },
     "paletteHelp": "<p>Konvertiert zwischen einer XML-Zeichenfolge und ihrer <code>struct</code>-Darstellung in beide Richtungen.</p>",
     "help": "<p>Wenn es sich bei der Eingabe um eine XML-Zeichenfolge handelt, wird versucht, sie in ein <code>struct</code> zu wandeln. Wenn die Eingabe ein <code>struct</code> ist, wird eine XML-Zeichenfolge erstellt.</p>",
-    "input1Description": "XML-Zeichenfolge oder <code>struct</code>.",
-    "output1Description": "XML-Zeichenfolge oder <code>struct</code>."
+    "input1Description": "XML-Zeichenfolge oder <code>struct</code>",
+    "output1Description": "XML-Zeichenfolge oder <code>struct</code>"
   }
 }

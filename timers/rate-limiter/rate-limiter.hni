@@ -18,6 +18,11 @@
         <input type="checkbox" id="node-input-output-first" style="display: inline-block; width: auto; vertical-align: top;">
         <label style="width: 200px;" for="node-input-output-first" data-i18n="rate-limiter.label.output-first"></label>
     </div>
+    <div class="form-row" id="changes-only">
+		<label style="width: 200px;">&nbsp;</label>
+		<input type="checkbox" id="node-input-changes" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-changes" style="width: 200px;" data-i18n="rate-limiter.label.changes"></label>
+	</div>
 </script>
 <script type="text/javascript">
     RED.nodes.registerType('rate-limiter',{
@@ -27,7 +32,8 @@
             name: {value:""},
             "max-inputs": {value: "1", required: true, validate:RED.validators.number()},
             "interval": {value: "1000", required: true, validate:RED.validators.number()},
-            "output-first": {value: true, required: true}
+            "output-first": {value: true, required: true},
+            "changes": {value: false, required: false}
         },
         inputs:1,
         outputs:1,

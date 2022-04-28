@@ -328,7 +328,17 @@ Flows::PVariable TcpSocket::send(const Flows::PArray &parameters) {
     if (_type == SocketType::kServer) {
       _socket->sendToClient(parameters->at(0)->integerValue, parameters->at(1)->binaryValue);
     } else {
-      _socket->proofwrite((const char *)parameters->at(1)->binaryValue.data(), parameters->at(1)->binaryValue.size());
+      try {
+        _socket->proofwrite((const char *)parameters->at(1)->binaryValue.data(), parameters->at(1)->binaryValue.size());
+      } catch (const BaseLib::SocketClosedException &ex) {
+        _socket->close();
+        //Auto connect should reconnect the socket now.
+        _socket->proofwrite((const char *)parameters->at(1)->binaryValue.data(), parameters->at(1)->binaryValue.size());
+      } catch (const BaseLib::SocketTimeOutException &ex) {
+        _socket->close();
+        //Auto connect should reconnect the socket now.
+        _socket->proofwrite((const char *)parameters->at(1)->binaryValue.data(), parameters->at(1)->binaryValue.size());
+      }
     }
 
     return std::make_shared<Flows::Variable>();

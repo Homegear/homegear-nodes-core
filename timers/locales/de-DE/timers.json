@@ -103,7 +103,8 @@
       "max-inputs": "Maximale Nr. von Nachrichten",
       "interval": "Intervall",
       "output-first": "Ausgabe während des ersten Intervalls",
-      "name": "Name"
+      "name": "Name",
+      "changes": "Änderungen immer ausgeben"
     },
     "paletteHelp": "<p>Begrenzt die Anzahl eingehende Nachrichten.</p>",
     "help": "<p>Diese Knotenrate begrenzt eingehende Nachrichten. Sie können die maximale Anzahl eingehender Nachrichten angeben, die innerhalb eines Intervalls weitergeleitet werden. Die letzte Nachricht wird gespeichert und immer am Ende weitergeleitet. Durch Deaktivieren von \"Ausgabe während des ersten Intervalls\" wartet der Knoten auf \"Intervall\", bis die erste Nachricht ausgegeben wird.</p>"
