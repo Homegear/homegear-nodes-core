@@ -53,6 +53,7 @@ class MyNode : public Flows::INode {
   uint64_t _peerId = 0;
   int32_t _channel = -1;
   std::string _variable;
+  bool _wait = true;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
