@@ -270,21 +270,21 @@ void TcpSocket::listen() {
     uint32_t bytesReceived = 0;
 
     while (!_stopListenThread) {
-      if (!_socket->connected()) {
-        _socket->open();
-        if (!_socket->connected()) {
-          setConnectionState(false);
-          for (int32_t i = 0; i < 10; i++) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (_stopListenThread) return;
-          }
-          continue;
-        } else {
-          setConnectionState(true);
-        }
-      }
-
       try {
+        if (!_socket->connected()) {
+          _socket->open();
+          if (!_socket->connected()) {
+            setConnectionState(false);
+            for (int32_t i = 0; i < 10; i++) {
+              std::this_thread::sleep_for(std::chrono::milliseconds(100));
+              if (_stopListenThread) return;
+            }
+            continue;
+          } else {
+            setConnectionState(true);
+          }
+        }
+
         bytesReceived = _socket->proofread(buffer.data(), buffer.size());
         if (bytesReceived > 0) {
           data.clear();
