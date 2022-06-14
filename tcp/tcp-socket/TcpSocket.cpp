@@ -298,6 +298,7 @@ void TcpSocket::listen() {
         continue;
       }
       catch (BaseLib::SocketTimeOutException &ex) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         continue;
       }
       catch (BaseLib::SocketOperationException &ex) {
