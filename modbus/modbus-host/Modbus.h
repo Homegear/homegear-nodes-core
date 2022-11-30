@@ -179,9 +179,9 @@ class Modbus {
 
   void readWriteCoil(std::shared_ptr<CoilInfo> &info);
 
-  void packetSent(const std::vector<uint8_t> &packet);
+  void packetSent(const std::vector<char> &packet);
 
-  void packetReceived(const std::vector<uint8_t> &packet);
+  void packetReceived(const std::vector<char> &packet);
 };
 
 }

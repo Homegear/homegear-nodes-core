@@ -44,8 +44,8 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     modbusInfo.port = _settings->port;
     modbusInfo.keepAlive = _settings->keepAlive;
     if (settings->debug) {
-      modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1)))
-      modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1)))
+      modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1));
+      modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1));
     }
 
     _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
@@ -184,11 +184,11 @@ void Modbus::waitForStop() {
   }
 }
 
-void Modbus::packetSent(const std::vector<uint8_t> &packet) {
+void Modbus::packetSent(const std::vector<char> &packet) {
   _out->printMessage("Packet sent: " + BaseLib::HelperFunctions::getHexString(packet));
 }
 
-void Modbus::packetReceived(const std::vector<uint8_t> &packet) {
+void Modbus::packetReceived(const std::vector<char> &packet) {
   _out->printMessage("Packet received: " + BaseLib::HelperFunctions::getHexString(packet));
 }
 
