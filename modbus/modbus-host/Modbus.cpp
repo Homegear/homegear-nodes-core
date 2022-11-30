@@ -43,9 +43,12 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     modbusInfo.hostname = _settings->server;
     modbusInfo.port = _settings->port;
     modbusInfo.keepAlive = _settings->keepAlive;
+    if (settings->debug) {
+      modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1)))
+      modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1)))
+    }
 
     _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
-    _modbus->setDebug(settings->debug);
 
     for (auto &element: settings->readRegisters) {
       std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
@@ -179,6 +182,14 @@ void Modbus::waitForStop() {
   catch (...) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
+}
+
+void Modbus::packetSent(const std::vector<uint8_t> &packet) {
+  _out->printMessage("Packet sent: " + BaseLib::HelperFunctions::getHexString(packet));
+}
+
+void Modbus::packetReceived(const std::vector<uint8_t> &packet) {
+  _out->printMessage("Packet received: " + BaseLib::HelperFunctions::getHexString(packet));
 }
 
 void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo> &info) {
