@@ -185,11 +185,11 @@ void Modbus::waitForStop() {
 }
 
 void Modbus::packetSent(const std::vector<char> &packet) {
-  _out->printMessage("Packet sent: " + BaseLib::HelperFunctions::getHexString(packet));
+  _out->printInfo("Packet sent: " + BaseLib::HelperFunctions::getHexString(packet));
 }
 
 void Modbus::packetReceived(const std::vector<char> &packet) {
-  _out->printMessage("Packet received: " + BaseLib::HelperFunctions::getHexString(packet));
+  _out->printInfo("Packet received: " + BaseLib::HelperFunctions::getHexString(packet));
 }
 
 void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo> &info) {
