@@ -27,6 +27,7 @@
     "output1Description": "Der vom Modbus-Server empfangene payload.",
     "label": {
       "server": "Server",
+      "changes-only": "Nur Änderungen ausgeben",
       "registers": "Input/holding Register, Coils und Digitaleingänge",
       "index": "Index",
       "count": "Anzahl",
@@ -52,7 +53,7 @@
     "paletteHelp": "<p>Triggert Modbus-Kommunikation eines Modbus-Server-Knotens.</p>",
     "help": "<p>Dieser Knoten verbindet sich mit einem Modbus-Server-Knoten und triggert manuell die Kommunikation. So kann zwischen den automatischen Pollintervallen manuell gepollt werden oder die automatische Kommunikation kann durch Setzen von <code>Intervall</code> im Modbus-Server-Knoten auf <code>0</code> vollständig deaktiviert werden, um ausschließlich manuell über diesen Knoten zu pollen.</p>",
     "label": {
-      "server": "Server"
+      "server": "Server",
     }
   }
 }

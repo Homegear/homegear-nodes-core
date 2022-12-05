@@ -58,7 +58,7 @@ bool ModbusHost::start() {
 
     settingsIterator = _nodeInfo->info->structValue->find("interval");
     if (settingsIterator != _nodeInfo->info->structValue->end()) {
-      int32_t interval = Flows::Math::getNumber(settingsIterator->second->stringValue);
+      int64_t interval = Flows::Math::getNumber64(settingsIterator->second->stringValue);
       if (interval < 0) interval = 100;
       modbusSettings->interval = interval;
     }

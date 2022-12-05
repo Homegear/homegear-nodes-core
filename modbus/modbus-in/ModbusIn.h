@@ -73,6 +73,7 @@ class ModbusIn : public Flows::INode {
   };
 
   std::string _socket;
+  bool _outputChangesOnly = true;
   uint32_t _outputs = 0;
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
   std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;

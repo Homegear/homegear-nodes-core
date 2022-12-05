@@ -27,6 +27,7 @@
     "output1Description": "The payload received from the Modbus server.",
     "label": {
       "server": "Server",
+      "changes-only": "Output changes only",
       "registers": "Input/holding registers, coils and discrete inputs",
       "index": "Index",
       "count": "Count",

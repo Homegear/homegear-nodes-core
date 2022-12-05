@@ -19,6 +19,11 @@
         <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-in.label.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
+    <div class="form-row" id="changes-only">
+		<label>&nbsp;</label>
+		<input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-changes-only" style="width: 70%;" data-i18n="modbus-in.label.changes-only"></label>
+	</div>
     <div class="form-row node-input-registers-container-row">
         <input type="hidden" id="node-input-outputs"/>
         <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-in.label.registers"></span></label>
@@ -34,6 +39,7 @@
         defaults: {
             name: {value:""},
             server: {type:"modbus-host", required:true},
+            "changes-only": {value:true},
             registers: {value:[{mt:"0", n:"", r:"1", c:"1", t:"bin", ir:false, ib:false}]},
             outputs: {value:1}
         },
