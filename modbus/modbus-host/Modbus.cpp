@@ -258,10 +258,43 @@ void Modbus::readWriteCoil(std::shared_ptr<CoilInfo> &info) {
 
 void Modbus::listen() {
   int64_t startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
-  int64_t endTime;
+  int64_t endTime = 0;
   int64_t timeToSleep;
 
   while (_started) {
+    try {
+      if (_settings->interval > 0) {
+        endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+        timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
+        if (timeToSleep < 10000) timeToSleep = 10000;
+        if (timeToSleep <= 1000000) std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
+        else {
+          timeToSleep /= 1000;
+          int32_t maxIndex = timeToSleep / 1000;
+          int32_t rest = timeToSleep % 1000;
+          for (int32_t i = 0; i < maxIndex; i++) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            if (!_started) break;
+          }
+          if (!_started) break;
+          if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+        }
+        startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+      } else {
+        //Automatic polling is disabled
+        if (endTime > 0) {
+          //When endTime is not 0, this is the second loop. We got here because of errors and need to return from this
+          //function.
+          _started = false;
+          return;
+        }
+        endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+      }
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+
     try {
       if (!_modbus->isConnected()) {
         if (!_started) return;
@@ -306,7 +339,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       {
         std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
@@ -413,7 +449,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
       registers.clear();
 
       {
@@ -521,7 +560,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
       registers.clear();
 
       std::list<std::shared_ptr<CoilInfo>> coils;
@@ -558,7 +600,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       {
         std::lock_guard<std::mutex> readCoilsGuard(_readCoilsMutex);
@@ -618,7 +663,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       std::list<std::shared_ptr<DiscreteInputInfo>> discreteInputs;
       {
@@ -679,36 +727,19 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
-
-      if (_settings->interval == 0) {
-        //Automatic polling is disabled
-        _started = false;
-        return;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
       }
-
-      endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
-      timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
-      if (timeToSleep < 500) timeToSleep = 500;
-      if (timeToSleep <= 1000000) std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
-      else {
-        timeToSleep /= 1000;
-        int32_t maxIndex = timeToSleep / 1000;
-        int32_t rest = timeToSleep % 1000;
-        for (int32_t i = 0; i < maxIndex; i++) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-          if (!_started) break;
-        }
-        if (!_started) break;
-        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
-      }
-      startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
     }
     catch (const std::exception &ex) {
       _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch (...) {
-      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+
+    if (_settings->interval == 0) {
+      //Automatic polling is disabled
+      _started = false;
+      return;
     }
   }
 }
