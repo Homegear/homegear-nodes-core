@@ -27,62 +27,24 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef MODBUSTRIGGER_H_
+#define MODBUSTRIGGER_H_
 
-#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
 #include <unordered_map>
 
-namespace MyNode {
+namespace ModbusTrigger {
 
-class MyNode : public Flows::INode {
+class ModbusTrigger : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  ModbusTrigger(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusTrigger() override;
 
   bool init(const Flows::PNodeInfo &info) override;
-  void configNodesStarted() override;
  private:
-  enum class ModbusType {
-    tHoldingRegister = 0,
-    tCoil = 1,
-    tDiscreteInput = 2,
-    tInputRegister = 3
-  };
+  std::string _modbusHost;
 
-  enum class RegisterType {
-    tBin,
-    tBool,
-    tInt,
-    tUInt,
-    tFloat,
-    tString
-  };
-
-  struct RegisterInfo {
-    ModbusType modbusType = ModbusType::tHoldingRegister;
-    uint32_t outputIndex = 0;
-    uint32_t index = 0;
-    uint32_t count = 0;
-    RegisterType type = RegisterType::tBin;
-    bool invertBytes = false;
-    bool invertRegisters = false;
-    std::vector<uint8_t> lastValue;
-    std::string name;
-  };
-
-  std::string _socket;
-  uint32_t _outputs = 0;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
-
-  //{{{ RPC methods
-  Flows::PVariable packetReceived(const Flows::PArray& parameters);
-  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
-  //}}}
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

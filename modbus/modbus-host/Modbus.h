@@ -36,7 +36,7 @@
 #include <homegear-node/HelperFunctions.h>
 #include <homegear-base/BaseLib.h>
 
-namespace MyNode {
+namespace ModbusHost {
 
 class Modbus {
  public:

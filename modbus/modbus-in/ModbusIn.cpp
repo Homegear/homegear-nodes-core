@@ -28,18 +28,18 @@
  */
 
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
-#include "MyNode.h"
+#include "ModbusIn.h"
 
-namespace MyNode {
+namespace ModbusIn {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
-  _localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
-  _localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
+ModbusIn::ModbusIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+  _localRpcMethods.emplace("packetReceived", std::bind(&ModbusIn::packetReceived, this, std::placeholders::_1));
+  _localRpcMethods.emplace("setConnectionState", std::bind(&ModbusIn::setConnectionState, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode() = default;
+ModbusIn::~ModbusIn() = default;
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool ModbusIn::init(const Flows::PNodeInfo &info) {
   try {
     _outputs = 0;
 
@@ -117,7 +117,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-void MyNode::configNodesStarted() {
+void ModbusIn::configNodesStarted() {
   try {
     if (_socket.empty()) {
       _out->printError("Error: This node has no Modbus server assigned.");
@@ -193,7 +193,7 @@ void MyNode::configNodesStarted() {
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
+Flows::PVariable ModbusIn::packetReceived(const Flows::PArray& parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 1 is not of type array.");
@@ -336,7 +336,7 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
   return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters) {
+Flows::PVariable ModbusIn::setConnectionState(const Flows::PArray& parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");

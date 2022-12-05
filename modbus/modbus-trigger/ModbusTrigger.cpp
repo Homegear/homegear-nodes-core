@@ -27,15 +27,41 @@
  * files in the program, then also delete it here.
  */
 
-#include "Factory.h"
-#include "ModbusIn.h"
+#include "ModbusTrigger.h"
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
-{
-	return new ModbusIn::ModbusIn(path, type, frontendConnected);
+namespace ModbusTrigger {
+
+ModbusTrigger::ModbusTrigger(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {}
+
+ModbusTrigger::~ModbusTrigger() = default;
+
+bool ModbusTrigger::init(const Flows::PNodeInfo &info) {
+  try {
+    auto settingsIterator = info->info->structValue->find("server");
+    if (settingsIterator != info->info->structValue->end()) _modbusHost = settingsIterator->second->stringValue;
+
+    return true;
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+  return false;
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
+void ModbusTrigger::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+  try {
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    invokeNodeMethod(_modbusHost, "triggerPoll", parameters, false);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
 }

@@ -29,7 +29,7 @@
 
 #include "Modbus.h"
 
-namespace MyNode {
+namespace ModbusHost {
 
 Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings) {
   try {
@@ -680,6 +680,12 @@ void Modbus::listen() {
         }
       }
       if (!_modbus->isConnected()) continue;
+
+      if (_settings->interval == 0) {
+        //Automatic polling is disabled
+        _started = false;
+        return;
+      }
 
       endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
       timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
