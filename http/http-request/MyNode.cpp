@@ -177,7 +177,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     if (message_iterator != message->structValue->end()) {
       std::ostringstream headers_stream;
       for (auto &header: *message_iterator->second->structValue) {
-        headers_stream << header.first << ": " << header.second << "\r\n";
+        headers_stream << header.first << ": " << header.second->stringValue << "\r\n";
       }
       request_headers = headers_stream.str();
     }
