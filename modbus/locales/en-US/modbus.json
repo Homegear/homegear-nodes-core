@@ -8,7 +8,7 @@
       "delay": "Min. delay",
       "slaveid": "Slave ID",
       "keepalive": "Keep TCP connection alive (otherwise it is closed after every request)",
-      "debug": "Write debug info to flows log",
+      "debug": "Write debug info to flows log (debug level 4 required in main.conf)",
       "read-registers": "Holding registers to read (Func. 3)",
       "write-registers": "Registers to write (Func. 16)",
       "read-input-registers": "Input registers to read (Func. 4)",

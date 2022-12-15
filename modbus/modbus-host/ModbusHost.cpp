@@ -264,15 +264,16 @@ Flows::PVariable ModbusHost::registerNode(const Flows::PArray &parameters) {
 
     if (!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
     for (auto &element: *parameters->at(1)->arrayValue) {
-      if (element->arrayValue->size() == 5) {
+      if (element->arrayValue->size() == 6) {
         _modbus->registerNode(parameters->at(0)->stringValue,
                               (Modbus::ModbusType)element->arrayValue->at(0)->integerValue,
                               element->arrayValue->at(1)->integerValue,
                               element->arrayValue->at(2)->integerValue,
                               element->arrayValue->at(3)->booleanValue,
-                              element->arrayValue->at(4)->booleanValue);
-      } else if (element->arrayValue->size() == 3) {
-        _modbus->registerNode(parameters->at(0)->stringValue, (Modbus::ModbusType)element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->integerValue);
+                              element->arrayValue->at(4)->booleanValue,
+                              element->arrayValue->at(5)->booleanValue);
+      } else if (element->arrayValue->size() == 4) {
+        _modbus->registerNode(parameters->at(0)->stringValue, (Modbus::ModbusType)element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->integerValue, element->arrayValue->at(3)->booleanValue);
       }
     }
 

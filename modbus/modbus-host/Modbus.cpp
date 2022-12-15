@@ -359,7 +359,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
           registerElement->buffer1 = registerElement->buffer2;
 
           std::vector<uint16_t> destinationData;
@@ -470,7 +470,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
           registerElement->buffer1 = registerElement->buffer2;
 
           std::vector<uint16_t> destinationData;
@@ -620,7 +620,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin())) {
           coilElement->buffer1 = coilElement->buffer2;
 
           std::vector<uint8_t> destinationData;
@@ -684,7 +684,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin())) {
           discreteInputElement->buffer1 = discreteInputElement->buffer2;
 
           std::vector<uint8_t> destinationData;
@@ -869,8 +869,10 @@ void Modbus::disconnect() {
   }
 }
 
-void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters) {
+void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool changesOnly) {
   try {
+    if (!changesOnly) _outputChangesOnly = false;
+
     NodeInfo info;
     info.type = type;
     info.id = node;
@@ -907,8 +909,10 @@ void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegi
   }
 }
 
-void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startCoil, uint32_t count) {
+void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startCoil, uint32_t count, bool changesOnly) {
   try {
+    if (!changesOnly) _outputChangesOnly = false;
+
     NodeInfo info;
     info.type = type;
     info.id = node;

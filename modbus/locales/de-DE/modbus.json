@@ -8,7 +8,7 @@
       "delay": "Min. Verzögerung",
       "slaveid": "Slave ID",
       "keepalive": "Halte die TCP-Verbindung offen (andernfalls wird sie nach jeder Anfrage geschlossen)",
-      "debug": "Debug-Informationen in das Flows-Protokoll schreiben",
+      "debug": "Debug-Informationen in das Flows-Protokoll schreiben (erfordert Debuglevel 4 in der main.conf)",
       "read-registers": "Holding Register zum Lesen (Func. 3)",
       "write-registers": "Register zum Schreiben (Func. 16)",
       "read-input-registers": "Eingangsregister zum Lesen (Func. 4)",

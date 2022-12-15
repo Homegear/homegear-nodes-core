@@ -99,7 +99,7 @@ void MyNode::configNodesStarted() {
   }
 }
 
-void MyNode::setUrl(std::string &url) {
+void MyNode::setUrl(std::string url) {
   try {
     if (url.compare(0, 7, "http://") == 0) {
       url = url.substr(7);

@@ -137,12 +137,13 @@ void ModbusIn::configNodesStarted() {
     for (auto &index : _registers) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(5);
+        element->arrayValue->reserve(6);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tHoldingRegister));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -150,12 +151,13 @@ void ModbusIn::configNodesStarted() {
     for (auto &index : _inputRegisters) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(5);
+        element->arrayValue->reserve(6);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tInputRegister));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -163,10 +165,11 @@ void ModbusIn::configNodesStarted() {
     for (auto &index : _coils) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(3);
+        element->arrayValue->reserve(4);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -174,10 +177,11 @@ void ModbusIn::configNodesStarted() {
     for (auto &index : _discreteInputs) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(3);
+        element->arrayValue->reserve(4);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tDiscreteInput));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
