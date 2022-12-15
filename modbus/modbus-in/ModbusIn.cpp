@@ -304,7 +304,7 @@ Flows::PVariable ModbusIn::packetReceived(const Flows::PArray& parameters) {
         auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
         if (countIterator == indexIterator->second.end()) continue;
 
-        if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+        if (_outputChangesOnly && packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
         countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -319,7 +319,7 @@ Flows::PVariable ModbusIn::packetReceived(const Flows::PArray& parameters) {
         auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
         if (countIterator == indexIterator->second.end()) continue;
 
-        if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+        if (_outputChangesOnly && packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
         countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
