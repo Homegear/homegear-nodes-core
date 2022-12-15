@@ -42,7 +42,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     BaseLib::Modbus::ModbusInfo modbusInfo;
     modbusInfo.hostname = _settings->server;
     modbusInfo.port = _settings->port;
-    modbusInfo.keepAlive = _settings->keepAlive;
+    modbusInfo.keepAlive = true;
     if (settings->debug) {
       modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1));
       modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1));
@@ -263,6 +263,7 @@ void Modbus::listen() {
 
   while (_started) {
     try {
+      if (!_settings->keepAlive) _modbus->disconnect();
       if (_settings->interval > 0) {
         endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
         timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
@@ -299,8 +300,7 @@ void Modbus::listen() {
       if (!_modbus->isConnected()) {
         if (!_started) return;
         connect();
-        if (_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        else std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        if (!_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         if (!_started) return;
         continue;
       }
