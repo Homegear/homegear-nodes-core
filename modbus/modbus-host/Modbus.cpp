@@ -263,7 +263,9 @@ void Modbus::listen() {
 
   while (_started) {
     try {
-      if (!_settings->keepAlive) _modbus->disconnect();
+      if (!_settings->keepAlive) {
+        _modbus->disconnect();
+      }
       if (_settings->interval > 0) {
         endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
         timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
@@ -300,9 +302,12 @@ void Modbus::listen() {
       if (!_modbus->isConnected()) {
         if (!_started) return;
         connect();
-        if (!_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        if (!_modbus->isConnected()) {
+          _out->printWarning("Warning: Could not connect to Modbus host.");
+          std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+          continue;
+        }
         if (!_started) return;
-        continue;
       }
 
       std::list<std::shared_ptr<RegisterInfo>> registers;
@@ -783,63 +788,67 @@ void Modbus::connect() {
       _modbus->connect();
     }
 
-    std::list<std::shared_ptr<RegisterInfo>> registers;
-    {
-      std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
-      registers = _writeRegisters;
-    }
+    if (_settings->keepAlive) {
+      std::list<std::shared_ptr<RegisterInfo>> registers;
+      {
+        std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
+        registers = _writeRegisters;
+      }
 
-    for (auto &registerElement: registers) {
-      if (!registerElement->readOnConnect) continue;
-      readWriteRegister(registerElement);
-    }
+      for (auto &registerElement: registers) {
+        if (!registerElement->readOnConnect) continue;
+        readWriteRegister(registerElement);
+      }
 
-    std::list<std::shared_ptr<CoilInfo>> coils;
-    {
-      std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
-      coils = _writeCoils;
-    }
+      std::list<std::shared_ptr<CoilInfo>> coils;
+      {
+        std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
+        coils = _writeCoils;
+      }
 
-    for (auto &coilElement: coils) {
-      if (!coilElement->readOnConnect) continue;
-      readWriteCoil(coilElement);
+      for (auto &coilElement: coils) {
+        if (!coilElement->readOnConnect) continue;
+        readWriteCoil(coilElement);
+      }
     }
 
     _connected = true;
 
-    {
-      std::list<std::shared_ptr<WriteInfo>> writeBuffer;
-
+    if (_settings->keepAlive) {
       {
-        std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
-        writeBuffer = _registerWriteBuffer;
-      }
+        std::list<std::shared_ptr<WriteInfo>> writeBuffer;
 
-      for (auto &element: writeBuffer) {
-        writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
-      }
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+          writeBuffer = _registerWriteBuffer;
+        }
 
-      {
-        std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
-        _registerWriteBuffer.clear();
-      }
-    }
+        for (auto &element: writeBuffer) {
+          writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
+        }
 
-    {
-      std::list<std::shared_ptr<WriteInfo>> writeBuffer;
-
-      {
-        std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
-        writeBuffer = _coilWriteBuffer;
-      }
-
-      for (auto &element: writeBuffer) {
-        writeCoils(element->start, element->count, true, element->value);
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+          _registerWriteBuffer.clear();
+        }
       }
 
       {
-        std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
-        _coilWriteBuffer.clear();
+        std::list<std::shared_ptr<WriteInfo>> writeBuffer;
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+          writeBuffer = _coilWriteBuffer;
+        }
+
+        for (auto &element: writeBuffer) {
+          writeCoils(element->start, element->count, true, element->value);
+        }
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+          _coilWriteBuffer.clear();
+        }
       }
     }
 

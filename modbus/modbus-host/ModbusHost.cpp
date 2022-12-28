@@ -59,10 +59,9 @@ bool ModbusHost::start() {
     settingsIterator = _nodeInfo->info->structValue->find("interval");
     if (settingsIterator != _nodeInfo->info->structValue->end()) {
       int64_t interval = Flows::Math::getNumber64(settingsIterator->second->stringValue);
-      if (interval < 0) interval = 100;
       modbusSettings->interval = interval;
     }
-    if (modbusSettings->interval < 1) modbusSettings->interval = 1;
+    if (modbusSettings->interval < 0) modbusSettings->interval = 100;
 
     settingsIterator = _nodeInfo->info->structValue->find("delay");
     if (settingsIterator != _nodeInfo->info->structValue->end()) modbusSettings->delay = Flows::Math::getNumber(settingsIterator->second->stringValue);
