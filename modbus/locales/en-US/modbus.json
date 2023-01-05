@@ -50,7 +50,7 @@
   },
   "modbus-trigger": {
     "paletteHelp": "<p>Triggers Modbus communication on a Modbus server node.</p>",
-    "help": "<p>Connects to a Modbus server and manually triggers communication. This can be used to poll in between automatic polling intervals or you can poll using this node only and disable automatic polling in the server node by setting <code>interval</code> to <code>0</code>.</p>",
+    "help": "<p>Connects to a Modbus server and manually triggers communication. To use this node, it is required to disable automatic polling in the server node by setting <code>interval</code> to <code>0</code>.</p>",
     "label": {
       "server": "Server"
     }

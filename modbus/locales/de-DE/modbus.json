@@ -51,7 +51,7 @@
   },
   "modbus-trigger": {
     "paletteHelp": "<p>Triggert Modbus-Kommunikation eines Modbus-Server-Knotens.</p>",
-    "help": "<p>Dieser Knoten verbindet sich mit einem Modbus-Server-Knoten und triggert manuell die Kommunikation. So kann zwischen den automatischen Pollintervallen manuell gepollt werden oder die automatische Kommunikation kann durch Setzen von <code>Intervall</code> im Modbus-Server-Knoten auf <code>0</code> vollständig deaktiviert werden, um ausschließlich manuell über diesen Knoten zu pollen.</p>",
+    "help": "<p>Dieser Knoten verbindet sich mit einem Modbus-Server-Knoten und triggert manuell die Kommunikation. Dies setzt voraus, dass die automatische Kommunikation im Modbus-Server-Knoten durch Setzen von <code>Intervall</code> auf <code>0</code> deaktiviert wurde.</p>",
     "label": {
       "server": "Server",
     }
