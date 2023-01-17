@@ -41,6 +41,7 @@ class ModbusOut : public Flows::INode {
   ~ModbusOut() override;
 
   bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
  private:
   enum class ModbusType {
     tHoldingRegister = 0,

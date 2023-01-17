@@ -93,6 +93,28 @@ bool ModbusOut::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
+void ModbusOut::configNodesStarted() {
+  try {
+    if (_socket.empty()) {
+      _out->printError("Error: This node has no Modbus server assigned.");
+      return;
+    }
+
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->reserve(2);
+    parameters->push_back(std::make_shared<Flows::Variable>(_id));
+
+    Flows::PVariable result = invokeNodeMethod(_socket, "registerNode", parameters, true);
+    if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
 void ModbusOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
     auto registersIterator = _registers.find(index);

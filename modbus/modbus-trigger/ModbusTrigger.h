@@ -41,6 +41,7 @@ class ModbusTrigger : public Flows::INode {
   ~ModbusTrigger() override;
 
   bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
  private:
   std::string _modbusHost;
 

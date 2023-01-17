@@ -75,6 +75,8 @@ class Modbus {
 
   void setInvoke(std::function<Flows::PVariable(std::string, std::string, Flows::PArray &, bool)> value) { _invoke.swap(value); }
 
+  void registerNode(std::string &node);
+
   void registerNode(std::string &node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool changesOnly);
 
   void registerNode(std::string &node, ModbusType type, uint32_t startCoil, uint32_t count, bool changesOnly);
@@ -147,6 +149,8 @@ class Modbus {
   std::thread _listenThread;
   std::atomic_bool _started;
   std::atomic_bool _outputChangesOnly{true};
+  std::mutex _outputNodesMutex;
+  std::unordered_set<std::string> _outputNodes;
   std::mutex _readRegistersMutex;
   std::list<std::shared_ptr<RegisterInfo>> _readRegisters;
   std::mutex _writeRegistersMutex;

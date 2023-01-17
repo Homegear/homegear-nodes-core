@@ -771,6 +771,13 @@ void Modbus::setConnectionState(bool connected) {
         }
       }
     }
+
+    {
+      std::lock_guard<std::mutex> outputNodesGuard(_outputNodesMutex);
+      for (auto &node: _outputNodes) {
+        _invoke(node, "setConnectionState", parameters, false);
+      }
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -869,6 +876,25 @@ void Modbus::disconnect() {
     std::lock_guard<std::mutex> modbusGuard(_modbusMutex);
     _connected = false;
     _modbus->disconnect();
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void Modbus::registerNode(std::string &node) {
+  try {
+    {
+      std::lock_guard<std::mutex> outputNodesGuard(_outputNodesMutex);
+      _outputNodes.emplace(node);
+    }
+
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->push_back(std::make_shared<Flows::Variable>(_modbus->isConnected()));
+    _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -985,32 +1011,25 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
     for (auto &element: _writeRegisters) {
       if (startRegister >= element->start && (startRegister + count - 1) <= element->end) {
         element->newData = true;
+        uint32_t buffer_offset = startRegister - element->start;
         if (invertRegisters) {
-          for (uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++) {
+          for (uint32_t i = 0; i < count; i++) {
             if (element->invert) {
-              if (invertBytes)
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2])
-                    << 8) | value[i * 2 + 1];
-              else
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1])
-                    << 8) | value[i * 2];
+              if (invertBytes) element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              else element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
             } else {
-              if (invertBytes)
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1])
-                    << 8) | value[i * 2];
-              else
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2])
-                    << 8) | value[i * 2 + 1];
+              if (invertBytes) element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              else element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
             }
           }
         } else {
-          for (uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++) {
+          for (uint32_t i = 0; i < count; i++) {
             if (element->invert) {
-              if (invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
-              else element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              if (invertBytes) element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              else element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
             } else {
-              if (invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
-              else element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              if (invertBytes) element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              else element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
             }
           }
         }

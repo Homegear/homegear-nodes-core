@@ -257,22 +257,32 @@ Flows::PVariable ModbusHost::getConfigParameterIncoming(const std::string &name)
 //{{{ RPC methods
 Flows::PVariable ModbusHost::registerNode(const Flows::PArray &parameters) {
   try {
-    if (parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
+    if (parameters->size() != 1 && parameters->size() != 2) return Flows::Variable::createError(-1, "Method expects exactly three parameters. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tString) return Flows::Variable::createError(-1, "Parameter 1 is not of type string.");
-    if (parameters->at(1)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 2 is not of type array.");
+    if (parameters->size() == 2 && parameters->at(1)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 2 is not of type array.");
 
     if (!_modbus) return Flows::Variable::createError(-32500, "Unknown application error.");
-    for (auto &element: *parameters->at(1)->arrayValue) {
-      if (element->arrayValue->size() == 6) {
-        _modbus->registerNode(parameters->at(0)->stringValue,
-                              (Modbus::ModbusType)element->arrayValue->at(0)->integerValue,
-                              element->arrayValue->at(1)->integerValue,
-                              element->arrayValue->at(2)->integerValue,
-                              element->arrayValue->at(3)->booleanValue,
-                              element->arrayValue->at(4)->booleanValue,
-                              element->arrayValue->at(5)->booleanValue);
-      } else if (element->arrayValue->size() == 4) {
-        _modbus->registerNode(parameters->at(0)->stringValue, (Modbus::ModbusType)element->arrayValue->at(0)->integerValue, element->arrayValue->at(1)->integerValue, element->arrayValue->at(2)->integerValue, element->arrayValue->at(3)->booleanValue);
+    if (parameters->size() == 1) {
+      //modbus-out, modbus-trigger
+      _modbus->registerNode(parameters->at(0)->stringValue);
+    } else {
+      //modbus-in
+      for (auto &element: *parameters->at(1)->arrayValue) {
+        if (element->arrayValue->size() == 6) {
+          _modbus->registerNode(parameters->at(0)->stringValue,
+                                (Modbus::ModbusType)element->arrayValue->at(0)->integerValue,
+                                element->arrayValue->at(1)->integerValue,
+                                element->arrayValue->at(2)->integerValue,
+                                element->arrayValue->at(3)->booleanValue,
+                                element->arrayValue->at(4)->booleanValue,
+                                element->arrayValue->at(5)->booleanValue);
+        } else if (element->arrayValue->size() == 4) {
+          _modbus->registerNode(parameters->at(0)->stringValue,
+                                (Modbus::ModbusType)element->arrayValue->at(0)->integerValue,
+                                element->arrayValue->at(1)->integerValue,
+                                element->arrayValue->at(2)->integerValue,
+                                element->arrayValue->at(3)->booleanValue);
+        }
       }
     }
 
