@@ -112,7 +112,7 @@ bool TcpSocket::start() {
         return false;
       }
     } else if (_type == SocketType::kClient) {
-      C1Net::TcpClientInfo client_info;
+      C1Net::TcpClient::TcpClientInfo client_info;
 
       client_info.log_callback = std::bind(&TcpSocket::log, this, std::placeholders::_1, std::placeholders::_2);
       client_info.packet_received_callback = std::bind(&TcpSocket::packetReceivedClient, this, std::placeholders::_1);
