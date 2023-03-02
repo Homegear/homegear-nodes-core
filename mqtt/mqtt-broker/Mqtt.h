@@ -159,7 +159,7 @@ class Mqtt : public BaseLib::IQueue {
   std::unordered_map<Topic, std::pair<TopicRegex, std::set<NodeId>>> _topics;
   std::mutex _nodesMutex;
   std::set<std::string> _nodes;
-  std::unique_ptr<BaseLib::TcpSocket> _socket;
+  std::unique_ptr<C1Net::TcpSocket> _socket;
   std::thread _pingThread;
   std::thread _listenThread;
   std::atomic_bool _reconnecting;
