@@ -101,7 +101,7 @@ bool TcpSocket::start() {
         }
       }
 
-      tcp_server_ = std::make_shared<C1Net::TcpServer>(_bl.get(), server_info);
+      tcp_server_ = std::make_shared<C1Net::TcpServer>(server_info);
 
       try {
         tcp_server_->Start();
