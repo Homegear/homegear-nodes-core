@@ -84,7 +84,7 @@ void Mqtt::start() {
     tcp_socket_host_info.client_cert_file = _settings->certPath;
     tcp_socket_host_info.client_cert_data = _settings->certData;
     tcp_socket_host_info.client_key_file = _settings->keyPath;
-    tcp_socket_host_info.client_key_data = std::string(_settings->keyData->begin(), _settings->keyData->end());
+    if (_settings->keyData) tcp_socket_host_info.client_key_data = std::string(_settings->keyData->begin(), _settings->keyData->end());
 
     _socket = std::make_unique<C1Net::TcpSocket>(tcp_socket_info, tcp_socket_host_info);
 
