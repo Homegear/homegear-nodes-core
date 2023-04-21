@@ -43,6 +43,7 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     modbusInfo.hostname = _settings->server;
     modbusInfo.port = _settings->port;
     modbusInfo.keepAlive = true;
+    modbusInfo.timeout = 15000;
     if (settings->debug) {
       modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1));
       modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1));
