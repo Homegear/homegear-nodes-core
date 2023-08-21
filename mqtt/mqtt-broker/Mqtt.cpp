@@ -449,10 +449,6 @@ void Mqtt::processPublish(std::vector<char> &data) {
     uint32_t topicLength = 1 + lengthBytes + 2 + (((uint16_t)data[1 + lengthBytes])
         << 8) + (uint8_t)data[1 + lengthBytes + 1];
     uint32_t payloadPos = (qos > 0) ? topicLength + 2 : topicLength;
-    if (payloadPos >= data.size()) {
-      _out->printError("Error: Packet has no payload: " + BaseLib::HelperFunctions::getHexString(data));
-      return;
-    }
     if (qos == 4) {
       _out->printError("Error: Received publish packet with QoS 2. That was not requested.");
     } else if (qos == 2) {
@@ -460,7 +456,10 @@ void Mqtt::processPublish(std::vector<char> &data) {
       send(puback);
     }
     std::string topic(data.data() + (1 + lengthBytes + 2), topicLength - (1 + lengthBytes + 2));
-    std::string payload(data.data() + payloadPos, data.size() - payloadPos);
+    std::string payload;
+    if (payloadPos < data.size()) {
+      payload = std::string(data.data() + payloadPos, data.size() - payloadPos);
+    }
 
     if (!_invoke) return;
 
