@@ -27,35 +27,63 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef MODBUSIN_H_
+#define MODBUSIN_H_
 
+#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
+#include <unordered_map>
 
-namespace MyNode {
+namespace ModbusIn {
 
-class MyNode : public Flows::INode {
+class ModbusIn : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  ModbusIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusIn() override;
 
   bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
  private:
-  enum class VariableType {
-    device,
-    metadata,
-    system,
-    flow,
-    global
+  enum class ModbusType {
+    tHoldingRegister = 0,
+    tCoil = 1,
+    tDiscreteInput = 2,
+    tInputRegister = 3
   };
 
-  VariableType _variableType = VariableType::device;
-  uint64_t _peerId = 0;
-  int32_t _channel = -1;
-  std::string _variable;
-  bool _wait = true;
+  enum class RegisterType {
+    tBin,
+    tBool,
+    tInt,
+    tUInt,
+    tFloat,
+    tString
+  };
 
-  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  struct RegisterInfo {
+    ModbusType modbusType = ModbusType::tHoldingRegister;
+    uint32_t outputIndex = 0;
+    uint32_t index = 0;
+    uint32_t count = 0;
+    RegisterType type = RegisterType::tBin;
+    bool invertBytes = false;
+    bool invertRegisters = false;
+    std::vector<uint8_t> lastValue;
+    std::string name;
+  };
+
+  std::string _socket;
+  bool _outputChangesOnly = true;
+  uint32_t _outputs = 0;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
+  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
+
+  //{{{ RPC methods
+  Flows::PVariable packetReceived(const Flows::PArray& parameters);
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
 };
 
 }

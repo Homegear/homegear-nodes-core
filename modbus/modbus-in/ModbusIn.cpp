@@ -28,18 +28,18 @@
  */
 
 #include <homegear-base/HelperFunctions/HelperFunctions.h>
-#include "MyNode.h"
+#include "ModbusIn.h"
 
-namespace MyNode {
+namespace ModbusIn {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
-  _localRpcMethods.emplace("packetReceived", std::bind(&MyNode::packetReceived, this, std::placeholders::_1));
-  _localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
+ModbusIn::ModbusIn(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+  _localRpcMethods.emplace("packetReceived", std::bind(&ModbusIn::packetReceived, this, std::placeholders::_1));
+  _localRpcMethods.emplace("setConnectionState", std::bind(&ModbusIn::setConnectionState, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode() = default;
+ModbusIn::~ModbusIn() = default;
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool ModbusIn::init(const Flows::PNodeInfo &info) {
   try {
     _outputs = 0;
 
@@ -47,6 +47,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
 
     auto settingsIterator = info->info->structValue->find("server");
     if (settingsIterator != info->info->structValue->end()) _socket = settingsIterator->second->stringValue;
+
+    settingsIterator = info->info->structValue->find("changes-only");
+    if (settingsIterator != info->info->structValue->end()) _outputChangesOnly = settingsIterator->second->booleanValue;
 
     settingsIterator = info->info->structValue->find("registers");
     if (settingsIterator != info->info->structValue->end()) {
@@ -117,7 +120,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-void MyNode::configNodesStarted() {
+void ModbusIn::configNodesStarted() {
   try {
     if (_socket.empty()) {
       _out->printError("Error: This node has no Modbus server assigned.");
@@ -134,12 +137,13 @@ void MyNode::configNodesStarted() {
     for (auto &index : _registers) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(5);
+        element->arrayValue->reserve(6);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tHoldingRegister));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -147,12 +151,13 @@ void MyNode::configNodesStarted() {
     for (auto &index : _inputRegisters) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(5);
+        element->arrayValue->reserve(6);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tInputRegister));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertBytes));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.second->invertRegisters));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -160,10 +165,11 @@ void MyNode::configNodesStarted() {
     for (auto &index : _coils) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(3);
+        element->arrayValue->reserve(4);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tCoil));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -171,10 +177,11 @@ void MyNode::configNodesStarted() {
     for (auto &index : _discreteInputs) {
       for (auto &count : index.second) {
         Flows::PVariable element = std::make_shared<Flows::Variable>(Flows::VariableType::tArray);
-        element->arrayValue->reserve(3);
+        element->arrayValue->reserve(4);
         element->arrayValue->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tDiscreteInput));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(index.first));
         element->arrayValue->push_back(std::make_shared<Flows::Variable>(count.first));
+        element->arrayValue->push_back(std::make_shared<Flows::Variable>(_outputChangesOnly));
         registers->arrayValue->push_back(element);
       }
     }
@@ -193,7 +200,7 @@ void MyNode::configNodesStarted() {
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
+Flows::PVariable ModbusIn::packetReceived(const Flows::PArray& parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tArray) return Flows::Variable::createError(-1, "Parameter 1 is not of type array.");
@@ -209,7 +216,9 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
         auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
         if (countIterator == indexIterator->second.end()) continue;
 
-        if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+        if (_outputChangesOnly && packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) {
+          continue;
+        }
         countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -299,7 +308,7 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
         auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
         if (countIterator == indexIterator->second.end()) continue;
 
-        if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+        if (_outputChangesOnly && packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
         countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -314,7 +323,7 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
         auto countIterator = indexIterator->second.find(packet->arrayValue->at(2)->integerValue);
         if (countIterator == indexIterator->second.end()) continue;
 
-        if (packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
+        if (_outputChangesOnly && packet->arrayValue->at(3)->binaryValue == countIterator->second->lastValue) continue;
         countIterator->second->lastValue = packet->arrayValue->at(3)->binaryValue;
 
         Flows::PVariable message = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
@@ -336,7 +345,7 @@ Flows::PVariable MyNode::packetReceived(const Flows::PArray& parameters) {
   return Flows::Variable::createError(-32500, "Unknown application error.");
 }
 
-Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters) {
+Flows::PVariable ModbusIn::setConnectionState(const Flows::PArray& parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");

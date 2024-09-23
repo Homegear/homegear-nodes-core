@@ -108,7 +108,7 @@ int UdpIn::getSocketDescriptor(const std::string &listenAddress, uint16_t port) 
       return -1;
     }
 
-    socketDescriptor = socket(serverInfo->ai_family, SOCK_DGRAM, 0);
+    socketDescriptor = socket(serverInfo->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, 0);
     if (socketDescriptor == -1) {
       _out->printError("Error: Could not create socket.");
       freeaddrinfo(serverInfo);

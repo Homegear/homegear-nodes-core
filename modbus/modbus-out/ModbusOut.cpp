@@ -27,17 +27,17 @@
  * files in the program, then also delete it here.
  */
 
-#include "MyNode.h"
+#include "ModbusOut.h"
 
-namespace MyNode {
+namespace ModbusOut {
 
-MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
-  _localRpcMethods.emplace("setConnectionState", std::bind(&MyNode::setConnectionState, this, std::placeholders::_1));
+ModbusOut::ModbusOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
+  _localRpcMethods.emplace("setConnectionState", std::bind(&ModbusOut::setConnectionState, this, std::placeholders::_1));
 }
 
-MyNode::~MyNode() = default;
+ModbusOut::~ModbusOut() = default;
 
-bool MyNode::init(const Flows::PNodeInfo &info) {
+bool ModbusOut::init(const Flows::PNodeInfo &info) {
   try {
     int32_t inputIndex = -1;
 
@@ -93,7 +93,29 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
   return false;
 }
 
-void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
+void ModbusOut::configNodesStarted() {
+  try {
+    if (_socket.empty()) {
+      _out->printError("Error: This node has no Modbus server assigned.");
+      return;
+    }
+
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->reserve(2);
+    parameters->push_back(std::make_shared<Flows::Variable>(_id));
+
+    Flows::PVariable result = invokeNodeMethod(_socket, "registerNode", parameters, true);
+    if (result->errorStruct) _out->printError("Error: Could not register node: " + result->structValue->at("faultString")->stringValue);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void ModbusOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
     auto registersIterator = _registers.find(index);
     if (registersIterator == _registers.end()) return;
@@ -224,7 +246,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
 }
 
 //{{{ RPC methods
-Flows::PVariable MyNode::setConnectionState(const Flows::PArray& parameters) {
+Flows::PVariable ModbusOut::setConnectionState(const Flows::PArray& parameters) {
   try {
     if (parameters->size() != 1) return Flows::Variable::createError(-1, "Method expects exactly one parameter. " + std::to_string(parameters->size()) + " given.");
     if (parameters->at(0)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter is not of type boolean.");

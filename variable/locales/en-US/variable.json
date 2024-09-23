@@ -151,7 +151,8 @@
       "createvariable": "Create variable",
       "typeandvalue": "Value",
       "create": "Create",
-      "createnewvariable": "Create new variable"
+      "createnewvariable": "Create new variable",
+      "wait": "Wait for variable to be set"
     },
     "tip": "Tip: See help tab for usage information.",
     "paletteHelp": "<p>Sets a variable.</p>",

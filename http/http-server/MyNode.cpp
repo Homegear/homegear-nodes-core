@@ -30,6 +30,8 @@
 #include "MyNode.h"
 #include <homegear-base/Security/SecureVector.h>
 
+#include <memory>
+
 namespace MyNode {
 
 MyNode::MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected) : Flows::INode(path, type, frontendConnected) {
@@ -76,16 +78,15 @@ bool MyNode::start() {
       if (settingsIterator != _nodeInfo->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
 
       if (!tlsNodeId.empty()) {
-        BaseLib::TcpSocket::PCertificateInfo certificateInfo = std::make_shared<BaseLib::TcpSocket::CertificateInfo>();
-        certificateInfo->caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
-        certificateInfo->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
-        certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
-        certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-        certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
-        auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
-        auto secureKeyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
-        secureKeyData->insert(secureKeyData->end(), keyData.begin(), keyData.end());
-        certificateInfo->keyData = secureKeyData;
+        auto certificateInfo = std::make_shared<C1Net::CertificateInfo>();
+        certificateInfo->ca_file = getConfigParameter(tlsNodeId, "ca")->stringValue;
+        certificateInfo->ca_data = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+        certificateInfo->cert_file = getConfigParameter(tlsNodeId, "cert")->stringValue;
+        certificateInfo->cert_data = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+        certificateInfo->key_file = getConfigParameter(tlsNodeId, "key")->stringValue;
+        certificateInfo->key_data = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+        serverInfo.listenAddress = listenAddress;
+        serverInfo.port = Flows::Math::getUnsignedNumber(port);
         serverInfo.certificates.emplace("*", certificateInfo);
         serverInfo.dhParamData = getConfigParameter(tlsNodeId, "dhdata.password")->stringValue;
         serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
@@ -97,9 +98,8 @@ bool MyNode::start() {
     _password = getNodeData("password")->stringValue;
 
     try {
-      _socket.reset(new BaseLib::HttpServer(_bl.get(), serverInfo));
-      std::string boundAddress;
-      _socket->start(listenAddress, port, boundAddress);
+      _socket = std::make_unique<BaseLib::HttpServer>(_bl.get(), serverInfo);
+      _socket->start();
     }
     catch (BaseLib::Exception &ex) {
       _out->printError("Error starting server: " + std::string(ex.what()));
@@ -198,14 +198,14 @@ std::string &MyNode::createPathRegex(std::string &path, std::unordered_map<int32
   return path;
 }
 
-BaseLib::TcpSocket::TcpPacket MyNode::getError(int32_t code, const std::string& longDescription) {
+C1Net::TcpPacket MyNode::getError(int32_t code, const std::string& longDescription) {
   std::string codeDescription = _http.getStatusText(code);
   std::string
       contentString = "<!DOCTYPE HTML PUBLIC \"-//IETF//DTD HTML 2.0//EN\"><html><head><title>" + std::to_string(code) + " " + codeDescription + "</title></head><body><h1>" + codeDescription + "</h1><p>" + longDescription + "<br/></p></body></html>";
   std::string header;
   std::vector<std::string> additionalHeaders;
   BaseLib::Http::constructHeader(contentString.size(), "text/html", code, codeDescription, additionalHeaders, header);
-  BaseLib::TcpSocket::TcpPacket content;
+  C1Net::TcpPacket content;
   content.insert(content.end(), header.begin(), header.end());
   content.insert(content.end(), contentString.begin(), contentString.end());
   return content;
@@ -263,7 +263,7 @@ void MyNode::packetReceived(int32_t clientId, BaseLib::Http http) {
       }
     }
     if (nodes.empty()) {
-      BaseLib::TcpSocket::TcpPacket response = getError(404, "The requested URL " + http.getHeader().path + " was not found on this server.");
+      C1Net::TcpPacket response = getError(404, "The requested URL " + http.getHeader().path + " was not found on this server.");
       _socket->send(clientId, response);
       return;
     }
@@ -371,7 +371,7 @@ Flows::PVariable MyNode::send(const Flows::PArray& parameters) {
 
     std::string header = constructHeader(parameters->at(3)->stringValue.size(), parameters->at(1)->integerValue, parameters->at(2));
 
-    BaseLib::TcpSocket::TcpPacket response;
+    C1Net::TcpPacket response;
     response.insert(response.end(), header.begin(), header.end());
     response.insert(response.end(), parameters->at(3)->stringValue.begin(), parameters->at(3)->stringValue.end());
 

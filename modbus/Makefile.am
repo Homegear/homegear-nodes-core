@@ -6,19 +6,22 @@ LIBS += -Wl,-Bdynamic -lhomegear-node -lhomegear-base
 
 libdir = $(localstatedir)/lib/homegear/node-blue/nodes/modbus
 
-lib_LTLIBRARIES = modbus-host.la modbus-in.la modbus-out.la
+lib_LTLIBRARIES = modbus-host.la modbus-in.la modbus-out.la modbus-trigger.la
 
-modbus_host_la_SOURCES = modbus-host/Factory.cpp modbus-host/Modbus.cpp modbus-host/MyNode.cpp
+modbus_host_la_SOURCES = modbus-host/Factory.cpp modbus-host/Modbus.cpp modbus-host/ModbusHost.cpp
 modbus_host_la_LDFLAGS =-module -avoid-version -shared
 
-modbus_in_la_SOURCES = modbus-in/Factory.cpp modbus-in/MyNode.cpp
+modbus_in_la_SOURCES = modbus-in/Factory.cpp modbus-in/ModbusIn.cpp
 modbus_in_la_LDFLAGS =-module -avoid-version -shared
 
-modbus_out_la_SOURCES = modbus-out/Factory.cpp modbus-out/MyNode.cpp
+modbus_out_la_SOURCES = modbus-out/Factory.cpp modbus-out/ModbusOut.cpp
 modbus_out_la_LDFLAGS =-module -avoid-version -shared
 
+modbus_trigger_la_SOURCES = modbus-trigger/Factory.cpp modbus-trigger/ModbusTrigger.cpp
+modbus_trigger_la_LDFLAGS =-module -avoid-version -shared
+
 modbus_ladir = $(libdir)
-modbus_la_DATA = package.json modbus-host/modbus-host.hni modbus-in/modbus-in.hni modbus-out/modbus-out.hni
+modbus_la_DATA = package.json modbus-host/modbus-host.hni modbus-in/modbus-in.hni modbus-out/modbus-out.hni modbus-trigger/modbus-trigger.hni
 
 locale_endir = $(libdir)/locales/en
 locale_en_DATA = locales/en-US/modbus.json
@@ -36,3 +39,4 @@ install-exec-hook:
 	rm -f $(DESTDIR)$(libdir)/modbus-host.la
 	rm -f $(DESTDIR)$(libdir)/modbus-in.la
 	rm -f $(DESTDIR)$(libdir)/modbus-out.la
+	rm -f $(DESTDIR)$(libdir)/modbus-trigger.la

@@ -65,11 +65,11 @@ class MyNode : public Flows::INode {
   std::mutex _nodesMutex;
   std::unordered_map<std::string, std::unordered_map<std::string, NodeInfo>> _nodes;
 
-  BaseLib::TcpSocket::TcpPacket _authRequiredHeader;
+  C1Net::TcpPacket _authRequiredHeader;
 
   std::string &createPathRegex(std::string &path, std::unordered_map<int32_t, std::string> &paramsMap);
 
-  BaseLib::TcpSocket::TcpPacket getError(int32_t code, const std::string& longDescription);
+  C1Net::TcpPacket getError(int32_t code, const std::string& longDescription);
   std::string constructHeader(uint32_t contentLength, int32_t code, const Flows::PVariable& headers);
   void packetReceived(int32_t clientId, BaseLib::Http http);
 

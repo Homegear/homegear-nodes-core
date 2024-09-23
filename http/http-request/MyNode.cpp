@@ -44,7 +44,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     if (settingsIterator != info->info->structValue->end()) _url = settingsIterator->second->stringValue;
 
     settingsIterator = info->info->structValue->find("method");
-    if (settingsIterator != info->info->structValue->end()) _method = settingsIterator->second->stringValue;
+    if (settingsIterator != info->info->structValue->end() && settingsIterator->second->stringValue != "use") {
+      _method = settingsIterator->second->stringValue;
+    }
 
     settingsIterator = info->info->structValue->find("ret");
     if (settingsIterator != info->info->structValue->end()) {
@@ -97,7 +99,7 @@ void MyNode::configNodesStarted() {
   }
 }
 
-void MyNode::setUrl(std::string &url) {
+void MyNode::setUrl(std::string url) {
   try {
     if (url.compare(0, 7, "http://") == 0) {
       url = url.substr(7);
@@ -138,7 +140,7 @@ void MyNode::setUrl(std::string &url) {
     _port = Flows::Math::getNumber(hostPair.second);
     if (_port <= 0 || _port > 65535) _port = _useTls ? 443 : 80;
 
-    _httpClient = std::unique_ptr<BaseLib::HttpClient>(new BaseLib::HttpClient(_bl.get(), _hostname, _port, false, _useTls, _verifyCertificate, _caPath, _caData, _certPath, _certData, _keyPath, _keyData));
+    _httpClient = std::make_unique<BaseLib::HttpClient>(_bl.get(), _hostname, _port, false, _useTls, _verifyCertificate, _caPath, _caData, _certPath, _certData, _keyPath, _keyData);
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -150,13 +152,35 @@ void MyNode::setUrl(std::string &url) {
 
 void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) {
   try {
-    auto urlIterator = message->structValue->find("url");
-    if (urlIterator != message->structValue->end()) {
-      if (urlIterator->second->stringValue.empty()) return;
-      setUrl(urlIterator->second->stringValue);
+    auto message_iterator = message->structValue->find("url");
+    if (message_iterator != message->structValue->end()) {
+      if (message_iterator->second->stringValue.empty()) return;
+      setUrl(message_iterator->second->stringValue);
+    }
+
+    auto method = _method;
+    if (method.empty()) {
+      message_iterator = message->structValue->find("method");
+      if (message_iterator != message->structValue->end()) {
+        method = message_iterator->second->stringValue;
+      }
+
+      if (method.empty()) {
+        method = "GET";
+      }
     }
 
     if (!_httpClient) return;
+
+    std::string request_headers;
+    message_iterator = message->structValue->find("headers");
+    if (message_iterator != message->structValue->end()) {
+      std::ostringstream headers_stream;
+      for (auto &header: *message_iterator->second->structValue) {
+        headers_stream << header.first << ": " << header.second->stringValue << "\r\n";
+      }
+      request_headers = headers_stream.str();
+    }
 
     std::string content;
     if (message->structValue->at("payload")->type == Flows::VariableType::tBinary) {
@@ -166,24 +190,26 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     }
 
     BaseLib::Http result;
-    if (_method == "GET") {
-      std::string getRequest = "GET " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
+    if (method == "GET") {
+      std::string getRequest = "GET " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + request_headers + "Connection: Close" + "\r\n\r\n";
       _httpClient->sendRequest(getRequest, result);
-    } else if (_method == "DELETE") {
-      std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close" + "\r\n\r\n";
+    } else if (method == "DELETE") {
+      std::string deleteRequest = "DELETE " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + request_headers + "Connection: Close" + "\r\n\r\n";
       _httpClient->sendRequest(deleteRequest, result);
-    } else if (_method == "PUT") {
-      std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+    } else if (method == "PUT") {
+      std::string putRequest = "PUT " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + request_headers + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
       putRequest.insert(putRequest.end(), content.begin(), content.end());
       _httpClient->sendRequest(putRequest, result);
-    } else if (_method == "POST") {
-      std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+    } else if (method == "POST") {
+      std::string postRequest = "POST " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + request_headers + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
       postRequest.insert(postRequest.end(), content.begin(), content.end());
       _httpClient->sendRequest(postRequest, result);
-    } else if (_method == "PATCH") {
-      std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
+    } else if (method == "PATCH") {
+      std::string patchRequest = "PATCH " + _path + " HTTP/1.1\r\nUser-Agent: Homegear\r\nHost: " + _hostname + ":" + std::to_string(_port) + "\r\n" + _basicAuth + request_headers + "Connection: Close\r\nContent-Length: " + std::to_string(content.size()) + "\r\n\r\n";
       patchRequest.insert(patchRequest.end(), content.begin(), content.end());
       _httpClient->sendRequest(patchRequest, result);
+    } else {
+      return;
     }
 
     Flows::PVariable outputMessage = std::make_shared<Flows::Variable>();
@@ -193,7 +219,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     Flows::PVariable headers = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
     (*outputMessage->structValue)["headers"] = headers;
     auto &header = result.getHeader().fields;
-    for (auto &field : header) {
+    for (auto &field: header) {
       headers->structValue->emplace(field.first, std::make_shared<Flows::Variable>(field.second));
     }
 

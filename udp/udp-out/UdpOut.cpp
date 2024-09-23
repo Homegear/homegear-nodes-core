@@ -115,7 +115,7 @@ void UdpOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     ipStringBuffer[INET6_ADDRSTRLEN] = '\0';
     auto clientIpAddress = std::string(ipStringBuffer);
 
-    socketDescriptor = socket(serverInfo->ai_family, SOCK_DGRAM, 0);
+    socketDescriptor = socket(serverInfo->ai_family, SOCK_DGRAM | SOCK_CLOEXEC, 0);
     if (socketDescriptor == -1) {
       freeaddrinfo(serverInfo);
       _out->printError("Error: Could not create socket.");
@@ -131,14 +131,14 @@ void UdpOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
         serverAddress.sin_port = htons(_port);
         serverAddress.sin_addr.s_addr = ((struct sockaddr_in *)serverInfo->ai_addr)->sin_addr.s_addr;
 
-        sendto(socketDescriptor, data.data() + totalBytesWritten, data.size() - totalBytesWritten, 0, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+        bytesWritten = sendto(socketDescriptor, data.data() + totalBytesWritten, data.size() - totalBytesWritten, 0, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
       } else {
         struct sockaddr_in6 serverAddress{};
         serverAddress.sin6_family = AF_INET6;
         serverAddress.sin6_port = htons(_port);
         serverAddress.sin6_addr = ((struct sockaddr_in6 *)serverInfo->ai_addr)->sin6_addr;
 
-        sendto(socketDescriptor, data.data() + totalBytesWritten, data.size() - totalBytesWritten, 0, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
+        bytesWritten = sendto(socketDescriptor, data.data() + totalBytesWritten, data.size() - totalBytesWritten, 0, (struct sockaddr *)&serverAddress, sizeof(serverAddress));
       }
       if (bytesWritten <= 0) {
         if (bytesWritten == -1 && (errno == EINTR || errno == EAGAIN)) continue;

@@ -295,7 +295,11 @@ void Python::execThread() {
       }
       if (_pid == -1) _startUpError = true;
       else _processStartUpComplete = true;
-      if (_startUpComplete) callStartUpComplete();
+      if (_startUpComplete) {
+        //Delay a little for slow systems
+        std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+        callStartUpComplete();
+      }
 
       std::array<uint8_t, 4096> buffer{};
       std::string bufferOut;

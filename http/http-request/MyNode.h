@@ -75,7 +75,7 @@ class MyNode : public Flows::INode {
   std::unique_ptr<BaseLib::HttpClient> _httpClient;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
-  void setUrl(std::string &url);
+  void setUrl(std::string url);
 };
 
 }

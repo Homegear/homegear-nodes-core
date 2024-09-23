@@ -29,7 +29,7 @@
 
 #include "Modbus.h"
 
-namespace MyNode {
+namespace ModbusHost {
 
 Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows::Output> output, std::shared_ptr<ModbusSettings> settings) {
   try {
@@ -42,10 +42,14 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
     BaseLib::Modbus::ModbusInfo modbusInfo;
     modbusInfo.hostname = _settings->server;
     modbusInfo.port = _settings->port;
-    modbusInfo.keepAlive = _settings->keepAlive;
+    modbusInfo.keepAlive = true;
+    modbusInfo.timeout = 15000;
+    if (settings->debug) {
+      modbusInfo.packetSentCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetSent, this, std::placeholders::_1));
+      modbusInfo.packetReceivedCallback = std::function<void(const std::vector<char> &packet)>(std::bind(&Modbus::packetReceived, this, std::placeholders::_1));
+    }
 
     _modbus = std::make_shared<BaseLib::Modbus>(_bl.get(), modbusInfo);
-    _modbus->setDebug(settings->debug);
 
     for (auto &element: settings->readRegisters) {
       std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
@@ -181,6 +185,14 @@ void Modbus::waitForStop() {
   }
 }
 
+void Modbus::packetSent(const std::vector<char> &packet) {
+  _out->printInfo("Packet sent: " + BaseLib::HelperFunctions::getHexString(packet));
+}
+
+void Modbus::packetReceived(const std::vector<char> &packet) {
+  _out->printInfo("Packet received: " + BaseLib::HelperFunctions::getHexString(packet));
+}
+
 void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo> &info) {
   try {
     try {
@@ -247,18 +259,56 @@ void Modbus::readWriteCoil(std::shared_ptr<CoilInfo> &info) {
 
 void Modbus::listen() {
   int64_t startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
-  int64_t endTime;
+  int64_t endTime = 0;
   int64_t timeToSleep;
 
   while (_started) {
     try {
+      if (!_settings->keepAlive) {
+        _modbus->disconnect();
+      }
+      if (_settings->interval > 0) {
+        endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+        timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
+        if (timeToSleep < 10000) timeToSleep = 10000;
+        if (timeToSleep <= 1000000) std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
+        else {
+          timeToSleep /= 1000;
+          int32_t maxIndex = timeToSleep / 1000;
+          int32_t rest = timeToSleep % 1000;
+          for (int32_t i = 0; i < maxIndex; i++) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            if (!_started) break;
+          }
+          if (!_started) break;
+          if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+        }
+        startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+      } else {
+        //Automatic polling is disabled
+        if (endTime > 0) {
+          //When endTime is not 0, this is the second loop. We got here because of errors and need to return from this
+          //function.
+          _started = false;
+          return;
+        }
+        endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
+      }
+    }
+    catch (const std::exception &ex) {
+      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+    }
+
+    try {
       if (!_modbus->isConnected()) {
         if (!_started) return;
         connect();
-        if (_modbus->isConnected()) std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        else std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        if (!_modbus->isConnected()) {
+          _out->printWarning("Warning: Could not connect to Modbus host.");
+          std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+          continue;
+        }
         if (!_started) return;
-        continue;
       }
 
       std::list<std::shared_ptr<RegisterInfo>> registers;
@@ -295,7 +345,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       {
         std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
@@ -312,7 +365,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
           registerElement->buffer1 = registerElement->buffer2;
 
           std::vector<uint16_t> destinationData;
@@ -402,7 +455,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
       registers.clear();
 
       {
@@ -420,7 +476,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(registerElement->buffer2.begin(), registerElement->buffer2.end(), registerElement->buffer1.begin())) {
           registerElement->buffer1 = registerElement->buffer2;
 
           std::vector<uint16_t> destinationData;
@@ -510,7 +566,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
       registers.clear();
 
       std::list<std::shared_ptr<CoilInfo>> coils;
@@ -547,7 +606,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       {
         std::lock_guard<std::mutex> readCoilsGuard(_readCoilsMutex);
@@ -564,7 +626,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(coilElement->buffer2.begin(), coilElement->buffer2.end(), coilElement->buffer1.begin())) {
           coilElement->buffer1 = coilElement->buffer2;
 
           std::vector<uint8_t> destinationData;
@@ -607,7 +669,10 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
 
       std::list<std::shared_ptr<DiscreteInputInfo>> discreteInputs;
       {
@@ -625,7 +690,7 @@ void Modbus::listen() {
           break;
         }
 
-        if (!std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin())) {
+        if (!_outputChangesOnly || !std::equal(discreteInputElement->buffer2.begin(), discreteInputElement->buffer2.end(), discreteInputElement->buffer1.begin())) {
           discreteInputElement->buffer1 = discreteInputElement->buffer2;
 
           std::vector<uint8_t> destinationData;
@@ -668,30 +733,19 @@ void Modbus::listen() {
           if (!_started) break;
         }
       }
-      if (!_modbus->isConnected()) continue;
-
-      endTime = BaseLib::HelperFunctions::getTimeMicroseconds();
-      timeToSleep = (_settings->interval * 1000) - (endTime - startTime);
-      if (timeToSleep < 500) timeToSleep = 500;
-      if (timeToSleep <= 1000000) std::this_thread::sleep_for(std::chrono::microseconds(timeToSleep));
-      else {
-        timeToSleep /= 1000;
-        int32_t maxIndex = timeToSleep / 1000;
-        int32_t rest = timeToSleep % 1000;
-        for (int32_t i = 0; i < maxIndex; i++) {
-          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-          if (!_started) break;
-        }
-        if (!_started) break;
-        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
       }
-      startTime = BaseLib::HelperFunctions::getTimeMicroseconds();
     }
     catch (const std::exception &ex) {
       _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
     }
-    catch (...) {
-      _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+
+    if (_settings->interval == 0) {
+      //Automatic polling is disabled
+      _started = false;
+      return;
     }
   }
 }
@@ -718,6 +772,13 @@ void Modbus::setConnectionState(bool connected) {
         }
       }
     }
+
+    {
+      std::lock_guard<std::mutex> outputNodesGuard(_outputNodesMutex);
+      for (auto &node: _outputNodes) {
+        _invoke(node, "setConnectionState", parameters, false);
+      }
+    }
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -735,63 +796,67 @@ void Modbus::connect() {
       _modbus->connect();
     }
 
-    std::list<std::shared_ptr<RegisterInfo>> registers;
-    {
-      std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
-      registers = _writeRegisters;
-    }
+    if (_settings->keepAlive) {
+      std::list<std::shared_ptr<RegisterInfo>> registers;
+      {
+        std::lock_guard<std::mutex> writeRegistersGuard(_writeRegistersMutex);
+        registers = _writeRegisters;
+      }
 
-    for (auto &registerElement: registers) {
-      if (!registerElement->readOnConnect) continue;
-      readWriteRegister(registerElement);
-    }
+      for (auto &registerElement: registers) {
+        if (!registerElement->readOnConnect) continue;
+        readWriteRegister(registerElement);
+      }
 
-    std::list<std::shared_ptr<CoilInfo>> coils;
-    {
-      std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
-      coils = _writeCoils;
-    }
+      std::list<std::shared_ptr<CoilInfo>> coils;
+      {
+        std::lock_guard<std::mutex> writeCoilsGuard(_writeCoilsMutex);
+        coils = _writeCoils;
+      }
 
-    for (auto &coilElement: coils) {
-      if (!coilElement->readOnConnect) continue;
-      readWriteCoil(coilElement);
+      for (auto &coilElement: coils) {
+        if (!coilElement->readOnConnect) continue;
+        readWriteCoil(coilElement);
+      }
     }
 
     _connected = true;
 
-    {
-      std::list<std::shared_ptr<WriteInfo>> writeBuffer;
-
+    if (_settings->keepAlive) {
       {
-        std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
-        writeBuffer = _registerWriteBuffer;
-      }
+        std::list<std::shared_ptr<WriteInfo>> writeBuffer;
 
-      for (auto &element: writeBuffer) {
-        writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
-      }
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+          writeBuffer = _registerWriteBuffer;
+        }
 
-      {
-        std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
-        _registerWriteBuffer.clear();
-      }
-    }
+        for (auto &element: writeBuffer) {
+          writeRegisters(element->start, element->count, element->invertBytes, element->invertRegisters, true, element->value);
+        }
 
-    {
-      std::list<std::shared_ptr<WriteInfo>> writeBuffer;
-
-      {
-        std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
-        writeBuffer = _coilWriteBuffer;
-      }
-
-      for (auto &element: writeBuffer) {
-        writeCoils(element->start, element->count, true, element->value);
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_registerWriteBufferMutex);
+          _registerWriteBuffer.clear();
+        }
       }
 
       {
-        std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
-        _coilWriteBuffer.clear();
+        std::list<std::shared_ptr<WriteInfo>> writeBuffer;
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+          writeBuffer = _coilWriteBuffer;
+        }
+
+        for (auto &element: writeBuffer) {
+          writeCoils(element->start, element->count, true, element->value);
+        }
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_coilWriteBufferMutex);
+          _coilWriteBuffer.clear();
+        }
       }
     }
 
@@ -821,8 +886,29 @@ void Modbus::disconnect() {
   }
 }
 
-void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters) {
+void Modbus::registerNode(std::string &node) {
   try {
+    {
+      std::lock_guard<std::mutex> outputNodesGuard(_outputNodesMutex);
+      _outputNodes.emplace(node);
+    }
+
+    Flows::PArray parameters = std::make_shared<Flows::Array>();
+    parameters->push_back(std::make_shared<Flows::Variable>(_modbus->isConnected()));
+    _invoke(parameters->at(0)->stringValue, "setConnectionState", parameters, false);
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool changesOnly) {
+  try {
+    if (!changesOnly) _outputChangesOnly = false;
+
     NodeInfo info;
     info.type = type;
     info.id = node;
@@ -859,8 +945,10 @@ void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startRegi
   }
 }
 
-void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startCoil, uint32_t count) {
+void Modbus::registerNode(std::string &node, ModbusType type, uint32_t startCoil, uint32_t count, bool changesOnly) {
   try {
+    if (!changesOnly) _outputChangesOnly = false;
+
     NodeInfo info;
     info.type = type;
     info.id = node;
@@ -924,32 +1012,25 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
     for (auto &element: _writeRegisters) {
       if (startRegister >= element->start && (startRegister + count - 1) <= element->end) {
         element->newData = true;
+        uint32_t buffer_offset = startRegister - element->start;
         if (invertRegisters) {
-          for (uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++) {
+          for (uint32_t i = 0; i < count; i++) {
             if (element->invert) {
-              if (invertBytes)
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2])
-                    << 8) | value[i * 2 + 1];
-              else
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1])
-                    << 8) | value[i * 2];
+              if (invertBytes) element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              else element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
             } else {
-              if (invertBytes)
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2 + 1])
-                    << 8) | value[i * 2];
-              else
-                element->buffer1[((startRegister - element->start) + count) - i - 1] = (((uint16_t)value[i * 2])
-                    << 8) | value[i * 2 + 1];
+              if (invertBytes) element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              else element->buffer1[(buffer_offset + count) - i - 1] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
             }
           }
         } else {
-          for (uint32_t i = startRegister - element->start; i < (startRegister - element->start) + count; i++) {
+          for (uint32_t i = 0; i < count; i++) {
             if (element->invert) {
-              if (invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
-              else element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              if (invertBytes) element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              else element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
             } else {
-              if (invertBytes) element->buffer1[i] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
-              else element->buffer1[i] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
+              if (invertBytes) element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2 + 1]) << 8) | value[i * 2];
+              else element->buffer1[i + buffer_offset] = (((uint16_t)value[i * 2]) << 8) | value[i * 2 + 1];
             }
           }
         }

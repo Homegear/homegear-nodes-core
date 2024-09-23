@@ -27,35 +27,25 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef MODBUSTRIGGER_H_
+#define MODBUSTRIGGER_H_
 
 #include <homegear-node/INode.h>
-#include "Modbus.h"
+#include <unordered_map>
 
-namespace MyNode
-{
+namespace ModbusTrigger {
 
-class MyNode: public Flows::INode
-{
-public:
-	MyNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected);
-	~MyNode() override;
+class ModbusTrigger : public Flows::INode {
+ public:
+  ModbusTrigger(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusTrigger() override;
 
-	bool init(const Flows::PNodeInfo &info) override;
-	bool start() override;
-	void stop() override;
-	void waitForStop() override;
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  std::string _modbusHost;
 
-	Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
-private:
-	Flows::PNodeInfo _nodeInfo;
-	std::unique_ptr<Modbus> _modbus;
-
-	//{{{ RPC methods
-	Flows::PVariable registerNode(const Flows::PArray& parameters);
-	Flows::PVariable writeRegisters(const Flows::PArray& parameters);
-	//}}}
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
 };
 
 }

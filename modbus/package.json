@@ -11,12 +11,14 @@
     "maxThreadCounts": {
       "modbus-host": 1,
       "modbus-in": 0,
-      "modbus-out": 0
+      "modbus-out": 0,
+      "modbus-trigger": 0
     },
     "nodes": {
       "modbus-host": "modbus-host.so",
       "modbus-in": "modbus-in.so",
-      "modbus-out": "modbus-out.so"
+      "modbus-out": "modbus-out.so",
+      "modbus-trigger": "modbus-trigger.so"
     }
   },
   "version": "1.0.0"

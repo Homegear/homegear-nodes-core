@@ -89,6 +89,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
     parameters->push_back(std::make_shared<Flows::Variable>(query));
 
     Flows::PVariable result = invoke("influxdbWrite", parameters);
+    if (result && result->errorStruct) _out->printError("Error writing data to InfluxDB: " + result->structValue->at("faultString")->stringValue);
 
     if (input->type != Flows::VariableType::tFloat && input->type != Flows::VariableType::tInteger && input->type != Flows::VariableType::tInteger64) {
       parameters->at(0)->booleanValue = true;
