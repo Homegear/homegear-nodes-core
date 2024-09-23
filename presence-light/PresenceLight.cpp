@@ -243,7 +243,7 @@ void PresenceLight::timer() {
             if (time - lastTimeOutput >= 1000) {
               lastTimeOutput = time;
               Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((double)(onTo - time) / 1000.0)));
+              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t) std::lround((double) (onTo - time) / 1000.0)));
               output(2, outputMessage);
             }
           }
@@ -269,7 +269,7 @@ void PresenceLight::timer() {
             if (time - lastAlwaysOnTimeOutput >= 1000) {
               lastAlwaysOnTimeOutput = time;
               Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((double)(alwaysOnTo - time) / 1000.0)));
+              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t) std::lround((double) (alwaysOnTo - time) / 1000.0)));
               output(3, outputMessage);
             }
           }
@@ -295,7 +295,7 @@ void PresenceLight::timer() {
             if (time - lastAlwaysOffTimeOutput >= 1000) {
               lastAlwaysOffTimeOutput = time;
               Flows::PVariable outputMessage = std::make_shared<Flows::Variable>(Flows::VariableType::tStruct);
-              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t)std::lround((double)(alwaysOffTo - time) / 1000.0)));
+              outputMessage->structValue->emplace("payload", std::make_shared<Flows::Variable>((int64_t) std::lround((double) (alwaysOffTo - time) / 1000.0)));
               output(4, outputMessage);
             }
           }
@@ -354,7 +354,7 @@ void PresenceLight::input(const Flows::PNodeInfo &info, uint32_t index, const Fl
       //Is profile restoration enabled? Was the profile already restored today?
       if (_restoreProfile2.load(std::memory_order_acquire) && _lastRestore.load(std::memory_order_acquire) == -1) {
         //Is the "off" profile active? Is it later than the restore hour?
-        if (_stateValue.load(std::memory_order_acquire) == 0 && (time % 86400000) >= (_restoreHour * 3600000)) {
+        if (_stateValue.load(std::memory_order_acquire) == 0 && (time % 86400000) >= (_restoreHour * 3600000) && (time % 86400000) < ((_restoreHour + 2) * 3600000)) {
           //Has it been at least 60 minutes after the last movement?
           if (time - _lastInput >= 3600000) {
             _stateValue.store(_lastNonNullStateValue.load(std::memory_order_acquire), std::memory_order_release);

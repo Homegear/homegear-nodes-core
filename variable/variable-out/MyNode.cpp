@@ -61,6 +61,9 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
     settingsIterator = info->info->structValue->find("variable");
     if (settingsIterator != info->info->structValue->end()) _variable = settingsIterator->second->stringValue;
 
+    settingsIterator = info->info->structValue->find("wait");
+    if (settingsIterator != info->info->structValue->end()) _wait = settingsIterator->second->booleanValue;
+
     return true;
   }
   catch (const std::exception &ex) {
@@ -91,7 +94,7 @@ void MyNode::input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PV
       parameters->push_back(std::make_shared<Flows::Variable>(_channel));
       parameters->push_back(std::make_shared<Flows::Variable>(_variable));
       parameters->push_back(message->structValue->at("payload"));
-      parameters->push_back(std::make_shared<Flows::Variable>(true));
+      parameters->push_back(std::make_shared<Flows::Variable>(_wait));
 
       Flows::PVariable result = invoke("setValue", parameters);
 

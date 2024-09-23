@@ -59,9 +59,6 @@ bool TcpSocket::init(const Flows::PNodeInfo &info) {
 
 bool TcpSocket::start() {
   try {
-    std::string address;
-    std::string port;
-
     auto settingsIterator = _nodeInfo->info->structValue->find("sockettype");
     if (settingsIterator != _nodeInfo->info->structValue->end()) {
       if (settingsIterator->second->stringValue == "server") _type = SocketType::kServer;
@@ -70,103 +67,93 @@ bool TcpSocket::start() {
     }
 
     if (_type == SocketType::kServer) {
-      BaseLib::TcpSocket::TcpServerInfo serverInfo;
-      serverInfo.packetReceivedCallback = std::bind(&TcpSocket::packetReceived, this, std::placeholders::_1, std::placeholders::_2);
+      C1Net::TcpServer::TcpServerInfo server_info;
+      server_info.log_callback = std::bind(&TcpSocket::log, this, std::placeholders::_1, std::placeholders::_2);
+      server_info.packet_received_callback = std::bind(&TcpSocket::packetReceivedServer, this, std::placeholders::_1, std::placeholders::_2);
 
       settingsIterator = _nodeInfo->info->structValue->find("listenaddress");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) address = settingsIterator->second->stringValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) server_info.listen_address = settingsIterator->second->stringValue;
 
-      if (!address.empty() && !BaseLib::Net::isIp(address)) address = BaseLib::Net::getMyIpAddress(address);
-      else if (address.empty()) address = BaseLib::Net::getMyIpAddress();
+      if (!server_info.listen_address.empty() && !BaseLib::Net::isIp(server_info.listen_address)) server_info.listen_address = BaseLib::Net::getMyIpAddress(server_info.listen_address);
+      else if (server_info.listen_address.empty()) server_info.listen_address = BaseLib::Net::getMyIpAddress();
 
       settingsIterator = _nodeInfo->info->structValue->find("listenport");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) port = settingsIterator->second->stringValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) server_info.port = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
       settingsIterator = _nodeInfo->info->structValue->find("usetlsserver");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) serverInfo.useSsl = settingsIterator->second->booleanValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) server_info.tls = settingsIterator->second->booleanValue;
 
-      if (serverInfo.useSsl) {
+      if (server_info.tls) {
         std::string tlsNodeId;
         settingsIterator = _nodeInfo->info->structValue->find("tlsserver");
         if (settingsIterator != _nodeInfo->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
 
         if (!tlsNodeId.empty()) {
-          BaseLib::TcpSocket::PCertificateInfo certificateInfo = std::make_shared<BaseLib::TcpSocket::CertificateInfo>();
-          certificateInfo->caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
-          certificateInfo->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
-          certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
-          certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-          certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
-          auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
-          auto secureKeyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
-          secureKeyData->insert(secureKeyData->end(), keyData.begin(), keyData.end());
-          certificateInfo->keyData = secureKeyData;
-          serverInfo.certificates.emplace("*", certificateInfo);
-          serverInfo.dhParamData = getConfigParameter(tlsNodeId, "dhdata.password")->stringValue;
-          serverInfo.dhParamFile = getConfigParameter(tlsNodeId, "dh")->stringValue;
-          serverInfo.requireClientCert = getConfigParameter(tlsNodeId, "clientauth")->booleanValue;
+          auto certificateInfo = std::make_shared<C1Net::CertificateInfo>();
+          certificateInfo->ca_file = getConfigParameter(tlsNodeId, "ca")->stringValue;
+          certificateInfo->ca_data = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+          certificateInfo->cert_file = getConfigParameter(tlsNodeId, "cert")->stringValue;
+          certificateInfo->cert_data = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+          certificateInfo->key_file = getConfigParameter(tlsNodeId, "key")->stringValue;
+          certificateInfo->key_data = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
+          server_info.certificates.emplace("*", certificateInfo);
+          server_info.require_client_cert = getConfigParameter(tlsNodeId, "clientauth")->booleanValue;
         }
       }
 
-      _socket = std::make_shared<BaseLib::TcpSocket>(_bl.get(), serverInfo);
+      tcp_server_ = std::make_shared<C1Net::TcpServer>(server_info);
 
       try {
-        std::string listenAddress;
-        _socket->startServer(address, port, listenAddress);
-        _out->printInfo("Info: Server is now listening on address " + listenAddress + ".");
+        tcp_server_->Start();
+        _out->printInfo("Info: Server is now listening.");
       }
       catch (BaseLib::Exception &ex) {
         _out->printError("Error starting server: " + std::string(ex.what()));
         return false;
       }
     } else if (_type == SocketType::kClient) {
-      bool useTls = false;
+      C1Net::TcpClient::TcpClientInfo client_info;
+
+      client_info.log_callback = std::bind(&TcpSocket::log, this, std::placeholders::_1, std::placeholders::_2);
+      client_info.packet_received_callback = std::bind(&TcpSocket::packetReceivedClient, this, std::placeholders::_1);
 
       settingsIterator = _nodeInfo->info->structValue->find("address");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) address = settingsIterator->second->stringValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) client_info.host = settingsIterator->second->stringValue;
 
       settingsIterator = _nodeInfo->info->structValue->find("port");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) port = settingsIterator->second->stringValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) client_info.port = Flows::Math::getUnsignedNumber(settingsIterator->second->stringValue);
 
       settingsIterator = _nodeInfo->info->structValue->find("usetlsclient");
-      if (settingsIterator != _nodeInfo->info->structValue->end()) useTls = settingsIterator->second->booleanValue;
+      if (settingsIterator != _nodeInfo->info->structValue->end()) client_info.tls = settingsIterator->second->booleanValue;
 
-      if (useTls) {
+      if (client_info.tls) {
         std::string tlsNodeId;
         settingsIterator = _nodeInfo->info->structValue->find("tlsclient");
         if (settingsIterator != _nodeInfo->info->structValue->end()) tlsNodeId = settingsIterator->second->stringValue;
 
         if (!tlsNodeId.empty()) {
-          BaseLib::TcpSocket::PCertificateInfo certificateInfo = std::make_shared<BaseLib::TcpSocket::CertificateInfo>();
-          certificateInfo->caFile = getConfigParameter(tlsNodeId, "ca")->stringValue;
-          certificateInfo->caData = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
-          certificateInfo->certFile = getConfigParameter(tlsNodeId, "cert")->stringValue;
-          certificateInfo->certData = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
-          certificateInfo->keyFile = getConfigParameter(tlsNodeId, "key")->stringValue;
-          auto keyData = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
-          auto secureKeyData = std::make_shared<BaseLib::Security::SecureVector<uint8_t>>();
-          secureKeyData->insert(secureKeyData->end(), keyData.begin(), keyData.end());
-          certificateInfo->keyData = secureKeyData;
-
-          _socket =
-              std::make_shared<BaseLib::TcpSocket>(_bl.get(), address, port, useTls, true, certificateInfo->caFile, certificateInfo->caData, certificateInfo->certFile, certificateInfo->certData, certificateInfo->keyFile, certificateInfo->keyData);
+          client_info.ca_file = getConfigParameter(tlsNodeId, "ca")->stringValue;
+          client_info.ca_data = getConfigParameter(tlsNodeId, "cadata.password")->stringValue;
+          client_info.client_cert_file = getConfigParameter(tlsNodeId, "cert")->stringValue;
+          client_info.client_cert_data = getConfigParameter(tlsNodeId, "certdata.password")->stringValue;
+          client_info.client_key_file = getConfigParameter(tlsNodeId, "key")->stringValue;
+          client_info.client_key_data = getConfigParameter(tlsNodeId, "keydata.password")->stringValue;
         }
-      } else {
-        _socket = std::make_shared<BaseLib::TcpSocket>(_bl.get(), address, port);
       }
 
-      if (_socket) {
-        _socket->setConnectionRetries(1);
-        _socket->setReadTimeout(100000);
+      client_info.read_timeout = 10000;
+      client_info.write_timeout = 10000;
+
+      tcp_client_ = std::make_shared<C1Net::TcpClient>(client_info);
+      try {
+        tcp_client_->Start();
+        _out->printInfo("Info: Client is now started.");
+      }
+      catch (BaseLib::Exception &ex) {
+        _out->printError("Error starting client: " + std::string(ex.what()));
+        return false;
       }
     } else _out->printError("Error: Invalid socket type.");
-
-    _stopListenThread = true;
-    if (_listenThread.joinable()) _listenThread.join();
-    if (_type == SocketType::kClient) {
-      _stopListenThread = false;
-      _listenThread = std::thread(&TcpSocket::listen, this);
-    }
 
     return true;
   }
@@ -181,11 +168,10 @@ bool TcpSocket::start() {
 
 void TcpSocket::stop() {
   try {
-    _stopListenThread = true;
     if (_type == SocketType::kServer) {
-      if (_socket) _socket->stopServer();
+      if (tcp_server_) tcp_server_->Stop();
     } else if (_type == SocketType::kClient) {
-      if (_socket) _socket->close();
+      if (tcp_client_) tcp_client_->Stop();
     }
   }
   catch (const std::exception &ex) {
@@ -199,11 +185,10 @@ void TcpSocket::stop() {
 void TcpSocket::waitForStop() {
   try {
     if (_type == SocketType::kServer) {
-      if (_socket) _socket->waitForServerStopped();
+      if (tcp_server_) tcp_server_->WaitForServerStopped();
     } else if (_type == SocketType::kClient) {
-      if (_socket) _socket->close();
+      if (tcp_client_) tcp_client_->WaitForClientStopped();
     }
-    if (_listenThread.joinable()) _listenThread.join();
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -227,11 +212,15 @@ Flows::PVariable TcpSocket::getConfigParameterIncoming(const std::string &name) 
   return std::make_shared<Flows::Variable>();
 }
 
-void TcpSocket::packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket &packet) {
+void TcpSocket::log(uint32_t log_level, const std::string &message) {
+  _out->printMessage(message, (int32_t)log_level);
+}
+
+void TcpSocket::packetReceivedServer(const C1Net::TcpServer::PTcpClientData &client_data, const C1Net::TcpPacket &packet) {
   try {
     auto parameters = std::make_shared<Flows::Array>();
     parameters->reserve(2);
-    parameters->push_back(std::make_shared<Flows::Variable>(clientId));
+    parameters->push_back(std::make_shared<Flows::Variable>(client_data ? client_data->GetId() : 0));
     parameters->push_back(std::make_shared<Flows::Variable>(packet));
     std::lock_guard nodesGuard(_nodesMutex);
     for (auto &node: _nodes) {
@@ -246,6 +235,10 @@ void TcpSocket::packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket &
   catch (...) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
+}
+
+void TcpSocket::packetReceivedClient(const C1Net::TcpPacket &packet) {
+  packetReceivedServer(nullptr, packet);
 }
 
 void TcpSocket::setConnectionState(bool value) {
@@ -263,60 +256,6 @@ void TcpSocket::setConnectionState(bool value) {
   }
 }
 
-void TcpSocket::listen() {
-  try {
-    BaseLib::TcpSocket::TcpPacket data;
-    std::vector<char> buffer(4096);
-    uint32_t bytesReceived = 0;
-
-    while (!_stopListenThread) {
-      if (!_socket->connected()) {
-        _socket->open();
-        if (!_socket->connected()) {
-          setConnectionState(false);
-          for (int32_t i = 0; i < 10; i++) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            if (_stopListenThread) return;
-          }
-          continue;
-        } else {
-          setConnectionState(true);
-        }
-      }
-
-      try {
-        bytesReceived = _socket->proofread(buffer.data(), buffer.size());
-        if (bytesReceived > 0) {
-          data.clear();
-          data.insert(data.end(), buffer.begin(), buffer.begin() + bytesReceived);
-          packetReceived(0, data);
-        }
-      }
-      catch (BaseLib::SocketClosedException &ex) {
-        _socket->close();
-        _out->printWarning("Warning: Connection to server closed.");
-        continue;
-      }
-      catch (BaseLib::SocketTimeOutException &ex) {
-        continue;
-      }
-      catch (BaseLib::SocketOperationException &ex) {
-        _socket->close();
-        _out->printError("Error: " + std::string(ex.what()));
-        continue;
-      }
-      catch (const std::exception &ex) {
-        _socket->close();
-        _out->printError("Error: " + std::string(ex.what()));
-        continue;
-      }
-    }
-  }
-  catch (const std::exception &ex) {
-    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
-  }
-}
-
 //{{{ RPC methods
 Flows::PVariable TcpSocket::send(const Flows::PArray &parameters) {
   try {
@@ -326,19 +265,17 @@ Flows::PVariable TcpSocket::send(const Flows::PArray &parameters) {
     if (parameters->at(1)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 2 is not of type String.");
 
     if (_type == SocketType::kServer) {
-      _socket->sendToClient(parameters->at(0)->integerValue, parameters->at(1)->binaryValue);
+      tcp_server_->Send(parameters->at(0)->integerValue, parameters->at(1)->binaryValue);
     } else {
-      _socket->proofwrite((const char *)parameters->at(1)->binaryValue.data(), parameters->at(1)->binaryValue.size());
+      tcp_client_->Send(parameters->at(1)->binaryValue);
     }
 
     return std::make_shared<Flows::Variable>();
   }
   catch (const std::exception &ex) {
-    _socket->close();
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
   }
   catch (...) {
-    _socket->close();
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
   }
   return Flows::Variable::createError(-32500, "Unknown application error.");
@@ -357,7 +294,7 @@ Flows::PVariable TcpSocket::registerNode(const Flows::PArray &parameters) {
 
     if (_type == SocketType::kClient) {
       Flows::PArray parameters = std::make_shared<Flows::Array>();
-      parameters->push_back(std::make_shared<Flows::Variable>(_socket && _socket->connected()));
+      parameters->push_back(std::make_shared<Flows::Variable>(tcp_client_ && tcp_client_->Connected()));
       invokeNodeMethod(nodeId, "setConnectionState", parameters, false);
     }
 

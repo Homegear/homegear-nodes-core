@@ -27,47 +27,15 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#include "Factory.h"
+#include "MyNode.h"
 
-#include <homegear-node/INode.h>
-#include <unordered_map>
-
-namespace MyNode {
-
-class MyNode : public Flows::INode {
- public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
-
-  bool init(const Flows::PNodeInfo &info) override;
- private:
-  enum class ModbusType {
-    tHoldingRegister = 0,
-    tCoil = 1,
-    tDiscreteInput = 2,
-    tInputRegister = 3
-  };
-
-  struct RegisterInfo {
-    ModbusType modbusType = ModbusType::tHoldingRegister;
-    uint32_t inputIndex = 0;
-    uint32_t index = 0;
-    uint32_t count = 0;
-    bool invertBytes = false;
-    bool invertRegisters = false;
-  };
-
-  std::string _socket;
-  std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
-
-  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
-
-  //{{{ RPC methods
-  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
-  //}}}
-};
-
+Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
+{
+	return new MyNode::MyNode(path, type, frontendConnected);
 }
 
-#endif
+Flows::NodeFactory* getFactory()
+{
+	return (Flows::NodeFactory*) (new MyFactory);
+}

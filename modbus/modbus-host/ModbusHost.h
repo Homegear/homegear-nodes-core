@@ -27,48 +27,34 @@
  * files in the program, then also delete it here.
  */
 
-#ifndef MYNODE_H_
-#define MYNODE_H_
+#ifndef MODBUSHOST_H_
+#define MODBUSHOST_H_
 
 #include <homegear-node/INode.h>
-#include <thread>
-#include <mutex>
+#include "Modbus.h"
 
-namespace MyNode {
+namespace ModbusHost {
 
-class MyNode : public Flows::INode {
+class ModbusHost : public Flows::INode {
  public:
-  MyNode(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
-  ~MyNode() override;
+  ModbusHost(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusHost() override;
 
   bool init(const Flows::PNodeInfo &info) override;
   bool start() override;
   void stop() override;
   void waitForStop() override;
+
+  Flows::PVariable getConfigParameterIncoming(const std::string &name) override;
  private:
-  enum class RateLimiterState : int32_t {
-    kIdle = 0,
-    kFirst = 1,
-    kFirstOffset = 2,
-    kReceiving = 3,
-    kWaitingForInput = 4,
-  };
+  Flows::PNodeInfo _nodeInfo;
+  std::unique_ptr<Modbus> _modbus;
 
-  uint32_t _maxInputs = 1;
-  uint32_t _interval = 1000;
-  bool _outputFirst = true;
-
-  std::atomic_bool _stopThread{true};
-  std::mutex _timerThreadMutex;
-  std::thread _timerThread;
-
-  std::mutex _dataMutex;
-  RateLimiterState _state = RateLimiterState::kIdle;
-  Flows::PVariable _lastInput;
-  int64_t _firstInputTime = 0;
-  size_t _inputCount = 0;
-  void timer();
-  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  //{{{ RPC methods
+  Flows::PVariable registerNode(const Flows::PArray &parameters);
+  Flows::PVariable triggerPoll(const Flows::PArray &parameters);
+  Flows::PVariable writeRegisters(const Flows::PArray &parameters);
+  //}}}
 };
 
 }

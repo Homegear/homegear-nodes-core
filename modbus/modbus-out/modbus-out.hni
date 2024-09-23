@@ -95,21 +95,21 @@
                     if (!opt.hasOwnProperty('i')) {
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }
-                    var row = $('<div/>').appendTo(container);
-                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    var row = $('<div/>',{style:"display: flex; justify-content: space-between; align-items: center;"}).appendTo(container);
+                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; margin-right: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     var nameLabel = $('<span/>',{class:"node-input-register-name-label"}).text(" "+nameLabelText+" ").appendTo(row);
-                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; margin-right: 5px; flex-grow: 1; width: 60px;"}).appendTo(row);
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
-                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; margin-right: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
-                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
-                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; margin-right: 5px; width: 60px;"}).appendTo(row);
+                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px; margin-right: 5px; display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
                     var invertBytesLabel = $('<span/>',{class:"node-input-register-invertbytes-label"}).text(" "+invertBytesLabelText+" ").appendTo(row);
-                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px; margin-right: 5px; display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
                     var invertRegistersLabel = $('<span/>',{class:"node-input-register-invertregisters-label"}).text(" "+invertRegistersLabelText+" ").appendTo(row);
-                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px; margin-left: 10px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
                     modbusTypeField.val(register.mt == 1 ? 'Coil' : 'Reg.');

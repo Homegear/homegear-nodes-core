@@ -27,15 +27,27 @@
  * files in the program, then also delete it here.
  */
 
-#include "Factory.h"
-#include "ModbusIn.h"
+#ifndef MODBUSTRIGGER_H_
+#define MODBUSTRIGGER_H_
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
-{
-	return new ModbusIn::ModbusIn(path, type, frontendConnected);
+#include <homegear-node/INode.h>
+#include <unordered_map>
+
+namespace ModbusTrigger {
+
+class ModbusTrigger : public Flows::INode {
+ public:
+  ModbusTrigger(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusTrigger() override;
+
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  std::string _modbusHost;
+
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+};
+
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
-}
+#endif

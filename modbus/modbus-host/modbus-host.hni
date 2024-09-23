@@ -12,6 +12,10 @@
 -->
 <script type="text/x-red" data-template-name="modbus-host">
     <div class="form-row">
+        <label for="node-config-input-name"><i class="fa fa-tag"></i> <span data-i18n="common.label.name"></span></label>
+        <input type="text" id="node-config-input-name" data-i18n="[placeholder]common.label.name">
+    </div>
+    <div class="form-row">
         <label for="node-config-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-host.label.server"></span></label>
         <input class="input-append-left" type="text" id="node-config-input-server" placeholder="e.g. localhost" style="width:40%;" >
         <label for="node-config-input-port" style="margin-left:20px; width:35px; "> <span data-i18n="modbus-host.label.port"></span></label>
@@ -19,11 +23,13 @@
     </div>
     <div class="form-row">
         <label for="node-config-input-interval"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.interval"></span></label>
-        <input type="text" id="node-config-input-interval">
+        <input type="text" id="node-config-input-interval" style="width:50%">
+        <label for="node-config-input-interval">ms</label>
     </div>
     <div class="form-row">
         <label for="node-config-input-delay"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.delay"></span></label>
-        <input type="text" id="node-config-input-delay">
+        <input type="text" id="node-config-input-delay" style="width:50%">
+        <label for="node-config-input-delay">ms</label>
     </div>
     <div class="form-row">
         <label for="node-config-input-slaveid"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.slaveid"></span></label>
@@ -66,6 +72,7 @@
     RED.nodes.registerType('modbus-host',{
         category: 'config',
         defaults: {
+            name: {value:""},
             server: {value:"",required:true},
             port: {value:"502",required:true,validate:RED.validators.number()},
             interval: {value:"100",required:true,validate:RED.validators.number()},
@@ -81,9 +88,11 @@
             readdiscreteinputs: {value:[]}
         },
         label: function() {
+            var a = this.name;
             var b = this.server;
             if (b === "") { b = "undefined"; }
-            return b+":"+this.port;
+            if (a === "" || a === undefined) {a = (b+":"+this.port); }
+            return a;
         },
         oneditprepare: function() {
             var startLabelText = this._("modbus-host.label.first");

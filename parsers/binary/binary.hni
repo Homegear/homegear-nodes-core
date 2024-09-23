@@ -1,0 +1,42 @@
+<script type="text/x-red" data-template-name="binary">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> <span data-i18n="binary.label.name"></span></label>
+        <input type="text" id="node-input-name" data-i18n="[placeholder]binary.label.name">
+    </div>
+    <div class="form-row">
+		<label style="width: 130px;" for="node-input-input-type"><i class="fa fa-clock-o"></i> <span data-i18n="binary.label.input-type"></span></label>
+		<select id="node-input-input-type" style="display: inline-block; width: 40%;">
+			<option value="binary" data-i18n="binary.label.binary"></option>
+			<option value="hex" data-i18n="binary.label.hex"></option>
+		</select>
+	</div>
+</script>
+<script type="text/javascript">
+    RED.nodes.registerType('binary', {
+        category: 'parsers',
+        color:"#DEBD5C",
+        defaults: {
+            name: {value:""},
+            "input-type": {value:"binary"}
+        },
+        inputs:1,
+        inputInfo: [
+            {
+                types: ["string", "struct"]
+            }
+        ],
+        outputs:1,
+        outputInfo: [
+            {
+                types: ["string", "struct"]
+            }
+        ],
+        icon: "join.svg",
+        label: function() {
+            return this.name||"binary";
+        },
+        labelStyle: function() {
+            return this.name?"node_label_italic":"";
+        }
+    });
+</script>

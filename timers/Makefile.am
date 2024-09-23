@@ -29,7 +29,7 @@ on_delay_la_LDFLAGS =-module -avoid-version -shared
 ramp_to_la_SOURCES = ramp-to/Factory.cpp ramp-to/RampTo.cpp
 ramp_to_la_LDFLAGS =-module -avoid-version -shared
 
-rate_limiter_la_SOURCES = rate-limiter/Factory.cpp rate-limiter/MyNode.cpp
+rate_limiter_la_SOURCES = rate-limiter/Factory.cpp rate-limiter/RateLimiter.cpp
 rate_limiter_la_LDFLAGS =-module -avoid-version -shared
 
 timer_la_SOURCES = timer/Factory.cpp timer/MyNode.cpp timer/SunTime.cpp

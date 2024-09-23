@@ -27,15 +27,48 @@
  * files in the program, then also delete it here.
  */
 
-#include "Factory.h"
-#include "ModbusIn.h"
+#ifndef MODBUSOUT_H_
+#define MODBUSOUT_H_
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
-{
-	return new ModbusIn::ModbusIn(path, type, frontendConnected);
+#include <homegear-node/INode.h>
+#include <unordered_map>
+
+namespace ModbusOut {
+
+class ModbusOut : public Flows::INode {
+ public:
+  ModbusOut(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~ModbusOut() override;
+
+  bool init(const Flows::PNodeInfo &info) override;
+  void configNodesStarted() override;
+ private:
+  enum class ModbusType {
+    tHoldingRegister = 0,
+    tCoil = 1,
+    tDiscreteInput = 2,
+    tInputRegister = 3
+  };
+
+  struct RegisterInfo {
+    ModbusType modbusType = ModbusType::tHoldingRegister;
+    uint32_t inputIndex = 0;
+    uint32_t index = 0;
+    uint32_t count = 0;
+    bool invertBytes = false;
+    bool invertRegisters = false;
+  };
+
+  std::string _socket;
+  std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>> _registers;
+
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+
+  //{{{ RPC methods
+  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
+  //}}}
+};
+
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
-}
+#endif

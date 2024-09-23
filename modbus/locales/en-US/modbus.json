@@ -1,6 +1,6 @@
 {
   "modbus-host": {
-    "help": "<p>A Modbus connection requires a Modbus server address to be added to the default configuration and at least one register range to read. You can add as many ranges as possible. \"Invert bytes\" changes the order of the two bytes of each register. Set \"Min. delay\" to the amount of time to wait between reads or writes if the device can't be read or written immediately again after being read or written. The node tries to poll all specified registers every interval. \"ROC\" (read on connect) makes the node read the registers once after the connection to the Modbus host has been established. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4). \"Slave ID\" should normally be 255 for Modbus over TCP. Some devices require a specific ID though.</p>",
+    "help": "<p>A Modbus connection requires a Modbus server address to be added to the default configuration and at least one register range to read. You can add as many ranges as required. <code>Invert bytes</code> changes the order of the two bytes of each register. Set <code>Min. delay</code> to the amount of time to wait between reads or writes if the device can't be read or written immediately again after being read or written. The node tries to poll all specified registers every <code>interval</code>. Set <code>interval</code> to <code>0</code> to disable automatic polling. You can still poll manually using the Modbus trigger node. <code>ROC</code> (read on connect) makes the node read the registers once after the connection to the Modbus host has been established. Note that all indices are addresses so you might need to subtract 1 from the coil, input or register number (e. g. coil #5 has the address 4). <code>Slave ID</code> should normally be 255 for Modbus over TCP. Some devices require a specific ID though.</p>",
     "label": {
       "server": "Server",
       "port": "Port",
@@ -8,7 +8,7 @@
       "delay": "Min. delay",
       "slaveid": "Slave ID",
       "keepalive": "Keep TCP connection alive (otherwise it is closed after every request)",
-      "debug": "Write debug info to flows log",
+      "debug": "Write debug info to flows log (debug level 4 required in main.conf)",
       "read-registers": "Holding registers to read (Func. 3)",
       "write-registers": "Registers to write (Func. 16)",
       "read-input-registers": "Input registers to read (Func. 4)",
@@ -27,6 +27,7 @@
     "output1Description": "The payload received from the Modbus server.",
     "label": {
       "server": "Server",
+      "changes-only": "Output changes only",
       "registers": "Input/holding registers, coils and discrete inputs",
       "index": "Index",
       "count": "Count",
@@ -38,7 +39,6 @@
   "modbus-out": {
     "paletteHelp": "<p>Connects to a Modbus server and writes to the specified registers.</p>",
     "help": "<p>Connects to a Modbus server and writes to the specified registers.</p><p>\"IB\" inverts the order of the two bytes within each register. \"IR\" inverts the order of the registers. <code>boolean</code>, <code>integer</code>, <code>float</code> and <code>string</code> are automatically converted to binary. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4).</p>",
-    "output1Description": "The payload received from the Modbus server.",
     "label": {
       "server": "Server",
       "registers": "Registers and coils",
@@ -46,6 +46,13 @@
       "count": "Count",
       "invertbytes": "IB",
       "invertregisters": "IR"
+    }
+  },
+  "modbus-trigger": {
+    "paletteHelp": "<p>Triggers Modbus communication on a Modbus server node.</p>",
+    "help": "<p>Connects to a Modbus server and manually triggers communication. To use this node, it is required to disable automatic polling in the server node by setting <code>interval</code> to <code>0</code>.</p>",
+    "label": {
+      "server": "Server"
     }
   }
 }

@@ -23,7 +23,7 @@
         <select type="text" id="node-input-channel" class="node-input-select2" style="display: inline-block; width: 65%;">
         </select>
     </div>
-    <div id="node-input-variable-container" clsee="hide">
+    <div id="node-input-variable-container" class="hide">
         <div class="form-row">
             <label style="width: 80px; margin-left: 20px; margin-right: 10px;" for="node-input-variable"><i class="fa fa-tag"></i> <span data-i18n="variable-out.label.variable"></span></label>
             <select type="text" id="node-input-variable" class="node-input-select2" style="display: inline-block; width: 65%;">
@@ -34,6 +34,13 @@
         <div class="form-row">
             <div id="node-create-variable" style="width: 100%; text-align: right; margin-right: 10px; cursor: pointer;"><a class="create-variable-dialog"><span data-i18n="variable-out.label.createnewvariable"></span></a></div>
         </div>
+    </div>
+    <div id="node-input-wait-container" class="hide">
+		<div class="form-row">
+			<label style="margin-left: 10px;">&nbsp;</label>
+			<input type="checkbox" id="node-input-wait" style="display: inline-block; width: auto; vertical-align: top;">
+			<label for="node-input-wait" style="width: auto;" data-i18n="variable-out.label.wait"></label>
+    	</div>
     </div>
     <div class="form-tips" data-i18n="[html]variable-out.tip"></div>
 </script>
@@ -48,7 +55,7 @@
             peerid: {value:"0",validate: function(v) { if(this.variabletype != "device" && this.variabletype != "metadata") return true; else return $.isNumeric(v); }},
             channel: {value:"0",validate: function(v) { if(this.variabletype != "device") return true; else return $.isNumeric(v); }},
             variable: {value:"",validate: function(v) { return v != ""; }},
-
+			wait: {value:true, required: false},
             name: {value:""}
         },
         inputs: 1,
@@ -273,6 +280,7 @@
                         $("#node-input-channel-container").show();
                         $("#node-input-variable-container").show();
                         $("#node-create-variable").hide();
+                        $("#node-input-wait-container").show();
                         updateChannelOptions();
                     } else if(variableType == "metadata") {
                         $("#node-input-family-container").show();
@@ -280,6 +288,7 @@
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
                         $("#node-create-variable").show();
+                        $("#node-input-wait-container").hide();
                         updateMetadataVariableOptions();
                     } else {
                         $("#node-input-family-container").hide();
@@ -287,6 +296,7 @@
                         $("#node-input-channel-container").hide();
                         $("#node-input-variable-container").show();
                         $("#node-create-variable").show();
+                        $("#node-input-wait-container").hide();
                         if(variableType == "system") updateSystemVariableOptions();
                         else if(variableType == "flow") updateFlowVariableOptions();
                         else if(variableType == "global") updateGlobalVariableOptions();

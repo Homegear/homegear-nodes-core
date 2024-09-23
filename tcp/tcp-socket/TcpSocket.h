@@ -32,6 +32,8 @@
 
 #include <homegear-node/INode.h>
 #include <homegear-base/BaseLib.h>
+#include <c1-net/TcpServer.h>
+#include <c1-net/TcpClient.h>
 
 #include <regex>
 
@@ -68,15 +70,13 @@ class TcpSocket : public Flows::INode {
   std::mutex _nodesMutex;
   std::unordered_map<std::string, NodeType> _nodes;
 
-  BaseLib::PTcpSocket _socket;
-
-  //For client socket
-  std::atomic_bool _stopListenThread{false};
-  std::thread _listenThread;
+  C1Net::PTcpServer tcp_server_;
+  C1Net::PTcpClient tcp_client_;
 
   void setConnectionState(bool value);
-  void packetReceived(int32_t clientId, BaseLib::TcpSocket::TcpPacket &packet);
-  void listen();
+  void log(uint32_t log_level, const std::string &message);
+  void packetReceivedServer(const C1Net::TcpServer::PTcpClientData &client_data, const C1Net::TcpPacket &packet);
+  void packetReceivedClient(const C1Net::TcpPacket &packet);
 
   //{{{ RPC methods
   Flows::PVariable send(const Flows::PArray &parameters);

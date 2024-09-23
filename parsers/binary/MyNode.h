@@ -30,9 +30,10 @@
 #ifndef MYNODE_H_
 #define MYNODE_H_
 
-#include <homegear-base/BaseLib.h>
 #include <homegear-node/INode.h>
-#include <unordered_map>
+#include <homegear-node/JsonDecoder.h>
+#include <homegear-node/JsonEncoder.h>
+#include <mutex>
 
 namespace MyNode {
 
@@ -42,47 +43,13 @@ class MyNode : public Flows::INode {
   ~MyNode() override;
 
   bool init(const Flows::PNodeInfo &info) override;
-  void configNodesStarted() override;
  private:
-  enum class ModbusType {
-    tHoldingRegister = 0,
-    tCoil = 1,
-    tDiscreteInput = 2,
-    tInputRegister = 3
-  };
+  static const std::array<int32_t, 23> _asciiToBinaryTable;
 
-  enum class RegisterType {
-    tBin,
-    tBool,
-    tInt,
-    tUInt,
-    tFloat,
-    tString
-  };
+  bool _inputIsBinary = false;
 
-  struct RegisterInfo {
-    ModbusType modbusType = ModbusType::tHoldingRegister;
-    uint32_t outputIndex = 0;
-    uint32_t index = 0;
-    uint32_t count = 0;
-    RegisterType type = RegisterType::tBin;
-    bool invertBytes = false;
-    bool invertRegisters = false;
-    std::vector<uint8_t> lastValue;
-    std::string name;
-  };
-
-  std::string _socket;
-  uint32_t _outputs = 0;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _registers;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _coils;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _discreteInputs;
-  std::unordered_map<uint32_t, std::unordered_map<uint32_t, std::shared_ptr<RegisterInfo>>> _inputRegisters;
-
-  //{{{ RPC methods
-  Flows::PVariable packetReceived(const Flows::PArray& parameters);
-  Flows::PVariable setConnectionState(const Flows::PArray& parameters);
-  //}}}
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+  std::string getUBinary(const std::string &hexString);
 };
 
 }

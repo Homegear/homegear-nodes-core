@@ -19,6 +19,11 @@
         <label for="node-input-server"><i class="fa fa-globe"></i> <span data-i18n="modbus-in.label.server"></span></label>
         <input type="text" id="node-input-server">
     </div>
+    <div class="form-row" id="changes-only">
+		<label>&nbsp;</label>
+		<input type="checkbox" id="node-input-changes-only" style="display: inline-block; width: auto; vertical-align: top;">
+		<label for="node-input-changes-only" style="width: 70%;" data-i18n="modbus-in.label.changes-only"></label>
+	</div>
     <div class="form-row node-input-registers-container-row">
         <input type="hidden" id="node-input-outputs"/>
         <label for="node-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-in.label.registers"></span></label>
@@ -34,6 +39,7 @@
         defaults: {
             name: {value:""},
             server: {type:"modbus-host", required:true},
+            "changes-only": {value:true},
             registers: {value:[{mt:"0", n:"", r:"1", c:"1", t:"bin", ir:false, ib:false}]},
             outputs: {value:1}
         },
@@ -102,28 +108,28 @@
                     if (!opt.hasOwnProperty('i')) {
                         opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
                     }
-                    var row = $('<div/>').appendTo(container);
-                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
+                    var row = $('<div/>',{style:"display: flex; justify-content: space-between; align-items: center;"}).appendTo(container);
+                    var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; margin-right: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("HReg").text("HReg"));
                     modbusTypeField.append($("<option></option>").val("IReg").text("IReg"));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     modbusTypeField.append($("<option></option>").val("DiscI").text("DiscI"));
                     var nameLabel = $('<span/>',{class:"node-input-register-name-label"}).text(" "+nameLabelText+" ").appendTo(row);
-                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; margin-right: 5px; flex-grow: 1; width: 60px;"}).appendTo(row);
                     var indexLabel = $('<span/>',{class:"node-input-register-index-label"}).text(" "+indexLabelText+" ").appendTo(row);
-                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var indexField = $('<input/>',{class:"node-input-register-index",type:"text",style:"margin-left: 5px; margin-right: 5px; width: 60px;"}).appendTo(row);
                     var countLabel = $('<span/>',{class:"node-input-register-count-label"}).text(" "+countLabelText+" ").appendTo(row);
-                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var countField = $('<input/>',{class:"node-input-register-count",type:"text",style:"margin-left: 5px; margin-right: 5px; width: 60px;"}).appendTo(row);
                     var typeLabel = $('<span/>',{class:"node-input-register-type-label"}).text(" "+typeLabelText+" ").appendTo(row);
                     var selectField = $('<select/>',{class:"node-input-register-type", style:"width:70px; margin-left: 5px; text-align: center;"}).appendTo(row);
                     for (var d in types) {
                         selectField.append($("<option></option>").val(types[d]).text(types[d]));
                     }
-                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertBytesField = $('<input/>',{class:"node-input-register-invertbytes",type:"checkbox",style:"margin-left: 10px; margin-right: 5px; display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
                     var invertBytesLabel = $('<span/>',{class:"node-input-register-invertbytes-label"}).text(" "+invertBytesLabelText+" ").appendTo(row);
-                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertRegistersField = $('<input/>',{class:"node-input-register-invertregisters",type:"checkbox",style:"margin-left: 10px; margin-right: 5px; display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
                     var invertRegistersLabel = $('<span/>',{class:"node-input-register-invertregisters-label"}).text(" "+invertRegistersLabelText+" ").appendTo(row);
-                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px;"}).appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right; margin-top: 6px; margin-left: 10px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
                     if(register.mt == 0) modbusTypeField.val('HReg');

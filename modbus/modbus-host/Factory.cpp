@@ -28,11 +28,11 @@
  */
 
 #include "Factory.h"
-#include "MyNode.h"
+#include "ModbusHost.h"
 
 Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
 {
-	return new MyNode::MyNode(path, type, frontendConnected);
+	return new ModbusHost::ModbusHost(path, type, frontendConnected);
 }
 
 Flows::NodeFactory* getFactory()

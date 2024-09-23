@@ -27,15 +27,52 @@
  * files in the program, then also delete it here.
  */
 
-#include "Factory.h"
-#include "ModbusIn.h"
+#ifndef MYNODE_H_
+#define MYNODE_H_
 
-Flows::INode* MyFactory::createNode(const std::string &path, const std::string &type, const std::atomic_bool* frontendConnected)
-{
-	return new ModbusIn::ModbusIn(path, type, frontendConnected);
+#include <homegear-node/INode.h>
+#include <thread>
+#include <mutex>
+
+namespace RateLimiter {
+
+class RateLimiter : public Flows::INode {
+ public:
+  RateLimiter(const std::string &path, const std::string &type, const std::atomic_bool *frontendConnected);
+  ~RateLimiter() override;
+
+  bool init(const Flows::PNodeInfo &info) override;
+  bool start() override;
+  void stop() override;
+  void waitForStop() override;
+ private:
+  enum class RateLimiterState : int32_t {
+    kIdle = 0,
+    kFirst = 1,
+    kFirstOffset = 2,
+    kReceiving = 3,
+    kWaitingForInput = 4,
+  };
+
+  uint32_t _maxInputs = 1;
+  uint32_t _interval = 1000;
+  bool _outputFirst = true;
+  bool _outputChanges = false;
+
+  std::atomic_bool _stopThread{true};
+  std::mutex _timerThreadMutex;
+  std::thread _timerThread;
+
+  std::mutex _dataMutex;
+  RateLimiterState _state = RateLimiterState::kIdle;
+  Flows::PVariable _latestInput;
+  Flows::PVariable _currentValue = std::make_shared<Flows::Variable>();
+  int64_t _firstInputTime = 0;
+  size_t _inputCount = 0;
+  void timer();
+  void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
+};
+
 }
 
-Flows::NodeFactory* getFactory()
-{
-	return (Flows::NodeFactory*) (new MyFactory);
-}
+#endif
