@@ -77,7 +77,7 @@ bool MyNode::init(const Flows::PNodeInfo &info) {
         if (!settingsIterator->second->stringValue.empty()) {
           _startValue = Flows::Math::getDouble(settingsIterator->second->stringValue);
           for (uint32_t i = 0; i < _inputs; ++i) {
-            _lastInputs.insert_or_assign(i, std::make_shared<BaseLib::Variable>(_startValue));
+            _lastInputs.insert_or_assign(i, std::make_shared<Flows::Variable>(_startValue));
           }
         }
       }
@@ -178,7 +178,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
           output(index, message);
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
         output(index, message);
       }
@@ -193,7 +193,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
           output(index, message);
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
       }
       break;
     }
@@ -222,7 +222,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
             break;
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
         output(index, message);
       }
@@ -253,7 +253,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
             break;
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
         output(index, message);
       }
@@ -284,7 +284,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
             break;
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
         output(index, message);
       }
@@ -315,7 +315,7 @@ void MyNode::evalNumber(double input, uint32_t index) {
             break;
         }
       } else {
-        _lastInputs.insert_or_assign(index, std::make_shared<BaseLib::Variable>(input));
+        _lastInputs.insert_or_assign(index, std::make_shared<Flows::Variable>(input));
         message->structValue->emplace("payload", std::make_shared<Flows::Variable>(input));
         output(index, message);
       }
