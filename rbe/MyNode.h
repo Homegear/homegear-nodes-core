@@ -73,7 +73,8 @@ class MyNode : public Flows::INode {
   std::map<uint32_t , Flows::PVariable> _lastInputs;
 
   void input(const Flows::PNodeInfo &info, uint32_t index, const Flows::PVariable &message) override;
-  void evalNumber(double input, uint32_t index);
+  void evalFloat(double input, uint32_t index);
+  void evalInteger(int64_t input, uint32_t index);
   void eval(const Flows::PVariable &input, uint32_t index);
 };
 
