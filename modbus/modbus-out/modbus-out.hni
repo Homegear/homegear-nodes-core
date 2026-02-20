@@ -48,6 +48,7 @@
                 else if(register.mt == 1) modbusType = 'Coil';
                 else if(register.mt == 2) modbusType = 'DiscI';
                 else if(register.mt == 3) modbusType = 'IReg';
+                else if(register.mt == 4) modbusType = 'SReg';
                 return {
                     types: ["bool", "int", "float", "binary", "string"],
                     label: register.n ? register.n : register.r + '',
@@ -98,6 +99,7 @@
                     var row = $('<div/>',{style:"display: flex; justify-content: space-between; align-items: center;"}).appendTo(container);
                     var modbusTypeField = $('<select/>',{class:"node-input-register-modbustype", style:"width:70px; margin-left: 5px; margin-right: 5px; text-align: center;"}).appendTo(row);
                     modbusTypeField.append($("<option></option>").val("Reg.").text("Reg."));
+                    modbusTypeField.append($("<option></option>").val("SReg").text("SReg"));
                     modbusTypeField.append($("<option></option>").val("Coil").text("Coil"));
                     var nameLabel = $('<span/>',{class:"node-input-register-name-label"}).text(" "+nameLabelText+" ").appendTo(row);
                     var nameField = $('<input/>',{class:"node-input-register-name",type:"text",maxlength:"50",style:"margin-left: 5px; margin-right: 5px; flex-grow: 1; width: 60px;"}).appendTo(row);
@@ -112,7 +114,9 @@
                     var finalspan = $('<span/>',{style:"float: right; margin-top: 6px; margin-left: 10px;"}).appendTo(row);
                     finalspan.append(' &#8594; <span class="node-input-index">'+i+'</span> ');
 
-                    modbusTypeField.val(register.mt == 1 ? 'Coil' : 'Reg.');
+                    if(register.mt == 4) modbusTypeField.val('SReg');
+                    else if(register.mt == 1) modbusTypeField.val('Coil');
+                    else modbusTypeField.val('Reg.');
                     nameField.val(register.n);
                     indexField.val(register.r);
                     countField.val(register.c);
@@ -131,6 +135,13 @@
                             invertBytesField.show();
                             invertRegistersLabel.show();
                             invertRegistersField.show();
+                        } else if(type == 'SReg') {
+                            countLabel.hide();
+                            countField.hide();
+                            invertBytesLabel.show();
+                            invertBytesField.show();
+                            invertRegistersLabel.hide();
+                            invertRegistersField.hide();
                         } else {
                             countLabel.hide();
                             countField.hide();
@@ -191,7 +202,8 @@
             registers.each(function(i) {
                 var registerData = $(this).data('data');
                 var register = $(this);
-                var modbusType = register.find(".node-input-register-modbustype").val() == 'Reg.' ? '0' : '1';
+                var mtVal = register.find(".node-input-register-modbustype").val();
+                var modbusType = mtVal == 'SReg' ? '4' : (mtVal == 'Reg.' ? '0' : '1');
                 var name = register.find(".node-input-register-name").val();
                 var index = register.find(".node-input-register-index").val();
                 var count = register.find(".node-input-register-count").val();
