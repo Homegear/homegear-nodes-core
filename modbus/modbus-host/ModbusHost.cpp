@@ -327,6 +327,13 @@ Flows::PVariable ModbusHost::writeRegisters(const Flows::PArray &parameters) {
       if (parameters->at(5)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 6 is not of type binary.");
 
       _modbus->writeRegisters(parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue, parameters->at(4)->booleanValue, false, parameters->at(5)->binaryValue);
+    } else if (parameters->at(0)->integerValue == 4 && parameters->size() == 4) {
+      // Write Single Register (Func 06)
+      if (parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
+      if (parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
+      if (parameters->at(3)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 4 is not of type binary.");
+
+      _modbus->writeSingleRegister(parameters->at(1)->integerValue, parameters->at(2)->booleanValue, parameters->at(3)->binaryValue);
     } else {
       if (parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
       if (parameters->at(2)->type != Flows::VariableType::tInteger && parameters->at(2)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 3 is not of type integer.");

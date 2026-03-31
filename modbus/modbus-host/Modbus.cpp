@@ -350,6 +350,53 @@ void Modbus::listen() {
         continue;
       }
 
+      //{{{ Write single registers (Func 06)
+      {
+        std::list<std::shared_ptr<SingleRegisterWriteInfo>> singleRegisterWrites;
+        {
+          std::lock_guard<std::mutex> guard(_singleRegisterWriteQueueMutex);
+          singleRegisterWrites.swap(_singleRegisterWriteQueue);
+        }
+
+        for (auto &write : singleRegisterWrites) {
+          uint16_t regValue;
+          if (write->invertBytes) {
+            regValue = ((uint16_t)write->value[1] << 8) | write->value[0];
+          } else {
+            regValue = ((uint16_t)write->value[0] << 8) | write->value[1];
+          }
+
+          try {
+            _modbus->writeSingleRegister(write->address, regValue);
+          }
+          catch (std::exception &ex) {
+            _out->printError("Error writing single Modbus register " + std::to_string(write->address) + ": " + ex.what() + " - Disconnecting...");
+            disconnect();
+            break;
+          }
+
+          if (_settings->delay > 0) {
+            if (_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+            else {
+              int32_t maxIndex = _settings->delay / 1000;
+              int32_t rest = _settings->delay % 1000;
+              for (int32_t i = 0; i < maxIndex; i++) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                if (!_started) break;
+              }
+              if (!_started) break;
+              if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+            }
+            if (!_started) break;
+          }
+        }
+      }
+      if (!_modbus->isConnected()) {
+        _out->printError("Error: Connection to server closed. Retrying after next interval.");
+        continue;
+      }
+      //}}}
+
       {
         std::lock_guard<std::mutex> readRegistersGuard(_readRegistersMutex);
         registers = _readRegisters;
@@ -858,6 +905,24 @@ void Modbus::connect() {
           _coilWriteBuffer.clear();
         }
       }
+
+      {
+        std::list<std::shared_ptr<SingleRegisterWriteInfo>> writeBuffer;
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_singleRegisterWriteBufferMutex);
+          writeBuffer = _singleRegisterWriteBuffer;
+        }
+
+        for (auto &element: writeBuffer) {
+          writeSingleRegister(element->address, element->invertBytes, element->value);
+        }
+
+        {
+          std::lock_guard<std::mutex> writeBufferGuard(_singleRegisterWriteBufferMutex);
+          _singleRegisterWriteBuffer.clear();
+        }
+      }
     }
 
     setConnectionState(true);
@@ -1036,6 +1101,37 @@ void Modbus::writeRegisters(uint32_t startRegister, uint32_t count, bool invertB
         }
       }
     }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void Modbus::writeSingleRegister(uint32_t address, bool invertBytes, std::vector<uint8_t> &value) {
+  try {
+    if (value.size() < 2) value.resize(2, 0);
+
+    if (!_connected) {
+      std::lock_guard<std::mutex> guard(_singleRegisterWriteBufferMutex);
+      if (_singleRegisterWriteBuffer.size() > 10000) return;
+      auto writeInfo = std::make_shared<SingleRegisterWriteInfo>();
+      writeInfo->address = address;
+      writeInfo->invertBytes = invertBytes;
+      writeInfo->value = value;
+      _singleRegisterWriteBuffer.push_back(writeInfo);
+      return;
+    }
+
+    auto writeInfo = std::make_shared<SingleRegisterWriteInfo>();
+    writeInfo->address = address;
+    writeInfo->invertBytes = invertBytes;
+    writeInfo->value = value;
+
+    std::lock_guard<std::mutex> guard(_singleRegisterWriteQueueMutex);
+    _singleRegisterWriteQueue.push_back(writeInfo);
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
