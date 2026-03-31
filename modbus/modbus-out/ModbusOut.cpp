@@ -75,7 +75,7 @@ bool ModbusOut::init(const Flows::PNodeInfo &info) {
         else registerInfo->modbusType = (ModbusType)Flows::Math::getNumber(modbustypeIterator->second->stringValue);
         registerInfo->inputIndex = (uint32_t)inputIndex;
         registerInfo->index = (uint32_t)index;
-        registerInfo->count = registerInfo->modbusType == ModbusType::tHoldingRegister ? (uint32_t)count : 1;
+        registerInfo->count = (registerInfo->modbusType == ModbusType::tHoldingRegister) ? (uint32_t)count : 1;
         registerInfo->invertBytes = ibIterator->second->booleanValue;
         registerInfo->invertRegisters = irIterator->second->booleanValue;
         _registers.emplace(inputIndex, registerInfo);
@@ -122,7 +122,42 @@ void ModbusOut::input(const Flows::PNodeInfo &info, uint32_t index, const Flows:
 
     Flows::PVariable payload = std::make_shared<Flows::Variable>();
     *payload = *(message->structValue->at("payload"));
-    if (registersIterator->second->modbusType == ModbusType::tHoldingRegister) {
+    if (registersIterator->second->modbusType == ModbusType::tSingleRegister) {
+      if (payload->type == Flows::VariableType::tString) {
+        payload->binaryValue.reserve(2);
+        payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());
+        payload->binaryValue.resize(2, 0);
+      } else if (payload->type == Flows::VariableType::tBoolean) {
+        payload->binaryValue.push_back(0);
+        payload->binaryValue.push_back((uint8_t)payload->booleanValue);
+      } else if (payload->type == Flows::VariableType::tInteger) {
+        payload->binaryValue.reserve(2);
+        payload->binaryValue.push_back((payload->integerValue >> 8) & 0xFF);
+        payload->binaryValue.push_back(payload->integerValue & 0xFF);
+      } else if (payload->type == Flows::VariableType::tInteger64) {
+        payload->binaryValue.reserve(2);
+        payload->binaryValue.push_back((payload->integerValue64 >> 8) & 0xFF);
+        payload->binaryValue.push_back(payload->integerValue64 & 0xFF);
+      } else if (payload->type == Flows::VariableType::tFloat) {
+        auto intVal = (uint16_t)(int16_t)payload->floatValue;
+        payload->binaryValue.reserve(2);
+        payload->binaryValue.push_back((intVal >> 8) & 0xFF);
+        payload->binaryValue.push_back(intVal & 0xFF);
+      }
+      payload->setType(Flows::VariableType::tBinary);
+      if (payload->binaryValue.empty()) return;
+      if (payload->binaryValue.size() < 2) payload->binaryValue.resize(2, 0);
+      if (payload->binaryValue.size() > 2) payload->binaryValue.resize(2);
+
+      Flows::PArray parameters = std::make_shared<Flows::Array>();
+      parameters->reserve(4);
+      parameters->push_back(std::make_shared<Flows::Variable>((int32_t)ModbusType::tSingleRegister));
+      parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->index));
+      parameters->push_back(std::make_shared<Flows::Variable>(registersIterator->second->invertBytes));
+      parameters->push_back(payload);
+
+      invokeNodeMethod(_socket, "writeRegisters", parameters, false);
+    } else if (registersIterator->second->modbusType == ModbusType::tHoldingRegister) {
       if (payload->type == Flows::VariableType::tString) {
         payload->binaryValue.reserve(registersIterator->second->count * 2);
         payload->binaryValue.insert(payload->binaryValue.end(), payload->stringValue.begin(), payload->stringValue.end());

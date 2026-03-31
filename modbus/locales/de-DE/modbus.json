@@ -38,7 +38,7 @@
   },
   "modbus-out": {
     "paletteHelp": "<p>Stellt eine Verbindung zu einem Modbus-Server her und schreibt in die angegebenen Register.</p>",
-    "help": "<p>Stellt eine Verbindung zu einem Modbus-Server her und schreibt in die angegebenen Register.</p><p>\"IB\" kehrt die Reihenfolge der zwei Bytes in jedem Register um. \"IR\" kehrt die Reihenfolge der Register um. <code>boolean</code>, <code>integer</code>, <code>float</code> und <code>string</code> werden automatisch in binär konvertiert. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. Spule 5 hat die Adresse 4).</p>",
+    "help": "<p>Stellt eine Verbindung zu einem Modbus-Server her und schreibt in die angegebenen Register.</p><p>Der Modbus-Typ kann <code>Reg.</code> (Mehrere Register schreiben, Func. 16), <code>SReg</code> (Einzelnes Register schreiben, Func. 06) oder <code>Coil</code> (Mehrere Coils schreiben, Func. 15) sein. <code>SReg</code> schreibt genau ein 16-Bit-Register mit Modbus-Funktion 06 und erfordert keinen konfigurierten Schreibregisterbereich im Server-Knoten.</p><p>\"IB\" kehrt die Reihenfolge der zwei Bytes in jedem Register um. \"IR\" kehrt die Reihenfolge der Register um. <code>boolean</code>, <code>integer</code>, <code>float</code> und <code>string</code> werden automatisch in binär konvertiert. Beachten Sie, dass alle Indizes Adressen sind, sodass Sie möglicherweise 1 von der Spulen-, Eingangs- oder Registernummer abziehen müssen (z. B. Spule 5 hat die Adresse 4).</p>",
     "output1Description": "The payload received from the Modbus server.",
     "label": {
       "server": "Server",

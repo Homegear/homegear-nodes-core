@@ -83,6 +83,8 @@ class Modbus {
 
   void writeRegisters(uint32_t startRegister, uint32_t count, bool invertBytes, bool invertRegisters, bool retry, std::vector<uint8_t> &value);
 
+  void writeSingleRegister(uint32_t address, bool invertBytes, std::vector<uint8_t> &value);
+
   void writeCoils(uint32_t startCoil, uint32_t count, bool retry, std::vector<uint8_t> &value);
 
  private:
@@ -137,6 +139,12 @@ class Modbus {
     std::vector<uint8_t> value;
   };
 
+  struct SingleRegisterWriteInfo {
+    uint32_t address = 0;
+    bool invertBytes = false;
+    std::vector<uint8_t> value;
+  };
+
   std::shared_ptr<BaseLib::SharedObjects> _bl;
   std::shared_ptr<Flows::Output> _out;
   std::shared_ptr<ModbusSettings> _settings;
@@ -157,6 +165,10 @@ class Modbus {
   std::list<std::shared_ptr<RegisterInfo>> _writeRegisters;
   std::mutex _registerWriteBufferMutex;
   std::list<std::shared_ptr<WriteInfo>> _registerWriteBuffer;
+  std::mutex _singleRegisterWriteQueueMutex;
+  std::list<std::shared_ptr<SingleRegisterWriteInfo>> _singleRegisterWriteQueue;
+  std::mutex _singleRegisterWriteBufferMutex;
+  std::list<std::shared_ptr<SingleRegisterWriteInfo>> _singleRegisterWriteBuffer;
   std::mutex _readInputRegistersMutex;
   std::list<std::shared_ptr<RegisterInfo>> _readInputRegisters;
   std::mutex _readCoilsMutex;

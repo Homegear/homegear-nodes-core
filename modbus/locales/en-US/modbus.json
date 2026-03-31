@@ -38,7 +38,7 @@
   },
   "modbus-out": {
     "paletteHelp": "<p>Connects to a Modbus server and writes to the specified registers.</p>",
-    "help": "<p>Connects to a Modbus server and writes to the specified registers.</p><p>\"IB\" inverts the order of the two bytes within each register. \"IR\" inverts the order of the registers. <code>boolean</code>, <code>integer</code>, <code>float</code> and <code>string</code> are automatically converted to binary. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4).</p>",
+    "help": "<p>Connects to a Modbus server and writes to the specified registers.</p><p>The Modbus type can be <code>Reg.</code> (Write Multiple Registers, Func. 16), <code>SReg</code> (Write Single Register, Func. 06) or <code>Coil</code> (Write Multiple Coils, Func. 15). <code>SReg</code> writes exactly one 16-bit register using Modbus function 06 and does not require a write register range to be configured in the server node.</p><p>\"IB\" inverts the order of the two bytes within each register. \"IR\" inverts the order of the registers. <code>boolean</code>, <code>integer</code>, <code>float</code> and <code>string</code> are automatically converted to binary. Note that all indices are addresses so you might need to substract 1 from the coil, input or register number (e. g. coil #5 has the address 4).</p>",
     "label": {
       "server": "Server",
       "registers": "Registers and coils",

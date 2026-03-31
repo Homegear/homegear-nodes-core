@@ -47,7 +47,8 @@ class ModbusOut : public Flows::INode {
     tHoldingRegister = 0,
     tCoil = 1,
     tDiscreteInput = 2,
-    tInputRegister = 3
+    tInputRegister = 3,
+    tSingleRegister = 4
   };
 
   struct RegisterInfo {
