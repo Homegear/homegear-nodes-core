@@ -11,6 +11,7 @@
       "debug": "Write debug info to flows log (debug level 4 required in main.conf)",
       "read-registers": "Holding registers to read (Func. 3)",
       "write-registers": "Registers to write (Func. 16)",
+      "write-single-registers": "Single registers to write (Func. 6)",
       "read-input-registers": "Input registers to read (Func. 4)",
       "read-coils": "Coils to read (Func. 1)",
       "write-coils": "Coils to write (Func. 15)",

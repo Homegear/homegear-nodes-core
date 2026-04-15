@@ -11,6 +11,7 @@
       "debug": "Debug-Informationen in das Flows-Protokoll schreiben (erfordert Debuglevel 4 in der main.conf)",
       "read-registers": "Holding Register zum Lesen (Func. 3)",
       "write-registers": "Register zum Schreiben (Func. 16)",
+      "write-single-registers": "Einzelne Register zum Schreiben (Func. 6)",
       "read-input-registers": "Eingangsregister zum Lesen (Func. 4)",
       "read-coils": "Coils zum Lesen (Func. 1)",
       "write-coils": "Coils zum Schreiben (Func. 15)",

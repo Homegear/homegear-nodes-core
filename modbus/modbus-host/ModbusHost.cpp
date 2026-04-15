@@ -121,6 +121,26 @@ bool ModbusHost::start() {
       }
     }
 
+    settingsIterator = _nodeInfo->info->structValue->find("writesingleregisters");
+    if (settingsIterator != _nodeInfo->info->structValue->end()) {
+      for (auto &element: *settingsIterator->second->arrayValue) {
+        auto startIterator = element->structValue->find("s");
+        if (startIterator == element->structValue->end()) continue;
+
+        auto invIterator = element->structValue->find("inv");
+        if (invIterator == element->structValue->end()) continue;
+
+        auto rocIterator = element->structValue->find("roc");
+        if (rocIterator == element->structValue->end()) continue;
+
+        int32_t address = Flows::Math::getNumber(startIterator->second->stringValue);
+
+        if (address < 0) continue;
+
+        modbusSettings->writeSingleRegisters.emplace_back(std::make_tuple(address, invIterator->second->booleanValue, rocIterator->second->booleanValue));
+      }
+    }
+
     settingsIterator = _nodeInfo->info->structValue->find("readinputregisters");
     if (settingsIterator != _nodeInfo->info->structValue->end()) {
       for (auto &element: *settingsIterator->second->arrayValue) {
@@ -327,7 +347,7 @@ Flows::PVariable ModbusHost::writeRegisters(const Flows::PArray &parameters) {
       if (parameters->at(5)->type != Flows::VariableType::tBinary) return Flows::Variable::createError(-1, "Parameter 6 is not of type binary.");
 
       _modbus->writeRegisters(parameters->at(1)->integerValue, parameters->at(2)->integerValue, parameters->at(3)->booleanValue, parameters->at(4)->booleanValue, false, parameters->at(5)->binaryValue);
-    } else if (parameters->at(0)->integerValue == 4 && parameters->size() == 4) {
+    } else if ((Modbus::ModbusType)parameters->at(0)->integerValue == Modbus::ModbusType::tSingleRegister && parameters->size() == 4) {
       // Write Single Register (Func 06)
       if (parameters->at(1)->type != Flows::VariableType::tInteger && parameters->at(1)->type != Flows::VariableType::tInteger64) return Flows::Variable::createError(-1, "Parameter 2 is not of type integer.");
       if (parameters->at(2)->type != Flows::VariableType::tBoolean) return Flows::Variable::createError(-1, "Parameter 3 is not of type boolean.");
