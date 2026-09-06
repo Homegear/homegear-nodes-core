@@ -51,6 +51,7 @@ class Python : public Flows::INode {
   std::atomic_bool _startUpError{false};
   std::atomic_bool _startUpComplete{false};
   std::atomic_bool _processStartUpComplete{false};
+  std::atomic_bool _startUpCompleteSent{false};
   int32_t _callbackHandlerId = -1;
   std::string _codeFile;
   std::atomic_bool _stopThread{false};
@@ -69,6 +70,7 @@ class Python : public Flows::INode {
   void errorThread();
   int32_t read(std::atomic_int &fd, uint8_t *buffer, int32_t bufferSize);
   void callStartUpComplete();
+  void deliverStartUpComplete();
 };
 
 }
