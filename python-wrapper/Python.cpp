@@ -92,11 +92,18 @@ bool Python::start() {
 
 void Python::startUpComplete() {
   try {
-    if (_pid == -1) return;
-
-    callStartUpComplete();
-
+    // Node-BLUE signalled that all nodes are up. Record that unconditionally:
+    // incoming RPCs are processed on a queue with several worker threads, so
+    // this can run while start() is still waiting for the process to answer --
+    // and back then the process was often not even forked yet. Returning early
+    // without setting the flag lost the event for good, because execThread
+    // only delivers it if the flag is set.
     _startUpComplete = true;
+
+    // Not reachable yet? Then execThread delivers it once the ping succeeds.
+    if (_pid == -1 || !_processStartUpComplete) return;
+
+    deliverStartUpComplete();
   }
   catch (const std::exception &ex) {
     _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
@@ -106,6 +113,7 @@ void Python::startUpComplete() {
 void Python::stop() {
   try {
     _processStartUpComplete = false;
+    _startUpCompleteSent = false;
     _stopThread = true;
     if (_pid != -1) kill(_pid, 15);
   }
@@ -191,6 +199,8 @@ void Python::execThread() {
       if (_errorThread.joinable()) _errorThread.join();
 
       _processStartUpComplete = false;
+      // A respawned process has to receive startUpComplete again.
+      _startUpCompleteSent = false;
 
       std::string pythonExecutablePath;
 
@@ -272,7 +282,10 @@ void Python::execThread() {
       }
       if (_pid == -1) _startUpError = true;
       else _processStartUpComplete = true;
-      if (_startUpComplete) callStartUpComplete();
+      // Both sides set their flag before reading the other one, so whichever
+      // gets there last delivers the event. deliverStartUpComplete() makes
+      // sure it is sent exactly once.
+      if (_startUpComplete) deliverStartUpComplete();
 
       std::array<uint8_t, 4096> buffer{};
       ssize_t bytesRead = 0;
@@ -370,6 +383,13 @@ int32_t Python::read(std::atomic_int &fd, uint8_t *buffer, int32_t bufferSize) {
   }
   if (bytesRead > bufferSize) bytesRead = bufferSize;
   return bytesRead;
+}
+
+void Python::deliverStartUpComplete() {
+  // Send at most once per process incarnation -- both startUpComplete() and
+  // execThread may reach this point for the same start.
+  if (_startUpCompleteSent.exchange(true)) return;
+  callStartUpComplete();
 }
 
 void Python::callStartUpComplete() {
