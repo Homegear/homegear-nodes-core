@@ -75,6 +75,14 @@ Modbus::Modbus(std::shared_ptr<BaseLib::SharedObjects> bl, std::shared_ptr<Flows
       _writeRegisters.emplace_back(info);
     }
 
+    for (auto &element: settings->writeSingleRegisters) {
+      std::shared_ptr<SingleRegisterInfo> info = std::make_shared<SingleRegisterInfo>();
+      info->address = (uint32_t)std::get<0>(element);
+      info->invert = std::get<1>(element);
+      info->readOnConnect = std::get<2>(element);
+      _writeSingleRegisters.emplace_back(info);
+    }
+
     for (auto &element: settings->readInputRegisters) {
       std::shared_ptr<RegisterInfo> info = std::make_shared<RegisterInfo>();
       info->newData = false;
@@ -200,6 +208,39 @@ void Modbus::readWriteRegister(std::shared_ptr<RegisterInfo> &info) {
     }
     catch (std::exception &ex) {
       _out->printError("Error reading from Modbus registers " + std::to_string(info->start) + " to " + std::to_string(info->end) + ": " + ex.what());
+    }
+
+    if (_settings->delay > 0) {
+      if (_settings->delay <= 1000) std::this_thread::sleep_for(std::chrono::milliseconds(_settings->delay));
+      else {
+        int32_t maxIndex = _settings->delay / 1000;
+        int32_t rest = _settings->delay % 1000;
+        for (int32_t i = 0; i < maxIndex; i++) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+          if (!_started) return;
+        }
+        if (!_started) return;
+        if (rest > 0) std::this_thread::sleep_for(std::chrono::milliseconds(rest));
+      }
+      if (!_started) return;
+    }
+  }
+  catch (const std::exception &ex) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__, ex.what());
+  }
+  catch (...) {
+    _out->printEx(__FILE__, __LINE__, __PRETTY_FUNCTION__);
+  }
+}
+
+void Modbus::readWriteSingleRegister(std::shared_ptr<SingleRegisterInfo> &info) {
+  try {
+    try {
+      std::vector<uint16_t> buffer(1, 0);
+      _modbus->readHoldingRegisters(info->address, buffer, 1);
+    }
+    catch (std::exception &ex) {
+      _out->printError("Error reading single Modbus register " + std::to_string(info->address) + ": " + ex.what());
     }
 
     if (_settings->delay > 0) {
@@ -853,6 +894,17 @@ void Modbus::connect() {
       for (auto &registerElement: registers) {
         if (!registerElement->readOnConnect) continue;
         readWriteRegister(registerElement);
+      }
+
+      std::list<std::shared_ptr<SingleRegisterInfo>> singleRegisters;
+      {
+        std::lock_guard<std::mutex> writeSingleRegistersGuard(_writeSingleRegistersMutex);
+        singleRegisters = _writeSingleRegisters;
+      }
+
+      for (auto &singleRegisterElement: singleRegisters) {
+        if (!singleRegisterElement->readOnConnect) continue;
+        readWriteSingleRegister(singleRegisterElement);
       }
 
       std::list<std::shared_ptr<CoilInfo>> coils;

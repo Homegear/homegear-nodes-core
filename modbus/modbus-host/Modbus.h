@@ -44,7 +44,8 @@ class Modbus {
     tHoldingRegister = 0,
     tCoil = 1,
     tDiscreteInput = 2,
-    tInputRegister = 3
+    tInputRegister = 3,
+    tSingleRegister = 4
   };
 
   struct ModbusSettings {
@@ -58,6 +59,7 @@ class Modbus {
     std::vector<std::tuple<int32_t, int32_t, bool>> readRegisters;
     std::vector<std::tuple<int32_t, int32_t, bool>> readInputRegisters;
     std::vector<std::tuple<int32_t, int32_t, bool, bool>> writeRegisters;
+    std::vector<std::tuple<int32_t, bool, bool>> writeSingleRegisters;
     std::vector<std::tuple<int32_t, int32_t>> readCoils;
     std::vector<std::tuple<int32_t, int32_t, bool>> writeCoils;
     std::vector<std::tuple<int32_t, int32_t>> readDiscreteInputs;
@@ -145,6 +147,12 @@ class Modbus {
     std::vector<uint8_t> value;
   };
 
+  struct SingleRegisterInfo {
+    uint32_t address = 0;
+    bool invert = false;
+    bool readOnConnect = false;
+  };
+
   std::shared_ptr<BaseLib::SharedObjects> _bl;
   std::shared_ptr<Flows::Output> _out;
   std::shared_ptr<ModbusSettings> _settings;
@@ -169,6 +177,8 @@ class Modbus {
   std::list<std::shared_ptr<SingleRegisterWriteInfo>> _singleRegisterWriteQueue;
   std::mutex _singleRegisterWriteBufferMutex;
   std::list<std::shared_ptr<SingleRegisterWriteInfo>> _singleRegisterWriteBuffer;
+  std::mutex _writeSingleRegistersMutex;
+  std::list<std::shared_ptr<SingleRegisterInfo>> _writeSingleRegisters;
   std::mutex _readInputRegistersMutex;
   std::list<std::shared_ptr<RegisterInfo>> _readInputRegisters;
   std::mutex _readCoilsMutex;
@@ -193,6 +203,8 @@ class Modbus {
   void listen();
 
   void readWriteRegister(std::shared_ptr<RegisterInfo> &info);
+
+  void readWriteSingleRegister(std::shared_ptr<SingleRegisterInfo> &info);
 
   void readWriteCoil(std::shared_ptr<CoilInfo> &info);
 

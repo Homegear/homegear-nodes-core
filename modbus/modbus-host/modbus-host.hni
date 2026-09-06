@@ -51,6 +51,10 @@
         <label for="node-config-write-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.write-registers"></span></label>
         <ol id="node-config-write-registers-container"></ol>
     </div>
+    <div class="form-row node-config-write-single-registers-container-row">
+        <label for="node-config-write-single-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.write-single-registers"></span></label>
+        <ol id="node-config-write-single-registers-container"></ol>
+    </div>
     <div class="form-row node-config-read-input-registers-container-row">
         <label for="node-config-read-input-registers-container" style="width: 100%"><i class="fa fa-clock-o"></i> <span data-i18n="modbus-host.label.read-input-registers"></span></label>
         <ol id="node-config-read-input-registers-container"></ol>
@@ -82,6 +86,7 @@
             debug: {value:false},
             readregisters: {value:[]},
             writeregisters: {value:[]},
+            writesingleregisters: {value:[]},
             readinputregisters: {value:[]},
             readcoils: {value:[]},
             writecoils: {value:[]},
@@ -102,6 +107,7 @@
 
             if(!this.readregisters) this.readregisters = [];
             if(!this.writeregisters) this.writeregisters = [];
+            if(!this.writesingleregisters) this.writesingleregisters = [];
             if(!this.readinputregisters) this.readinputregisters = [];
             if(!this.readcoils) this.readcoils = [];
             if(!this.writecoils) this.writecoils = [];
@@ -184,6 +190,41 @@
             for (var i=0;i<this.writeregisters.length;i++) {
                 var register = this.writeregisters[i];
                 $("#node-config-write-registers-container").editableList('addItem',{r:register,i:i});
+            }
+
+            $("#node-config-write-single-registers-container").css('min-height','150px').css('min-width','450px').editableList({
+                addItem: function(container,i,opt) {
+                    if (!opt.hasOwnProperty('r')) {
+                        opt.r = {};
+                    }
+                    var register = opt.r;
+                    if (!register.hasOwnProperty('s')) {
+                        register.s = '0';
+                    }
+                    if (!opt.hasOwnProperty('i')) {
+                        opt._i = Math.floor((0x99999-0x10000)*Math.random()).toString(16)
+                    }
+                    var row = $('<div/>').appendTo(container);
+                    var startLabel = $('<span/>',{class:"node-config-register-start-label"}).text(" "+startLabelText+" ").appendTo(row);
+                    var startField = $('<input/>',{class:"node-config-register-start",type:"text",style:"margin-left: 5px; width: 60px;"}).appendTo(row);
+                    var invertField = $('<input/>',{class:"node-config-register-invert",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var invertLabel = $('<span/>',{class:"node-config-register-invert-label"}).text(" "+invertLabelText+" ").appendTo(row);
+                    var readOnConnectField = $('<input/>',{class:"node-config-register-readonconnect",type:"checkbox",style:"margin-left: 10px;display: inline-block; width: auto; vertical-align: middle;"}).appendTo(row);
+                    var readOnConnectLabel = $('<span/>',{class:"node-config-register-readonconnect-label"}).text(" "+readOnConnectLabelText+" ").appendTo(row);
+                    var finalspan = $('<span/>',{style:"float: right;margin-top: 6px;"}).appendTo(row);
+                    finalspan.append(' &#8594; <span class="node-config-register-index">'+i+'</span> ');
+
+                    startField.val(register.s);
+                    invertField.prop('checked', register.inv);
+                    readOnConnectField.prop('checked', register.roc);
+                },
+                sortable: true,
+                removable: true
+            });
+
+            for (var i=0;i<this.writesingleregisters.length;i++) {
+                var register = this.writesingleregisters[i];
+                $("#node-config-write-single-registers-container").editableList('addItem',{r:register,i:i});
             }
 
             $("#node-config-read-input-registers-container").css('min-height','150px').css('min-width','450px').editableList({
@@ -358,6 +399,17 @@
                 node.writeregisters.push({s:start,e:end,inv:invert,roc:readOnConnect});
             });
 
+            var writesingleregisters = $("#node-config-write-single-registers-container").editableList('items');
+            node.writesingleregisters = [];
+            writesingleregisters.each(function(i) {
+                var registerData = $(this).data('data');
+                var register = $(this);
+                var start = register.find(".node-config-register-start").val();
+                var invert = register.find(".node-config-register-invert").prop('checked');
+                var readOnConnect = register.find(".node-config-register-readonconnect").prop('checked');
+                node.writesingleregisters.push({s:start,inv:invert,roc:readOnConnect});
+            });
+
             var readinputregisters = $("#node-config-read-input-registers-container").editableList('items');
             node.readinputregisters = [];
             readinputregisters.each(function(i) {
@@ -418,6 +470,14 @@
             editorRow = $("#dialog-form>div.node-config-write-registers-container-row");
             height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
             $("#node-config-write-registers-container").editableList('height',height);
+
+            rows = $("#dialog-form>div:not(.node-config-write-single-registers-container-row)");
+            for (var i=0;i<rows.size();i++) {
+                height -= $(rows[i]).outerHeight(true);
+            }
+            editorRow = $("#dialog-form>div.node-config-write-single-registers-container-row");
+            height -= (parseInt(editorRow.css("marginTop"))+parseInt(editorRow.css("marginBottom")));
+            $("#node-config-write-single-registers-container").editableList('height',height);
 
             rows = $("#dialog-form>div:not(.node-config-read-input-registers-container-row)");
             height = size.height;
